@@ -9,7 +9,8 @@ import fanucHeader from "@/assets/images/fanuc-header.png";
 import btnRecharge from "@/assets/images/btn-recharge.png";
 import btnRetirer from "@/assets/images/btn-retirer.png";
 import btnAide from "@/assets/images/btn-aide.png";
-import castrolProduct from "@/assets/images/castrol-product.jpg";
+import robotSoldes from "@/assets/images/robot-soldes.png";
+import robotCumulatif from "@/assets/images/robot-cumulatif.png";
 import fanucTeamWide from "@/assets/images/fanuc-team-wide.png";
 
 export default function HomePage() {
@@ -74,9 +75,9 @@ export default function HomePage() {
         <div className="flex items-center justify-between">
           <div className="w-24 h-24">
             <img 
-              src={castrolProduct} 
-              alt="Castrol" 
-              className="w-full h-full object-contain rounded-lg"
+              src={robotSoldes} 
+              alt="Robot" 
+              className="w-full h-full object-contain"
             />
           </div>
           <div className="text-right">
@@ -90,10 +91,12 @@ export default function HomePage() {
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="w-24">
-            <div className="bg-white rounded-lg p-2 inline-block">
-              <span className="text-green-600 font-bold text-lg italic">Castrol</span>
-            </div>
+          <div className="w-24 h-24">
+            <img 
+              src={robotCumulatif} 
+              alt="Robot" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <div className="text-right">
             <span className="inline-block bg-yellow-400 text-gray-800 font-bold text-sm px-4 py-1 rounded-full mb-1">
