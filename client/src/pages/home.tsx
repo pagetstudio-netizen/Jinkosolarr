@@ -5,7 +5,8 @@ import { useLocation } from "wouter";
 import DepositModal from "@/components/deposit-modal";
 import WithdrawModal from "@/components/withdraw-modal";
 import ServiceModal from "@/components/service-modal";
-import { Database, ArrowRightFromLine, Download, Building2, Volume2, Globe } from "lucide-react";
+import { Database, ArrowRightFromLine, Download, Building2, Volume2 } from "lucide-react";
+import fanucBuilding from "@/assets/images/fanuc-building.webp";
 import fanucTeam from "@/assets/images/fanuc-team.webp";
 
 export default function HomePage() {
@@ -23,31 +24,18 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-full bg-red-600">
-      <header className="px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center">
-            <span className="text-white text-sm">↻</span>
-          </button>
-          <div className="w-8 h-8 rounded bg-white flex items-center justify-center">
-            <span className="text-red-600 font-bold text-xs">F</span>
-          </div>
-          <span className="text-white font-bold text-lg">FANUC</span>
-        </div>
-        <button className="flex items-center gap-1 text-white/80 text-sm">
-          <Globe className="w-4 h-4" />
-          <span>Francais</span>
-          <span className="text-xs">▼</span>
-        </button>
-      </header>
-
-      <div className="px-4 py-2 flex items-center justify-center gap-6">
-        <div className="flex items-center gap-2 text-white">
-          <span className="w-5 h-5 rounded-full border border-white/50 flex items-center justify-center text-xs">✓</span>
-          <span className="text-sm font-medium">Save money</span>
-        </div>
-        <div className="flex items-center gap-2 text-white">
-          <span className="w-5 h-5 rounded-full border border-white/50 flex items-center justify-center text-xs">✓</span>
-          <span className="text-sm font-medium">Save time</span>
+      <div className="relative w-full">
+        <img 
+          src={fanucBuilding} 
+          alt="FANUC" 
+          className="w-full h-44 object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute bottom-4 left-4 text-white">
+          <h1 className="text-2xl font-bold leading-tight">
+            Lance un nouveau<br />
+            projet majeurs
+          </h1>
         </div>
       </div>
 
