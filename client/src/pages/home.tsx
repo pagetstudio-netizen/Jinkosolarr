@@ -48,7 +48,7 @@ export default function HomePage() {
 
         <button
           onClick={() => setShowWithdraw(true)}
-          className="flex-1 hover:opacity-90 transition-opacity mb-0"
+          className="flex-1 hover:opacity-90 transition-opacity mb-2"
           data-testid="button-retirer"
         >
           <img src={btnRetirer} alt="Retirer" className="w-full h-10 object-contain" />
@@ -56,7 +56,7 @@ export default function HomePage() {
 
         <button
           onClick={() => setShowService(true)}
-          className="flex-1 hover:opacity-90 transition-opacity mb-3"
+          className="flex-1 hover:opacity-90 transition-opacity mb-4"
           data-testid="button-aide"
         >
           <img src={btnAide} alt="Service Client" className="w-full h-10 object-contain" />
