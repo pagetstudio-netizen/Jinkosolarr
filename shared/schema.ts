@@ -1,18 +1,295 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { sql, relations } from "drizzle-orm";
+import { pgTable, text, varchar, integer, boolean, timestamp, decimal, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Pays éligibles
+export const ELIGIBLE_COUNTRIES = [
+  { code: "CM", name: "Cameroun", flag: "CM", currency: "XAF", paymentMethods: ["Orange Money", "MTN"] },
+  { code: "BF", name: "Burkina Faso", flag: "BF", currency: "XOF", paymentMethods: ["Orange Money", "Moov Money"] },
+  { code: "TG", name: "Togo", flag: "TG", currency: "XOF", paymentMethods: ["Moov Money", "Mixx by Yas"] },
+  { code: "BJ", name: "Bénin", flag: "BJ", currency: "XOF", paymentMethods: ["Celtis", "Moov Money", "MTN", "Momo"] },
+  { code: "CI", name: "Côte d'Ivoire", flag: "CI", currency: "XOF", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
+  { code: "CG", name: "Congo Brazzaville", flag: "CG", currency: "XAF", paymentMethods: ["MTN"] },
+  { code: "CD", name: "RDC", flag: "CD", currency: "CDF", paymentMethods: ["Airtel Money"], conversionRate: 4 },
+] as const;
+
+// Users table
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
+  id: serial("id").primaryKey(),
+  fullName: text("full_name").notNull(),
+  phone: text("phone").notNull().unique(),
+  country: text("country").notNull(),
   password: text("password").notNull(),
+  referralCode: text("referral_code").notNull().unique(),
+  referredBy: text("referred_by"),
+  balance: decimal("balance", { precision: 15, scale: 2 }).notNull().default("500"),
+  todayEarnings: decimal("today_earnings", { precision: 15, scale: 2 }).notNull().default("0"),
+  totalEarnings: decimal("total_earnings", { precision: 15, scale: 2 }).notNull().default("0"),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  isSuperAdmin: boolean("is_super_admin").notNull().default(false),
+  isBanned: boolean("is_banned").notNull().default(false),
+  isWithdrawalBlocked: boolean("is_withdrawal_blocked").notNull().default(false),
+  isPromoter: boolean("is_promoter").notNull().default(false),
+  mustInviteToWithdraw: boolean("must_invite_to_withdraw").notNull().default(false),
+  hasDeposited: boolean("has_deposited").notNull().default(false),
+  hasActiveProduct: boolean("has_active_product").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  lastFreeProductClaim: timestamp("last_free_product_claim"),
+  promoterSetBy: integer("promoter_set_by"),
+  adminSetBy: integer("admin_set_by"),
+  adminSetAt: timestamp("admin_set_at"),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+// Withdrawal wallets
+export const withdrawalWallets = pgTable("withdrawal_wallets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  accountName: text("account_name").notNull(),
+  accountNumber: text("account_number").notNull(),
+  paymentMethod: text("payment_method").notNull(),
+  country: text("country").notNull(),
+  isDefault: boolean("is_default").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
+// Products table
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  price: integer("price").notNull(),
+  dailyEarnings: integer("daily_earnings").notNull(),
+  cycleDays: integer("cycle_days").notNull().default(80),
+  totalReturn: integer("total_return").notNull(),
+  imageUrl: text("image_url"),
+  isFree: boolean("is_free").notNull().default(false),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// User products (investments)
+export const userProducts = pgTable("user_products", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  productId: integer("product_id").notNull().references(() => products.id),
+  purchaseDate: timestamp("purchase_date").notNull().defaultNow(),
+  lastEarningDate: timestamp("last_earning_date"),
+  daysRemaining: integer("days_remaining").notNull(),
+  totalEarned: decimal("total_earned", { precision: 15, scale: 2 }).notNull().default("0"),
+  isActive: boolean("is_active").notNull().default(true),
+  assignedByAdmin: boolean("assigned_by_admin").notNull().default(false),
+});
+
+// Deposits
+export const deposits = pgTable("deposits", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  amount: integer("amount").notNull(),
+  accountName: text("account_name").notNull(),
+  accountNumber: text("account_number").notNull(),
+  country: text("country").notNull(),
+  paymentMethod: text("payment_method").notNull(),
+  paymentChannelId: integer("payment_channel_id"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  processedAt: timestamp("processed_at"),
+  processedBy: integer("processed_by"),
+});
+
+// Withdrawals
+export const withdrawals = pgTable("withdrawals", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  amount: integer("amount").notNull(),
+  netAmount: integer("net_amount").notNull(),
+  fees: integer("fees").notNull(),
+  accountName: text("account_name").notNull(),
+  accountNumber: text("account_number").notNull(),
+  country: text("country").notNull(),
+  paymentMethod: text("payment_method").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  processedAt: timestamp("processed_at"),
+  processedBy: integer("processed_by"),
+});
+
+// Payment channels
+export const paymentChannels = pgTable("payment_channels", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  redirectUrl: text("redirect_url").notNull(),
+  isApi: boolean("is_api").notNull().default(false),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  modifiedBy: integer("modified_by"),
+  modifiedAt: timestamp("modified_at"),
+});
+
+// Referral commissions
+export const referralCommissions = pgTable("referral_commissions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  fromUserId: integer("from_user_id").notNull().references(() => users.id),
+  level: integer("level").notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  productId: integer("product_id").references(() => products.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Tasks
+export const tasks = pgTable("tasks", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  requiredInvites: integer("required_invites").notNull(),
+  reward: integer("reward").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+// User completed tasks
+export const userTasks = pgTable("user_tasks", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  taskId: integer("task_id").notNull().references(() => tasks.id),
+  completedAt: timestamp("completed_at").notNull().defaultNow(),
+  rewardClaimed: boolean("reward_claimed").notNull().default(true),
+});
+
+// Transaction history
+export const transactions = pgTable("transactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Platform settings
+export const platformSettings = pgTable("platform_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull(),
+  modifiedBy: integer("modified_by"),
+  modifiedAt: timestamp("modified_at"),
+});
+
+// Admin audit log
+export const adminAuditLog = pgTable("admin_audit_log", {
+  id: serial("id").primaryKey(),
+  adminId: integer("admin_id").notNull().references(() => users.id),
+  action: text("action").notNull(),
+  targetUserId: integer("target_user_id"),
+  details: text("details").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Relations
+export const usersRelations = relations(users, ({ many, one }) => ({
+  products: many(userProducts),
+  deposits: many(deposits),
+  withdrawals: many(withdrawals),
+  wallets: many(withdrawalWallets),
+  commissionsReceived: many(referralCommissions, { relationName: "receiver" }),
+  commissionsGiven: many(referralCommissions, { relationName: "giver" }),
+  tasks: many(userTasks),
+  transactions: many(transactions),
+  referrer: one(users, {
+    fields: [users.referredBy],
+    references: [users.referralCode],
+    relationName: "referrals",
+  }),
+  referrals: many(users, { relationName: "referrals" }),
+}));
+
+export const userProductsRelations = relations(userProducts, ({ one }) => ({
+  user: one(users, { fields: [userProducts.userId], references: [users.id] }),
+  product: one(products, { fields: [userProducts.productId], references: [products.id] }),
+}));
+
+export const depositsRelations = relations(deposits, ({ one }) => ({
+  user: one(users, { fields: [deposits.userId], references: [users.id] }),
+  channel: one(paymentChannels, { fields: [deposits.paymentChannelId], references: [paymentChannels.id] }),
+}));
+
+export const withdrawalsRelations = relations(withdrawals, ({ one }) => ({
+  user: one(users, { fields: [withdrawals.userId], references: [users.id] }),
+}));
+
+export const referralCommissionsRelations = relations(referralCommissions, ({ one }) => ({
+  receiver: one(users, { fields: [referralCommissions.userId], references: [users.id], relationName: "receiver" }),
+  giver: one(users, { fields: [referralCommissions.fromUserId], references: [users.id], relationName: "giver" }),
+  product: one(products, { fields: [referralCommissions.productId], references: [products.id] }),
+}));
+
+// Schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  balance: true,
+  todayEarnings: true,
+  totalEarnings: true,
+  isAdmin: true,
+  isSuperAdmin: true,
+  isBanned: true,
+  isWithdrawalBlocked: true,
+  isPromoter: true,
+  mustInviteToWithdraw: true,
+  hasDeposited: true,
+  hasActiveProduct: true,
+  createdAt: true,
+  lastFreeProductClaim: true,
+  promoterSetBy: true,
+  adminSetBy: true,
+  adminSetAt: true,
+});
+
+export const registerSchema = z.object({
+  fullName: z.string().min(2, "Le nom complet est requis"),
+  phone: z.string().min(8, "Numéro de téléphone invalide"),
+  country: z.string().min(2, "Le pays est requis"),
+  password: z.string().min(6, "Le mot de passe doit avoir au moins 6 caractères"),
+  invitationCode: z.string().optional(),
+});
+
+export const loginSchema = z.object({
+  phone: z.string().min(8, "Numéro de téléphone invalide"),
+  country: z.string().min(2, "Le pays est requis"),
+  password: z.string().min(1, "Le mot de passe est requis"),
+});
+
+export const depositSchema = z.object({
+  amount: z.number().min(3000, "Le montant minimum est de 3000 FCFA"),
+  accountName: z.string().min(2, "Le nom du compte est requis"),
+  accountNumber: z.string().min(8, "Le numéro de paiement est requis"),
+  country: z.string().min(2, "Le pays est requis"),
+  paymentMethod: z.string().min(2, "Le moyen de paiement est requis"),
+  paymentChannelId: z.number(),
+});
+
+export const withdrawalSchema = z.object({
+  amount: z.number().min(1200, "Le montant minimum est de 1200 FCFA"),
+});
+
+export const walletSchema = z.object({
+  accountName: z.string().min(2, "Le nom du compte est requis"),
+  accountNumber: z.string().min(8, "Le numéro est requis"),
+  paymentMethod: z.string().min(2, "Le moyen de paiement est requis"),
+  country: z.string().min(2, "Le pays est requis"),
+});
+
+// Types
 export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Product = typeof products.$inferSelect;
+export type UserProduct = typeof userProducts.$inferSelect;
+export type Deposit = typeof deposits.$inferSelect;
+export type Withdrawal = typeof withdrawals.$inferSelect;
+export type WithdrawalWallet = typeof withdrawalWallets.$inferSelect;
+export type PaymentChannel = typeof paymentChannels.$inferSelect;
+export type ReferralCommission = typeof referralCommissions.$inferSelect;
+export type Task = typeof tasks.$inferSelect;
+export type UserTask = typeof userTasks.$inferSelect;
+export type Transaction = typeof transactions.$inferSelect;
+export type PlatformSetting = typeof platformSettings.$inferSelect;
+export type AdminAuditLog = typeof adminAuditLog.$inferSelect;
