@@ -5,7 +5,7 @@ import DepositModal from "@/components/deposit-modal";
 import WithdrawModal from "@/components/withdraw-modal";
 import ServiceModal from "@/components/service-modal";
 import { Smartphone } from "lucide-react";
-import fanucHeader from "@/assets/images/fanuc-header.jpg";
+import fanucHeader from "@/assets/images/fanuc-header.png";
 import btnRecharge from "@/assets/images/btn-recharge.png";
 import btnRetirer from "@/assets/images/btn-retirer.png";
 import btnAide from "@/assets/images/btn-aide.png";
@@ -48,7 +48,7 @@ export default function HomePage() {
 
         <button
           onClick={() => setShowWithdraw(true)}
-          className="flex-1 hover:opacity-90 transition-opacity mb-3"
+          className="flex-1 hover:opacity-90 transition-opacity mb-0"
           data-testid="button-retirer"
         >
           <img src={btnRetirer} alt="Retirer" className="w-full h-10 object-contain" />
@@ -56,7 +56,7 @@ export default function HomePage() {
 
         <button
           onClick={() => setShowService(true)}
-          className="flex-1 hover:opacity-90 transition-opacity mb-0"
+          className="flex-1 hover:opacity-90 transition-opacity mb-3"
           data-testid="button-aide"
         >
           <img src={btnAide} alt="Service Client" className="w-full h-10 object-contain" />
