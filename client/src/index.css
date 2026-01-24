@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE - Fanuc Red Theme */
+/* LIGHT MODE - Fanuc Yellow/Industrial Theme */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -12,29 +12,29 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 0 0% 98%;
+  --background: 45 60% 96%;
   --foreground: 0 0% 10%;
-  --border: 0 0% 88%;
+  --border: 45 20% 85%;
 
   --card: 0 0% 100%;
   --card-foreground: 0 0% 10%;
   --card-border: 0 0% 90%;
 
-  --sidebar: 0 75% 50%;
-  --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 0 70% 45%;
-  --sidebar-primary: 0 0% 100%;
-  --sidebar-primary-foreground: 0 75% 50%;
-  --sidebar-accent: 0 80% 55%;
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 0 75% 50%;
+  --sidebar: 45 90% 50%;
+  --sidebar-foreground: 0 0% 10%;
+  --sidebar-border: 45 80% 45%;
+  --sidebar-primary: 0 0% 10%;
+  --sidebar-primary-foreground: 45 90% 50%;
+  --sidebar-accent: 45 85% 55%;
+  --sidebar-accent-foreground: 0 0% 10%;
+  --sidebar-ring: 45 90% 50%;
 
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 10%;
   --popover-border: 0 0% 90%;
 
-  --primary: 0 75% 50%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 45 90% 50%;
+  --primary-foreground: 0 0% 10%;
 
   --secondary: 0 0% 96%;
   --secondary-foreground: 0 0% 10%;
@@ -42,14 +42,14 @@
   --muted: 0 0% 94%;
   --muted-foreground: 0 0% 45%;
 
-  --accent: 0 75% 95%;
-  --accent-foreground: 0 75% 45%;
+  --accent: 45 80% 90%;
+  --accent-foreground: 45 90% 30%;
 
   --destructive: 0 75% 55%;
   --destructive-foreground: 0 0% 100%;
 
   --input: 0 0% 85%;
-  --ring: 0 75% 50%;
+  --ring: 45 90% 50%;
   --chart-1: 0 75% 50%;
   --chart-2: 160 65% 45%;
   --chart-3: 200 70% 50%;

@@ -23,15 +23,11 @@ export default function BottomNav() {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-                isActive 
-                  ? "text-red-600" 
-                  : "text-gray-400"
-              }`}
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors`}
               data-testid={`nav-${item.label.toLowerCase()}`}
             >
-              <Icon className={`w-6 h-6 mb-1 ${isActive ? "text-red-600" : "text-gray-400"}`} />
-              <span className={`text-xs ${isActive ? "font-medium text-red-600" : "text-gray-400"}`}>{item.label}</span>
+              <Icon className={`w-6 h-6 mb-1 ${isActive ? "text-red-500" : "text-gray-400"}`} />
+              <span className={`text-xs ${isActive ? "font-medium text-red-500" : "text-gray-400"}`}>{item.label}</span>
             </button>
           );
         })}
