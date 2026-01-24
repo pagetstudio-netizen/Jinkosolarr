@@ -4,7 +4,7 @@ import { useState } from "react";
 import DepositModal from "@/components/deposit-modal";
 import WithdrawModal from "@/components/withdraw-modal";
 import ServiceModal from "@/components/service-modal";
-import { Smartphone } from "lucide-react";
+import { Bell } from "lucide-react";
 import fanucHeader from "@/assets/images/fanuc-header.png";
 import btnRecharge from "@/assets/images/btn-recharge.png";
 import btnRetirer from "@/assets/images/btn-retirer.png";
@@ -64,11 +64,13 @@ export default function HomePage() {
         </button>
       </div>
 
-      <div className="mx-3 bg-amber-900 rounded-lg px-3 py-2 flex items-center gap-2">
-        <Smartphone className="w-5 h-5 text-white flex-shrink-0" />
-        <p className="text-white text-sm font-medium truncate">
-          Rejoignez FANUC, la plateforme incontour...
-        </p>
+      <div className="mx-3 bg-amber-900 rounded-lg px-3 py-2 flex items-center gap-2 overflow-hidden">
+        <Bell className="w-5 h-5 text-white flex-shrink-0" />
+        <div className="overflow-hidden flex-1">
+          <p className="text-white text-sm font-medium whitespace-nowrap animate-marquee">
+            Rejoignez FANUC, la plateforme incontournable pour investir dans l'industrie et gagner des revenus quotidiens!
+          </p>
+        </div>
       </div>
 
       <div className="px-3 mt-4 space-y-3">
