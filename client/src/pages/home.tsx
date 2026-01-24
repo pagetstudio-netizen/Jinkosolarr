@@ -61,45 +61,45 @@ export default function HomePage() {
       <div className="px-4 grid grid-cols-2 gap-3">
         <button
           onClick={() => setShowDeposit(true)}
-          className="bg-red-500 hover:bg-red-400 rounded-2xl py-5 px-4 flex items-center justify-between transition-colors"
+          className="bg-red-400/90 hover:bg-red-400 rounded-3xl h-20 px-5 flex items-center justify-between transition-colors"
           data-testid="button-depot"
         >
-          <span className="text-white font-semibold text-lg">Depot</span>
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <Database className="w-6 h-6 text-white" />
+          <span className="text-white font-semibold text-base">Depot</span>
+          <div className="w-11 h-11 bg-white/25 rounded-2xl flex items-center justify-center">
+            <Database className="w-5 h-5 text-white" />
           </div>
         </button>
 
         <button
           onClick={() => setShowWithdraw(true)}
-          className="bg-red-500 hover:bg-red-400 rounded-2xl py-5 px-4 flex items-center justify-between transition-colors"
+          className="bg-red-400/90 hover:bg-red-400 rounded-3xl h-20 px-5 flex items-center justify-between transition-colors"
           data-testid="button-retrait"
         >
-          <span className="text-white font-semibold text-lg">Retrait</span>
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <ArrowRightFromLine className="w-6 h-6 text-white" />
+          <span className="text-white font-semibold text-base">Retrait</span>
+          <div className="w-11 h-11 bg-white/25 rounded-2xl flex items-center justify-center">
+            <ArrowRightFromLine className="w-5 h-5 text-white" />
           </div>
         </button>
 
         <button
           onClick={() => window.open(settings?.channelLink || "https://t.me/+DOnUcJs7idVmN2E0", "_blank")}
-          className="bg-red-500 hover:bg-red-400 rounded-2xl py-5 px-4 flex items-center justify-between transition-colors"
+          className="bg-red-400/90 hover:bg-red-400 rounded-3xl h-20 px-5 flex items-center justify-between transition-colors"
           data-testid="button-telecharger"
         >
-          <span className="text-white font-semibold text-lg">Telecharger</span>
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <Download className="w-6 h-6 text-white" />
+          <span className="text-white font-semibold text-base">Telechar...</span>
+          <div className="w-11 h-11 bg-white/25 rounded-2xl flex items-center justify-center">
+            <Download className="w-5 h-5 text-white" />
           </div>
         </button>
 
         <button
           onClick={() => setShowService(true)}
-          className="bg-red-500 hover:bg-red-400 rounded-2xl py-5 px-4 flex items-center justify-between transition-colors"
+          className="bg-red-400/90 hover:bg-red-400 rounded-3xl h-20 px-5 flex items-center justify-between transition-colors"
           data-testid="button-agent"
         >
-          <span className="text-white font-semibold text-lg">Agent</span>
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <Building2 className="w-6 h-6 text-white" />
+          <span className="text-white font-semibold text-base">Agent</span>
+          <div className="w-11 h-11 bg-white/25 rounded-2xl flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-white" />
           </div>
         </button>
       </div>
