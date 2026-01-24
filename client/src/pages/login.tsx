@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { Loader2 } from "lucide-react";
 import authBgVideo from "@/assets/videos/auth-background.mp4";
+import authSound from "@/assets/audio/auth-sound.mp3";
 
 const loginSchema = z.object({
   phone: z.string().min(8, "Numero de telephone invalide"),
@@ -57,6 +58,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
+      <audio autoPlay loop>
+        <source src={authSound} type="audio/mpeg" />
+      </audio>
       <video
         autoPlay
         loop

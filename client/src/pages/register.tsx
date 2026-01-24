@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { Loader2 } from "lucide-react";
 import authBgVideo from "@/assets/videos/auth-background.mp4";
+import authSound from "@/assets/audio/auth-sound.mp3";
 
 const registerSchema = z.object({
   fullName: z.string().min(2, "Le nom complet est requis"),
@@ -77,6 +78,9 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
+      <audio autoPlay loop>
+        <source src={authSound} type="audio/mpeg" />
+      </audio>
       <video
         autoPlay
         loop
