@@ -37,29 +37,29 @@ export default function HomePage() {
         />
       </div>
 
-      <div className="px-3 py-3 flex items-center justify-center gap-2">
+      <div className="px-3 py-3 flex items-end justify-center gap-1">
         <button
           onClick={() => setShowDeposit(true)}
-          className="flex-1 hover:opacity-90 transition-opacity"
+          className="flex-1 hover:opacity-90 transition-opacity mb-0"
           data-testid="button-recharge"
         >
-          <img src={btnRecharge} alt="Recharge" className="w-full h-12 object-contain" />
+          <img src={btnRecharge} alt="Recharge" className="w-full h-10 object-contain" />
         </button>
 
         <button
           onClick={() => setShowWithdraw(true)}
-          className="flex-1 hover:opacity-90 transition-opacity"
+          className="flex-1 hover:opacity-90 transition-opacity mb-3"
           data-testid="button-retirer"
         >
-          <img src={btnRetirer} alt="Retirer" className="w-full h-12 object-contain" />
+          <img src={btnRetirer} alt="Retirer" className="w-full h-10 object-contain" />
         </button>
 
         <button
           onClick={() => setShowService(true)}
-          className="flex-1 hover:opacity-90 transition-opacity"
+          className="flex-1 hover:opacity-90 transition-opacity mb-0"
           data-testid="button-aide"
         >
-          <img src={btnAide} alt="Service Client" className="w-full h-12 object-contain" />
+          <img src={btnAide} alt="Service Client" className="w-full h-10 object-contain" />
         </button>
       </div>
 
