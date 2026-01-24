@@ -1,12 +1,12 @@
 import { useLocation } from "wouter";
-import { Home, ClipboardList, CircleDollarSign, Users, UserCircle } from "lucide-react";
+import { Home, Target, Users, Diamond, User } from "lucide-react";
 
 const navItems = [
   { path: "/", icon: Home, label: "Accueil" },
-  { path: "/tasks", icon: ClipboardList, label: "Taches" },
-  { path: "/invest", icon: CircleDollarSign, label: "Investir" },
+  { path: "/tasks", icon: Target, label: "Mission" },
   { path: "/team", icon: Users, label: "Equipe" },
-  { path: "/account", icon: UserCircle, label: "Compte" },
+  { path: "/invest", icon: Diamond, label: "VIP" },
+  { path: "/account", icon: User, label: "Moi" },
 ];
 
 export default function BottomNav() {
@@ -25,13 +25,13 @@ export default function BottomNav() {
               onClick={() => navigate(item.path)}
               className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
                 isActive 
-                  ? "text-green-600" 
-                  : "text-gray-500"
+                  ? "text-red-600" 
+                  : "text-gray-400"
               }`}
               data-testid={`nav-${item.label.toLowerCase()}`}
             >
-              <Icon className={`w-6 h-6 mb-1 ${isActive ? "text-green-600" : "text-gray-400"}`} />
-              <span className={`text-xs ${isActive ? "font-medium text-green-600" : "text-gray-500"}`}>{item.label}</span>
+              <Icon className={`w-6 h-6 mb-1 ${isActive ? "text-red-600" : "text-gray-400"}`} />
+              <span className={`text-xs ${isActive ? "font-medium text-red-600" : "text-gray-400"}`}>{item.label}</span>
             </button>
           );
         })}

@@ -5,10 +5,8 @@ import { useLocation } from "wouter";
 import DepositModal from "@/components/deposit-modal";
 import WithdrawModal from "@/components/withdraw-modal";
 import ServiceModal from "@/components/service-modal";
-import { Download, DollarSign, HelpCircle, ClipboardList, Bell } from "lucide-react";
-import heroBanner from "@/assets/images/hero-banner.jpg";
-import productOil1 from "@/assets/images/product-oil-1.jpg";
-import productOil2 from "@/assets/images/product-oil-2.jpg";
+import { Database, ArrowRightFromLine, Download, Building2, Volume2, Globe } from "lucide-react";
+import fanucTeam from "@/assets/images/fanuc-team.webp";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -21,127 +19,122 @@ export default function HomePage() {
     queryKey: ["/api/settings/links"],
   });
 
-  const { data: userProducts } = useQuery<any[]>({
-    queryKey: ["/api/user/products"],
-    enabled: !!user,
-  });
-
   if (!user) return null;
 
-  const balance = parseFloat(user.balance || "0");
-  const cumulativeEarnings = parseFloat(user.totalEarnings || "0");
-
   return (
-    <div className="flex flex-col min-h-full bg-white">
-      <div className="relative w-full">
-        <img 
-          src={heroBanner} 
-          alt="Fanuc Industries" 
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded font-bold text-sm">
-          Fanuc
+    <div className="flex flex-col min-h-full bg-red-600">
+      <header className="px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center">
+            <span className="text-white text-sm">↻</span>
+          </button>
+          <div className="w-8 h-8 rounded bg-white flex items-center justify-center">
+            <span className="text-red-600 font-bold text-xs">F</span>
+          </div>
+          <span className="text-white font-bold text-lg">FANUC</span>
         </div>
-        <div className="absolute bottom-4 left-4 text-white">
-          <h1 className="text-2xl font-bold leading-tight">
-            Maintenant lance<br />
-            Nouveau projet<br />
-            majeurs
-          </h1>
+        <button className="flex items-center gap-1 text-white/80 text-sm">
+          <Globe className="w-4 h-4" />
+          <span>Francais</span>
+          <span className="text-xs">▼</span>
+        </button>
+      </header>
+
+      <div className="px-4 py-2 flex items-center justify-center gap-6">
+        <div className="flex items-center gap-2 text-white">
+          <span className="w-5 h-5 rounded-full border border-white/50 flex items-center justify-center text-xs">✓</span>
+          <span className="text-sm font-medium">Save money</span>
+        </div>
+        <div className="flex items-center gap-2 text-white">
+          <span className="w-5 h-5 rounded-full border border-white/50 flex items-center justify-center text-xs">✓</span>
+          <span className="text-sm font-medium">Save time</span>
         </div>
       </div>
 
-      <div className="bg-green-600 px-4 py-3 flex items-start gap-3">
-        <Bell className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-        <p className="text-white text-sm leading-tight">
-          29 a recharger 100,000**** 0223 a recharger 90,000
+      <div className="mx-4 my-3 bg-red-700/60 rounded-full px-4 py-2 flex items-center gap-3">
+        <Volume2 className="w-5 h-5 text-white flex-shrink-0" />
+        <p className="text-white text-sm truncate">
+          Rejoignez FANUC, la plateforme incontournable
         </p>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 px-4 py-6">
+      <div className="px-4 grid grid-cols-2 gap-3">
         <button
           onClick={() => setShowDeposit(true)}
-          className="flex flex-col items-center gap-2"
-          data-testid="button-deposit"
+          className="bg-red-500 hover:bg-red-400 rounded-2xl py-5 px-4 flex items-center justify-between transition-colors"
+          data-testid="button-depot"
         >
-          <div className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center">
-            <Download className="w-6 h-6 text-gray-600" />
+          <span className="text-white font-semibold text-lg">Depot</span>
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <Database className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xs text-gray-700 font-medium">Recharge</span>
         </button>
 
         <button
           onClick={() => setShowWithdraw(true)}
-          className="flex flex-col items-center gap-2"
-          data-testid="button-withdraw"
+          className="bg-red-500 hover:bg-red-400 rounded-2xl py-5 px-4 flex items-center justify-between transition-colors"
+          data-testid="button-retrait"
         >
-          <div className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center">
-            <DollarSign className="w-6 h-6 text-gray-600" />
+          <span className="text-white font-semibold text-lg">Retrait</span>
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <ArrowRightFromLine className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xs text-gray-700 font-medium">Retirez</span>
+        </button>
+
+        <button
+          onClick={() => window.open(settings?.channelLink || "https://t.me/+DOnUcJs7idVmN2E0", "_blank")}
+          className="bg-red-500 hover:bg-red-400 rounded-2xl py-5 px-4 flex items-center justify-between transition-colors"
+          data-testid="button-telecharger"
+        >
+          <span className="text-white font-semibold text-lg">Telecharger</span>
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <Download className="w-6 h-6 text-white" />
+          </div>
         </button>
 
         <button
           onClick={() => setShowService(true)}
-          className="flex flex-col items-center gap-2"
-          data-testid="button-aide"
+          className="bg-red-500 hover:bg-red-400 rounded-2xl py-5 px-4 flex items-center justify-between transition-colors"
+          data-testid="button-agent"
         >
-          <div className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center">
-            <HelpCircle className="w-6 h-6 text-gray-600" />
+          <span className="text-white font-semibold text-lg">Agent</span>
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <Building2 className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xs text-gray-700 font-medium">Aide</span>
-        </button>
-
-        <button
-          onClick={() => navigate("/invest")}
-          className="flex flex-col items-center gap-2"
-          data-testid="button-enregistrement"
-        >
-          <div className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center">
-            <ClipboardList className="w-6 h-6 text-gray-600" />
-          </div>
-          <span className="text-xs text-gray-700 font-medium">Enregistrement</span>
         </button>
       </div>
 
-      <div className="px-4 space-y-4 pb-6">
-        <div className="flex items-center justify-between py-4 border-b border-gray-100">
-          <div className="flex items-center gap-4">
-            <img 
-              src={productOil1} 
-              alt="Produit" 
-              className="w-20 h-20 object-cover rounded-lg"
-            />
-          </div>
-          <div className="text-right">
-            <span className="inline-block bg-white border border-gray-300 rounded-full px-4 py-1 text-sm font-medium text-gray-700 mb-2">
-              Soldes
-            </span>
-            <p className="text-green-600 font-bold text-xl" data-testid="text-balance">
-              FCFA {balance.toLocaleString()}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between py-4 border-b border-gray-100">
-          <div className="flex items-center gap-4">
-            <img 
-              src={productOil2} 
-              alt="Produit" 
-              className="w-20 h-20 object-contain"
-            />
-          </div>
-          <div className="text-right">
-            <span className="inline-block bg-white border border-gray-300 rounded-full px-4 py-1 text-sm font-medium text-gray-700 mb-2">
-              Cumulatif
-            </span>
-            <p className="text-green-600 font-bold text-xl" data-testid="text-cumulative">
-              FCFA {cumulativeEarnings.toLocaleString()}
-            </p>
-          </div>
+      <div className="px-4 mt-4">
+        <div className="rounded-xl overflow-hidden">
+          <img 
+            src={fanucTeam} 
+            alt="FANUC Team" 
+            className="w-full h-48 object-cover"
+          />
         </div>
       </div>
+
+      <div className="px-4 mt-4">
+        <h2 className="text-white text-xl font-semibold">Salle de mission</h2>
+      </div>
+
+      <div className="px-4 mt-3 pb-4">
+        <div className="bg-white rounded-t-xl p-4">
+          <p className="text-gray-700 font-medium">Montant</p>
+        </div>
+      </div>
+
+      <a
+        href={settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0"}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed left-4 bottom-24 w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg z-40"
+        data-testid="button-telegram"
+      >
+        <svg viewBox="0 0 24 24" className="w-6 h-6 text-white fill-current">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
+        </svg>
+      </a>
 
       <DepositModal open={showDeposit} onClose={() => setShowDeposit(false)} />
       <WithdrawModal open={showWithdraw} onClose={() => setShowWithdraw(false)} />
