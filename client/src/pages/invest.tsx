@@ -112,17 +112,17 @@ export default function InvestPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-3">
                       <div className="flex-1 min-w-0 space-y-0.5">
-                        <p className="text-red-500 font-bold text-[13px] leading-tight">
-                          Prix : {product.price.toLocaleString()} Fcfa
+                        <p className="text-gray-600 text-[13px] leading-tight">
+                          Prix : <span className="text-red-500 font-bold">{product.price.toLocaleString()} Fcfa</span>
                         </p>
-                        <p className="text-red-500 font-medium text-[13px] leading-tight">
-                          Gains journalieres : {product.dailyEarnings.toLocaleString()} Fcfa
+                        <p className="text-gray-600 text-[13px] leading-tight">
+                          Gains journalieres : <span className="text-green-500 font-medium">{product.dailyEarnings.toLocaleString()} Fcfa</span>
                         </p>
-                        <p className="text-gray-500 text-[13px] leading-tight">
+                        <p className="text-gray-600 text-[13px] leading-tight">
                           Duree : <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span>
                         </p>
-                        <p className="text-gray-500 text-[13px] leading-tight">
-                          Gains total : <span className="text-blue-500 font-medium">{product.totalReturn.toLocaleString()} Fcfa</span>
+                        <p className="text-gray-600 text-[13px] leading-tight">
+                          Gains total : <span className="text-orange-500 font-medium">{product.totalReturn.toLocaleString()} Fcfa</span>
                         </p>
                       </div>
                       <button
