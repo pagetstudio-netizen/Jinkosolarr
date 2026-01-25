@@ -6,8 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { formatCurrency } from "@/lib/countries";
-import { Loader2, AlertTriangle, Gift } from "lucide-react";
+import { formatCurrency, getCountryByCode } from "@/lib/countries";
+import { Loader2, AlertTriangle, Gift, Wallet } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 import product1 from "@/assets/images/product-1.jpg";
@@ -62,6 +62,9 @@ export default function InvestPage() {
   if (!user) return null;
 
   const balance = parseFloat(user.balance || "0");
+  const totalEarnings = parseFloat(user.totalEarnings || "0");
+  const country = getCountryByCode(user.country);
+  const currency = country?.currency || "FCFA";
 
   const getProductImage = (index: number) => {
     return productImages[index % productImages.length];
@@ -84,6 +87,31 @@ export default function InvestPage() {
       <header className="px-4 py-3 border-b">
         <h1 className="text-sm font-semibold text-gray-700 text-center">Investissement dans les machines fanuc</h1>
       </header>
+
+      <div className="grid grid-cols-2 gap-3 px-4 pt-4">
+        <div className="bg-gradient-to-r from-pink-400 to-pink-300 rounded-xl p-4 text-white relative overflow-hidden">
+          <div className="relative z-10">
+            <p className="text-xl font-bold" data-testid="text-invest-balance">
+              {balance.toLocaleString()} {currency}
+            </p>
+            <p className="text-xs opacity-90 mt-1">Solde du compte</p>
+          </div>
+          <div className="absolute right-2 bottom-2 opacity-80">
+            <Wallet className="w-10 h-10" />
+          </div>
+        </div>
+        <div className="bg-gradient-to-r from-green-400 to-green-300 rounded-xl p-4 text-white relative overflow-hidden">
+          <div className="relative z-10">
+            <p className="text-xl font-bold" data-testid="text-invest-earnings">
+              {totalEarnings.toLocaleString()} {currency}
+            </p>
+            <p className="text-xs opacity-90 mt-1">Revenus accumules</p>
+          </div>
+          <div className="absolute right-2 bottom-2 opacity-80">
+            <Wallet className="w-10 h-10" />
+          </div>
+        </div>
+      </div>
 
       <div className="flex-1 overflow-y-auto pb-20 px-4 pt-4">
         {isLoading ? (
