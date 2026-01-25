@@ -161,27 +161,27 @@ export default function InvestPage() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="space-y-0.5">
-                            <p className="text-red-500 font-bold text-sm">
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex-1 min-w-0 space-y-0.5">
+                            <p className="text-red-500 font-bold text-[13px] leading-tight">
                               Prix : {product.price.toLocaleString()} Fcfa
                             </p>
-                            <p className="text-red-500 font-medium text-sm">
+                            <p className="text-red-500 font-medium text-[13px] leading-tight">
                               Par jour : {product.dailyEarnings.toLocaleString()} Fcfa
                             </p>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-gray-500 text-[13px] leading-tight">
                               Nbre de jours <span className="text-blue-500 font-medium">{product.cycleDays}</span>
                             </p>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-gray-500 text-[13px] leading-tight">
                               Limite d'Achat <span className="text-blue-500 font-medium">Illimite</span>
                             </p>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-gray-500 text-[13px] leading-tight">
                               Type de Gain <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span>
                             </p>
                           </div>
                           <button
                             onClick={() => handleBuyClick(product)}
-                            className="px-5 py-1.5 text-sm font-medium text-red-500 bg-red-50 border border-red-300 rounded-md hover:bg-red-100 transition-colors"
+                            className="px-4 py-1.5 text-[13px] font-medium text-red-500 bg-red-50 border border-red-300 rounded-md hover:bg-red-100 transition-colors flex-shrink-0"
                             data-testid={`button-purchase-${product.id}`}
                           >
                             Acheter
