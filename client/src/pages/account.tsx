@@ -1,5 +1,5 @@
 import { useAuth } from "@/lib/auth";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -82,29 +82,31 @@ export default function AccountPage() {
         <Card className="bg-secondary">
           <CardContent className="p-4">
             <div className="grid grid-cols-3 gap-4">
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center gap-2 h-auto py-3"
-                onClick={() => setShowDeposit(true)}
-                data-testid="button-account-deposit"
-              >
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <ArrowDownToLine className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-xs text-secondary-foreground">Recharger</span>
-              </Button>
+              <Link href="/deposit">
+                <Button
+                  variant="ghost"
+                  className="flex flex-col items-center gap-2 h-auto py-3"
+                  data-testid="button-account-deposit"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <ArrowDownToLine className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="text-xs text-secondary-foreground">Recharger</span>
+                </Button>
+              </Link>
 
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center gap-2 h-auto py-3"
-                onClick={() => setShowWithdraw(true)}
-                data-testid="button-account-withdraw"
-              >
-                <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <ArrowUpFromLine className="w-5 h-5 text-green-500" />
-                </div>
-                <span className="text-xs text-secondary-foreground">Retirer</span>
-              </Button>
+              <Link href="/withdrawal">
+                <Button
+                  variant="ghost"
+                  className="flex flex-col items-center gap-2 h-auto py-3"
+                  data-testid="button-account-withdraw"
+                >
+                  <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <ArrowUpFromLine className="w-5 h-5 text-green-500" />
+                  </div>
+                  <span className="text-xs text-secondary-foreground">Retirer</span>
+                </Button>
+              </Link>
 
               <Button
                 variant="ghost"
