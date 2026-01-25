@@ -29,14 +29,18 @@ export default function LoginPage() {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  
+  const savedCredentials = typeof window !== 'undefined' ? localStorage.getItem('fanuc_credentials') : null;
+  const parsedCredentials = savedCredentials ? JSON.parse(savedCredentials) : null;
+  
+  const [rememberMe, setRememberMe] = useState(!!parsedCredentials);
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      phone: "",
-      country: "",
-      password: "",
+      phone: parsedCredentials?.phone || "",
+      country: parsedCredentials?.country || "",
+      password: parsedCredentials?.password || "",
     },
   });
 
@@ -44,6 +48,17 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(data.phone, data.country, data.password);
+      
+      if (rememberMe) {
+        localStorage.setItem('fanuc_credentials', JSON.stringify({
+          phone: data.phone,
+          country: data.country,
+          password: data.password
+        }));
+      } else {
+        localStorage.removeItem('fanuc_credentials');
+      }
+      
       toast({ title: "Connexion reussie", description: "Bienvenue sur Fanuc!" });
       navigate("/");
     } catch (error: any) {
