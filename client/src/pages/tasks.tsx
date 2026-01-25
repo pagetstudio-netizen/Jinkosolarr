@@ -43,6 +43,21 @@ export default function TasksPage() {
     },
   });
 
+  const claimAllRewards = async () => {
+    const claimableTasks = tasks?.filter(t => t.canClaim && !t.isCompleted) || [];
+    if (claimableTasks.length === 0) {
+      toast({ title: "Aucune recompense", description: "Vous n'avez pas de recompenses a reclamer pour le moment.", variant: "destructive" });
+      return;
+    }
+    for (const task of claimableTasks) {
+      try {
+        await claimMutation.mutateAsync(task.id);
+      } catch (e) {
+        // Continue with next task
+      }
+    }
+  };
+
   if (!user) return null;
 
   const countryInfo = getCountryByCode(user.country);
@@ -73,8 +88,10 @@ export default function TasksPage() {
           <button 
             className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg"
             data-testid="button-claim-rewards"
+            onClick={claimAllRewards}
+            disabled={claimMutation.isPending}
           >
-            Reclamez vos recompenses
+            {claimMutation.isPending ? "Chargement..." : "Reclamez vos recompenses"}
           </button>
         </div>
       </div>
