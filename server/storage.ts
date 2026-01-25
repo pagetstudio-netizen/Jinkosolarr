@@ -652,13 +652,13 @@ export class DatabaseStorage implements IStorage {
     const completedIds = new Set(completedTasks.map(t => t.taskId));
     
     const teamStats = await this.getTeamStats(userId);
-    const totalRecharged = teamStats.level1Recharged;
+    const totalInvested = teamStats.level1Invested;
 
     return allTasks.map(task => ({
       ...task,
       isCompleted: completedIds.has(task.id),
-      canClaim: !completedIds.has(task.id) && totalRecharged >= task.requiredInvites,
-      currentInvites: totalRecharged,
+      canClaim: !completedIds.has(task.id) && totalInvested >= task.requiredInvites,
+      currentInvites: totalInvested,
     }));
   }
 
@@ -667,7 +667,7 @@ export class DatabaseStorage implements IStorage {
     if (!task[0]) throw new Error("Tâche non trouvée");
 
     const teamStats = await this.getTeamStats(userId);
-    if (teamStats.level1Recharged < task[0].requiredInvites) {
+    if (teamStats.level1Invested < task[0].requiredInvites) {
       throw new Error("Conditions non remplies");
     }
 
