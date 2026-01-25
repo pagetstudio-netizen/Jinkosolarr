@@ -184,10 +184,7 @@ export default function InvestPage() {
                             Nbre de jours <span className="text-blue-500 font-medium">{product.cycleDays}</span>
                           </p>
                           <p className="text-gray-600">
-                            Limite d'Achat <span className="text-blue-500 font-medium">{product.ownedCount || 0}/Illimite</span>
-                          </p>
-                          <p className="text-gray-600">
-                            Type de Gain <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span>
+                            Gain Total <span className="text-blue-500 font-medium">{product.totalReturn.toLocaleString()} Fcfa</span>
                           </p>
                         </div>
                       </div>
