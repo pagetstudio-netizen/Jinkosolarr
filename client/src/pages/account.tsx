@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { formatCurrency, getCountryByCode } from "@/lib/countries";
 import { 
   Wallet, 
@@ -16,9 +18,13 @@ import {
   ChevronRight,
   LogOut,
   Shield,
-  Maximize2
+  Maximize2,
+  Loader2
 } from "lucide-react";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import DepositModal from "@/components/deposit-modal";
 import WithdrawModal from "@/components/withdraw-modal";
 import WalletModal from "@/components/wallet-modal";
@@ -28,6 +34,7 @@ import RulesModal from "@/components/rules-modal";
 
 export default function AccountPage() {
   const { user, logout } = useAuth();
+  const { toast } = useToast();
   const [, navigate] = useLocation();
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -35,6 +42,47 @@ export default function AccountPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [adminPin, setAdminPin] = useState("");
+
+  const verifyPinMutation = useMutation({
+    mutationFn: async (pin: string) => {
+      const res = await apiRequest("POST", "/api/admin/verify-pin", { pin });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Code PIN incorrect");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      setShowPinModal(false);
+      setAdminPin("");
+      navigate("/admin");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAdminClick = () => {
+    setShowPinModal(true);
+  };
+
+  const handlePinSubmit = () => {
+    if (adminPin.length < 4) {
+      toast({
+        title: "Code invalide",
+        description: "Le code PIN doit contenir au moins 4 caracteres",
+        variant: "destructive",
+      });
+      return;
+    }
+    verifyPinMutation.mutate(adminPin);
+  };
 
   if (!user) return null;
 
@@ -164,7 +212,7 @@ export default function AccountPage() {
             {user.isAdmin && (
               <button
                 className="w-full flex items-center justify-between p-4 hover-elevate"
-                onClick={() => navigate("/admin")}
+                onClick={handleAdminClick}
                 data-testid="button-admin"
               >
                 <div className="flex items-center gap-3">
@@ -194,6 +242,39 @@ export default function AccountPage() {
       <TransactionHistoryModal open={showHistory} onClose={() => setShowHistory(false)} />
       <AboutModal open={showAbout} onClose={() => setShowAbout(false)} />
       <RulesModal open={showRules} onClose={() => setShowRules(false)} />
+
+      <Dialog open={showPinModal} onOpenChange={setShowPinModal}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-center">Code d'acces administrateur</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground text-center">
+              Entrez votre code PIN pour acceder au panel administrateur
+            </p>
+            <Input
+              type="password"
+              value={adminPin}
+              onChange={(e) => setAdminPin(e.target.value)}
+              placeholder="Code PIN"
+              className="text-center text-2xl tracking-widest"
+              maxLength={8}
+              data-testid="input-admin-pin"
+            />
+            <Button
+              onClick={handlePinSubmit}
+              disabled={verifyPinMutation.isPending || adminPin.length < 4}
+              className="w-full"
+              data-testid="button-verify-pin"
+            >
+              {verifyPinMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
+              Confirmer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

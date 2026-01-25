@@ -21,8 +21,9 @@ export async function seed() {
       balance: "0",
       isAdmin: true,
       isSuperAdmin: true,
+      adminPin: "9993",
     });
-    console.log("Super admin created: +99935673 / pagetstudio");
+    console.log("Super admin created: +99935673 / pagetstudio / PIN: 9993");
   }
 
   // Check if products exist

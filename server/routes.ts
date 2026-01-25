@@ -572,6 +572,29 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/admin/verify-pin", requireAuth, async (req, res) => {
+    try {
+      const { pin } = req.body;
+      const user = await storage.getUser(req.session.userId!);
+      
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Acces refuse" });
+      }
+      
+      if (!user.adminPin) {
+        return res.status(400).json({ message: "Code PIN non configure" });
+      }
+      
+      if (user.adminPin !== pin) {
+        return res.status(401).json({ message: "Code PIN incorrect" });
+      }
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   app.get("/api/admin/withdrawals", requireAdmin, async (req, res) => {
     try {
       const status = req.query.status as string || "pending";
@@ -689,12 +712,21 @@ export async function registerRoutes(
             return res.status(403).json({ message: "Action réservée au super admin" });
           }
           const user5 = await storage.getUser(userId);
+          const newAdminStatus = !user5?.isAdmin;
           await storage.updateUser(userId, { 
-            isAdmin: !user5?.isAdmin,
+            isAdmin: newAdminStatus,
             adminSetBy: req.session.userId,
             adminSetAt: new Date(),
+            adminPin: newAdminStatus && value ? value : null,
           });
-          await storage.logAdminAction(req.session.userId!, "toggle_admin", userId, `Admin: ${!user5?.isAdmin}`);
+          await storage.logAdminAction(req.session.userId!, "toggle_admin", userId, `Admin: ${newAdminStatus}`);
+          break;
+        case "update-admin-pin":
+          if (!adminUser?.isSuperAdmin) {
+            return res.status(403).json({ message: "Action réservée au super admin" });
+          }
+          await storage.updateUser(userId, { adminPin: value });
+          await storage.logAdminAction(req.session.userId!, "update_admin_pin", userId, `PIN admin mis à jour`);
           break;
         case "assign-product":
           await storage.purchaseProduct(userId, value, true);

@@ -72,6 +72,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [teamUserId, setTeamUserId] = useState<number | null>(null);
+  const [adminPinInput, setAdminPinInput] = useState("");
 
   const { data: users, isLoading } = useQuery<UserWithTeam[]>({
     queryKey: ["/api/admin/users"],
@@ -541,15 +542,38 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                   </Button>
 
                   {isSuperAdmin && !selectedUser.isSuperAdmin && (
-                    <Button
-                      variant={selectedUser.isAdmin ? "secondary" : "outline"}
-                      onClick={() => updateMutation.mutate({ userId: selectedUser.id, action: "toggle-admin" })}
-                      disabled={updateMutation.isPending}
-                      className="col-span-2"
-                    >
-                      <Shield className="w-4 h-4 mr-2" />
-                      {selectedUser.isAdmin ? "Retirer admin" : "Nommer admin"}
-                    </Button>
+                    <div className="col-span-2 space-y-2">
+                      {!selectedUser.isAdmin && (
+                        <div>
+                          <label className="text-sm font-medium">Code PIN pour l'admin</label>
+                          <Input
+                            type="text"
+                            value={adminPinInput}
+                            onChange={(e) => setAdminPinInput(e.target.value)}
+                            placeholder="Ex: 1234"
+                            className="mt-1"
+                            maxLength={8}
+                            data-testid="input-new-admin-pin"
+                          />
+                        </div>
+                      )}
+                      <Button
+                        variant={selectedUser.isAdmin ? "secondary" : "outline"}
+                        onClick={() => {
+                          updateMutation.mutate({ 
+                            userId: selectedUser.id, 
+                            action: "toggle-admin", 
+                            value: !selectedUser.isAdmin ? adminPinInput : undefined 
+                          });
+                          setAdminPinInput("");
+                        }}
+                        disabled={updateMutation.isPending || (!selectedUser.isAdmin && adminPinInput.length < 4)}
+                        className="w-full"
+                      >
+                        <Shield className="w-4 h-4 mr-2" />
+                        {selectedUser.isAdmin ? "Retirer admin" : "Nommer admin"}
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>

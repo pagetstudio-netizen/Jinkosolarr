@@ -39,6 +39,7 @@ export const users = pgTable("users", {
   promoterSetBy: integer("promoter_set_by"),
   adminSetBy: integer("admin_set_by"),
   adminSetAt: timestamp("admin_set_at"),
+  adminPin: text("admin_pin"),
 });
 
 // Withdrawal wallets
