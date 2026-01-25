@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { formatCurrency } from "@/lib/countries";
-import { Clock, Gift, Loader2, Check } from "lucide-react";
+import { Clock, Gift, Loader2, AlertTriangle } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 import robotSoldes from "@/assets/images/robot-soldes.png";
@@ -15,11 +17,13 @@ import robotCumulatif from "@/assets/images/robot-cumulatif.png";
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
   canClaimFree: boolean;
+  ownedCount?: number;
 }
 
 export default function InvestPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
+  const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
 
   const { data: products, isLoading } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
@@ -37,9 +41,11 @@ export default function InvestPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       refreshUser();
+      setConfirmProduct(null);
       toast({ title: "Produit achete!", description: "Vous commencerez a recevoir des gains demain." });
     },
     onError: (error: any) => {
+      setConfirmProduct(null);
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     },
   });
@@ -71,6 +77,16 @@ export default function InvestPage() {
     return index % 2 === 0 ? robotSoldes : robotCumulatif;
   };
 
+  const handleBuyClick = (product: ProductWithOwnership) => {
+    setConfirmProduct(product);
+  };
+
+  const confirmPurchase = () => {
+    if (confirmProduct) {
+      purchaseMutation.mutate(confirmProduct.id);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-full bg-card">
       <header className="bg-primary px-4 py-4">
@@ -93,10 +109,12 @@ export default function InvestPage() {
               <div key={product.id} className="p-4">
                 <div className="flex items-start gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
                       <h3 className="text-lg font-bold text-primary">{product.name}</h3>
                       {product.isOwned && (
-                        <Badge className="text-xs bg-primary text-primary-foreground">Actif</Badge>
+                        <Badge className="text-xs bg-primary text-primary-foreground">
+                          Actif {product.ownedCount && product.ownedCount > 1 ? `x${product.ownedCount}` : ""}
+                        </Badge>
                       )}
                     </div>
 
@@ -159,23 +177,10 @@ export default function InvestPage() {
                       <Button
                         size="sm"
                         className="text-xs px-4 py-2 h-auto leading-tight"
-                        disabled={product.isOwned || balance < product.price || purchaseMutation.isPending}
-                        onClick={() => purchaseMutation.mutate(product.id)}
-                        variant={product.isOwned ? "secondary" : "default"}
+                        onClick={() => handleBuyClick(product)}
                         data-testid={`button-purchase-${product.id}`}
                       >
-                        {purchaseMutation.isPending ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : product.isOwned ? (
-                          <span className="text-center flex items-center gap-1">
-                            <Check className="w-3 h-3" />
-                            ACTIF
-                          </span>
-                        ) : balance < product.price ? (
-                          <span className="text-center">SOLDE<br/>INSUFFISANT</span>
-                        ) : (
-                          <span className="text-center">ACHETER<br/>MAINTENANT</span>
-                        )}
+                        <span className="text-center">ACHETER<br/>MAINTENANT</span>
                       </Button>
                     )}
                   </div>
@@ -190,6 +195,70 @@ export default function InvestPage() {
           </div>
         )}
       </div>
+
+      <Dialog open={!!confirmProduct} onOpenChange={() => setConfirmProduct(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Confirmer l'achat</DialogTitle>
+            <DialogDescription>
+              Voulez-vous vraiment acheter ce produit?
+            </DialogDescription>
+          </DialogHeader>
+
+          {confirmProduct && (
+            <div className="space-y-4">
+              <div className="bg-secondary rounded-lg p-4">
+                <h4 className="font-bold text-primary text-lg">{confirmProduct.name}</h4>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Prix:</span>
+                    <span className="font-medium">FCFA {confirmProduct.price.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Gains quotidiens:</span>
+                    <span className="font-medium text-primary">FCFA {confirmProduct.dailyEarnings.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Revenu total:</span>
+                    <span className="font-medium text-primary">FCFA {confirmProduct.totalReturn.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-card border rounded-lg">
+                <span className="text-muted-foreground">Votre solde:</span>
+                <span className={`font-bold ${balance >= confirmProduct.price ? "text-primary" : "text-destructive"}`}>
+                  {formatCurrency(balance, user.country)}
+                </span>
+              </div>
+
+              {balance < confirmProduct.price && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+                  <p className="text-sm text-destructive">
+                    Solde insuffisant. Il vous manque {formatCurrency(confirmProduct.price - balance, user.country)}.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirmProduct(null)}>
+              Annuler
+            </Button>
+            <Button 
+              onClick={confirmPurchase}
+              disabled={purchaseMutation.isPending || (confirmProduct && balance < confirmProduct.price)}
+            >
+              {purchaseMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
+              Confirmer l'achat
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

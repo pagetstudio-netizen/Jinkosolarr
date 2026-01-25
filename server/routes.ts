@@ -138,10 +138,15 @@ export async function registerRoutes(
   app.get("/api/products", requireAuth, async (req, res) => {
     try {
       const products = await storage.getProducts();
-      const userProducts = await storage.getUserProducts(req.session.userId!);
+      const userProductsList = await storage.getUserProducts(req.session.userId!);
       const user = await storage.getUser(req.session.userId!);
       
-      const ownedProductIds = new Set(userProducts.map(up => up.productId));
+      const productCounts = new Map<number, number>();
+      userProductsList.forEach(up => {
+        if (up.isActive) {
+          productCounts.set(up.productId, (productCounts.get(up.productId) || 0) + 1);
+        }
+      });
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -150,7 +155,8 @@ export async function registerRoutes(
 
       const productsWithOwnership = products.map(p => ({
         ...p,
-        isOwned: ownedProductIds.has(p.id),
+        isOwned: productCounts.has(p.id),
+        ownedCount: productCounts.get(p.id) || 0,
         canClaimFree: p.isFree && canClaimFree,
       }));
 
