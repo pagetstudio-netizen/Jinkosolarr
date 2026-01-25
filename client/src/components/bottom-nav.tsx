@@ -3,10 +3,10 @@ import { Home, Users, Diamond, User, Cog } from "lucide-react";
 
 const navItems = [
   { path: "/", icon: Home, label: "Accueil" },
+  { path: "/invest", icon: Diamond, label: "VIP" },
   { path: "/orders", icon: Cog, label: "Machine" },
   { path: "/team", icon: Users, label: "Equipe" },
-  { path: "/invest", icon: Diamond, label: "VIP" },
-  { path: "/account", icon: User, label: "Moi" },
+  { path: "/account", icon: User, label: "Compte" },
 ];
 
 export default function BottomNav() {
