@@ -3,8 +3,8 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus } from "lucide-react";
-import { Link } from "wouter";
+import { ArrowLeft, Plus, ChevronRight } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import {
   Dialog,
@@ -145,9 +145,11 @@ export default function WithdrawalPage() {
           <div>
             <p className="text-3xl font-bold text-white">{parseFloat(user?.balance || "0").toLocaleString()}</p>
             <p className="text-sm text-blue-200">Solde restant ({currency})</p>
-            <button className="mt-2 px-4 py-1 bg-amber-500 text-white text-sm font-medium rounded-full">
-              Enregistrement
-            </button>
+            <Link href="/deposit-history">
+              <button className="mt-2 px-4 py-1 bg-amber-500 text-white text-sm font-medium rounded-full">
+                Enregistrement
+              </button>
+            </Link>
           </div>
           <div className="w-16 h-16 flex items-center justify-center">
             <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center shadow-lg">
@@ -187,6 +189,15 @@ export default function WithdrawalPage() {
           <div className="border-t mt-3 pt-3" />
         </div>
 
+        <button
+          onClick={handleSubmit}
+          disabled={withdrawMutation.isPending || !amount || !selectedWallet}
+          className="w-full py-4 bg-amber-100 border-2 border-amber-400 text-amber-700 font-semibold rounded-full disabled:opacity-50"
+          data-testid="button-submit-withdrawal"
+        >
+          {withdrawMutation.isPending ? "Envoi en cours..." : "Retirer de l'argent"}
+        </button>
+
         <div className="bg-white rounded-lg p-4 space-y-3">
           <h3 className="font-semibold text-gray-800">Conseils</h3>
           <p className="text-sm text-gray-600">
@@ -199,15 +210,6 @@ export default function WithdrawalPage() {
             3. Les fonds seront credites sur votre compte dans un delai de 1h a 24h apres la demande de retrait.
           </p>
         </div>
-
-        <button
-          onClick={handleSubmit}
-          disabled={withdrawMutation.isPending || !amount || !selectedWallet}
-          className="w-full py-4 bg-amber-100 border-2 border-amber-400 text-amber-700 font-semibold rounded-full disabled:opacity-50"
-          data-testid="button-submit-withdrawal"
-        >
-          {withdrawMutation.isPending ? "Envoi en cours..." : "Retirer de l'argent"}
-        </button>
       </div>
 
       <Dialog open={showWalletDialog} onOpenChange={setShowWalletDialog}>
