@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { formatCurrency } from "@/lib/countries";
-import { Clock, Gift, Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle, Gift } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 import product1 from "@/assets/images/product-1.jpg";
@@ -19,9 +18,8 @@ import product5 from "@/assets/images/product-5.webp";
 import product6 from "@/assets/images/product-6.webp";
 import product7 from "@/assets/images/product-7.webp";
 import product8 from "@/assets/images/product-8.webp";
-import product9 from "@/assets/images/product-9.jpg";
 
-const productImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
+const productImages = [product1, product2, product3, product4, product5, product6, product7, product8];
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -33,9 +31,14 @@ export default function InvestPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
+  const [activeTab, setActiveTab] = useState<"products" | "orders">("products");
 
   const { data: products, isLoading } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
+  });
+
+  const { data: userProducts } = useQuery<any[]>({
+    queryKey: ["/api/user/products"],
   });
 
   const purchaseMutation = useMutation({
@@ -49,6 +52,7 @@ export default function InvestPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
       refreshUser();
       setConfirmProduct(null);
       toast({ title: "Produit achete!", description: "Vous commencerez a recevoir des gains demain." });
@@ -70,6 +74,7 @@ export default function InvestPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
       refreshUser();
       toast({ title: "Bonus reclame!", description: "50 FCFA ont ete ajoutes a votre compte." });
     },
@@ -96,108 +101,155 @@ export default function InvestPage() {
     }
   };
 
+  const paidProducts = products?.filter(p => !p.isFree) || [];
+
   return (
-    <div className="flex flex-col min-h-full bg-card">
-      <header className="px-4 py-3 border-b">
-        <h1 className="text-lg font-bold text-foreground text-center">Plan d'investissement</h1>
+    <div className="flex flex-col min-h-full" style={{ backgroundColor: "#f5f0e8" }}>
+      <header className="px-4 py-3">
+        <h1 className="text-lg font-semibold text-gray-700">Available Products</h1>
       </header>
 
-      <div className="flex-1 overflow-y-auto pb-20">
-        {isLoading ? (
-          <div className="p-4 space-y-4">
-            {Array(4).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-40 w-full rounded-lg" />
-            ))}
-          </div>
-        ) : products && products.length > 0 ? (
-          <div className="divide-y divide-border">
-            {products.map((product, index) => (
-              <div key={product.id} className="px-3 py-3">
-                <div className="flex items-start gap-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-                      <h3 className="text-sm font-bold text-primary">{product.name}</h3>
-                      {product.isOwned && (
-                        <Badge className="text-[10px] px-1.5 py-0 bg-primary text-primary-foreground">
-                          Actif {product.ownedCount && product.ownedCount > 1 ? `x${product.ownedCount}` : ""}
-                        </Badge>
-                      )}
-                    </div>
+      <div className="flex px-4 mb-4 gap-0">
+        <button
+          onClick={() => setActiveTab("products")}
+          className={`px-6 py-2 text-sm font-bold uppercase rounded-l-md transition-colors ${
+            activeTab === "products"
+              ? "bg-green-600 text-white"
+              : "bg-white text-gray-700 border border-gray-300"
+          }`}
+          data-testid="tab-products"
+        >
+          PRODUITS
+        </button>
+        <button
+          onClick={() => setActiveTab("orders")}
+          className={`px-6 py-2 text-sm font-medium rounded-r-md transition-colors ${
+            activeTab === "orders"
+              ? "bg-red-100 text-red-600 border-2 border-red-500"
+              : "bg-white text-gray-700 border border-gray-300 border-l-0"
+          }`}
+          data-testid="tab-orders"
+        >
+          Mes commandes
+        </button>
+      </div>
 
-                    <div className="space-y-1 text-[13px]">
-                      <div className="flex">
-                        <span className="text-muted-foreground w-32">Prix :</span>
-                        <span className="font-semibold text-foreground">
-                          {product.isFree ? "GRATUIT" : `FCFA ${product.price.toLocaleString()}`}
-                        </span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-muted-foreground w-32">Duree :</span>
-                        <span className="font-semibold text-foreground">{product.cycleDays}-jour</span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-muted-foreground w-32">Revenu quotidien :</span>
-                        <span className="font-semibold text-foreground">FCFA {product.dailyEarnings.toLocaleString()}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-muted-foreground w-32">Revenu total :</span>
-                        <span className="font-semibold text-foreground">FCFA {product.totalReturn.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden p-1.5">
-                      {product.isFree ? (
-                        <Gift className="w-10 h-10 text-primary" />
-                      ) : (
+      <div className="flex-1 overflow-y-auto pb-20 px-4">
+        {activeTab === "products" ? (
+          <>
+            {isLoading ? (
+              <div className="space-y-4">
+                {Array(4).fill(0).map((_, i) => (
+                  <Skeleton key={i} className="h-40 w-full rounded-xl" />
+                ))}
+              </div>
+            ) : paidProducts.length > 0 ? (
+              <div className="space-y-4">
+                {paidProducts.map((product, index) => (
+                  <div 
+                    key={product.id} 
+                    className="bg-white rounded-xl p-4 shadow-sm"
+                    data-testid={`product-card-${product.id}`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-28 h-28 flex-shrink-0">
                         <img 
                           src={getProductImage(index)} 
                           alt={product.name}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover rounded-lg"
                         />
-                      )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-1">
+                          <div>
+                            <p className="text-red-500 font-bold text-base">
+                              Prix : {product.price.toLocaleString()} Fcfa
+                            </p>
+                            <p className="text-red-500 font-semibold text-sm">
+                              Par jour : {product.dailyEarnings.toLocaleString()} Fcfa
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleBuyClick(product)}
+                            className="px-4 py-1.5 text-sm font-medium text-red-500 bg-red-50 border border-red-300 rounded-md hover:bg-red-100 transition-colors"
+                            data-testid={`button-purchase-${product.id}`}
+                          >
+                            Acheter
+                          </button>
+                        </div>
+
+                        <div className="space-y-0.5 text-sm mt-2">
+                          <p className="text-gray-600">
+                            Nbre de jours <span className="text-blue-500 font-medium">{product.cycleDays}</span>
+                          </p>
+                          <p className="text-gray-600">
+                            Limite d'Achat <span className="text-blue-500 font-medium">{product.ownedCount || 0}/Illimite</span>
+                          </p>
+                          <p className="text-gray-600">
+                            Type de Gain <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">Aucun produit disponible</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="space-y-4">
+            {userProducts && userProducts.length > 0 ? (
+              userProducts.map((up: any, index: number) => (
+                <div 
+                  key={up.id} 
+                  className="bg-white rounded-xl p-4 shadow-sm"
+                  data-testid={`order-card-${up.id}`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-20 h-20 flex-shrink-0">
+                      <img 
+                        src={getProductImage(index)} 
+                        alt={up.product?.name || "Produit"}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
                     </div>
 
-                    {product.isFree ? (
-                      <Button
-                        size="sm"
-                        className="text-[10px] px-3 py-1.5 h-auto leading-tight"
-                        disabled={!product.canClaimFree || claimFreeMutation.isPending}
-                        onClick={() => claimFreeMutation.mutate(product.id)}
-                        variant={product.canClaimFree ? "default" : "secondary"}
-                        data-testid={`button-claim-free-${product.id}`}
-                      >
-                        {claimFreeMutation.isPending ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : product.canClaimFree ? (
-                          <span className="text-center">RECLAMER<br/>MAINTENANT</span>
-                        ) : (
-                          <span className="text-center flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            DEJA FAIT
+                    <div className="flex-1 min-w-0">
+                      <p className="text-red-500 font-bold text-base mb-1">
+                        {up.product?.name || "Produit"}
+                      </p>
+                      <div className="space-y-0.5 text-sm">
+                        <p className="text-gray-600">
+                          Prix: <span className="text-blue-500 font-medium">{up.product?.price?.toLocaleString() || 0} Fcfa</span>
+                        </p>
+                        <p className="text-gray-600">
+                          Gains/jour: <span className="text-green-500 font-medium">{up.product?.dailyEarnings?.toLocaleString() || 0} Fcfa</span>
+                        </p>
+                        <p className="text-gray-600">
+                          Jours restants: <span className="text-blue-500 font-medium">{up.daysRemaining || 0}</span>
+                        </p>
+                        <p className="text-gray-600">
+                          Statut: <span className={`font-medium ${up.status === 'active' ? 'text-green-500' : 'text-gray-500'}`}>
+                            {up.status === 'active' ? 'Actif' : 'Termine'}
                           </span>
-                        )}
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        className="text-[10px] px-3 py-1.5 h-auto leading-tight"
-                        onClick={() => handleBuyClick(product)}
-                        data-testid={`button-purchase-${product.id}`}
-                      >
-                        <span className="text-center">ACHETER<br/>MAINTENANT</span>
-                      </Button>
-                    )}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">Aucune commande</p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Gift className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Aucun produit disponible</p>
+            )}
           </div>
         )}
       </div>
@@ -213,35 +265,35 @@ export default function InvestPage() {
 
           {confirmProduct && (
             <div className="space-y-4">
-              <div className="bg-secondary rounded-lg p-4">
-                <h4 className="font-bold text-primary text-lg">{confirmProduct.name}</h4>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-bold text-red-500 text-lg">{confirmProduct.name}</h4>
                 <div className="mt-2 space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Prix:</span>
-                    <span className="font-medium">FCFA {confirmProduct.price.toLocaleString()}</span>
+                    <span className="text-gray-500">Prix:</span>
+                    <span className="font-medium">{confirmProduct.price.toLocaleString()} Fcfa</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Gains quotidiens:</span>
-                    <span className="font-medium text-primary">FCFA {confirmProduct.dailyEarnings.toLocaleString()}</span>
+                    <span className="text-gray-500">Gains quotidiens:</span>
+                    <span className="font-medium text-green-500">{confirmProduct.dailyEarnings.toLocaleString()} Fcfa</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Revenu total:</span>
-                    <span className="font-medium text-primary">FCFA {confirmProduct.totalReturn.toLocaleString()}</span>
+                    <span className="text-gray-500">Revenu total:</span>
+                    <span className="font-medium text-green-500">{confirmProduct.totalReturn.toLocaleString()} Fcfa</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center p-3 bg-card border rounded-lg">
-                <span className="text-muted-foreground">Votre solde:</span>
-                <span className={`font-bold ${balance >= confirmProduct.price ? "text-primary" : "text-destructive"}`}>
+              <div className="flex justify-between items-center p-3 bg-white border rounded-lg">
+                <span className="text-gray-500">Votre solde:</span>
+                <span className={`font-bold ${balance >= confirmProduct.price ? "text-green-500" : "text-red-500"}`}>
                   {formatCurrency(balance, user.country)}
                 </span>
               </div>
 
               {balance < confirmProduct.price && (
-                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
-                  <p className="text-sm text-destructive">
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <p className="text-sm text-red-500">
                     Solde insuffisant. Il vous manque {formatCurrency(confirmProduct.price - balance, user.country)}.
                   </p>
                 </div>
@@ -255,7 +307,8 @@ export default function InvestPage() {
             </Button>
             <Button 
               onClick={confirmPurchase}
-              disabled={purchaseMutation.isPending || (confirmProduct && balance < confirmProduct.price)}
+              disabled={purchaseMutation.isPending || !!(confirmProduct && balance < confirmProduct.price)}
+              className="bg-green-600 hover:bg-green-700"
             >
               {purchaseMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
