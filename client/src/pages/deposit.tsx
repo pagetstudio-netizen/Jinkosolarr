@@ -22,7 +22,8 @@ export default function DepositPage() {
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number | "">("");
   const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
@@ -38,7 +39,7 @@ export default function DepositPage() {
   });
 
   const depositMutation = useMutation({
-    mutationFn: async (data: { amount: number; paymentMethod: string; phoneNumber: string }) => {
+    mutationFn: async (data: { amount: number; paymentMethod: string; accountName: string; accountNumber: string }) => {
       const res = await apiRequest("POST", "/api/deposits", data);
       return res.json();
     },
@@ -51,7 +52,8 @@ export default function DepositPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/deposits"] });
       setAmount("");
       setSelectedChannel(null);
-      setPhoneNumber("");
+      setAccountName("");
+      setAccountNumber("");
     },
     onError: (error: Error) => {
       toast({
@@ -83,7 +85,15 @@ export default function DepositPage() {
       });
       return;
     }
-    if (!phoneNumber) {
+    if (!accountName) {
+      toast({
+        title: "Nom requis",
+        description: "Veuillez entrer le nom du titulaire du compte",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!accountNumber) {
       toast({
         title: "Numero requis",
         description: "Veuillez entrer votre numero de telephone",
@@ -94,7 +104,8 @@ export default function DepositPage() {
     depositMutation.mutate({
       amount: amount as number,
       paymentMethod: selectedChannel.name,
-      phoneNumber,
+      accountName,
+      accountNumber,
     });
   };
 
@@ -177,20 +188,32 @@ export default function DepositPage() {
         </div>
 
         <div className="bg-white rounded-lg border p-4">
-          <label className="block text-sm text-gray-500 mb-2">Numero de telephone</label>
+          <label className="block text-sm text-gray-500 mb-2">Nom du titulaire du compte</label>
+          <input
+            type="text"
+            value={accountName}
+            onChange={(e) => setAccountName(e.target.value)}
+            placeholder="Ex: Jean Dupont"
+            className="w-full text-lg outline-none"
+            data-testid="input-account-name"
+          />
+        </div>
+
+        <div className="bg-white rounded-lg border p-4">
+          <label className="block text-sm text-gray-500 mb-2">Numero de telephone ({selectedChannel?.name || "Mobile Money"})</label>
           <input
             type="tel"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            value={accountNumber}
+            onChange={(e) => setAccountNumber(e.target.value)}
             placeholder="Ex: 99123456"
             className="w-full text-lg outline-none"
-            data-testid="input-phone-number"
+            data-testid="input-account-number"
           />
         </div>
 
         <button
           onClick={handleSubmit}
-          disabled={depositMutation.isPending || !amount || !selectedChannel || !phoneNumber}
+          disabled={depositMutation.isPending || !amount || !selectedChannel || !accountName || !accountNumber}
           className="w-full py-4 bg-gray-900 text-white font-semibold rounded-lg disabled:opacity-50"
           data-testid="button-submit-deposit"
         >

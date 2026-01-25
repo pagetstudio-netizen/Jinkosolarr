@@ -260,15 +260,19 @@ export async function registerRoutes(
   // Deposits
   app.post("/api/deposits", requireAuth, async (req, res) => {
     try {
-      const { amount, accountName, accountNumber, country, paymentMethod, paymentChannelId } = req.body;
+      const { amount, accountName, accountNumber, paymentMethod } = req.body;
+      const user = await storage.getUser(req.session.userId!);
       
+      if (!user) {
+        return res.status(401).json({ message: "Non authentifie" });
+      }
+
       if (amount < 3000) {
         return res.status(400).json({ message: "Montant minimum: 3000 FCFA" });
       }
 
-      const channel = await storage.getPaymentChannel(paymentChannelId);
-      if (!channel || !channel.isActive) {
-        return res.status(400).json({ message: "Canal de paiement invalide" });
+      if (!accountName || !accountNumber || !paymentMethod) {
+        return res.status(400).json({ message: "Tous les champs sont requis" });
       }
 
       const deposit = await storage.createDeposit({
@@ -276,13 +280,12 @@ export async function registerRoutes(
         amount,
         accountName,
         accountNumber,
-        country,
+        country: user.country,
         paymentMethod,
-        paymentChannelId,
         status: "pending",
       });
 
-      res.json({ deposit, redirectUrl: channel.redirectUrl });
+      res.json({ deposit });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
