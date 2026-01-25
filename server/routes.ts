@@ -594,9 +594,24 @@ export async function registerRoutes(
       const allUsers = await storage.getAllUsers();
       const usersWithTeam = await Promise.all(allUsers.map(async (user) => {
         const teamStats = await storage.getTeamStats(user.id);
-        return { ...user, password: undefined, ...teamStats };
+        let referrerName = null;
+        if (user.referredBy) {
+          const referrer = await storage.getUserByReferralCode(user.referredBy);
+          if (referrer) referrerName = referrer.fullName;
+        }
+        return { ...user, password: undefined, ...teamStats, referrerName };
       }));
       res.json(usersWithTeam);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/users/:id/team", requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const team = await storage.getDetailedTeam(userId);
+      res.json(team);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

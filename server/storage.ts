@@ -532,6 +532,54 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  async getDetailedTeam(userId: number): Promise<any> {
+    const level1 = await this.getReferrals(userId, 1);
+    const level2 = await this.getReferrals(userId, 2);
+    const level3 = await this.getReferrals(userId, 3);
+
+    const enrichUser = async (user: User) => {
+      const userProductsList = await db.select({ 
+        productName: products.name,
+        productPrice: products.price,
+        purchasedAt: userProducts.purchasedAt,
+        isActive: userProducts.isActive,
+      })
+      .from(userProducts)
+      .innerJoin(products, eq(userProducts.productId, products.id))
+      .where(eq(userProducts.userId, user.id));
+      
+      const totalInvested = userProductsList
+        .filter(p => !p.isActive || p.isActive)
+        .reduce((sum, p) => sum + p.productPrice, 0);
+
+      return {
+        id: user.id,
+        fullName: user.fullName,
+        phone: user.phone,
+        country: user.country,
+        balance: user.balance,
+        hasActiveProduct: user.hasActiveProduct,
+        hasDeposited: user.hasDeposited,
+        createdAt: user.createdAt,
+        totalInvested,
+        products: userProductsList,
+      };
+    };
+
+    const level1Details = await Promise.all(level1.map(enrichUser));
+    const level2Details = await Promise.all(level2.map(enrichUser));
+    const level3Details = await Promise.all(level3.map(enrichUser));
+
+    return {
+      level1: level1Details,
+      level2: level2Details,
+      level3: level3Details,
+      totalLevel1Invested: level1Details.reduce((sum, u) => sum + u.totalInvested, 0),
+      totalLevel2Invested: level2Details.reduce((sum, u) => sum + u.totalInvested, 0),
+      totalLevel3Invested: level3Details.reduce((sum, u) => sum + u.totalInvested, 0),
+    };
+  }
+
   // Tasks
   async getTasks(): Promise<Task[]> {
     return await db.select().from(tasks).where(eq(tasks.isActive, true)).orderBy(tasks.sortOrder);

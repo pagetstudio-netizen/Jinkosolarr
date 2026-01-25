@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { formatCurrency } from "@/lib/countries";
-import { Search, Edit, Ban, Shield, Lock, Unlock, Star, Users, Loader2 } from "lucide-react";
+import { Search, Edit, Ban, Shield, Lock, Unlock, Star, Users, Loader2, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
 import type { User, Product } from "@shared/schema";
 
 interface UserWithTeam extends User {
@@ -18,6 +19,29 @@ interface UserWithTeam extends User {
   level2Count: number;
   level3Count: number;
   totalCommission: number;
+  referrerName: string | null;
+}
+
+interface TeamMember {
+  id: number;
+  fullName: string;
+  phone: string;
+  country: string;
+  balance: string;
+  hasActiveProduct: boolean;
+  hasDeposited: boolean;
+  createdAt: string;
+  totalInvested: number;
+  products: { productName: string; productPrice: number; isActive: boolean }[];
+}
+
+interface DetailedTeam {
+  level1: TeamMember[];
+  level2: TeamMember[];
+  level3: TeamMember[];
+  totalLevel1Invested: number;
+  totalLevel2Invested: number;
+  totalLevel3Invested: number;
 }
 
 interface AdminUsersProps {
@@ -32,21 +56,26 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
   const [editBalance, setEditBalance] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [teamUserId, setTeamUserId] = useState<number | null>(null);
 
   const { data: users, isLoading } = useQuery<UserWithTeam[]>({
     queryKey: ["/api/admin/users"],
   });
 
-  const statusFilteredUsers = users?.filter(u => {
-    if (statusFilter === "all") return true;
-    if (statusFilter === "banned") return u.isBanned;
-    if (statusFilter === "blocked") return u.isWithdrawalBlocked;
-    if (statusFilter === "promoter") return u.isPromoter;
-    return true;
-  }) || [];
-
   const { data: products } = useQuery<Product[]>({
     queryKey: ["/api/admin/products/all"],
+  });
+
+  const { data: teamData, isLoading: teamLoading } = useQuery<DetailedTeam>({
+    queryKey: ["/api/admin/users", teamUserId, "team"],
+    queryFn: async () => {
+      if (!teamUserId) return null;
+      const res = await fetch(`/api/admin/users/${teamUserId}/team`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch team");
+      return res.json();
+    },
+    enabled: !!teamUserId,
   });
 
   const updateMutation = useMutation({
@@ -60,7 +89,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      toast({ title: "Utilisateur mis à jour!" });
+      toast({ title: "Utilisateur mis a jour!" });
       setSelectedUser(null);
     },
     onError: (error: any) => {
@@ -68,10 +97,61 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
     },
   });
 
+  const statusFilteredUsers = users?.filter(u => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "banned") return u.isBanned;
+    if (statusFilter === "blocked") return u.isWithdrawalBlocked;
+    if (statusFilter === "promoter") return u.isPromoter;
+    return true;
+  }) || [];
+
   const filteredUsers = statusFilteredUsers.filter(u => 
     u.phone.includes(filter) || 
     u.fullName.toLowerCase().includes(filter.toLowerCase()) ||
     u.referralCode.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const openTeamModal = (userId: number) => {
+    setTeamUserId(userId);
+    setShowTeamModal(true);
+  };
+
+  const TeamMemberCard = ({ member, level }: { member: TeamMember; level: number }) => (
+    <Card className="mb-2">
+      <CardContent className="p-3">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="font-medium text-foreground">{member.fullName}</p>
+            <p className="text-xs text-muted-foreground">{member.phone} - {member.country}</p>
+            <p className="text-xs text-muted-foreground">Inscrit: {new Date(member.createdAt).toLocaleDateString()}</p>
+          </div>
+          <div className="text-right">
+            {member.hasActiveProduct && (
+              <Badge className="text-xs mb-1">Actif</Badge>
+            )}
+            {member.hasDeposited && (
+              <Badge variant="secondary" className="text-xs mb-1 ml-1">A depose</Badge>
+            )}
+          </div>
+        </div>
+        <div className="mt-2 pt-2 border-t">
+          <p className="text-sm font-medium text-primary">
+            Total investi: {member.totalInvested.toLocaleString()} F
+          </p>
+          {member.products.length > 0 && (
+            <div className="mt-1">
+              <p className="text-xs text-muted-foreground">Produits:</p>
+              {member.products.map((p, i) => (
+                <p key={i} className="text-xs">
+                  - {p.productName} ({p.productPrice.toLocaleString()} F) 
+                  {p.isActive ? " (actif)" : " (termine)"}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 
   return (
@@ -80,7 +160,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher par téléphone, nom ou code..."
+            placeholder="Rechercher par telephone, nom ou code..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="pl-10"
@@ -96,7 +176,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
             variant={statusFilter === status ? "default" : "outline"}
             onClick={() => setStatusFilter(status)}
           >
-            {status === "all" ? "Tous" : status === "banned" ? "Bannis" : status === "blocked" ? "Retrait bloqué" : "Promoteurs"}
+            {status === "all" ? "Tous" : status === "banned" ? "Bannis" : status === "blocked" ? "Retrait bloque" : "Promoteurs"}
           </Button>
         ))}
       </div>
@@ -115,14 +195,31 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                       {user.isAdmin && <Badge variant="destructive" className="text-xs">Admin</Badge>}
                       {user.isPromoter && <Badge className="text-xs">Promoteur</Badge>}
                       {user.isBanned && <Badge variant="destructive" className="text-xs">Banni</Badge>}
-                      {user.isWithdrawalBlocked && <Badge variant="secondary" className="text-xs">Retrait bloqué</Badge>}
+                      {user.isWithdrawalBlocked && <Badge variant="secondary" className="text-xs">Retrait bloque</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">{user.phone} - {user.country}</p>
                     <p className="text-xs text-muted-foreground">Code: {user.referralCode}</p>
+                    {user.referrerName && (
+                      <p className="text-xs text-primary flex items-center gap-1 mt-1">
+                        <UserPlus className="w-3 h-3" />
+                        Invite par: <span className="font-medium">{user.referrerName}</span>
+                      </p>
+                    )}
+                    {user.referredBy && !user.referrerName && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <UserPlus className="w-3 h-3" />
+                        Code parrain: {user.referredBy}
+                      </p>
+                    )}
                   </div>
-                  <Button size="icon" variant="ghost" onClick={() => setSelectedUser(user)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => openTeamModal(user.id)} title="Voir equipe">
+                      <Users className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => setSelectedUser(user)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-sm">
@@ -131,7 +228,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                     <p className="font-medium text-foreground">{formatCurrency(parseFloat(user.balance), user.country)}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Équipe</p>
+                    <p className="text-muted-foreground">Equipe</p>
                     <p className="font-medium text-foreground">{user.level1Count + user.level2Count + user.level3Count}</p>
                   </div>
                   <div>
@@ -144,19 +241,110 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
           ))
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            Aucun utilisateur trouvé
+            Aucun utilisateur trouve
           </div>
         )}
       </div>
 
+      <Dialog open={showTeamModal} onOpenChange={() => { setShowTeamModal(false); setTeamUserId(null); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Equipe de l'utilisateur</DialogTitle>
+          </DialogHeader>
+
+          {teamLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+          ) : teamData ? (
+            <Tabs defaultValue="level1" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="level1">
+                  Niveau 1 ({teamData.level1.length})
+                </TabsTrigger>
+                <TabsTrigger value="level2">
+                  Niveau 2 ({teamData.level2.length})
+                </TabsTrigger>
+                <TabsTrigger value="level3">
+                  Niveau 3 ({teamData.level3.length})
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="level1" className="mt-4">
+                <Card className="mb-3">
+                  <CardContent className="p-3 text-center">
+                    <p className="text-lg font-bold text-primary">
+                      {teamData.totalLevel1Invested.toLocaleString()} F
+                    </p>
+                    <p className="text-xs text-muted-foreground">Total investi niveau 1</p>
+                  </CardContent>
+                </Card>
+                {teamData.level1.length > 0 ? (
+                  teamData.level1.map(member => (
+                    <TeamMemberCard key={member.id} member={member} level={1} />
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-4">Aucun filleul niveau 1</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="level2" className="mt-4">
+                <Card className="mb-3">
+                  <CardContent className="p-3 text-center">
+                    <p className="text-lg font-bold text-primary">
+                      {teamData.totalLevel2Invested.toLocaleString()} F
+                    </p>
+                    <p className="text-xs text-muted-foreground">Total investi niveau 2</p>
+                  </CardContent>
+                </Card>
+                {teamData.level2.length > 0 ? (
+                  teamData.level2.map(member => (
+                    <TeamMemberCard key={member.id} member={member} level={2} />
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-4">Aucun filleul niveau 2</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="level3" className="mt-4">
+                <Card className="mb-3">
+                  <CardContent className="p-3 text-center">
+                    <p className="text-lg font-bold text-primary">
+                      {teamData.totalLevel3Invested.toLocaleString()} F
+                    </p>
+                    <p className="text-xs text-muted-foreground">Total investi niveau 3</p>
+                  </CardContent>
+                </Card>
+                {teamData.level3.length > 0 ? (
+                  teamData.level3.map(member => (
+                    <TeamMemberCard key={member.id} member={member} level={3} />
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-4">Aucun filleul niveau 3</p>
+                )}
+              </TabsContent>
+            </Tabs>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Gérer {selectedUser?.fullName}</DialogTitle>
+            <DialogTitle>Gerer {selectedUser?.fullName}</DialogTitle>
           </DialogHeader>
 
           {selectedUser && (
             <div className="space-y-4">
+              {selectedUser.referrerName && (
+                <div className="bg-secondary rounded-lg p-3">
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">Invite par:</span>{" "}
+                    <span className="font-medium">{selectedUser.referrerName}</span>
+                  </p>
+                </div>
+              )}
+
               <div className="grid grid-cols-3 gap-2 text-center text-sm">
                 <div className="bg-secondary rounded-lg p-3">
                   <Users className="w-5 h-5 text-primary mx-auto mb-1" />
@@ -195,7 +383,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium">Réinitialiser mot de passe</label>
+                  <label className="text-sm font-medium">Reinitialiser mot de passe</label>
                   <div className="flex gap-2 mt-1">
                     <Input
                       type="text"
@@ -243,7 +431,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                     disabled={updateMutation.isPending}
                   >
                     <Ban className="w-4 h-4 mr-2" />
-                    {selectedUser.isBanned ? "Débannir" : "Bannir"}
+                    {selectedUser.isBanned ? "Debannir" : "Bannir"}
                   </Button>
 
                   <Button
@@ -252,7 +440,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                     disabled={updateMutation.isPending}
                   >
                     {selectedUser.isWithdrawalBlocked ? <Unlock className="w-4 h-4 mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
-                    {selectedUser.isWithdrawalBlocked ? "Débloquer" : "Bloquer retrait"}
+                    {selectedUser.isWithdrawalBlocked ? "Debloquer" : "Bloquer retrait"}
                   </Button>
 
                   <Button
@@ -270,7 +458,7 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                     disabled={updateMutation.isPending}
                   >
                     <Users className="w-4 h-4 mr-2" />
-                    {selectedUser.mustInviteToWithdraw ? "Désactiver" : "Doit inviter"}
+                    {selectedUser.mustInviteToWithdraw ? "Desactiver" : "Doit inviter"}
                   </Button>
 
                   {isSuperAdmin && !selectedUser.isSuperAdmin && (
