@@ -118,24 +118,24 @@ export default function InvestPage() {
                       )}
                     </div>
 
-                    <div className="space-y-0.5 text-xs">
+                    <div className="space-y-1 text-[13px]">
                       <div className="flex">
-                        <span className="text-muted-foreground w-28">Prix :</span>
-                        <span className="font-medium text-foreground">
+                        <span className="text-muted-foreground w-32">Prix :</span>
+                        <span className="font-semibold text-foreground">
                           {product.isFree ? "GRATUIT" : `FCFA ${product.price.toLocaleString()}`}
                         </span>
                       </div>
                       <div className="flex">
-                        <span className="text-muted-foreground w-28">Duree :</span>
-                        <span className="font-medium text-foreground">{product.cycleDays}-jour</span>
+                        <span className="text-muted-foreground w-32">Duree :</span>
+                        <span className="font-semibold text-foreground">{product.cycleDays}-jour</span>
                       </div>
                       <div className="flex">
-                        <span className="text-muted-foreground w-28">Revenu quotidien :</span>
-                        <span className="font-medium text-foreground">FCFA {product.dailyEarnings.toLocaleString()}</span>
+                        <span className="text-muted-foreground w-32">Revenu quotidien :</span>
+                        <span className="font-semibold text-foreground">FCFA {product.dailyEarnings.toLocaleString()}</span>
                       </div>
                       <div className="flex">
-                        <span className="text-muted-foreground w-28">Revenu total :</span>
-                        <span className="font-medium text-foreground">FCFA {product.totalReturn.toLocaleString()}</span>
+                        <span className="text-muted-foreground w-32">Revenu total :</span>
+                        <span className="font-semibold text-foreground">FCFA {product.totalReturn.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
