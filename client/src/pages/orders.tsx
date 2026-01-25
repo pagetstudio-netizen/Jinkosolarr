@@ -65,6 +65,15 @@ export default function OrdersPage() {
         </button>
       </div>
 
+      <div className="bg-orange-50 p-3 mx-4 mt-3 rounded-lg">
+        <p className="text-xs text-orange-700 leading-relaxed">
+          Les revenus du produit sont regles une fois toutes les 24 heures.
+        </p>
+        <p className="text-xs text-orange-700 leading-relaxed mt-1">
+          Vous pouvez acheter plusieurs machines pour augmenter vos revenus et les gains journalieres sont regles a chaque 24h.
+        </p>
+      </div>
+
       <div className="flex-1 overflow-y-auto pb-20 px-4 pt-4">
         {isLoading ? (
           <div className="space-y-4">
