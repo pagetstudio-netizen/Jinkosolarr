@@ -14,7 +14,8 @@ import {
   LogOut,
   Shield,
   Loader2,
-  ChevronRight
+  ChevronRight,
+  History
 } from "lucide-react";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
@@ -241,12 +242,23 @@ export default function AccountPage() {
             )}
 
             <button
+              onClick={() => navigate("/history")}
+              className="flex flex-col items-center gap-2"
+              data-testid="button-history"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
+                <History className="w-7 h-7 text-gray-500" />
+              </div>
+              <span className="text-xs text-gray-600 text-center leading-tight">Historique</span>
+            </button>
+
+            <button
               onClick={handleLogout}
               className="flex flex-col items-center gap-2"
               data-testid="button-logout"
             >
-              <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
-                <LogOut className="w-7 h-7 text-gray-500" />
+              <div className="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center">
+                <LogOut className="w-7 h-7 text-red-500" />
               </div>
               <span className="text-xs text-gray-600 text-center leading-tight">Deconnexion</span>
             </button>
