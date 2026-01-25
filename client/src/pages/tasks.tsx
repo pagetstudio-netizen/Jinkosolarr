@@ -9,6 +9,12 @@ import { Link } from "wouter";
 import type { Task } from "@shared/schema";
 import tasksBanner from "@/assets/images/tasks-banner.webp";
 
+interface DailyBonusStatus {
+  canClaim: boolean;
+  nextClaimTime: string | null;
+  bonusAmount: number;
+}
+
 interface TaskWithStatus extends Task {
   isCompleted: boolean;
   canClaim: boolean;
@@ -21,6 +27,29 @@ export default function TasksPage() {
 
   const { data: tasks, isLoading } = useQuery<TaskWithStatus[]>({
     queryKey: ["/api/tasks"],
+  });
+
+  const { data: dailyBonusStatus } = useQuery<DailyBonusStatus>({
+    queryKey: ["/api/daily-bonus-status"],
+  });
+
+  const claimDailyBonusMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/claim-daily-bonus", {});
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Erreur");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/daily-bonus-status"] });
+      refreshUser();
+      toast({ title: "Bonus quotidien!", description: "50 FCFA ont ete ajoutes a votre compte." });
+    },
+    onError: (error: any) => {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    },
   });
 
   const claimMutation = useMutation({
@@ -62,7 +91,7 @@ export default function TasksPage() {
   const countryInfo = getCountryByCode(user.country);
   const currency = countryInfo?.currency || "FCFA";
 
-  const totalTaskRewards = tasks?.filter(t => t.isCompleted).reduce((sum, t) => sum + parseFloat(t.reward), 0) || 0;
+  const totalTaskRewards = tasks?.filter(t => t.isCompleted).reduce((sum, t) => sum + t.reward, 0) || 0;
 
   return (
     <div className="flex flex-col min-h-full bg-white">
@@ -84,14 +113,33 @@ export default function TasksPage() {
             <p className="text-3xl font-bold" data-testid="text-total-rewards">{totalTaskRewards.toFixed(0)}</p>
             <p className="text-sm opacity-90">Revenu total</p>
           </div>
-          <button 
-            className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg"
-            data-testid="button-claim-rewards"
-            onClick={claimAllRewards}
-            disabled={claimMutation.isPending}
-          >
-            {claimMutation.isPending ? "Chargement..." : "Reclamez vos recompenses"}
-          </button>
+          <div className="flex flex-col gap-2">
+            <button 
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium shadow-lg ${
+                dailyBonusStatus?.canClaim 
+                  ? "bg-green-500 text-white" 
+                  : "bg-gray-400 text-white"
+              }`}
+              data-testid="button-daily-bonus"
+              onClick={() => dailyBonusStatus?.canClaim && claimDailyBonusMutation.mutate()}
+              disabled={!dailyBonusStatus?.canClaim || claimDailyBonusMutation.isPending}
+            >
+              {claimDailyBonusMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Gift className="w-4 h-4" />
+              )}
+              {dailyBonusStatus?.canClaim ? "Bonus 50F" : "Bonus 50F"}
+            </button>
+            <button 
+              className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg"
+              data-testid="button-claim-rewards"
+              onClick={claimAllRewards}
+              disabled={claimMutation.isPending}
+            >
+              {claimMutation.isPending ? "Chargement..." : "Reclamez vos recompenses"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -116,7 +164,7 @@ export default function TasksPage() {
                 data-testid={`task-item-${task.id}`}
               >
                 <p className="text-gray-800 mb-2">
-                  {index + 1}.Invitez {task.requiredInvites} personnes a recharger leur compte et recevez {parseFloat(task.reward).toFixed(0)} {currency} par jour{task.requiredInvites <= 3 ? "." : ""}
+                  {index + 1}.Invitez {task.requiredInvites} personnes a recharger leur compte et recevez {task.reward} {currency} par jour{task.requiredInvites <= 3 ? "." : ""}
                 </p>
                 <p className={`text-center font-semibold ${
                   task.isCompleted 
