@@ -167,16 +167,13 @@ export default function InvestPage() {
                               Prix : {product.price.toLocaleString()} Fcfa
                             </p>
                             <p className="text-red-500 font-medium text-[13px] leading-tight">
-                              Par jour : {product.dailyEarnings.toLocaleString()} Fcfa
+                              Gains journalieres : {product.dailyEarnings.toLocaleString()} Fcfa
                             </p>
                             <p className="text-gray-500 text-[13px] leading-tight">
-                              Nbre de jours <span className="text-blue-500 font-medium">{product.cycleDays}</span>
+                              Duree : <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span>
                             </p>
                             <p className="text-gray-500 text-[13px] leading-tight">
-                              Limite d'Achat <span className="text-blue-500 font-medium">Illimite</span>
-                            </p>
-                            <p className="text-gray-500 text-[13px] leading-tight">
-                              Type de Gain <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span>
+                              Gains total : <span className="text-blue-500 font-medium">{product.totalReturn.toLocaleString()} Fcfa</span>
                             </p>
                           </div>
                           <button
