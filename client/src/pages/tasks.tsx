@@ -1,13 +1,14 @@
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { formatCurrency } from "@/lib/countries";
-import { Gift, Users, Check, Lock, Loader2 } from "lucide-react";
+import { getCountryByCode } from "@/lib/countries";
+import { ChevronLeft, Loader2 } from "lucide-react";
+import { Link } from "wouter";
 import type { Task } from "@shared/schema";
+import tasksBanner from "@/assets/images/tasks-banner.webp";
 
 interface TaskWithStatus extends Task {
   isCompleted: boolean;
@@ -35,7 +36,7 @@ export default function TasksPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tasks"] });
       refreshUser();
-      toast({ title: "Récompense réclamée!", description: "Le bonus a été ajouté à votre compte." });
+      toast({ title: "Recompense reclamee!", description: "Le bonus a ete ajoute a votre compte." });
     },
     onError: (error: any) => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -44,75 +45,84 @@ export default function TasksPage() {
 
   if (!user) return null;
 
+  const countryInfo = getCountryByCode(user.country);
+  const currency = countryInfo?.currency || "FCFA";
+
+  const totalTaskRewards = tasks?.filter(t => t.isCompleted).reduce((sum, t) => sum + parseFloat(t.reward), 0) || 0;
+
   return (
     <div className="flex flex-col min-h-full bg-white">
-      <header className="bg-amber-500 px-4 py-4">
-        <h1 className="text-xl font-bold text-white text-center">Centre de taches</h1>
+      <header className="flex items-center px-4 py-3 border-b bg-white">
+        <Link href="/">
+          <button className="p-1" data-testid="button-back">
+            <ChevronLeft className="w-6 h-6 text-orange-500" />
+          </button>
+        </Link>
+        <h1 className="flex-1 text-center text-lg font-semibold text-orange-500 pr-6">Liste des taches</h1>
       </header>
 
-      <div className="flex-1 p-4 space-y-3 overflow-y-auto pb-20">
-        {isLoading ? (
-          Array(5).fill(0).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-lg" />
-          ))
-        ) : tasks && tasks.length > 0 ? (
-          tasks.map((task) => (
-            <Card key={task.id} className={task.isCompleted ? "opacity-60" : ""}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      task.isCompleted 
-                        ? "bg-green-500/20" 
-                        : task.canClaim 
-                          ? "bg-primary/20" 
-                          : "bg-muted"
-                    }`}>
-                      {task.isCompleted ? (
-                        <Check className="w-6 h-6 text-green-500" />
-                      ) : (
-                        <Users className="w-6 h-6 text-primary" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground">{task.name}</h3>
-                      <p className="text-sm text-muted-foreground">{task.description}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-muted-foreground">
-                          Progression: {task.currentInvites}/{task.requiredInvites}
-                        </span>
-                        <span className="text-xs font-medium text-primary">
-                          +{formatCurrency(task.reward, user.country)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+      <div className="relative">
+        <img src={tasksBanner} alt="Banner" className="w-full h-48 object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+          <div className="text-white">
+            <p className="text-sm opacity-90">{currency}</p>
+            <p className="text-3xl font-bold" data-testid="text-total-rewards">{totalTaskRewards.toFixed(0)}</p>
+            <p className="text-sm opacity-90">Revenu total</p>
+          </div>
+          <button 
+            className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg"
+            data-testid="button-claim-rewards"
+          >
+            Reclamez vos recompenses
+          </button>
+        </div>
+      </div>
 
-                  <Button
-                    size="sm"
-                    variant={task.isCompleted ? "secondary" : task.canClaim ? "default" : "outline"}
-                    disabled={task.isCompleted || !task.canClaim || claimMutation.isPending}
-                    onClick={() => claimMutation.mutate(task.id)}
-                    data-testid={`button-claim-task-${task.id}`}
-                  >
-                    {claimMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : task.isCompleted ? (
-                      "Réclamé"
-                    ) : task.canClaim ? (
-                      "Réclamer"
-                    ) : (
-                      <Lock className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+      <div className="flex-1 overflow-y-auto pb-20">
+        {isLoading ? (
+          <div className="p-4 space-y-3">
+            {Array(5).fill(0).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : tasks && tasks.length > 0 ? (
+          <div className="divide-y">
+            {tasks.map((task, index) => (
+              <div 
+                key={task.id} 
+                className={`bg-white p-4 ${task.isCompleted ? "opacity-60" : ""}`}
+                onClick={() => {
+                  if (task.canClaim && !task.isCompleted && !claimMutation.isPending) {
+                    claimMutation.mutate(task.id);
+                  }
+                }}
+                data-testid={`task-item-${task.id}`}
+              >
+                <p className="text-gray-800 mb-2">
+                  {index + 1}.Invitez {task.requiredInvites} personnes a recharger leur compte et recevez {parseFloat(task.reward).toFixed(0)} {currency} par jour{task.requiredInvites <= 3 ? "." : ""}
+                </p>
+                <p className={`text-center font-semibold ${
+                  task.isCompleted 
+                    ? "text-green-500" 
+                    : task.canClaim 
+                      ? "text-orange-500" 
+                      : "text-orange-500"
+                }`}>
+                  {task.isCompleted ? (
+                    "Termine"
+                  ) : claimMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                  ) : (
+                    `${task.currentInvites}/${task.requiredInvites}`
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="text-center py-12">
-            <Gift className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Aucune tâche disponible</p>
+            <p className="text-gray-500">Aucune tache disponible</p>
           </div>
         )}
       </div>
