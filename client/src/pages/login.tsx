@@ -14,6 +14,7 @@ import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { Loader2 } from "lucide-react";
 import authBgVideo from "@/assets/videos/auth-background.mp4";
 import authSound from "@/assets/audio/auth-sound.mp3";
+import fanucLogo from "@/assets/images/fanuc-logo.png";
 
 const loginSchema = z.object({
   phone: z.string().min(8, "Numero de telephone invalide"),
@@ -75,11 +76,7 @@ export default function LoginPage() {
       
       <div className="relative z-10 w-full max-w-sm px-8 py-12">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold">
-            <span className="text-gray-500">-</span>
-            <span className="text-primary">fanuc</span>
-            <span className="text-gray-500">+</span>
-          </h1>
+          <img src={fanucLogo} alt="FANUC" className="h-12 mx-auto" />
         </div>
 
         <Form {...form}>
