@@ -30,7 +30,7 @@ export default function ServicePage() {
               <div className="flex-1">
                 <h2 className="text-white text-xl font-bold mb-2">Bonjour, bienvenue chez FANUC</h2>
                 <p className="text-white/90 text-sm leading-relaxed">
-                  Votre avis est tres important pour nous. Si vous avez des suggestions ou des commentaires, faites-le nous savoir afin que nous puissions continuer a nous ameliorer.
+                  Votre satisfaction est notre priorite. Si vous avez des questions sur votre Compte ou nos services, n'hesitez pas a nous contacter.
                 </p>
               </div>
               <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
@@ -78,18 +78,9 @@ export default function ServicePage() {
 
         <div className="text-center px-4">
           <p className="text-gray-600 text-sm leading-relaxed">
-            Contactez un mentor financier pour vous donner les meilleurs conseils d'investissement et vous aider a ouvrir la porte de la richesse ! Ne manquez pas les opportunites pendant que vous hesitez et attendez. Utilisez votre sagesse et votre courage pour suivre votre mentor et creer des miracles de richesse.
+            Contactez notre service client pour obtenir des conseils d'investissement et maximiser vos revenus quotidiens ! Ne manquez pas les opportunites de croissance.
           </p>
         </div>
-
-        <button
-          onClick={() => openLink(settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0")}
-          className="w-full bg-sky-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-sky-600 transition-colors"
-          data-testid="button-join-group"
-        >
-          <img src={telegramIcon} alt="Telegram" className="w-6 h-6" />
-          <span className="font-medium">Cliquez pour rejoindre le groupe officiel</span>
-        </button>
       </div>
     </div>
   );
