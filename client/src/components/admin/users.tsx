@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ interface AdminUsersProps {
 
 export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [filter, setFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "banned" | "blocked" | "promoter">("all");
   const [selectedUser, setSelectedUser] = useState<UserWithTeam | null>(null);
@@ -213,8 +215,9 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                     )}
                   </div>
                   <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => openTeamModal(user.id)} title="Voir equipe">
-                      <Users className="w-4 h-4" />
+                    <Button size="sm" variant="outline" onClick={() => navigate(`/admin/team/${user.id}`)}>
+                      <Users className="w-4 h-4 mr-1" />
+                      Equipe
                     </Button>
                     <Button size="icon" variant="ghost" onClick={() => setSelectedUser(user)}>
                       <Edit className="w-4 h-4" />

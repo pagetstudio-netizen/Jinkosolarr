@@ -13,6 +13,7 @@ import InvestPage from "@/pages/invest";
 import TeamPage from "@/pages/team";
 import AccountPage from "@/pages/account";
 import AdminPage from "@/pages/admin";
+import AdminTeamPage from "@/pages/admin-team";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -147,6 +148,11 @@ function Router() {
       <Route path="/admin">
         <AdminRoute>
           <AdminPage />
+        </AdminRoute>
+      </Route>
+      <Route path="/admin/team/:id">
+        <AdminRoute>
+          <AdminTeamPage />
         </AdminRoute>
       </Route>
       <Route component={NotFound} />
