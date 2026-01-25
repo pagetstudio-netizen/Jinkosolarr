@@ -34,8 +34,16 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
   const [selectedProduct, setSelectedProduct] = useState("");
 
   const { data: users, isLoading } = useQuery<UserWithTeam[]>({
-    queryKey: ["/api/admin/users", statusFilter],
+    queryKey: ["/api/admin/users"],
   });
+
+  const statusFilteredUsers = users?.filter(u => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "banned") return u.isBanned;
+    if (statusFilter === "blocked") return u.isWithdrawalBlocked;
+    if (statusFilter === "promoter") return u.isPromoter;
+    return true;
+  }) || [];
 
   const { data: products } = useQuery<Product[]>({
     queryKey: ["/api/admin/products/all"],
@@ -60,11 +68,11 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
     },
   });
 
-  const filteredUsers = users?.filter(u => 
+  const filteredUsers = statusFilteredUsers.filter(u => 
     u.phone.includes(filter) || 
     u.fullName.toLowerCase().includes(filter.toLowerCase()) ||
     u.referralCode.toLowerCase().includes(filter.toLowerCase())
-  ) || [];
+  );
 
   return (
     <div className="space-y-4">
