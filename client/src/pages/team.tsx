@@ -69,29 +69,35 @@ export default function TeamPage() {
         </div>
 
         <div className="mx-4 mt-4 flex gap-3">
-          <div className="flex-1 bg-gray-100 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-              <Users className="w-5 h-5 text-gray-600" />
+          <div className="flex-1 bg-gray-100 rounded-xl p-3">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                <Users className="w-5 h-5 text-gray-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-gray-800" data-testid="text-referral-code">{user.referralCode}</p>
+                <p className="text-xs text-gray-500">Code d'invitation</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-gray-800" data-testid="text-referral-code">{user.referralCode}</p>
-              <p className="text-xs text-gray-500">Code d'invitation</p>
-              <button onClick={copyCode} className="text-red-500 text-xs font-medium" data-testid="button-copy-code">
-                « Copier »
-              </button>
-            </div>
+            <button onClick={copyCode} className="w-full bg-amber-500 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-2" data-testid="button-copy-code">
+              <Copy className="w-4 h-4" />
+              Copier
+            </button>
           </div>
-          <div className="flex-1 bg-gray-100 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-              <Copy className="w-5 h-5 text-gray-600" />
+          <div className="flex-1 bg-gray-100 rounded-xl p-3">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                <Copy className="w-5 h-5 text-gray-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-gray-800 truncate text-sm">https://ww...</p>
+                <p className="text-xs text-gray-500">Lien d'invitation</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-gray-800 truncate text-sm">https://ww...</p>
-              <p className="text-xs text-gray-500">Lien d'invitation</p>
-              <button onClick={copyLink} className="text-red-500 text-xs font-medium" data-testid="button-copy-link">
-                « Copier »
-              </button>
-            </div>
+            <button onClick={copyLink} className="w-full bg-amber-500 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-2" data-testid="button-copy-link">
+              <Copy className="w-4 h-4" />
+              Copier
+            </button>
           </div>
         </div>
 
@@ -102,10 +108,7 @@ export default function TeamPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-4 relative">
-              <div className="absolute -top-3 left-4">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 40'%3E%3Ctext x='0' y='30' font-size='24' fill='%23FFD700'%3E1st%3C/text%3E%3C/svg%3E" alt="1st" className="h-8" />
-              </div>
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="text-right mb-2">
                 <span className="text-sm text-gray-600">Taux de commission </span>
                 <span className="text-red-500 font-bold">27%</span>
@@ -130,10 +133,7 @@ export default function TeamPage() {
               </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl p-4 relative">
-              <div className="absolute -top-3 left-4">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 40'%3E%3Ctext x='0' y='30' font-size='24' fill='%23C0C0C0'%3E2nd%3C/text%3E%3C/svg%3E" alt="2nd" className="h-8" />
-              </div>
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="text-right mb-2">
                 <span className="text-sm text-gray-600">Taux de commission </span>
                 <span className="text-red-500 font-bold">2%</span>
@@ -158,10 +158,7 @@ export default function TeamPage() {
               </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl p-4 relative">
-              <div className="absolute -top-3 left-4">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 40'%3E%3Ctext x='0' y='30' font-size='24' fill='%23CD7F32'%3E3rd%3C/text%3E%3C/svg%3E" alt="3rd" className="h-8" />
-              </div>
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="text-right mb-2">
                 <span className="text-sm text-gray-600">Taux de commission </span>
                 <span className="text-red-500 font-bold">1%</span>
