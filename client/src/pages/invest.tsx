@@ -172,7 +172,7 @@ export default function InvestPage() {
                           </div>
                           <button
                             onClick={() => handleBuyClick(product)}
-                            className="px-4 py-1.5 text-sm font-medium text-red-500 bg-red-50 border border-red-300 rounded-md hover:bg-red-100 transition-colors"
+                            className="px-5 py-2 text-base font-semibold text-red-600 bg-red-100 border-2 border-red-400 rounded-lg hover:bg-red-200 transition-colors shadow-sm"
                             data-testid={`button-purchase-${product.id}`}
                           >
                             Acheter
@@ -181,7 +181,7 @@ export default function InvestPage() {
 
                         <div className="space-y-0.5 text-sm mt-2">
                           <p className="text-gray-600">
-                            Nbre de jours <span className="text-blue-500 font-medium">{product.cycleDays}</span>
+                            Duree <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span>
                           </p>
                           <p className="text-gray-600">
                             Gain Total <span className="text-blue-500 font-medium">{product.totalReturn.toLocaleString()} Fcfa</span>
