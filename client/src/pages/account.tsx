@@ -17,7 +17,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import AboutModal from "@/components/about-modal";
@@ -41,10 +41,6 @@ export default function AccountPage() {
   const [showWallet, setShowWallet] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [adminPin, setAdminPin] = useState("");
-
-  const { data: settings } = useQuery<{ supportLink: string; channelLink: string; groupLink: string }>({
-    queryKey: ["/api/settings/links"],
-  });
 
   const verifyPinMutation = useMutation({
     mutationFn: async (pin: string) => {
@@ -97,8 +93,8 @@ export default function AccountPage() {
     navigate("/login");
   };
 
-  const openSupport = () => {
-    window.open(settings?.supportLink || "https://t.me/+DOnUcJs7idVmN2E0", "_blank");
+  const goToService = () => {
+    navigate("/service");
   };
 
   return (
@@ -185,7 +181,7 @@ export default function AccountPage() {
             </button>
 
             <button
-              onClick={openSupport}
+              onClick={goToService}
               className="flex flex-col items-center gap-2"
               data-testid="button-support"
             >
