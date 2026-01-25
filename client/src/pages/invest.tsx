@@ -199,12 +199,6 @@ export default function InvestPage() {
           </>
         ) : (
           <div>
-            <div className="flex items-center gap-2 mb-4 px-2">
-              <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                <span className="text-orange-500">&#8592;</span> Mes revenus
-              </h2>
-            </div>
-            
             <div className="flex gap-6 mb-4 border-b">
               <button
                 onClick={() => setOrdersTab("active")}
