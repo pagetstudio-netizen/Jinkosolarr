@@ -103,6 +103,7 @@ export default function InvestPage() {
   };
 
   const paidProducts = products?.filter(p => !p.isFree) || [];
+  const freeProduct = products?.find(p => p.isFree);
 
   return (
     <div className="flex flex-col min-h-full" style={{ backgroundColor: "#f5f0e8" }}>
@@ -144,8 +145,47 @@ export default function InvestPage() {
                   <Skeleton key={i} className="h-40 w-full rounded-xl" />
                 ))}
               </div>
-            ) : paidProducts.length > 0 ? (
+            ) : (
               <div className="space-y-4">
+                {freeProduct && (
+                  <div 
+                    className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 shadow-sm"
+                    data-testid={`product-card-free-${freeProduct.id}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                          <Gift className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold text-base">{freeProduct.name}</h3>
+                          <p className="text-white/90 text-sm">
+                            +{freeProduct.dailyEarnings} FCFA / jour
+                          </p>
+                        </div>
+                      </div>
+                      {freeProduct.canClaimFree ? (
+                        <button
+                          onClick={() => claimFreeMutation.mutate(freeProduct.id)}
+                          disabled={claimFreeMutation.isPending}
+                          className="px-4 py-2 bg-white text-green-600 font-bold rounded-lg hover:bg-green-50 transition-colors"
+                          data-testid="button-claim-free"
+                        >
+                          {claimFreeMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            "Reclamer"
+                          )}
+                        </button>
+                      ) : (
+                        <span className="px-4 py-2 bg-white/20 text-white font-medium rounded-lg text-sm">
+                          Deja reclame
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {paidProducts.map((product, index) => (
                   <div 
                     key={product.id} 
@@ -189,11 +229,13 @@ export default function InvestPage() {
                     </div>
                   </div>
                 ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Aucun produit disponible</p>
+
+                {paidProducts.length === 0 && !freeProduct && (
+                  <div className="text-center py-12">
+                    <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Aucun produit disponible</p>
+                  </div>
+                )}
               </div>
             )}
           </>
