@@ -44,9 +44,26 @@ export default function WithdrawalPage() {
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
   const minWithdrawal = 1200;
-  const withdrawalFee = 15;
+
+  const { data: withdrawalSettings } = useQuery<{
+    withdrawalFees: number;
+    withdrawalStartHour: number;
+    withdrawalEndHour: number;
+    maxWithdrawalsPerDay: number;
+  }>({
+    queryKey: ["/api/settings/withdrawal"],
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
+  const withdrawalFee = withdrawalSettings?.withdrawalFees ?? 15;
+  const withdrawalStartHour = withdrawalSettings?.withdrawalStartHour ?? 8;
+  const withdrawalEndHour = withdrawalSettings?.withdrawalEndHour ?? 17;
 
   const amountAfterFees = amount ? Math.floor(Number(amount) * (1 - withdrawalFee / 100)) : 0;
+
+  const currentHour = new Date().getHours();
+  const isWithinWithdrawalHours = currentHour >= withdrawalStartHour && currentHour < withdrawalEndHour;
 
   const { data: wallets = [] } = useQuery<Wallet[]>({
     queryKey: ["/api/wallets"],
@@ -107,6 +124,14 @@ export default function WithdrawalPage() {
   });
 
   const handleSubmit = () => {
+    if (!isWithinWithdrawalHours) {
+      toast({
+        title: "Horaires de retrait",
+        description: `Les retraits sont disponibles de ${withdrawalStartHour}h a ${withdrawalEndHour}h`,
+        variant: "destructive",
+      });
+      return;
+    }
     if (!hasActiveProduct) {
       toast({
         title: "Produit requis",
@@ -229,6 +254,11 @@ export default function WithdrawalPage() {
           </span>
           <ArrowLeft className="w-4 h-4 text-gray-400 rotate-180" />
         </button>
+
+        <div className={`rounded-lg p-3 text-sm ${isWithinWithdrawalHours ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-orange-50 border border-orange-200 text-orange-700'}`}>
+          Horaires de retrait: {withdrawalStartHour}h - {withdrawalEndHour}h
+          {!isWithinWithdrawalHours && " (Ferme actuellement)"}
+        </div>
 
         {!hasActiveProduct && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
