@@ -22,8 +22,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import AboutModal from "@/components/about-modal";
 import RulesModal from "@/components/rules-modal";
-import ChangePasswordModal from "@/components/change-password-modal";
-import WalletModal from "@/components/wallet-modal";
 
 import fanucLogo from "@/assets/images/fanuc-circle-logo.png";
 import mascotWaving from "@/assets/images/mascot-waving.png";
@@ -37,8 +35,6 @@ export default function AccountPage() {
   const [, navigate] = useLocation();
   const [showAbout, setShowAbout] = useState(false);
   const [showRules, setShowRules] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [showWallet, setShowWallet] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [adminPin, setAdminPin] = useState("");
 
@@ -214,7 +210,7 @@ export default function AccountPage() {
 
           <div className="grid grid-cols-4 gap-4 mt-4">
             <button
-              onClick={() => setShowWallet(true)}
+              onClick={() => navigate("/wallet")}
               className="flex flex-col items-center gap-2"
               data-testid="button-wallet"
             >
@@ -225,7 +221,7 @@ export default function AccountPage() {
             </button>
 
             <button
-              onClick={() => setShowChangePassword(true)}
+              onClick={() => navigate("/change-password")}
               className="flex flex-col items-center gap-2"
               data-testid="button-change-password"
             >
@@ -264,9 +260,7 @@ export default function AccountPage() {
 
       <AboutModal open={showAbout} onClose={() => setShowAbout(false)} />
       <RulesModal open={showRules} onClose={() => setShowRules(false)} />
-      <ChangePasswordModal open={showChangePassword} onClose={() => setShowChangePassword(false)} />
-      <WalletModal open={showWallet} onClose={() => setShowWallet(false)} />
-
+      
       <Dialog open={showPinModal} onOpenChange={setShowPinModal}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
