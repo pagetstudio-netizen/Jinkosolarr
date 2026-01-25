@@ -98,11 +98,8 @@ export default function InvestPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-card">
-      <header className="bg-primary px-4 py-4">
-        <h1 className="text-xl font-bold text-primary-foreground text-center">Produits</h1>
-        <p className="text-center text-primary-foreground/80 text-sm mt-1">
-          Solde: {formatCurrency(balance, user.country)}
-        </p>
+      <header className="px-4 py-3 border-b">
+        <h1 className="text-lg font-bold text-foreground text-center">Plan d'investissement</h1>
       </header>
 
       <div className="flex-1 overflow-y-auto pb-20">
