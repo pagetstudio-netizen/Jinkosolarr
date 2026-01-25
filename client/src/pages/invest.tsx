@@ -111,7 +111,7 @@ export default function InvestPage() {
             <Gift className="w-10 h-10" />
           </div>
         </div>
-        <div className="bg-gradient-to-r from-green-400 to-green-300 rounded-xl p-4 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-pink-400 to-pink-300 rounded-xl p-4 text-white relative overflow-hidden">
           <div className="relative z-10">
             <p className="text-xl font-bold" data-testid="text-product-revenue">
               {totalProductRevenue.toLocaleString()} {currency}
