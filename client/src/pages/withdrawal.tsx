@@ -23,6 +23,11 @@ interface Wallet {
   isDefault: boolean;
 }
 
+interface UserProduct {
+  id: number;
+  status: string;
+}
+
 export default function WithdrawalPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
@@ -40,9 +45,17 @@ export default function WithdrawalPage() {
   const minWithdrawal = 1200;
   const withdrawalFee = 15;
 
+  const amountAfterFees = amount ? Math.floor(Number(amount) * (1 - withdrawalFee / 100)) : 0;
+
   const { data: wallets = [] } = useQuery<Wallet[]>({
     queryKey: ["/api/wallets"],
   });
+
+  const { data: userProducts = [] } = useQuery<UserProduct[]>({
+    queryKey: ["/api/user-products"],
+  });
+
+  const hasActiveProduct = userProducts.some((p) => p.status === "active");
 
   const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; type: string }[]>({
     queryKey: ["/api/payment-channels", user?.country],
@@ -92,6 +105,14 @@ export default function WithdrawalPage() {
   });
 
   const handleSubmit = () => {
+    if (!hasActiveProduct) {
+      toast({
+        title: "Produit requis",
+        description: "Vous devez avoir un produit actif pour effectuer un retrait",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!amount || amount < minWithdrawal) {
       toast({
         title: "Montant invalide",
@@ -175,6 +196,12 @@ export default function WithdrawalPage() {
           <ArrowLeft className="w-4 h-4 text-gray-400 rotate-180" />
         </button>
 
+        {!hasActiveProduct && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+            Vous devez avoir un produit actif pour effectuer un retrait.
+          </div>
+        )}
+
         <div className="bg-white rounded-lg border p-4">
           <label className="block text-sm text-gray-500 mb-2">Montant ({currency})</label>
           <div className="flex items-center gap-2">
@@ -188,12 +215,23 @@ export default function WithdrawalPage() {
               data-testid="input-withdrawal-amount"
             />
           </div>
-          <div className="border-t mt-3 pt-3" />
+          {amount && Number(amount) > 0 && (
+            <div className="border-t mt-3 pt-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-500">Frais ({withdrawalFee}%)</span>
+                <span className="text-red-500">-{Math.floor(Number(amount) * withdrawalFee / 100).toLocaleString()} {currency}</span>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-gray-700 font-medium">Montant a recevoir</span>
+                <span className="text-green-600 font-bold text-lg">{amountAfterFees.toLocaleString()} {currency}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <button
           onClick={handleSubmit}
-          disabled={withdrawMutation.isPending || !amount || !selectedWallet}
+          disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
           className="w-full py-4 bg-amber-100 border-2 border-amber-400 text-amber-700 font-semibold rounded-full disabled:opacity-50"
           data-testid="button-submit-withdrawal"
         >
