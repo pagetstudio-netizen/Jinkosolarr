@@ -16,7 +16,6 @@ const PAYMENT_METHODS_BY_COUNTRY: Record<string, string[]> = {
   BJ: ["Celtis", "Moov Money", "MTN Mobile Money", "Momo"],
   CI: ["Wave", "MTN Mobile Money", "Orange Money", "Moov Money"],
   CG: ["MTN Mobile Money", "Airtel Money"],
-  CD: ["Airtel Money", "M-Pesa", "Orange Money"],
 };
 
 interface PaymentChannel {

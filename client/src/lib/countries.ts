@@ -5,7 +5,6 @@ export const COUNTRIES = [
   { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", paymentMethods: ["Celtis", "Moov Money", "MTN", "Momo"] },
   { code: "CI", name: "Cote d'Ivoire", flag: "CI", currency: "XOF", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
   { code: "CG", name: "Congo Brazzaville", flag: "CG", currency: "XAF", paymentMethods: ["MTN"] },
-  { code: "CD", name: "RDC", flag: "CD", currency: "CDF", paymentMethods: ["Airtel Money"], conversionRate: 4 },
 ];
 
 export const ELIGIBLE_COUNTRIES = [
@@ -15,7 +14,6 @@ export const ELIGIBLE_COUNTRIES = [
   { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", paymentMethods: ["Celtis", "Moov Money", "MTN", "Momo"] },
   { code: "CI", name: "Cote d'Ivoire", flag: "CI", currency: "XOF", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
   { code: "CG", name: "Congo Brazzaville", flag: "CG", currency: "XAF", paymentMethods: ["MTN"] },
-  { code: "CD", name: "RDC", flag: "CD", currency: "CDF", paymentMethods: ["Airtel Money"], conversionRate: 4 },
 ] as const;
 
 export function getCountryByCode(code: string) {
@@ -27,18 +25,8 @@ export function getPaymentMethodsForCountry(code: string): string[] {
   return country ? [...country.paymentMethods] : [];
 }
 
-export function convertToCDF(amount: number): number {
-  return amount * 4;
-}
-
-export function convertFromCDF(amount: number): number {
-  return amount / 4;
-}
-
 export function formatCurrency(amount: number, countryCode: string): string {
   const country = getCountryByCode(countryCode);
-  if (country?.code === "CD") {
-    return `${convertToCDF(amount).toLocaleString()} CDF`;
-  }
-  return `${amount.toLocaleString()} FCFA`;
+  const currency = country?.currency || "FCFA";
+  return `${amount.toLocaleString()} ${currency}`;
 }
