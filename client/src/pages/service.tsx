@@ -41,7 +41,7 @@ export default function ServicePage() {
         </div>
 
         <div className="text-center">
-          <p className="text-pink-500 text-xl font-medium">09:00 a.m. a 6:00 p.m.</p>
+          <p className="text-pink-500 text-xl font-medium">9h a 17h GMT</p>
         </div>
 
         <div className="space-y-4">

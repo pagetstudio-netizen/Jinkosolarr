@@ -1,9 +1,6 @@
 import { useAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import ServiceModal from "@/components/service-modal";
 import { Bell } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import fanucHeader from "@/assets/images/fanuc-header.png";
 import btnRecharge from "@/assets/images/btn-recharge.png";
 import btnRetirer from "@/assets/images/btn-retirer.png";
@@ -14,11 +11,7 @@ import fanucTeamWide from "@/assets/images/fanuc-team-wide.png";
 
 export default function HomePage() {
   const { user } = useAuth();
-  const [showService, setShowService] = useState(false);
-
-  const { data: settings } = useQuery<{ supportLink: string; channelLink: string; groupLink: string }>({
-    queryKey: ["/api/settings/links"],
-  });
+  const [, navigate] = useLocation();
 
   if (!user) return null;
 
@@ -55,7 +48,7 @@ export default function HomePage() {
         </Link>
 
         <button
-          onClick={() => setShowService(true)}
+          onClick={() => navigate("/service")}
           className="flex-1 hover:opacity-90 transition-opacity mb-4"
           data-testid="button-aide"
         >
@@ -117,14 +110,6 @@ export default function HomePage() {
           className="w-full h-auto rounded-xl object-cover"
         />
       </div>
-
-      <ServiceModal 
-        open={showService} 
-        onClose={() => setShowService(false)}
-        supportLink={settings?.supportLink || "https://t.me/+DOnUcJs7idVmN2E0"}
-        channelLink={settings?.channelLink || "https://t.me/+DOnUcJs7idVmN2E0"}
-        groupLink={settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0"}
-      />
     </div>
   );
 }
