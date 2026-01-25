@@ -61,7 +61,7 @@ export interface IStorage {
   getReferrals(userId: number, level: number): Promise<User[]>;
   createReferralCommission(data: Partial<ReferralCommission>): Promise<ReferralCommission>;
   getUserCommissions(userId: number): Promise<number>;
-  getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Invested: number; level2Invested: number; level3Invested: number }>;
+  getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Commission: number; level2Commission: number; level3Commission: number; level1Invested: number; level2Invested: number; level3Invested: number }>;
   
   // Tasks
   getTasks(): Promise<Task[]>;
@@ -537,11 +537,18 @@ export class DatabaseStorage implements IStorage {
     return parseFloat(result[0]?.total || "0");
   }
 
-  async getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Invested: number; level2Invested: number; level3Invested: number }> {
+  async getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Commission: number; level2Commission: number; level3Commission: number; level1Invested: number; level2Invested: number; level3Invested: number }> {
     const level1 = await this.getReferrals(userId, 1);
     const level2 = await this.getReferrals(userId, 2);
     const level3 = await this.getReferrals(userId, 3);
     const totalCommission = await this.getUserCommissions(userId);
+
+    const getCommissionByLevel = async (level: number) => {
+      const result = await db.select({ total: sql<string>`COALESCE(SUM(${referralCommissions.amount}), 0)` })
+        .from(referralCommissions)
+        .where(and(eq(referralCommissions.userId, userId), eq(referralCommissions.level, level)));
+      return parseFloat(result[0]?.total || "0");
+    };
 
     const countInvested = async (userList: User[]) => {
       let count = 0;
@@ -556,6 +563,9 @@ export class DatabaseStorage implements IStorage {
       level2Count: level2.length,
       level3Count: level3.length,
       totalCommission,
+      level1Commission: await getCommissionByLevel(1),
+      level2Commission: await getCommissionByLevel(2),
+      level3Commission: await getCommissionByLevel(3),
       level1Invested: await countInvested(level1),
       level2Invested: await countInvested(level2),
       level3Invested: await countInvested(level3),
