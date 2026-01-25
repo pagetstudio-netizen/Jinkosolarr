@@ -10,12 +10,12 @@ import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 const PRESET_AMOUNTS = [3000, 5000, 15000, 25000, 50000, 100000];
 
 const PAYMENT_METHODS_BY_COUNTRY: Record<string, string[]> = {
-  CM: ["Orange Money", "MTN Mobile Money"],
+  CM: ["Orange Money", "MTN"],
   BF: ["Orange Money", "Moov Money"],
-  TG: ["TMoney", "Moov Money", "Mixx by Yas"],
-  BJ: ["Celtis", "Moov Money", "MTN Mobile Money", "Momo"],
-  CI: ["Wave", "MTN Mobile Money", "Orange Money", "Moov Money"],
-  CG: ["MTN Mobile Money", "Airtel Money"],
+  TG: ["Moov Money", "Mixx by Yas"],
+  BJ: ["Moov Money", "MTN"],
+  CI: ["Wave", "MTN", "Orange Money", "Moov Money"],
+  CG: ["MTN"],
 };
 
 interface PaymentChannel {
