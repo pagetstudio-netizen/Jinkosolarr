@@ -18,6 +18,7 @@ import DepositPage from "@/pages/deposit";
 import WithdrawalPage from "@/pages/withdrawal";
 import DepositHistoryPage from "@/pages/deposit-history";
 import DepositsHistoryPage from "@/pages/deposit-history-real";
+import HistoryPage from "@/pages/history";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -167,6 +168,11 @@ function Router() {
       <Route path="/deposits-history">
         <ProtectedRoute>
           <DepositsHistoryPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/history">
+        <ProtectedRoute>
+          <HistoryPage />
         </ProtectedRoute>
       </Route>
       <Route path="/admin">

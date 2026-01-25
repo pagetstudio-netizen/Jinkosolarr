@@ -134,6 +134,37 @@ export async function registerRoutes(
     });
   });
 
+  app.post("/api/change-password", requireAuth, async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Veuillez remplir tous les champs" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Le nouveau mot de passe doit contenir au moins 6 caracteres" });
+      }
+
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouve" });
+      }
+
+      const validPassword = await bcrypt.compare(currentPassword, user.password);
+      if (!validPassword) {
+        return res.status(400).json({ message: "Mot de passe actuel incorrect" });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(user.id, { password: hashedPassword });
+
+      res.json({ success: true, message: "Mot de passe modifie avec succes" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Erreur serveur" });
+    }
+  });
+
   // Products
   app.get("/api/products", requireAuth, async (req, res) => {
     try {
