@@ -186,6 +186,18 @@ export class DatabaseStorage implements IStorage {
       const balance = parseFloat(user.balance);
       if (balance < product.price) throw new Error("Solde insuffisant");
       
+      // Check if this is user's first paid investment
+      const existingPaidProducts = await db.select()
+        .from(userProducts)
+        .innerJoin(products, eq(userProducts.productId, products.id))
+        .where(and(
+          eq(userProducts.userId, userId),
+          eq(products.isFree, false),
+          eq(userProducts.assignedByAdmin, false)
+        ));
+      
+      const isFirstInvestment = existingPaidProducts.length === 0;
+      
       await this.updateUser(userId, { 
         balance: (balance - product.price).toFixed(2),
         hasActiveProduct: true,
@@ -198,8 +210,10 @@ export class DatabaseStorage implements IStorage {
         description: `Achat ${product.name}`,
       });
 
-      // Process referral commissions
-      await this.processReferralCommissions(userId, product.price, productId);
+      // Process referral commissions ONLY on first investment
+      if (isFirstInvestment) {
+        await this.processReferralCommissions(userId, product.price, productId);
+      }
     } else {
       await this.updateUser(userId, { hasActiveProduct: true });
     }
