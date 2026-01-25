@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, getCountryByCode } from "@/lib/countries";
 import { Copy, Users } from "lucide-react";
+import robotMascot from "@/assets/images/robot-mascot.png";
 
 interface TeamStats {
   level1Count: number;
@@ -51,19 +52,20 @@ export default function TeamPage() {
           <p className="text-gray-600">— Centre de promotion —</p>
         </div>
 
-        <div className="bg-gradient-to-r from-gray-800 to-gray-700 mx-4 mt-4 rounded-xl p-4 text-white">
+        <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 mx-4 mt-4 rounded-xl p-4 text-white relative overflow-hidden">
           <div className="flex justify-between items-center">
-            <div>
+            <div className="z-10">
+              <p className="text-sm opacity-90">Mes revenus</p>
               <p className="text-3xl font-bold" data-testid="text-total-commission">
-                {(stats?.totalCommission || 0).toFixed(2)}
+                {(stats?.totalCommission || 0).toFixed(0)}
               </p>
-              <p className="text-sm opacity-80">Commission cumulee({currency})</p>
-            </div>
-            <div className="text-right">
+              <p className="text-sm opacity-90 mt-2">Nombre de personnes</p>
               <p className="text-3xl font-bold" data-testid="text-total-people">
                 {totalPeople}
               </p>
-              <p className="text-sm opacity-80">Personnes promues</p>
+            </div>
+            <div className="absolute right-0 bottom-0 w-32 h-32">
+              <img src={robotMascot} alt="Mascotte" className="w-full h-full object-contain" />
             </div>
           </div>
         </div>
