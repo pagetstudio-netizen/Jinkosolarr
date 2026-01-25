@@ -166,10 +166,13 @@ export class DatabaseStorage implements IStorage {
       product: products,
     }).from(userProducts)
       .innerJoin(products, eq(userProducts.productId, products.id))
-      .where(eq(userProducts.userId, userId))
-      .orderBy(desc(userProducts.purchasedAt));
+      .where(eq(userProducts.userId, userId));
     
-    return result;
+    return result.sort((a, b) => {
+      const dateA = a.userProduct.purchasedAt ? new Date(a.userProduct.purchasedAt).getTime() : 0;
+      const dateB = b.userProduct.purchasedAt ? new Date(b.userProduct.purchasedAt).getTime() : 0;
+      return dateB - dateA;
+    });
   }
 
   async purchaseProduct(userId: number, productId: number, assignedByAdmin = false): Promise<UserProduct> {
