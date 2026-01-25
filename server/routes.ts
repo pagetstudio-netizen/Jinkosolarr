@@ -260,7 +260,7 @@ export async function registerRoutes(
   // Deposits
   app.post("/api/deposits", requireAuth, async (req, res) => {
     try {
-      const { amount, accountName, accountNumber, paymentMethod } = req.body;
+      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId } = req.body;
       const user = await storage.getUser(req.session.userId!);
       
       if (!user) {
@@ -271,7 +271,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Montant minimum: 3000 FCFA" });
       }
 
-      if (!accountName || !accountNumber || !paymentMethod) {
+      if (!accountName || !accountNumber || !paymentMethod || !country) {
         return res.status(400).json({ message: "Tous les champs sont requis" });
       }
 
@@ -280,8 +280,9 @@ export async function registerRoutes(
         amount,
         accountName,
         accountNumber,
-        country: user.country,
+        country,
         paymentMethod,
+        paymentChannelId,
         status: "pending",
       });
 
