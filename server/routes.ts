@@ -226,6 +226,27 @@ export async function registerRoutes(
     }
   });
 
+  // Get user's purchased products
+  app.get("/api/user/products", requireAuth, async (req, res) => {
+    try {
+      const userProductsList = await storage.getAllUserProducts(req.session.userId!);
+      
+      const formattedProducts = userProductsList.map(up => ({
+        id: up.userProduct.id,
+        productId: up.userProduct.productId,
+        purchasedAt: up.userProduct.purchasedAt,
+        daysRemaining: up.userProduct.daysRemaining,
+        totalEarned: up.userProduct.totalEarned,
+        status: up.userProduct.isActive ? 'active' : 'completed',
+        product: up.product
+      }));
+      
+      res.json(formattedProducts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Payment Channels
   app.get("/api/payment-channels", requireAuth, async (req, res) => {
     try {

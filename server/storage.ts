@@ -24,6 +24,7 @@ export interface IStorage {
   
   // User Products
   getUserProducts(userId: number): Promise<(UserProduct & { product: Product })[]>;
+  getAllUserProducts(userId: number): Promise<{ userProduct: UserProduct; product: Product }[]>;
   purchaseProduct(userId: number, productId: number, assignedByAdmin?: boolean): Promise<UserProduct>;
   removeUserProduct(userId: number, productId: number): Promise<void>;
   processEarnings(): Promise<void>;
@@ -157,6 +158,18 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(userProducts.userId, userId), eq(userProducts.isActive, true)));
     
     return result.map(r => ({ ...r.userProduct, product: r.product }));
+  }
+
+  async getAllUserProducts(userId: number): Promise<{ userProduct: UserProduct; product: Product }[]> {
+    const result = await db.select({
+      userProduct: userProducts,
+      product: products,
+    }).from(userProducts)
+      .innerJoin(products, eq(userProducts.productId, products.id))
+      .where(eq(userProducts.userId, userId))
+      .orderBy(desc(userProducts.purchasedAt));
+    
+    return result;
   }
 
   async purchaseProduct(userId: number, productId: number, assignedByAdmin = false): Promise<UserProduct> {
