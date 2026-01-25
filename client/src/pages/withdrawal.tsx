@@ -13,12 +13,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface WithdrawalWallet {
+interface Wallet {
   id: number;
   userId: number;
-  name: string;
-  phone: string;
+  accountName: string;
+  accountNumber: string;
   paymentMethod: string;
+  country: string;
   isDefault: boolean;
 }
 
@@ -27,7 +28,7 @@ export default function WithdrawalPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number | "">("");
-  const [selectedWallet, setSelectedWallet] = useState<WithdrawalWallet | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
   const [showWalletDialog, setShowWalletDialog] = useState(false);
   const [showAddWalletDialog, setShowAddWalletDialog] = useState(false);
   const [newWalletName, setNewWalletName] = useState("");
@@ -39,8 +40,8 @@ export default function WithdrawalPage() {
   const minWithdrawal = 1200;
   const withdrawalFee = 15;
 
-  const { data: wallets = [] } = useQuery<WithdrawalWallet[]>({
-    queryKey: ["/api/withdrawal-wallets"],
+  const { data: wallets = [] } = useQuery<Wallet[]>({
+    queryKey: ["/api/wallets"],
   });
 
   const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; type: string }[]>({
@@ -53,13 +54,13 @@ export default function WithdrawalPage() {
   });
 
   const addWalletMutation = useMutation({
-    mutationFn: async (data: { name: string; phone: string; paymentMethod: string }) => {
-      const res = await apiRequest("POST", "/api/withdrawal-wallets", data);
+    mutationFn: async (data: { accountName: string; accountNumber: string; paymentMethod: string; country: string }) => {
+      const res = await apiRequest("POST", "/api/wallets", data);
       return res.json();
     },
     onSuccess: (newWallet) => {
       toast({ title: "Succes", description: "Portefeuille ajoute avec succes" });
-      queryClient.invalidateQueries({ queryKey: ["/api/withdrawal-wallets"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/wallets"] });
       setSelectedWallet(newWallet);
       setShowAddWalletDialog(false);
       setNewWalletName("");
@@ -120,9 +121,10 @@ export default function WithdrawalPage() {
       return;
     }
     addWalletMutation.mutate({
-      name: newWalletName,
-      phone: newWalletPhone,
+      accountName: newWalletName,
+      accountNumber: newWalletPhone,
       paymentMethod: newWalletMethod,
+      country: user?.country || "",
     });
   };
 
@@ -165,7 +167,7 @@ export default function WithdrawalPage() {
         >
           <span className="text-gray-600">
             {selectedWallet ? (
-              <span className="text-gray-900 font-medium">{selectedWallet.name} - {selectedWallet.phone}</span>
+              <span className="text-gray-900 font-medium">{selectedWallet.accountName} - {selectedWallet.accountNumber}</span>
             ) : (
               "Selectionnez votre portefeuille"
             )}
@@ -230,8 +232,8 @@ export default function WithdrawalPage() {
                 }`}
                 data-testid={`button-wallet-${wallet.id}`}
               >
-                <p className="font-medium">{wallet.name}</p>
-                <p className="text-sm text-gray-500">{wallet.phone} - {wallet.paymentMethod}</p>
+                <p className="font-medium">{wallet.accountName}</p>
+                <p className="text-sm text-gray-500">{wallet.accountNumber} - {wallet.paymentMethod}</p>
               </button>
             ))}
             <button
