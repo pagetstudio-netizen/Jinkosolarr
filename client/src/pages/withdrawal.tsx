@@ -171,7 +171,7 @@ export default function WithdrawalPage() {
 
   if (wallets.length === 0) {
     return (
-      <div className="min-h-screen bg-amber-50">
+      <div className="min-h-screen bg-white">
         <header className="flex items-center px-4 py-3 border-b bg-white">
           <Link href="/account">
             <button className="p-2" data-testid="button-back">
@@ -202,7 +202,7 @@ export default function WithdrawalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen bg-white">
       <header className="flex items-center px-4 py-3 border-b bg-white">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">

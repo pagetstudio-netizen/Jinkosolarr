@@ -45,7 +45,7 @@ export default function TeamPage() {
   const totalPeople = (stats?.level1Count || 0) + (stats?.level2Count || 0) + (stats?.level3Count || 0);
 
   return (
-    <div className="flex flex-col min-h-full bg-amber-50">
+    <div className="flex flex-col min-h-full bg-white">
       <div className="flex-1 overflow-y-auto pb-20">
         <div className="text-center py-4 border-b">
           <p className="text-gray-600">— Centre de promotion —</p>

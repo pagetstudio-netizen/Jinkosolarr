@@ -45,7 +45,7 @@ export default function TasksPage() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col min-h-full bg-amber-50">
+    <div className="flex flex-col min-h-full bg-white">
       <header className="bg-amber-500 px-4 py-4">
         <h1 className="text-xl font-bold text-white text-center">Centre de taches</h1>
       </header>

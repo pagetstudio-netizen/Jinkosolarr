@@ -90,7 +90,7 @@ export default function HistoryPage() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col min-h-full bg-amber-50">
+    <div className="flex flex-col min-h-full bg-white">
       <div className="bg-white border-b px-4 py-3 flex items-center gap-3">
         <Link href="/account">
           <button className="p-1" data-testid="button-back">
