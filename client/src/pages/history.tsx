@@ -54,7 +54,7 @@ export default function HistoryPage() {
     switch (status) {
       case "completed":
       case "approved":
-        return "Approuve";
+        return "Reussi";
       case "rejected":
         return "Rejete";
       case "pending":
