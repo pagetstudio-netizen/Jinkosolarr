@@ -101,7 +101,7 @@ export default function InvestPage() {
                 data-testid={`product-card-${product.id}`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-28 h-28 flex-shrink-0">
+                  <div className="w-24 h-24 flex-shrink-0">
                     <img 
                       src={getProductImage(index)} 
                       alt={product.name}
@@ -109,32 +109,20 @@ export default function InvestPage() {
                     />
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start gap-3">
-                      <div className="flex-1 min-w-0 space-y-0.5">
-                        <p className="text-gray-600 text-[13px] leading-tight">
-                          Prix : <span className="text-red-500 font-bold">{product.price.toLocaleString()} Fcfa</span>
-                        </p>
-                        <p className="text-gray-600 text-[13px] leading-tight">
-                          Gains journalieres : <span className="text-green-500 font-medium">{product.dailyEarnings.toLocaleString()} Fcfa</span>
-                        </p>
-                        <p className="text-gray-600 text-[13px] leading-tight">
-                          Duree : <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span>
-                        </p>
-                        <p className="text-gray-600 text-[13px] leading-tight">
-                          Gains total : <span className="text-orange-500 font-medium">{product.totalReturn.toLocaleString()} Fcfa</span>
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => handleBuyClick(product)}
-                        className="px-4 py-1.5 text-[13px] font-medium text-red-500 bg-red-50 border border-red-300 rounded-md hover:bg-red-100 transition-colors flex-shrink-0"
-                        data-testid={`button-purchase-${product.id}`}
-                      >
-                        Acheter
-                      </button>
-                    </div>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <p className="text-gray-600 text-[13px]">Prix : <span className="text-red-500 font-bold">{product.price.toLocaleString()} Fcfa</span></p>
+                    <p className="text-gray-600 text-[13px]">Gains/jour : <span className="text-green-500 font-medium">{product.dailyEarnings.toLocaleString()} Fcfa</span></p>
+                    <p className="text-gray-600 text-[13px]">Duree : <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span></p>
+                    <p className="text-gray-600 text-[13px]">Gains total : <span className="text-orange-500 font-medium">{product.totalReturn.toLocaleString()} Fcfa</span></p>
                   </div>
                 </div>
+                <button
+                  onClick={() => handleBuyClick(product)}
+                  className="w-full mt-3 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+                  data-testid={`button-purchase-${product.id}`}
+                >
+                  Acheter
+                </button>
               </div>
             ))}
           </div>
