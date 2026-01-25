@@ -14,6 +14,8 @@ import TeamPage from "@/pages/team";
 import AccountPage from "@/pages/account";
 import AdminPage from "@/pages/admin";
 import AdminTeamPage from "@/pages/admin-team";
+import DepositPage from "@/pages/deposit";
+import WithdrawalPage from "@/pages/withdrawal";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -143,6 +145,16 @@ function Router() {
           <AppLayout>
             <AccountPage />
           </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/deposit">
+        <ProtectedRoute>
+          <DepositPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/withdrawal">
+        <ProtectedRoute>
+          <WithdrawalPage />
         </ProtectedRoute>
       </Route>
       <Route path="/admin">
