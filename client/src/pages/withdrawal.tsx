@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, ChevronRight, Wallet } from "lucide-react";
 import { Link, useLocation, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
-import { getCountryByCode } from "@/lib/countries";
+import { getCountryByCode, getPaymentMethodsForCountry } from "@/lib/countries";
 import {
   Dialog,
   DialogContent,
@@ -76,14 +76,7 @@ export default function WithdrawalPage() {
   const hasActiveProduct = userProducts.some((p) => p.status === "active");
   const [, navigate] = useLocation();
 
-  const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; type: string }[]>({
-    queryKey: ["/api/payment-channels", user?.country],
-    queryFn: async () => {
-      const res = await fetch(`/api/payment-channels?country=${user?.country}`);
-      return res.json();
-    },
-    enabled: !!user?.country,
-  });
+  const paymentMethods = user?.country ? getPaymentMethodsForCountry(user.country) : [];
 
   const addWalletMutation = useMutation({
     mutationFn: async (data: { accountName: string; accountNumber: string; paymentMethod: string; country: string }) => {
@@ -390,9 +383,9 @@ export default function WithdrawalPage() {
                 data-testid="select-wallet-method"
               >
                 <option value="">Selectionnez</option>
-                {paymentChannels.map((channel) => (
-                  <option key={channel.id} value={channel.name}>
-                    {channel.name}
+                {paymentMethods.map((method) => (
+                  <option key={method} value={method}>
+                    {method}
                   </option>
                 ))}
               </select>
