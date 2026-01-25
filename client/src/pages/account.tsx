@@ -118,12 +118,12 @@ export default function AccountPage() {
               style={{ marginRight: "-10px", marginBottom: "-5px" }}
             />
             
-            <div className="flex gap-2 mt-4 relative z-10">
+            <div className="flex gap-4 mt-6 relative z-10 pr-20">
               <Link href="/withdrawal" className="flex-1">
                 <img 
                   src={retirerBtn} 
                   alt="Retirer" 
-                  className="w-full h-12 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  className="w-full h-10 object-contain cursor-pointer hover:opacity-90 transition-opacity"
                   data-testid="button-account-withdraw"
                 />
               </Link>
@@ -131,7 +131,7 @@ export default function AccountPage() {
                 <img 
                   src={rechargerBtn} 
                   alt="Recharger" 
-                  className="w-full h-12 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  className="w-full h-10 object-contain cursor-pointer hover:opacity-90 transition-opacity"
                   data-testid="button-account-deposit"
                 />
               </Link>
