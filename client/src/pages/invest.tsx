@@ -106,44 +106,44 @@ export default function InvestPage() {
         ) : products && products.length > 0 ? (
           <div className="divide-y divide-border">
             {products.map((product, index) => (
-              <div key={product.id} className="p-4">
-                <div className="flex items-start gap-4">
+              <div key={product.id} className="px-3 py-3">
+                <div className="flex items-start gap-3">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-3 flex-wrap">
-                      <h3 className="text-lg font-bold text-primary">{product.name}</h3>
+                    <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                      <h3 className="text-sm font-bold text-primary">{product.name}</h3>
                       {product.isOwned && (
-                        <Badge className="text-xs bg-primary text-primary-foreground">
+                        <Badge className="text-[10px] px-1.5 py-0 bg-primary text-primary-foreground">
                           Actif {product.ownedCount && product.ownedCount > 1 ? `x${product.ownedCount}` : ""}
                         </Badge>
                       )}
                     </div>
 
-                    <div className="space-y-1.5 text-sm">
+                    <div className="space-y-0.5 text-xs">
                       <div className="flex">
-                        <span className="text-muted-foreground w-32">Prix :</span>
+                        <span className="text-muted-foreground w-28">Prix :</span>
                         <span className="font-medium text-foreground">
                           {product.isFree ? "GRATUIT" : `FCFA ${product.price.toLocaleString()}`}
                         </span>
                       </div>
                       <div className="flex">
-                        <span className="text-muted-foreground w-32">Duree :</span>
+                        <span className="text-muted-foreground w-28">Duree :</span>
                         <span className="font-medium text-foreground">{product.cycleDays}-jour</span>
                       </div>
                       <div className="flex">
-                        <span className="text-muted-foreground w-32">Revenu quotidien :</span>
+                        <span className="text-muted-foreground w-28">Revenu quotidien :</span>
                         <span className="font-medium text-foreground">FCFA {product.dailyEarnings.toLocaleString()}</span>
                       </div>
                       <div className="flex">
-                        <span className="text-muted-foreground w-32">Revenu total :</span>
+                        <span className="text-muted-foreground w-28">Revenu total :</span>
                         <span className="font-medium text-foreground">FCFA {product.totalReturn.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden p-2">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden p-1.5">
                       {product.isFree ? (
-                        <Gift className="w-12 h-12 text-primary" />
+                        <Gift className="w-10 h-10 text-primary" />
                       ) : (
                         <img 
                           src={getProductImage(index)} 
@@ -156,7 +156,7 @@ export default function InvestPage() {
                     {product.isFree ? (
                       <Button
                         size="sm"
-                        className="text-xs px-4 py-2 h-auto leading-tight"
+                        className="text-[10px] px-3 py-1.5 h-auto leading-tight"
                         disabled={!product.canClaimFree || claimFreeMutation.isPending}
                         onClick={() => claimFreeMutation.mutate(product.id)}
                         variant={product.canClaimFree ? "default" : "secondary"}
@@ -176,7 +176,7 @@ export default function InvestPage() {
                     ) : (
                       <Button
                         size="sm"
-                        className="text-xs px-4 py-2 h-auto leading-tight"
+                        className="text-[10px] px-3 py-1.5 h-auto leading-tight"
                         onClick={() => handleBuyClick(product)}
                         data-testid={`button-purchase-${product.id}`}
                       >
