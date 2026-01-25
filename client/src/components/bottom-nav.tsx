@@ -1,12 +1,16 @@
 import { useLocation } from "wouter";
-import { Home, Users, Diamond, User, Cog } from "lucide-react";
+import navHome from "@/assets/images/nav-home.png";
+import navVip from "@/assets/images/nav-vip.png";
+import navMachine from "@/assets/images/nav-machine.png";
+import navTeam from "@/assets/images/nav-team.png";
+import navAccount from "@/assets/images/nav-account.png";
 
 const navItems = [
-  { path: "/", icon: Home, label: "Accueil" },
-  { path: "/invest", icon: Diamond, label: "VIP" },
-  { path: "/orders", icon: Cog, label: "Machine" },
-  { path: "/team", icon: Users, label: "Equipe" },
-  { path: "/account", icon: User, label: "Compte" },
+  { path: "/", icon: navHome, label: "Accueil" },
+  { path: "/invest", icon: navVip, label: "VIP" },
+  { path: "/orders", icon: navMachine, label: "Machine" },
+  { path: "/team", icon: navTeam, label: "Equipe" },
+  { path: "/account", icon: navAccount, label: "Compte" },
 ];
 
 export default function BottomNav() {
@@ -17,7 +21,6 @@ export default function BottomNav() {
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
           const isActive = location === item.path;
-          const Icon = item.icon;
           
           return (
             <button
@@ -26,7 +29,12 @@ export default function BottomNav() {
               className={`flex flex-col items-center justify-center flex-1 h-full transition-colors`}
               data-testid={`nav-${item.label.toLowerCase()}`}
             >
-              <Icon className={`w-6 h-6 mb-1 ${isActive ? "text-red-500" : "text-gray-400"}`} />
+              <img 
+                src={item.icon} 
+                alt={item.label} 
+                className={`w-6 h-6 mb-1 ${isActive ? "" : "opacity-40"}`}
+                style={isActive ? { filter: "invert(27%) sepia(91%) saturate(6500%) hue-rotate(355deg) brightness(95%) contrast(100%)" } : {}}
+              />
               <span className={`text-xs ${isActive ? "font-medium text-red-500" : "text-gray-400"}`}>{item.label}</span>
             </button>
           );
