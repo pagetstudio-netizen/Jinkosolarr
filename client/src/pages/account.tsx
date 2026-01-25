@@ -1,15 +1,10 @@
 import { useAuth } from "@/lib/auth";
 import { useLocation, Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { formatCurrency, getCountryByCode } from "@/lib/countries";
+import { Button } from "@/components/ui/button";
+import { getCountryByCode } from "@/lib/countries";
 import { 
-  Wallet, 
-  ArrowDownToLine, 
-  ArrowUpFromLine, 
-  History, 
   Info, 
   Headphones, 
   Users, 
@@ -18,7 +13,8 @@ import {
   Lock,
   LogOut,
   Shield,
-  Loader2
+  Loader2,
+  ChevronRight
 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -28,6 +24,12 @@ import AboutModal from "@/components/about-modal";
 import RulesModal from "@/components/rules-modal";
 import ChangePasswordModal from "@/components/change-password-modal";
 import WalletModal from "@/components/wallet-modal";
+
+import fanucLogo from "@/assets/images/fanuc-circle-logo.png";
+import mascotWaving from "@/assets/images/mascot-waving.png";
+import retirerBtn from "@/assets/images/retirer-btn.png";
+import rechargerBtn from "@/assets/images/recharger-btn.png";
+import tasksBanner from "@/assets/images/tasks-banner.webp";
 
 export default function AccountPage() {
   const { user, logout } = useAuth();
@@ -86,10 +88,9 @@ export default function AccountPage() {
   if (!user) return null;
 
   const balance = parseFloat(user.balance || "0");
-  const totalEarnings = parseFloat(user.totalEarnings || "0");
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
-  const initials = user.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+  const phonePrefix = country?.phonePrefix || "";
 
   const handleLogout = async () => {
     await logout();
@@ -102,94 +103,83 @@ export default function AccountPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-white">
-      <div className="relative">
-        <div className="h-32 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-400"></div>
-        <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-10">
-          <Avatar className="w-20 h-20 border-4 border-white shadow-lg bg-amber-500">
-            <AvatarFallback className="bg-amber-500 text-white text-2xl font-bold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      </div>
-
-      <div className="text-center mt-12 mb-4">
-        <p className="text-lg font-semibold text-gray-800" data-testid="text-user-phone">
-          +{user.phone}
-        </p>
-      </div>
-
-      <div className="flex-1 px-4 space-y-4 overflow-y-auto pb-24">
-        <div className="flex justify-center gap-8 py-2">
-          <Link href="/deposit">
-            <button className="flex flex-col items-center gap-2" data-testid="button-account-deposit">
-              <div className="w-14 h-14 rounded-full bg-white border-2 border-pink-200 flex items-center justify-center shadow-sm">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-b from-pink-100 to-pink-50 flex items-center justify-center">
-                  <ArrowDownToLine className="w-5 h-5 text-pink-500" />
-                </div>
-              </div>
-              <span className="text-xs text-gray-600">Recharger</span>
-            </button>
-          </Link>
-
-          <Link href="/withdrawal">
-            <button className="flex flex-col items-center gap-2" data-testid="button-account-withdraw">
-              <div className="w-14 h-14 rounded-full bg-white border-2 border-pink-200 flex items-center justify-center shadow-sm">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-b from-pink-100 to-pink-50 flex items-center justify-center">
-                  <ArrowUpFromLine className="w-5 h-5 text-pink-500" />
-                </div>
-              </div>
-              <span className="text-xs text-gray-600">Retrait</span>
-            </button>
-          </Link>
-
-          <Link href="/history">
-            <button className="flex flex-col items-center gap-2" data-testid="button-history">
-              <div className="w-14 h-14 rounded-full bg-white border-2 border-pink-200 flex items-center justify-center shadow-sm">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-b from-pink-100 to-pink-50 flex items-center justify-center">
-                  <History className="w-5 h-5 text-pink-500" />
-                </div>
-              </div>
-              <span className="text-xs text-gray-600">Historique</span>
-            </button>
-          </Link>
+      <div className="flex-1 overflow-y-auto pb-24">
+        <div className="flex items-center gap-3 px-4 py-4">
+          <img src={fanucLogo} alt="FANUC" className="w-10 h-10 object-contain" />
+          <span className="text-xl font-bold text-gray-800" data-testid="text-user-phone">
+            +{phonePrefix} {user.phone}
+          </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-gradient-to-r from-pink-400 to-pink-300 rounded-xl p-4 text-white relative overflow-hidden">
+        <div className="px-4">
+          <div className="bg-pink-200 rounded-3xl p-5 relative overflow-hidden shadow-md" style={{ minHeight: "160px" }}>
             <div className="relative z-10">
-              <p className="text-xl font-bold" data-testid="text-account-balance">
+              <p className="text-gray-700 font-medium text-base mb-1">Soldes du Compte</p>
+              <p className="text-4xl font-bold text-gray-800" data-testid="text-account-balance">
                 {balance.toLocaleString()} {currency}
               </p>
-              <p className="text-xs opacity-90 mt-1">Solde du compte</p>
             </div>
-            <div className="absolute right-2 bottom-2 opacity-80">
-              <Wallet className="w-10 h-10" />
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-cyan-400 to-cyan-300 rounded-xl p-4 text-white relative overflow-hidden">
-            <div className="relative z-10">
-              <p className="text-xl font-bold" data-testid="text-total-earnings">
-                {totalEarnings.toLocaleString()} {currency}
-              </p>
-              <p className="text-xs opacity-90 mt-1">Revenus accumules</p>
-            </div>
-            <div className="absolute right-2 bottom-2 opacity-80">
-              <Wallet className="w-10 h-10" />
+            <img 
+              src={mascotWaving} 
+              alt="Mascot" 
+              className="absolute right-0 bottom-0 h-36 object-contain"
+              style={{ marginRight: "-10px", marginBottom: "-5px" }}
+            />
+            
+            <div className="flex gap-2 mt-4 relative z-10">
+              <Link href="/withdrawal" className="flex-1">
+                <img 
+                  src={retirerBtn} 
+                  alt="Retirer" 
+                  className="w-full h-12 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  data-testid="button-account-withdraw"
+                />
+              </Link>
+              <Link href="/deposit" className="flex-1">
+                <img 
+                  src={rechargerBtn} 
+                  alt="Recharger" 
+                  className="w-full h-12 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  data-testid="button-account-deposit"
+                />
+              </Link>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm">
+        <div className="px-4 mt-4">
+          <Link href="/tasks">
+            <div className="relative rounded-2xl overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow" style={{ minHeight: "120px" }}>
+              <img 
+                src={tasksBanner} 
+                alt="Factory" 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="relative z-10 p-4 h-full flex flex-col justify-between">
+                <div>
+                  <h3 className="text-white text-xl font-bold mb-1">Centre de taches</h3>
+                  <p className="text-white/90 text-sm">
+                    Accomplissez des missions pour gagner des bonus supplementaires.
+                  </p>
+                </div>
+                <button className="self-start bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-1 mt-3 hover:bg-red-600 transition-colors">
+                  Acceder <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        <div className="px-4 mt-6">
           <div className="grid grid-cols-4 gap-4">
             <button
               onClick={() => setShowAbout(true)}
               className="flex flex-col items-center gap-2"
               data-testid="button-about"
             >
-              <div className="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center">
-                <Info className="w-6 h-6 text-pink-400" />
+              <div className="w-14 h-14 rounded-2xl bg-pink-100 flex items-center justify-center">
+                <Info className="w-7 h-7 text-pink-400" />
               </div>
               <span className="text-xs text-gray-600 text-center leading-tight">a propos de nous</span>
             </button>
@@ -199,16 +189,16 @@ export default function AccountPage() {
               className="flex flex-col items-center gap-2"
               data-testid="button-support"
             >
-              <div className="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center">
-                <Headphones className="w-6 h-6 text-pink-400" />
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
+                <Headphones className="w-7 h-7 text-amber-500" />
               </div>
               <span className="text-xs text-gray-600 text-center leading-tight">Service Client</span>
             </button>
 
             <Link href="/team">
               <button className="flex flex-col items-center gap-2" data-testid="button-team">
-                <div className="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-pink-400" />
+                <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
+                  <Users className="w-7 h-7 text-blue-500" />
                 </div>
                 <span className="text-xs text-gray-600 text-center leading-tight">Equipe</span>
               </button>
@@ -219,8 +209,8 @@ export default function AccountPage() {
               className="flex flex-col items-center gap-2"
               data-testid="button-rules"
             >
-              <div className="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-pink-400" />
+              <div className="w-14 h-14 rounded-2xl bg-pink-100 flex items-center justify-center">
+                <FileText className="w-7 h-7 text-pink-400" />
               </div>
               <span className="text-xs text-gray-600 text-center leading-tight">Regles de la plateforme</span>
             </button>
@@ -232,8 +222,8 @@ export default function AccountPage() {
               className="flex flex-col items-center gap-2"
               data-testid="button-wallet"
             >
-              <div className="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center">
-                <CreditCard className="w-6 h-6 text-cyan-500" />
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
+                <CreditCard className="w-7 h-7 text-blue-500" />
               </div>
               <span className="text-xs text-gray-600 text-center leading-tight">Lier le compte de portefeuille</span>
             </button>
@@ -243,8 +233,8 @@ export default function AccountPage() {
               className="flex flex-col items-center gap-2"
               data-testid="button-change-password"
             >
-              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
-                <Lock className="w-6 h-6 text-amber-500" />
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
+                <Lock className="w-7 h-7 text-amber-500" />
               </div>
               <span className="text-xs text-gray-600 text-center leading-tight">Changer le mot de passe</span>
             </button>
@@ -255,8 +245,8 @@ export default function AccountPage() {
                 className="flex flex-col items-center gap-2"
                 data-testid="button-admin"
               >
-                <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-red-500" />
+                <div className="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center">
+                  <Shield className="w-7 h-7 text-red-500" />
                 </div>
                 <span className="text-xs text-gray-600 text-center leading-tight">Panel Admin</span>
               </button>
@@ -267,8 +257,8 @@ export default function AccountPage() {
               className="flex flex-col items-center gap-2"
               data-testid="button-logout"
             >
-              <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                <LogOut className="w-6 h-6 text-gray-500" />
+              <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
+                <LogOut className="w-7 h-7 text-gray-500" />
               </div>
               <span className="text-xs text-gray-600 text-center leading-tight">Deconnexion</span>
             </button>
