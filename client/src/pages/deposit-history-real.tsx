@@ -19,7 +19,7 @@ export default function DepositHistoryRealPage() {
   const currency = countryInfo?.currency || "FCFA";
 
   const { data: deposits = [], isLoading } = useQuery<Deposit[]>({
-    queryKey: ["/api/deposits"],
+    queryKey: ["/api/deposits/history"],
   });
 
   const getStatusColor = (status: string) => {

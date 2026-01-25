@@ -52,7 +52,7 @@ export default function WithdrawalPage() {
   });
 
   const { data: userProducts = [] } = useQuery<UserProduct[]>({
-    queryKey: ["/api/user-products"],
+    queryKey: ["/api/user/products"],
   });
 
   const hasActiveProduct = userProducts.some((p) => p.status === "active");
