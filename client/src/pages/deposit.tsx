@@ -6,12 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 const PRESET_AMOUNTS = [3000, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000];
 
@@ -27,7 +21,6 @@ export default function DepositPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number | "">("");
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
 
@@ -59,7 +52,6 @@ export default function DepositPage() {
       setAmount("");
       setSelectedChannel(null);
       setPhoneNumber("");
-      setShowPaymentDialog(false);
     },
     onError: (error: Error) => {
       toast({
@@ -74,7 +66,7 @@ export default function DepositPage() {
     setAmount(presetAmount);
   };
 
-  const handleContinue = () => {
+  const handleSubmit = () => {
     if (!amount || amount < minDeposit) {
       toast({
         title: "Montant invalide",
@@ -83,10 +75,6 @@ export default function DepositPage() {
       });
       return;
     }
-    setShowPaymentDialog(true);
-  };
-
-  const handleSubmit = () => {
     if (!selectedChannel) {
       toast({
         title: "Selectionnez un canal",
@@ -168,13 +156,45 @@ export default function DepositPage() {
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Canal de recharge</label>
+          <div className="grid grid-cols-2 gap-2">
+            {paymentChannels.map((channel) => (
+              <button
+                key={channel.id}
+                onClick={() => setSelectedChannel(channel)}
+                className={`p-3 rounded-lg border text-center font-medium transition-colors ${
+                  selectedChannel?.id === channel.id
+                    ? "border-amber-500 bg-amber-50 text-amber-700"
+                    : "border-gray-200 bg-white text-gray-700"
+                }`}
+                data-testid={`button-channel-${channel.id}`}
+              >
+                {channel.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border p-4">
+          <label className="block text-sm text-gray-500 mb-2">Numero de telephone</label>
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="Ex: 99123456"
+            className="w-full text-lg outline-none"
+            data-testid="input-phone-number"
+          />
+        </div>
+
         <button
-          onClick={handleContinue}
-          disabled={!amount}
+          onClick={handleSubmit}
+          disabled={depositMutation.isPending || !amount || !selectedChannel || !phoneNumber}
           className="w-full py-4 bg-gray-900 text-white font-semibold rounded-lg disabled:opacity-50"
-          data-testid="button-continue-deposit"
+          data-testid="button-submit-deposit"
         >
-          Recharger
+          {depositMutation.isPending ? "Envoi en cours..." : "Recharger"}
         </button>
 
         <div className="bg-white rounded-lg p-4">
@@ -188,61 +208,6 @@ export default function DepositPage() {
           </p>
         </div>
       </div>
-
-      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Informations de paiement</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-gray-100 rounded-lg p-3 text-center">
-              <p className="text-sm text-gray-500">Montant a payer</p>
-              <p className="text-2xl font-bold">{(amount || 0).toLocaleString()} {currency}</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Canal de recharge</label>
-              <div className="grid grid-cols-2 gap-2">
-                {paymentChannels.map((channel) => (
-                  <button
-                    key={channel.id}
-                    onClick={() => setSelectedChannel(channel)}
-                    className={`p-3 rounded-lg border text-center font-medium transition-colors ${
-                      selectedChannel?.id === channel.id
-                        ? "border-amber-500 bg-amber-50 text-amber-700"
-                        : "border-gray-200 bg-white text-gray-700"
-                    }`}
-                    data-testid={`button-channel-${channel.id}`}
-                  >
-                    {channel.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Numero de telephone</label>
-              <input
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Ex: 99123456"
-                className="w-full p-3 border rounded-lg"
-                data-testid="input-phone-number"
-              />
-            </div>
-
-            <button
-              onClick={handleSubmit}
-              disabled={depositMutation.isPending || !selectedChannel || !phoneNumber}
-              className="w-full py-3 bg-amber-500 text-white font-semibold rounded-lg disabled:opacity-50"
-              data-testid="button-submit-deposit"
-            >
-              {depositMutation.isPending ? "Envoi en cours..." : "Confirmer le depot"}
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
