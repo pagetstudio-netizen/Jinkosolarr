@@ -199,45 +199,65 @@ export default function InvestPage() {
         ) : (
           <div className="space-y-4">
             {userProducts && userProducts.length > 0 ? (
-              userProducts.map((up: any, index: number) => (
-                <div 
-                  key={up.id} 
-                  className="bg-white rounded-xl p-4 shadow-sm"
-                  data-testid={`order-card-${up.id}`}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-20 h-20 flex-shrink-0">
-                      <img 
-                        src={getProductImage(index)} 
-                        alt={up.product?.name || "Produit"}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    </div>
+              userProducts.map((up: any, index: number) => {
+                const daysCompleted = (up.product?.cycleDays || 0) - (up.daysRemaining || 0);
+                const totalEarned = daysCompleted * (up.product?.dailyEarnings || 0);
+                const purchaseDate = up.purchasedAt ? new Date(up.purchasedAt).toLocaleDateString('fr-FR') : '-';
+                
+                return (
+                  <div 
+                    key={up.id} 
+                    className="bg-white rounded-xl p-4 shadow-sm"
+                    data-testid={`order-card-${up.id}`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-28 h-28 flex-shrink-0">
+                        <img 
+                          src={getProductImage(up.productId ? up.productId % productImages.length : index)} 
+                          alt={up.product?.name || "Produit"}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      </div>
 
-                    <div className="flex-1 min-w-0">
-                      <p className="text-red-500 font-bold text-base mb-1">
-                        {up.product?.name || "Produit"}
-                      </p>
-                      <div className="space-y-0.5 text-sm">
-                        <p className="text-gray-600">
-                          Prix: <span className="text-blue-500 font-medium">{up.product?.price?.toLocaleString() || 0} Fcfa</span>
-                        </p>
-                        <p className="text-gray-600">
-                          Gains/jour: <span className="text-green-500 font-medium">{up.product?.dailyEarnings?.toLocaleString() || 0} Fcfa</span>
-                        </p>
-                        <p className="text-gray-600">
-                          Jours restants: <span className="text-blue-500 font-medium">{up.daysRemaining || 0}</span>
-                        </p>
-                        <p className="text-gray-600">
-                          Statut: <span className={`font-medium ${up.status === 'active' ? 'text-green-500' : 'text-gray-500'}`}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-2">
+                          <p className="text-red-500 font-bold text-base">
+                            {up.product?.name || "Produit"}
+                          </p>
+                          <span className={`px-2 py-1 text-xs font-semibold rounded ${
+                            up.status === 'active' 
+                              ? 'bg-green-100 text-green-600 border border-green-300' 
+                              : 'bg-gray-100 text-gray-600 border border-gray-300'
+                          }`}>
                             {up.status === 'active' ? 'Actif' : 'Termine'}
                           </span>
-                        </p>
+                        </div>
+                        
+                        <div className="space-y-0.5 text-sm">
+                          <p className="text-gray-600">
+                            Prix : <span className="text-blue-500 font-medium">{up.product?.price?.toLocaleString() || 0} Fcfa</span>
+                          </p>
+                          <p className="text-gray-600">
+                            Gains/jour : <span className="text-green-500 font-medium">{up.product?.dailyEarnings?.toLocaleString() || 0} Fcfa</span>
+                          </p>
+                          <p className="text-gray-600">
+                            Duree : <span className="text-blue-500 font-medium">{up.product?.cycleDays || 0} Jours</span>
+                          </p>
+                          <p className="text-gray-600">
+                            Jours restants : <span className="text-orange-500 font-medium">{up.daysRemaining || 0}</span>
+                          </p>
+                          <p className="text-gray-600">
+                            Total gagne : <span className="text-green-600 font-bold">{totalEarned.toLocaleString()} Fcfa</span>
+                          </p>
+                          <p className="text-gray-600">
+                            Date d'achat : <span className="text-gray-700 font-medium">{purchaseDate}</span>
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="text-center py-12">
                 <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
