@@ -1,10 +1,9 @@
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import DepositModal from "@/components/deposit-modal";
-import WithdrawModal from "@/components/withdraw-modal";
 import ServiceModal from "@/components/service-modal";
 import { Bell } from "lucide-react";
+import { Link } from "wouter";
 import fanucHeader from "@/assets/images/fanuc-header.png";
 import btnRecharge from "@/assets/images/btn-recharge.png";
 import btnRetirer from "@/assets/images/btn-retirer.png";
@@ -15,8 +14,6 @@ import fanucTeamWide from "@/assets/images/fanuc-team-wide.png";
 
 export default function HomePage() {
   const { user } = useAuth();
-  const [showDeposit, setShowDeposit] = useState(false);
-  const [showWithdraw, setShowWithdraw] = useState(false);
   const [showService, setShowService] = useState(false);
 
   const { data: settings } = useQuery<{ supportLink: string; channelLink: string; groupLink: string }>({
@@ -39,21 +36,23 @@ export default function HomePage() {
       </div>
 
       <div className="px-3 py-3 flex items-end justify-center gap-1">
-        <button
-          onClick={() => setShowDeposit(true)}
-          className="flex-1 hover:opacity-90 transition-opacity mb-0"
-          data-testid="button-recharge"
-        >
-          <img src={btnRecharge} alt="Recharge" className="w-full h-10 object-contain" />
-        </button>
+        <Link href="/deposit" className="flex-1 hover:opacity-90 transition-opacity mb-0">
+          <button
+            className="w-full"
+            data-testid="button-recharge"
+          >
+            <img src={btnRecharge} alt="Recharge" className="w-full h-10 object-contain" />
+          </button>
+        </Link>
 
-        <button
-          onClick={() => setShowWithdraw(true)}
-          className="flex-1 hover:opacity-90 transition-opacity mb-2"
-          data-testid="button-retirer"
-        >
-          <img src={btnRetirer} alt="Retirer" className="w-full h-10 object-contain" />
-        </button>
+        <Link href="/withdrawal" className="flex-1 hover:opacity-90 transition-opacity mb-2">
+          <button
+            className="w-full"
+            data-testid="button-retirer"
+          >
+            <img src={btnRetirer} alt="Retirer" className="w-full h-10 object-contain" />
+          </button>
+        </Link>
 
         <button
           onClick={() => setShowService(true)}
@@ -119,8 +118,6 @@ export default function HomePage() {
         />
       </div>
 
-      <DepositModal open={showDeposit} onClose={() => setShowDeposit(false)} />
-      <WithdrawModal open={showWithdraw} onClose={() => setShowWithdraw(false)} />
       <ServiceModal 
         open={showService} 
         onClose={() => setShowService(false)}
