@@ -12,8 +12,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { formatCurrency } from "@/lib/countries";
-import { Search, Edit, Ban, Shield, Lock, Unlock, Star, Users, Loader2, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Edit, Ban, Shield, Lock, Unlock, Star, Users, Loader2, UserPlus, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import type { User, Product } from "@shared/schema";
+
+interface UserProductItem {
+  id: number;
+  productId: number;
+  productName: string;
+  productPrice: number;
+  dailyEarnings: string;
+  isActive: boolean;
+  purchaseDate: string;
+  daysClaimed: number;
+  totalCycle: number;
+}
 
 interface UserWithTeam extends User {
   level1Count: number;
@@ -78,6 +90,36 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
       return res.json();
     },
     enabled: !!teamUserId,
+  });
+
+  const { data: userProducts, isLoading: userProductsLoading } = useQuery<UserProductItem[]>({
+    queryKey: ["/api/admin/users", selectedUser?.id, "products"],
+    queryFn: async () => {
+      if (!selectedUser?.id) return [];
+      const res = await fetch(`/api/admin/users/${selectedUser.id}/products`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch products");
+      return res.json();
+    },
+    enabled: !!selectedUser?.id,
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: async ({ userId, productId }: { userId: number; productId: number }) => {
+      const response = await apiRequest("POST", `/api/admin/users/${userId}/revoke-product`, { value: productId });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Erreur");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users", selectedUser?.id, "products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Produit revoque!" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    },
   });
 
   const updateMutation = useMutation({
@@ -424,6 +466,40 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                     >
                       {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "OK"}
                     </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Produits de l'utilisateur</label>
+                  <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
+                    {userProductsLoading ? (
+                      <p className="text-sm text-muted-foreground">Chargement...</p>
+                    ) : userProducts && userProducts.length > 0 ? (
+                      userProducts.map((up) => (
+                        <div key={up.id} className={`flex items-center justify-between p-2 rounded-lg ${up.isActive ? "bg-green-500/10 border border-green-500/20" : "bg-secondary"}`}>
+                          <div>
+                            <p className="text-sm font-medium">{up.productName}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {up.productPrice.toLocaleString()} F - Jour {up.daysClaimed}/{up.totalCycle}
+                              {up.isActive ? " (Actif)" : " (Termine)"}
+                            </p>
+                          </div>
+                          {up.isActive && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => revokeMutation.mutate({ userId: selectedUser.id, productId: up.productId })}
+                              disabled={revokeMutation.isPending}
+                              data-testid={`button-revoke-product-${up.productId}`}
+                            >
+                              {revokeMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                            </Button>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Aucun produit</p>
+                    )}
                   </div>
                 </div>
 

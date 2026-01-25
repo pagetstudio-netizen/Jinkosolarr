@@ -700,6 +700,10 @@ export async function registerRoutes(
           await storage.purchaseProduct(userId, value, true);
           await storage.logAdminAction(req.session.userId!, "assign_product", userId, `Produit ${value} attribué`);
           break;
+        case "revoke-product":
+          await storage.removeUserProduct(userId, value);
+          await storage.logAdminAction(req.session.userId!, "revoke_product", userId, `Produit ${value} révoqué`);
+          break;
         default:
           return res.status(400).json({ message: "Action invalide" });
       }
@@ -714,6 +718,26 @@ export async function registerRoutes(
     try {
       const allProducts = await storage.getProducts();
       res.json(allProducts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/users/:id/products", requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const userProductsList = await storage.getAllUserProducts(userId);
+      res.json(userProductsList.map(up => ({
+        id: up.userProduct.id,
+        productId: up.userProduct.productId,
+        productName: up.product.name,
+        productPrice: up.product.price,
+        dailyEarnings: up.product.dailyEarnings,
+        isActive: up.userProduct.isActive,
+        purchaseDate: up.userProduct.purchaseDate,
+        daysClaimed: up.userProduct.daysClaimed,
+        totalCycle: up.product.cycle,
+      })));
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
