@@ -94,18 +94,18 @@ export default function HistoryPage() {
       <div className="bg-white border-b px-4 py-3 flex items-center gap-3">
         <Link href="/account">
           <button className="p-1" data-testid="button-back">
-            <ArrowLeft className="w-6 h-6 text-gray-600" />
+            <ArrowLeft className="w-6 h-6 text-gray-800" />
           </button>
         </Link>
-        <h1 className="text-lg font-semibold text-gray-800">Historique</h1>
+        <h1 className="text-lg font-bold text-gray-800 flex-1 text-center pr-8">Historique</h1>
       </div>
 
       <div className="flex border-b bg-white">
         <button
           onClick={() => setActiveTab("deposits")}
-          className={`flex-1 py-3 text-center font-medium text-sm transition-colors ${
+          className={`flex-1 py-3 text-center font-medium text-base transition-colors ${
             activeTab === "deposits"
-              ? "text-amber-600 border-b-2 border-amber-500"
+              ? "text-orange-500"
               : "text-gray-500"
           }`}
           data-testid="tab-deposits"
@@ -114,12 +114,13 @@ export default function HistoryPage() {
             <ArrowDownToLine className="w-4 h-4" />
             Depots
           </div>
+          {activeTab === "deposits" && <div className="h-0.5 bg-orange-500 w-full mt-2" />}
         </button>
         <button
           onClick={() => setActiveTab("withdrawals")}
-          className={`flex-1 py-3 text-center font-medium text-sm transition-colors ${
+          className={`flex-1 py-3 text-center font-medium text-base transition-colors ${
             activeTab === "withdrawals"
-              ? "text-amber-600 border-b-2 border-amber-500"
+              ? "text-orange-500"
               : "text-gray-500"
           }`}
           data-testid="tab-withdrawals"
@@ -128,18 +129,19 @@ export default function HistoryPage() {
             <ArrowUpFromLine className="w-4 h-4" />
             Retraits
           </div>
+          {activeTab === "withdrawals" && <div className="h-0.5 bg-yellow-400 w-full mt-2" />}
         </button>
       </div>
 
-      <div className="flex-1 p-4 pb-24 overflow-y-auto">
+      <div className="flex-1 bg-gray-50 overflow-y-auto">
         {activeTab === "deposits" && (
-          <div className="space-y-3">
+          <div className="p-4 space-y-4">
             {depositsLoading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
               </div>
             ) : deposits.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-12 text-gray-500">
                 <ArrowDownToLine className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                 <p>Aucun depot pour le moment</p>
               </div>
@@ -147,26 +149,35 @@ export default function HistoryPage() {
               deposits.map((deposit) => (
                 <div
                   key={deposit.id}
-                  className="bg-white rounded-xl p-4 shadow-sm"
+                  className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100"
                   data-testid={`deposit-item-${deposit.id}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <ArrowDownToLine className="w-5 h-5 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800">
-                          +{parseFloat(deposit.amount).toLocaleString()} {currency}
-                        </p>
-                        <p className="text-xs text-gray-500">{deposit.paymentMethod}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(deposit.status)}`}>
+                  <div className="p-4 space-y-3">
+                    <div className="flex justify-between items-center border-b pb-2">
+                      <span className="text-gray-600">Statut du depot</span>
+                      <span className={`font-bold ${
+                        deposit.status === "completed" || deposit.status === "approved" 
+                          ? "text-green-600" 
+                          : deposit.status === "rejected" 
+                            ? "text-red-600" 
+                            : "text-orange-500"
+                      }`}>
                         {getStatusText(deposit.status)}
                       </span>
-                      <p className="text-xs text-gray-400 mt-1">{formatDate(deposit.createdAt)}</p>
+                    </div>
+                    <div className="flex justify-between items-center border-b pb-2">
+                      <span className="text-gray-600">Montant du depot</span>
+                      <span className="font-bold text-gray-800">
+                        {currency}{parseFloat(deposit.amount).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-800 font-bold text-lg">sécurisé</span>
+                      <span className="text-gray-800 font-bold">Rapide</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t pt-2">
+                      <span className="text-gray-600">Methode</span>
+                      <span className="font-bold text-gray-800">{deposit.paymentMethod}</span>
                     </div>
                   </div>
                 </div>
@@ -176,13 +187,13 @@ export default function HistoryPage() {
         )}
 
         {activeTab === "withdrawals" && (
-          <div className="space-y-3">
+          <div className="p-4 space-y-4">
             {withdrawalsLoading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
               </div>
             ) : withdrawals.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-12 text-gray-500">
                 <ArrowUpFromLine className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                 <p>Aucun retrait pour le moment</p>
               </div>
@@ -190,28 +201,37 @@ export default function HistoryPage() {
               withdrawals.map((withdrawal) => (
                 <div
                   key={withdrawal.id}
-                  className="bg-white rounded-xl p-4 shadow-sm"
+                  className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100"
                   data-testid={`withdrawal-item-${withdrawal.id}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                        <ArrowUpFromLine className="w-5 h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800">
-                          -{parseFloat(withdrawal.amount).toLocaleString()} {currency}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Net: {parseFloat(withdrawal.netAmount).toLocaleString()} {currency}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(withdrawal.status)}`}>
+                  <div className="p-4 space-y-3">
+                    <div className="flex justify-between items-center border-b pb-2">
+                      <span className="text-gray-600">Statut du retrait</span>
+                      <span className={`font-bold ${
+                        withdrawal.status === "completed" || withdrawal.status === "approved" 
+                          ? "text-green-600" 
+                          : withdrawal.status === "rejected" 
+                            ? "text-red-600" 
+                            : "text-orange-500"
+                      }`}>
                         {getStatusText(withdrawal.status)}
                       </span>
-                      <p className="text-xs text-gray-400 mt-1">{formatDate(withdrawal.createdAt)}</p>
+                    </div>
+                    <div className="flex justify-between items-center border-b pb-2">
+                      <span className="text-gray-600">Montant du retrait</span>
+                      <span className="font-bold text-gray-800">
+                        {currency}{parseFloat(withdrawal.amount).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-800 font-bold text-lg">sécurisé</span>
+                      <span className="text-gray-800 font-bold">Rapide</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t pt-2">
+                      <span className="text-gray-600">Montant de la taxe</span>
+                      <span className="font-bold text-gray-800">
+                        {currency}{(parseFloat(withdrawal.amount) * 0.15).toFixed(2)}
+                      </span>
                     </div>
                   </div>
                 </div>
