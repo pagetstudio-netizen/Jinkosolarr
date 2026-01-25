@@ -25,9 +25,18 @@ export default function AdminWithdrawals() {
   const [filter, setFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
 
-  const { data: withdrawals, isLoading } = useQuery<WithdrawalWithUser[]>({
-    queryKey: ["/api/admin/withdrawals", statusFilter],
+  const { data: allWithdrawals, isLoading } = useQuery<WithdrawalWithUser[]>({
+    queryKey: ["/api/admin/withdrawals"],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/withdrawals?status=all`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch withdrawals");
+      return res.json();
+    },
   });
+
+  const withdrawals = allWithdrawals?.filter(w => 
+    statusFilter === "all" ? true : w.status === statusFilter
+  );
 
   const processMutation = useMutation({
     mutationFn: async ({ id, action }: { id: number; action: "approve" | "reject" }) => {

@@ -25,9 +25,18 @@ export default function AdminDeposits() {
   const [filter, setFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
 
-  const { data: deposits, isLoading } = useQuery<DepositWithUser[]>({
-    queryKey: ["/api/admin/deposits", statusFilter],
+  const { data: allDeposits, isLoading } = useQuery<DepositWithUser[]>({
+    queryKey: ["/api/admin/deposits"],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/deposits?status=all`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch deposits");
+      return res.json();
+    },
   });
+
+  const deposits = allDeposits?.filter(d => 
+    statusFilter === "all" ? true : d.status === statusFilter
+  );
 
   const processMutation = useMutation({
     mutationFn: async ({ id, action, ban }: { id: number; action: "approve" | "reject"; ban?: boolean }) => {

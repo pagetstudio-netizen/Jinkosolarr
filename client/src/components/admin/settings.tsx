@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,17 +40,33 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      supportLink: settings?.supportLink || "https://t.me/+DOnUcJs7idVmN2E0",
-      channelLink: settings?.channelLink || "https://t.me/+DOnUcJs7idVmN2E0",
-      groupLink: settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0",
-      withdrawalFees: settings?.withdrawalFees || "15",
-      withdrawalStartHour: settings?.withdrawalStartHour || "8",
-      withdrawalEndHour: settings?.withdrawalEndHour || "17",
-      level1Commission: settings?.level1Commission || "27",
-      level2Commission: settings?.level2Commission || "2",
-      level3Commission: settings?.level3Commission || "1",
+      supportLink: "https://t.me/+DOnUcJs7idVmN2E0",
+      channelLink: "https://t.me/+DOnUcJs7idVmN2E0",
+      groupLink: "https://t.me/+DOnUcJs7idVmN2E0",
+      withdrawalFees: "15",
+      withdrawalStartHour: "8",
+      withdrawalEndHour: "17",
+      level1Commission: "27",
+      level2Commission: "2",
+      level3Commission: "1",
     },
   });
+
+  useEffect(() => {
+    if (settings) {
+      form.reset({
+        supportLink: settings.supportLink || "https://t.me/+DOnUcJs7idVmN2E0",
+        channelLink: settings.channelLink || "https://t.me/+DOnUcJs7idVmN2E0",
+        groupLink: settings.groupLink || "https://t.me/+DOnUcJs7idVmN2E0",
+        withdrawalFees: settings.withdrawalFees || "15",
+        withdrawalStartHour: settings.withdrawalStartHour || "8",
+        withdrawalEndHour: settings.withdrawalEndHour || "17",
+        level1Commission: settings.level1Commission || "27",
+        level2Commission: settings.level2Commission || "2",
+        level3Commission: settings.level3Commission || "1",
+      });
+    }
+  }, [settings, form]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: SettingsForm) => {
