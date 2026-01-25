@@ -199,10 +199,10 @@ export default function InvestPage() {
           </>
         ) : (
           <div>
-            <div className="flex gap-6 mb-4 border-b">
+            <div className="flex justify-between mb-4 border-b">
               <button
                 onClick={() => setOrdersTab("active")}
-                className={`flex items-center gap-2 pb-2 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 pb-2 px-4 text-sm font-medium transition-colors ${
                   ordersTab === "active"
                     ? "text-orange-500 border-b-2 border-orange-500"
                     : "text-gray-500"
@@ -213,7 +213,7 @@ export default function InvestPage() {
               </button>
               <button
                 onClick={() => setOrdersTab("completed")}
-                className={`flex items-center gap-2 pb-2 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 pb-2 px-4 text-sm font-medium transition-colors ${
                   ordersTab === "completed"
                     ? "text-gray-700 border-b-2 border-gray-500"
                     : "text-gray-500"
