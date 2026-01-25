@@ -132,8 +132,14 @@ export async function seed() {
   const existingChannels = await db.select().from(paymentChannels);
   if (existingChannels.length === 0) {
     await db.insert(paymentChannels).values([
-      { name: "LeekPay", redirectUrl: "https://leekpay.com/pay", isApi: false },
-      { name: "FedaPay", redirectUrl: "https://fedapay.com/payment", isApi: false },
+      { name: "Orange Money", redirectUrl: "https://leekpay.com/pay", isApi: false },
+      { name: "MTN Mobile Money", redirectUrl: "https://leekpay.com/pay", isApi: false },
+      { name: "Moov Money", redirectUrl: "https://fedapay.com/payment", isApi: false },
+      { name: "Wave", redirectUrl: "https://fedapay.com/payment", isApi: false },
+      { name: "Airtel Money", redirectUrl: "https://fedapay.com/payment", isApi: false },
+      { name: "Mixx by Yas", redirectUrl: "https://fedapay.com/payment", isApi: false },
+      { name: "Celtis", redirectUrl: "https://fedapay.com/payment", isApi: false },
+      { name: "Momo", redirectUrl: "https://fedapay.com/payment", isApi: false },
     ]);
     console.log("Payment channels seeded");
   }
