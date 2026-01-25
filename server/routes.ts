@@ -234,7 +234,7 @@ export async function registerRoutes(
       const formattedProducts = userProductsList.map(up => ({
         id: up.userProduct.id,
         productId: up.userProduct.productId,
-        purchasedAt: up.userProduct.purchasedAt,
+        purchasedAt: up.userProduct.purchaseDate,
         daysRemaining: up.userProduct.daysRemaining,
         totalEarned: up.userProduct.totalEarned,
         status: up.userProduct.isActive ? 'active' : 'completed',

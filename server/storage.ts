@@ -169,8 +169,8 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userProducts.userId, userId));
     
     return result.sort((a, b) => {
-      const dateA = a.userProduct.purchasedAt ? new Date(a.userProduct.purchasedAt).getTime() : 0;
-      const dateB = b.userProduct.purchasedAt ? new Date(b.userProduct.purchasedAt).getTime() : 0;
+      const dateA = a.userProduct.purchaseDate ? new Date(a.userProduct.purchaseDate).getTime() : 0;
+      const dateB = b.userProduct.purchaseDate ? new Date(b.userProduct.purchaseDate).getTime() : 0;
       return dateB - dateA;
     });
   }
