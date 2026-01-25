@@ -110,10 +110,10 @@ export default function InvestPage() {
         <h1 className="text-lg font-semibold text-gray-700">Available Products</h1>
       </header>
 
-      <div className="flex px-4 mb-4 gap-0">
+      <div className="flex justify-between px-4 mb-4">
         <button
           onClick={() => setActiveTab("products")}
-          className={`px-6 py-2 text-sm font-bold uppercase rounded-l-md transition-colors ${
+          className={`px-6 py-2 text-sm font-bold uppercase rounded-md transition-colors ${
             activeTab === "products"
               ? "bg-green-600 text-white"
               : "bg-white text-gray-700 border border-gray-300"
@@ -124,10 +124,10 @@ export default function InvestPage() {
         </button>
         <button
           onClick={() => setActiveTab("orders")}
-          className={`px-6 py-2 text-sm font-medium rounded-r-md transition-colors ${
+          className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${
             activeTab === "orders"
               ? "bg-red-100 text-red-600 border-2 border-red-500"
-              : "bg-white text-gray-700 border border-gray-300 border-l-0"
+              : "bg-white text-gray-700 border border-gray-300"
           }`}
           data-testid="tab-orders"
         >
