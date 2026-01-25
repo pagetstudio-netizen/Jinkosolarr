@@ -37,7 +37,7 @@ export default function WithdrawalPage() {
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
   const minWithdrawal = 1200;
-  const withdrawalFee = 7;
+  const withdrawalFee = 15;
 
   const { data: wallets = [] } = useQuery<WithdrawalWallet[]>({
     queryKey: ["/api/withdrawal-wallets"],
@@ -196,7 +196,7 @@ export default function WithdrawalPage() {
             2. Le montant minimum par retrait est de {minWithdrawal} {currency}, avec des frais de {withdrawalFee}%.
           </p>
           <p className="text-sm text-gray-600">
-            3. Les fonds seront credites sur votre compte dans un delai maximum de 24 heures apres la demande de retrait.
+            3. Les fonds seront credites sur votre compte dans un delai de 1h a 24h apres la demande de retrait.
           </p>
         </div>
 
