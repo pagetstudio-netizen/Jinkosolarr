@@ -163,10 +163,10 @@ export default function InvestPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-1">
                           <div>
-                            <p className="text-red-500 font-bold text-base">
+                            <p className="text-red-500 font-bold text-xs whitespace-nowrap">
                               Prix : {product.price.toLocaleString()} Fcfa
                             </p>
-                            <p className="text-red-500 font-semibold text-sm">
+                            <p className="text-red-500 font-semibold text-xs whitespace-nowrap">
                               Par jour : {product.dailyEarnings.toLocaleString()} Fcfa
                             </p>
                           </div>
