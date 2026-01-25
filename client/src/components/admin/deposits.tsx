@@ -120,12 +120,25 @@ export default function AdminDeposits() {
                     <p className="font-medium text-foreground">{deposit.paymentMethod}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Numéro</p>
+                    <p className="text-muted-foreground">Numero</p>
                     <p className="font-medium text-foreground">{deposit.accountNumber}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Pays</p>
                     <p className="font-medium text-foreground">{deposit.country}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-muted-foreground">Date et heure</p>
+                    <p className="font-medium text-foreground">
+                      {new Date(deposit.createdAt).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "2-digit", 
+                        year: "numeric"
+                      })} a {new Date(deposit.createdAt).toLocaleTimeString("fr-FR", {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                    </p>
                   </div>
                 </div>
 

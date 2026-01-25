@@ -112,7 +112,7 @@ export default function AdminWithdrawals() {
 
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Montant demandé</p>
+                    <p className="text-muted-foreground">Montant demande</p>
                     <p className="font-medium text-foreground">{withdrawal.amount.toLocaleString()} F</p>
                   </div>
                   <div>
@@ -128,8 +128,21 @@ export default function AdminWithdrawals() {
                     <p className="font-medium text-foreground">{withdrawal.paymentMethod}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-muted-foreground">Numéro de réception</p>
+                    <p className="text-muted-foreground">Numero de reception</p>
                     <p className="font-medium text-foreground">{withdrawal.accountNumber} - {withdrawal.accountName}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-muted-foreground">Date et heure</p>
+                    <p className="font-medium text-foreground">
+                      {new Date(withdrawal.createdAt).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "2-digit", 
+                        year: "numeric"
+                      })} a {new Date(withdrawal.createdAt).toLocaleTimeString("fr-FR", {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                    </p>
                   </div>
                 </div>
 
