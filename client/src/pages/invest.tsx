@@ -36,6 +36,10 @@ export default function InvestPage() {
     queryKey: ["/api/products"],
   });
 
+  const { data: userProducts } = useQuery<any[]>({
+    queryKey: ["/api/user/products"],
+  });
+
   
   const purchaseMutation = useMutation({
     mutationFn: async (productId: number) => {
@@ -66,6 +70,13 @@ export default function InvestPage() {
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
 
+  const activeProducts = userProducts?.filter((p: any) => p.status === "active") || [];
+  const activeProductsCount = activeProducts.length;
+  const totalProductRevenue = userProducts?.reduce((sum: number, p: any) => {
+    const daysCompleted = (p.product?.cycleDays || 0) - (p.daysRemaining || 0);
+    return sum + (daysCompleted * (p.product?.dailyEarnings || 0));
+  }, 0) || 0;
+
   const getProductImage = (index: number) => {
     return productImages[index % productImages.length];
   };
@@ -91,21 +102,21 @@ export default function InvestPage() {
       <div className="grid grid-cols-2 gap-3 px-4 pt-4">
         <div className="bg-gradient-to-r from-pink-400 to-pink-300 rounded-xl p-4 text-white relative overflow-hidden">
           <div className="relative z-10">
-            <p className="text-xl font-bold" data-testid="text-invest-balance">
-              {balance.toLocaleString()} {currency}
+            <p className="text-xl font-bold" data-testid="text-active-products">
+              {activeProductsCount}
             </p>
-            <p className="text-xs opacity-90 mt-1">Solde du compte</p>
+            <p className="text-xs opacity-90 mt-1">Produits actifs</p>
           </div>
           <div className="absolute right-2 bottom-2 opacity-80">
-            <Wallet className="w-10 h-10" />
+            <Gift className="w-10 h-10" />
           </div>
         </div>
         <div className="bg-gradient-to-r from-green-400 to-green-300 rounded-xl p-4 text-white relative overflow-hidden">
           <div className="relative z-10">
-            <p className="text-xl font-bold" data-testid="text-invest-earnings">
-              {totalEarnings.toLocaleString()} {currency}
+            <p className="text-xl font-bold" data-testid="text-product-revenue">
+              {totalProductRevenue.toLocaleString()} {currency}
             </p>
-            <p className="text-xs opacity-90 mt-1">Revenus accumules</p>
+            <p className="text-xs opacity-90 mt-1">Revenu total produits</p>
           </div>
           <div className="absolute right-2 bottom-2 opacity-80">
             <Wallet className="w-10 h-10" />
