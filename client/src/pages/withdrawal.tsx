@@ -171,7 +171,7 @@ export default function WithdrawalPage() {
 
   if (wallets.length === 0) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: "#f5f0e8" }}>
+      <div className="min-h-screen bg-amber-50">
         <header className="flex items-center px-4 py-3 border-b bg-white">
           <Link href="/account">
             <button className="p-2" data-testid="button-back">
@@ -202,7 +202,7 @@ export default function WithdrawalPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f5f0e8" }}>
+    <div className="min-h-screen bg-amber-50">
       <header className="flex items-center px-4 py-3 border-b bg-white">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">
@@ -214,12 +214,11 @@ export default function WithdrawalPage() {
 
       <div className="p-4 space-y-6">
         <div 
-          className="rounded-lg p-4 flex items-center justify-between"
-          style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%)" }}
+          className="rounded-lg p-4 flex items-center justify-between bg-gradient-to-r from-amber-800 to-amber-700"
         >
           <div>
             <p className="text-3xl font-bold text-white">{parseFloat(user?.balance || "0").toLocaleString()}</p>
-            <p className="text-sm text-blue-200">Solde restant ({currency})</p>
+            <p className="text-sm text-amber-200">Solde restant ({currency})</p>
             <Link href="/deposit-history">
               <button className="mt-2 px-4 py-1 bg-amber-500 text-white text-sm font-medium rounded-full">
                 Enregistrement

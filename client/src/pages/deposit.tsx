@@ -146,7 +146,7 @@ export default function DepositPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f5f0e8" }}>
+    <div className="min-h-screen bg-amber-50">
       <header className="flex items-center px-4 py-3 border-b bg-white">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">

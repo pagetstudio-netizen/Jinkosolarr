@@ -101,7 +101,7 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#fdf5f0]">
+    <div className="flex flex-col min-h-full bg-amber-50">
       <div className="relative">
         <div className="h-32 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-400"></div>
         <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-10">

@@ -85,7 +85,7 @@ export default function InvestPage() {
   const paidProducts = products?.filter(p => !p.isFree) || [];
 
   return (
-    <div className="flex flex-col min-h-full" style={{ backgroundColor: "#f5f0e8" }}>
+    <div className="flex flex-col min-h-full bg-amber-50">
       <header className="px-4 py-3">
         <h1 className="text-lg font-semibold text-gray-700">Available Products</h1>
       </header>

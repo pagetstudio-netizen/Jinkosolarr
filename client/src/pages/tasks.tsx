@@ -45,9 +45,9 @@ export default function TasksPage() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col min-h-full bg-background">
-      <header className="bg-secondary px-4 py-4">
-        <h1 className="text-xl font-bold text-secondary-foreground text-center">Centre de tâches</h1>
+    <div className="flex flex-col min-h-full bg-amber-50">
+      <header className="bg-amber-500 px-4 py-4">
+        <h1 className="text-xl font-bold text-white text-center">Centre de taches</h1>
       </header>
 
       <div className="flex-1 p-4 space-y-3 overflow-y-auto pb-20">
