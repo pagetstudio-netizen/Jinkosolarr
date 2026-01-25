@@ -490,6 +490,78 @@ export async function registerRoutes(
     }
   });
 
+  // Daily bonus claim (50 FCFA every 24h)
+  app.post("/api/claim-daily-bonus", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouve" });
+      }
+
+      const now = new Date();
+      const lastClaim = user.lastDailyBonusClaim ? new Date(user.lastDailyBonusClaim) : null;
+      
+      if (lastClaim) {
+        const hoursSinceClaim = (now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60);
+        if (hoursSinceClaim < 24) {
+          const hoursRemaining = Math.ceil(24 - hoursSinceClaim);
+          return res.status(400).json({ 
+            message: `Vous pouvez reclamer dans ${hoursRemaining}h`,
+            canClaim: false,
+            nextClaimIn: hoursRemaining
+          });
+        }
+      }
+
+      // Add 50 FCFA to balance
+      const newBalance = parseFloat(user.balance) + 50;
+      await storage.updateUser(user.id, { 
+        balance: newBalance.toString(),
+        lastDailyBonusClaim: now
+      });
+
+      // Create transaction record
+      await storage.createTransaction({
+        userId: user.id,
+        type: "bonus",
+        amount: "50",
+        description: "Bonus quotidien",
+        status: "completed"
+      });
+
+      res.json({ success: true, message: "Bonus de 50 FCFA ajoute!" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/daily-bonus-status", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouve" });
+      }
+
+      const now = new Date();
+      const lastClaim = user.lastDailyBonusClaim ? new Date(user.lastDailyBonusClaim) : null;
+      
+      let canClaim = true;
+      let hoursRemaining = 0;
+
+      if (lastClaim) {
+        const hoursSinceClaim = (now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60);
+        if (hoursSinceClaim < 24) {
+          canClaim = false;
+          hoursRemaining = Math.ceil(24 - hoursSinceClaim);
+        }
+      }
+
+      res.json({ canClaim, hoursRemaining });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Transactions
   app.get("/api/transactions", requireAuth, async (req, res) => {
     try {

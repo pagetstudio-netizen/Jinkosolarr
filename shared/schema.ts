@@ -36,6 +36,7 @@ export const users = pgTable("users", {
   hasActiveProduct: boolean("has_active_product").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastFreeProductClaim: timestamp("last_free_product_claim"),
+  lastDailyBonusClaim: timestamp("last_daily_bonus_claim"),
   promoterSetBy: integer("promoter_set_by"),
   adminSetBy: integer("admin_set_by"),
   adminSetAt: timestamp("admin_set_at"),
