@@ -619,35 +619,71 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Admin
-  async getStats(): Promise<any> {
+  async getStats(startDate?: Date, endDate?: Date): Promise<any> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    
+    const filterStart = startDate || new Date(0);
+    const filterEnd = endDate || new Date();
+    filterEnd.setHours(23, 59, 59, 999);
 
     const [totalUsersResult] = await db.select({ count: sql<number>`count(*)` }).from(users);
     const [todayUsersResult] = await db.select({ count: sql<number>`count(*)` }).from(users).where(gte(users.createdAt, today));
+    const [periodUsersResult] = await db.select({ count: sql<number>`count(*)` }).from(users)
+      .where(and(gte(users.createdAt, filterStart), lte(users.createdAt, filterEnd)));
     
     const [totalDepositsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${deposits.amount}), 0)` })
       .from(deposits).where(eq(deposits.status, "approved"));
     const [todayDepositsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${deposits.amount}), 0)` })
       .from(deposits).where(and(eq(deposits.status, "approved"), gte(deposits.createdAt, today)));
+    const [periodDepositsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${deposits.amount}), 0)` })
+      .from(deposits).where(and(eq(deposits.status, "approved"), gte(deposits.createdAt, filterStart), lte(deposits.createdAt, filterEnd)));
+    const [pendingDepositsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${deposits.amount}), 0)`, count: sql<number>`count(*)` })
+      .from(deposits).where(eq(deposits.status, "pending"));
     
     const [totalWithdrawalsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${withdrawals.amount}), 0)` })
       .from(withdrawals).where(eq(withdrawals.status, "approved"));
+    const [todayWithdrawalsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${withdrawals.amount}), 0)` })
+      .from(withdrawals).where(and(eq(withdrawals.status, "approved"), gte(withdrawals.createdAt, today)));
+    const [periodWithdrawalsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${withdrawals.amount}), 0)` })
+      .from(withdrawals).where(and(eq(withdrawals.status, "approved"), gte(withdrawals.createdAt, filterStart), lte(withdrawals.createdAt, filterEnd)));
+    const [pendingWithdrawalsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${withdrawals.amount}), 0)`, count: sql<number>`count(*)` })
+      .from(withdrawals).where(eq(withdrawals.status, "pending"));
     
     const [usersWithProductsResult] = await db.select({ count: sql<number>`count(DISTINCT ${userProducts.userId})` })
       .from(userProducts).where(eq(userProducts.isActive, true));
     
     const [totalBalanceResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(${users.balance} AS DECIMAL)), 0)` })
       .from(users);
+    
+    const [totalEarningsResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(${users.totalEarnings} AS DECIMAL)), 0)` })
+      .from(users);
+    
+    const [totalProductsResult] = await db.select({ count: sql<number>`count(*)` })
+      .from(userProducts).where(eq(userProducts.isActive, true));
+    
+    const [totalCommissionsResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)` })
+      .from(transactions).where(eq(transactions.type, "commission"));
 
     return {
       totalUsers: totalUsersResult?.count || 0,
       todayUsers: todayUsersResult?.count || 0,
+      periodUsers: periodUsersResult?.count || 0,
       totalDeposits: parseFloat(totalDepositsResult?.total || "0"),
       todayDeposits: parseFloat(todayDepositsResult?.total || "0"),
+      periodDeposits: parseFloat(periodDepositsResult?.total || "0"),
+      pendingDeposits: parseFloat(pendingDepositsResult?.total || "0"),
+      pendingDepositsCount: pendingDepositsResult?.count || 0,
       totalWithdrawals: parseFloat(totalWithdrawalsResult?.total || "0"),
+      todayWithdrawals: parseFloat(todayWithdrawalsResult?.total || "0"),
+      periodWithdrawals: parseFloat(periodWithdrawalsResult?.total || "0"),
+      pendingWithdrawals: parseFloat(pendingWithdrawalsResult?.total || "0"),
+      pendingWithdrawalsCount: pendingWithdrawalsResult?.count || 0,
       usersWithProducts: usersWithProductsResult?.count || 0,
       totalBalance: parseFloat(totalBalanceResult?.total || "0"),
+      totalEarnings: parseFloat(totalEarningsResult?.total || "0"),
+      totalActiveProducts: totalProductsResult?.count || 0,
+      totalCommissions: parseFloat(totalCommissionsResult?.total || "0"),
     };
   }
 

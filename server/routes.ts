@@ -469,7 +469,9 @@ export async function registerRoutes(
   // Admin routes
   app.get("/api/admin/stats", requireAdmin, async (req, res) => {
     try {
-      const stats = await storage.getStats();
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+      const stats = await storage.getStats(startDate, endDate);
       res.json(stats);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
