@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
-const PRESET_AMOUNTS = [3000, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000];
+const PRESET_AMOUNTS = [3000, 5000, 15000, 25000, 50000, 100000];
 
 const PAYMENT_METHODS_BY_COUNTRY: Record<string, string[]> = {
   CM: ["Orange Money", "MTN Mobile Money"],
