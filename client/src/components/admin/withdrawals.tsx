@@ -104,6 +104,7 @@ export default function AdminWithdrawals() {
                       {withdrawal.user.isPromoter && <Badge className="text-xs">Promoteur</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">{withdrawal.user.phone}</p>
+                    <p className="text-sm text-muted-foreground">Pays: {withdrawal.user.country}</p>
                   </div>
                   <Badge variant={withdrawal.status === "pending" ? "secondary" : withdrawal.status === "approved" ? "default" : "destructive"}>
                     {withdrawal.status}
