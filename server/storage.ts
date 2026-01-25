@@ -1,8 +1,10 @@
 import { 
   users, products, userProducts, deposits, withdrawals, withdrawalWallets,
   paymentChannels, referralCommissions, tasks, userTasks, transactions, platformSettings, adminAuditLog,
+  giftCodes, giftCodeClaims,
   type User, type Product, type UserProduct, type Deposit, type Withdrawal, type WithdrawalWallet,
-  type PaymentChannel, type ReferralCommission, type Task, type UserTask, type Transaction, type PlatformSetting
+  type PaymentChannel, type ReferralCommission, type Task, type UserTask, type Transaction, type PlatformSetting,
+  type GiftCode, type GiftCodeClaim
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, gte, lte, or } from "drizzle-orm";
@@ -80,6 +82,14 @@ export interface IStorage {
   // Admin
   getStats(): Promise<any>;
   logAdminAction(adminId: number, action: string, targetUserId: number | null, details: string): Promise<void>;
+  
+  // Gift Codes
+  getAllGiftCodes(): Promise<GiftCode[]>;
+  getGiftCodeByCode(code: string): Promise<GiftCode | undefined>;
+  createGiftCode(data: { code: string; amount: string; maxUses: number; expiresAt: Date; createdBy: number }): Promise<GiftCode>;
+  deleteGiftCode(id: number): Promise<void>;
+  hasUserClaimedGiftCode(userId: number, giftCodeId: number): Promise<boolean>;
+  claimGiftCode(userId: number, giftCodeId: number, amount: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -777,6 +787,50 @@ export class DatabaseStorage implements IStorage {
 
   async logAdminAction(adminId: number, action: string, targetUserId: number | null, details: string): Promise<void> {
     await db.insert(adminAuditLog).values({ adminId, action, targetUserId, details });
+  }
+
+  // Gift Codes
+  async getAllGiftCodes(): Promise<GiftCode[]> {
+    return await db.select().from(giftCodes).orderBy(desc(giftCodes.createdAt));
+  }
+
+  async getGiftCodeByCode(code: string): Promise<GiftCode | undefined> {
+    const [giftCode] = await db.select().from(giftCodes).where(eq(giftCodes.code, code));
+    return giftCode || undefined;
+  }
+
+  async createGiftCode(data: { code: string; amount: string; maxUses: number; expiresAt: Date; createdBy: number }): Promise<GiftCode> {
+    const [giftCode] = await db.insert(giftCodes).values(data).returning();
+    return giftCode;
+  }
+
+  async deleteGiftCode(id: number): Promise<void> {
+    await db.delete(giftCodes).where(eq(giftCodes.id, id));
+  }
+
+  async hasUserClaimedGiftCode(userId: number, giftCodeId: number): Promise<boolean> {
+    const [claim] = await db.select().from(giftCodeClaims).where(
+      and(eq(giftCodeClaims.userId, userId), eq(giftCodeClaims.giftCodeId, giftCodeId))
+    );
+    return !!claim;
+  }
+
+  async claimGiftCode(userId: number, giftCodeId: number, amount: number): Promise<void> {
+    await db.transaction(async (tx) => {
+      await tx.insert(giftCodeClaims).values({ userId, giftCodeId });
+      await tx.update(giftCodes).set({
+        currentUses: sql`${giftCodes.currentUses} + 1`
+      }).where(eq(giftCodes.id, giftCodeId));
+      await tx.update(users).set({
+        balance: sql`${users.balance} + ${amount}`
+      }).where(eq(users.id, userId));
+      await tx.insert(transactions).values({
+        userId,
+        type: "gift_code",
+        amount: amount.toString(),
+        description: `Bonus code cadeau`
+      });
+    });
   }
 }
 

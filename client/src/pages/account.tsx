@@ -7,7 +7,7 @@ import { getCountryByCode } from "@/lib/countries";
 import { 
   Info, 
   Headphones, 
-  Users, 
+  Gift,
   FileText,
   CreditCard,
   Lock,
@@ -184,12 +184,12 @@ export default function AccountPage() {
               <span className="text-xs text-gray-600 text-center leading-tight">Service Client</span>
             </button>
 
-            <Link href="/team">
-              <button className="flex flex-col items-center gap-2" data-testid="button-team">
-                <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
-                  <Users className="w-7 h-7 text-blue-500" />
+            <Link href="/gift-code">
+              <button className="flex flex-col items-center gap-2" data-testid="button-gift-code">
+                <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center">
+                  <Gift className="w-7 h-7 text-orange-500" />
                 </div>
-                <span className="text-xs text-gray-600 text-center leading-tight">Equipe</span>
+                <span className="text-xs text-gray-600 text-center leading-tight">Code Cadeau</span>
               </button>
             </Link>
 

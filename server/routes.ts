@@ -955,5 +955,110 @@ export async function registerRoutes(
     }
   });
 
+  // Gift Codes Routes
+  app.get("/api/admin/gift-codes", requireAdmin, async (req, res) => {
+    try {
+      const codes = await storage.getAllGiftCodes();
+      res.json(codes);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  const createGiftCodeSchema = z.object({
+    code: z.string().min(1, "Le code est requis"),
+    amount: z.number().positive("Le montant doit etre positif").or(z.string().transform(Number)),
+    maxUses: z.number().int().positive("Le nombre d'utilisations doit etre positif"),
+    expiresAt: z.string().refine((val) => !isNaN(Date.parse(val)), "Date d'expiration invalide"),
+  });
+
+  app.post("/api/admin/gift-codes", requireAdmin, async (req, res) => {
+    try {
+      const parseResult = createGiftCodeSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ message: parseResult.error.errors[0]?.message || "Donnees invalides" });
+      }
+
+      const { code, amount, maxUses, expiresAt } = parseResult.data;
+
+      const existingCode = await storage.getGiftCodeByCode(code);
+      if (existingCode) {
+        return res.status(400).json({ message: "Ce code existe deja" });
+      }
+
+      const giftCode = await storage.createGiftCode({
+        code,
+        amount: amount.toString(),
+        maxUses,
+        expiresAt: new Date(expiresAt),
+        createdBy: req.session.userId!,
+      });
+
+      await storage.logAdminAction(req.session.userId!, "create_gift_code", null, `Code cadeau cree: ${code} - ${amount} FCFA`);
+      res.json(giftCode);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/gift-codes/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteGiftCode(id);
+      await storage.logAdminAction(req.session.userId!, "delete_gift_code", null, `Code cadeau supprimé: #${id}`);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  const claimGiftCodeSchema = z.object({
+    code: z.string().min(1, "Le code est requis"),
+  });
+
+  app.post("/api/gift-codes/claim", requireAuth, async (req, res) => {
+    try {
+      const parseResult = claimGiftCodeSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ message: parseResult.error.errors[0]?.message || "Le code est requis" });
+      }
+
+      const { code } = parseResult.data;
+      const userId = req.session.userId!;
+
+      const giftCode = await storage.getGiftCodeByCode(code);
+      if (!giftCode) {
+        return res.status(404).json({ message: "Code invalide" });
+      }
+
+      if (!giftCode.isActive) {
+        return res.status(400).json({ message: "Ce code n'est plus actif" });
+      }
+
+      if (new Date() > new Date(giftCode.expiresAt)) {
+        return res.status(400).json({ message: "Ce code a expiré" });
+      }
+
+      if (giftCode.currentUses >= giftCode.maxUses) {
+        return res.status(400).json({ message: "Ce code a atteint sa limite d'utilisation" });
+      }
+
+      const hasClaimed = await storage.hasUserClaimedGiftCode(userId, giftCode.id);
+      if (hasClaimed) {
+        return res.status(400).json({ message: "Vous avez déjà utilisé ce code" });
+      }
+
+      await storage.claimGiftCode(userId, giftCode.id, parseFloat(giftCode.amount));
+      
+      res.json({ 
+        success: true, 
+        message: `Félicitations! Vous avez reçu ${parseFloat(giftCode.amount).toLocaleString()} FCFA`,
+        amount: parseFloat(giftCode.amount)
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   return httpServer;
 }

@@ -187,6 +187,27 @@ export const adminAuditLog = pgTable("admin_audit_log", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Gift codes
+export const giftCodes = pgTable("gift_codes", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  maxUses: integer("max_uses").notNull(),
+  currentUses: integer("current_uses").notNull().default(0),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+// Gift code claims
+export const giftCodeClaims = pgTable("gift_code_claims", {
+  id: serial("id").primaryKey(),
+  giftCodeId: integer("gift_code_id").notNull().references(() => giftCodes.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  claimedAt: timestamp("claimed_at").notNull().defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many, one }) => ({
   products: many(userProducts),
@@ -280,6 +301,14 @@ export const walletSchema = z.object({
   country: z.string().min(2, "Le pays est requis"),
 });
 
+// Schemas
+export const giftCodeSchema = z.object({
+  code: z.string().min(4, "Le code doit avoir au moins 4 caracteres"),
+  amount: z.number().min(1, "Le montant doit etre positif"),
+  maxUses: z.number().min(1, "Le nombre d'utilisations doit etre au moins 1"),
+  expiresAt: z.string(),
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -295,3 +324,5 @@ export type UserTask = typeof userTasks.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 export type PlatformSetting = typeof platformSettings.$inferSelect;
 export type AdminAuditLog = typeof adminAuditLog.$inferSelect;
+export type GiftCode = typeof giftCodes.$inferSelect;
+export type GiftCodeClaim = typeof giftCodeClaims.$inferSelect;

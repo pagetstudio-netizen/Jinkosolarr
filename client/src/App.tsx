@@ -25,6 +25,7 @@ import WalletPage from "@/pages/wallet";
 import ChangePasswordPage from "@/pages/change-password";
 import AboutPage from "@/pages/about";
 import RulesPage from "@/pages/rules";
+import GiftCodePage from "@/pages/gift-code";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -211,6 +212,11 @@ function Router() {
       <Route path="/rules">
         <ProtectedRoute>
           <RulesPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/gift-code">
+        <ProtectedRoute>
+          <GiftCodePage />
         </ProtectedRoute>
       </Route>
       <Route path="/admin">
