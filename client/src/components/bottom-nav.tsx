@@ -32,10 +32,10 @@ export default function BottomNav() {
               <img 
                 src={item.icon} 
                 alt={item.label} 
-                className={`w-6 h-6 mb-1 ${isActive ? "" : "opacity-40"}`}
+                className={`w-7 h-7 mb-1 ${isActive ? "" : "opacity-40"}`}
                 style={isActive ? { filter: "invert(27%) sepia(91%) saturate(6500%) hue-rotate(355deg) brightness(95%) contrast(100%)" } : {}}
               />
-              <span className={`text-xs ${isActive ? "font-medium text-red-500" : "text-gray-400"}`}>{item.label}</span>
+              <span className={`text-[10px] ${isActive ? "font-semibold text-red-500" : "text-gray-400"}`}>{item.label}</span>
             </button>
           );
         })}
