@@ -23,6 +23,8 @@ import HistoryPage from "@/pages/history";
 import ServicePage from "@/pages/service";
 import WalletPage from "@/pages/wallet";
 import ChangePasswordPage from "@/pages/change-password";
+import AboutPage from "@/pages/about";
+import RulesPage from "@/pages/rules";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -199,6 +201,16 @@ function Router() {
       <Route path="/change-password">
         <ProtectedRoute>
           <ChangePasswordPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/about">
+        <ProtectedRoute>
+          <AboutPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/rules">
+        <ProtectedRoute>
+          <RulesPage />
         </ProtectedRoute>
       </Route>
       <Route path="/admin">
