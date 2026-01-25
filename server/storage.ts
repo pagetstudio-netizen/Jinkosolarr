@@ -63,7 +63,7 @@ export interface IStorage {
   getReferrals(userId: number, level: number): Promise<User[]>;
   createReferralCommission(data: Partial<ReferralCommission>): Promise<ReferralCommission>;
   getUserCommissions(userId: number): Promise<number>;
-  getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Commission: number; level2Commission: number; level3Commission: number; level1Invested: number; level2Invested: number; level3Invested: number }>;
+  getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Commission: number; level2Commission: number; level3Commission: number; level1Invested: number; level2Invested: number; level3Invested: number; level1Recharged: number }>;
   
   // Tasks
   getTasks(): Promise<Task[]>;
@@ -547,7 +547,7 @@ export class DatabaseStorage implements IStorage {
     return parseFloat(result[0]?.total || "0");
   }
 
-  async getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Commission: number; level2Commission: number; level3Commission: number; level1Invested: number; level2Invested: number; level3Invested: number }> {
+  async getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Commission: number; level2Commission: number; level3Commission: number; level1Invested: number; level2Invested: number; level3Invested: number; level1Recharged: number }> {
     const level1 = await this.getReferrals(userId, 1);
     const level2 = await this.getReferrals(userId, 2);
     const level3 = await this.getReferrals(userId, 3);
@@ -568,6 +568,16 @@ export class DatabaseStorage implements IStorage {
       return count;
     };
 
+    const countRecharged = async (userList: User[]) => {
+      let count = 0;
+      for (const u of userList) {
+        const userDeposits = await db.select().from(deposits)
+          .where(and(eq(deposits.userId, u.id), eq(deposits.status, "approved")));
+        if (userDeposits.length > 0) count++;
+      }
+      return count;
+    };
+
     return {
       level1Count: level1.length,
       level2Count: level2.length,
@@ -579,6 +589,7 @@ export class DatabaseStorage implements IStorage {
       level1Invested: await countInvested(level1),
       level2Invested: await countInvested(level2),
       level3Invested: await countInvested(level3),
+      level1Recharged: await countRecharged(level1),
     };
   }
 
@@ -641,13 +652,13 @@ export class DatabaseStorage implements IStorage {
     const completedIds = new Set(completedTasks.map(t => t.taskId));
     
     const teamStats = await this.getTeamStats(userId);
-    const totalInvested = teamStats.level1Invested;
+    const totalRecharged = teamStats.level1Recharged;
 
     return allTasks.map(task => ({
       ...task,
       isCompleted: completedIds.has(task.id),
-      canClaim: !completedIds.has(task.id) && totalInvested >= task.requiredInvites,
-      currentInvites: totalInvested,
+      canClaim: !completedIds.has(task.id) && totalRecharged >= task.requiredInvites,
+      currentInvites: totalRecharged,
     }));
   }
 
@@ -656,7 +667,7 @@ export class DatabaseStorage implements IStorage {
     if (!task[0]) throw new Error("Tâche non trouvée");
 
     const teamStats = await this.getTeamStats(userId);
-    if (teamStats.level1Invested < task[0].requiredInvites) {
+    if (teamStats.level1Recharged < task[0].requiredInvites) {
       throw new Error("Conditions non remplies");
     }
 

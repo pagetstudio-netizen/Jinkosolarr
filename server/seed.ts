@@ -119,12 +119,12 @@ export async function seed() {
   const existingTasks = await db.select().from(tasks);
   if (existingTasks.length === 0) {
     await db.insert(tasks).values([
-      { name: "Parrain Debutant", description: "Invitez 1 personne qui investit", requiredInvites: 1, reward: 500, sortOrder: 1 },
-      { name: "Parrain Actif", description: "Invitez 3 personnes qui investissent", requiredInvites: 3, reward: 1500, sortOrder: 2 },
-      { name: "Leader Equipe", description: "Invitez 5 personnes qui investissent", requiredInvites: 5, reward: 3000, sortOrder: 3 },
-      { name: "Manager", description: "Invitez 10 personnes qui investissent", requiredInvites: 10, reward: 7000, sortOrder: 4 },
-      { name: "Directeur", description: "Invitez 20 personnes qui investissent", requiredInvites: 20, reward: 15000, sortOrder: 5 },
-      { name: "Super Parrain", description: "Invitez 50 personnes qui investissent", requiredInvites: 50, reward: 40000, sortOrder: 6 },
+      { name: "Parrain Bronze", description: "Invitez 3 personnes a recharger leur compte", requiredInvites: 3, reward: 150, sortOrder: 1 },
+      { name: "Parrain Argent", description: "Invitez 5 personnes a recharger leur compte", requiredInvites: 5, reward: 500, sortOrder: 2 },
+      { name: "Parrain Or", description: "Invitez 10 personnes a recharger leur compte", requiredInvites: 10, reward: 800, sortOrder: 3 },
+      { name: "Parrain Platine", description: "Invitez 25 personnes a recharger leur compte", requiredInvites: 25, reward: 2500, sortOrder: 4 },
+      { name: "Parrain Diamant", description: "Invitez 50 personnes a recharger leur compte", requiredInvites: 50, reward: 4000, sortOrder: 5 },
+      { name: "Parrain Elite", description: "Invitez 100 personnes a recharger leur compte", requiredInvites: 100, reward: 10000, sortOrder: 6 },
     ]);
     console.log("Tasks seeded");
   }
