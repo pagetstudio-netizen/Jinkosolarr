@@ -3,8 +3,9 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ChevronRight } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { ArrowLeft, Plus, ChevronRight, Wallet } from "lucide-react";
+import { Link, useLocation, useRoute } from "wouter";
+import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
 import {
   Dialog,
@@ -56,6 +57,7 @@ export default function WithdrawalPage() {
   });
 
   const hasActiveProduct = userProducts.some((p) => p.status === "active");
+  const [, navigate] = useLocation();
 
   const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; type: string }[]>({
     queryKey: ["/api/payment-channels", user?.country],
@@ -148,6 +150,38 @@ export default function WithdrawalPage() {
       country: user?.country || "",
     });
   };
+
+  if (wallets.length === 0) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: "#f5f0e8" }}>
+        <header className="flex items-center px-4 py-3 border-b bg-white">
+          <Link href="/account">
+            <button className="p-2" data-testid="button-back">
+              <ArrowLeft className="w-5 h-5 text-gray-700" />
+            </button>
+          </Link>
+          <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-8">Retrait</h1>
+        </header>
+
+        <div className="flex flex-col items-center justify-center p-8 mt-20">
+          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mb-6">
+            <Wallet className="w-10 h-10 text-amber-600" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2 text-center">Aucun portefeuille</h2>
+          <p className="text-gray-500 text-center mb-6">
+            Vous devez d'abord ajouter un compte de retrait pour effectuer des retraits.
+          </p>
+          <Button 
+            onClick={() => navigate("/account")}
+            className="bg-amber-500 hover:bg-amber-600 text-white px-6"
+            data-testid="button-go-to-wallet"
+          >
+            Ajouter un portefeuille
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f5f0e8" }}>
