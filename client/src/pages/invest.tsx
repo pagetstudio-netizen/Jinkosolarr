@@ -11,8 +11,17 @@ import { formatCurrency } from "@/lib/countries";
 import { Clock, Gift, Loader2, AlertTriangle } from "lucide-react";
 import type { Product } from "@shared/schema";
 
-import robotSoldes from "@/assets/images/robot-soldes.png";
-import robotCumulatif from "@/assets/images/robot-cumulatif.png";
+import product1 from "@/assets/images/product-1.jpg";
+import product2 from "@/assets/images/product-2.webp";
+import product3 from "@/assets/images/product-3.webp";
+import product4 from "@/assets/images/product-4.webp";
+import product5 from "@/assets/images/product-5.webp";
+import product6 from "@/assets/images/product-6.webp";
+import product7 from "@/assets/images/product-7.webp";
+import product8 from "@/assets/images/product-8.webp";
+import product9 from "@/assets/images/product-9.jpg";
+
+const productImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -74,7 +83,7 @@ export default function InvestPage() {
   const balance = parseFloat(user.balance || "0");
 
   const getProductImage = (index: number) => {
-    return index % 2 === 0 ? robotSoldes : robotCumulatif;
+    return productImages[index % productImages.length];
   };
 
   const handleBuyClick = (product: ProductWithOwnership) => {
