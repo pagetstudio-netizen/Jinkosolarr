@@ -9,6 +9,16 @@ import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
 const PRESET_AMOUNTS = [3000, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000];
 
+const PAYMENT_METHODS_BY_COUNTRY: Record<string, string[]> = {
+  CM: ["Orange Money", "MTN Mobile Money"],
+  BF: ["Orange Money", "Moov Money"],
+  TG: ["TMoney", "Moov Money", "Mixx by Yas"],
+  BJ: ["Celtis", "Moov Money", "MTN Mobile Money", "Momo"],
+  CI: ["Wave", "MTN Mobile Money", "Orange Money", "Moov Money"],
+  CG: ["MTN Mobile Money", "Airtel Money"],
+  CD: ["Airtel Money", "M-Pesa", "Orange Money"],
+};
+
 interface PaymentChannel {
   id: number;
   name: string;
@@ -21,22 +31,24 @@ export default function DepositPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number | "">("");
+  const [selectedCountry, setSelectedCountry] = useState(user?.country || "");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
   const [accountName, setAccountName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState(user?.country || "");
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
   const minDeposit = 3000;
 
+  const paymentMethods = selectedCountry ? PAYMENT_METHODS_BY_COUNTRY[selectedCountry] || [] : [];
+
   const { data: paymentChannels = [] } = useQuery<PaymentChannel[]>({
-    queryKey: ["/api/payment-channels", selectedCountry],
+    queryKey: ["/api/payment-channels"],
     queryFn: async () => {
-      const res = await fetch(`/api/payment-channels?country=${selectedCountry}`);
+      const res = await fetch("/api/payment-channels");
       return res.json();
     },
-    enabled: !!selectedCountry,
   });
 
   const depositMutation = useMutation({
@@ -57,6 +69,7 @@ export default function DepositPage() {
       }
       
       setAmount("");
+      setSelectedPaymentMethod("");
       setSelectedChannel(null);
       setAccountName("");
       setAccountNumber("");
@@ -91,10 +104,10 @@ export default function DepositPage() {
       });
       return;
     }
-    if (!selectedChannel) {
+    if (!selectedPaymentMethod) {
       toast({
-        title: "Selectionnez un canal",
-        description: "Veuillez selectionner un mode de paiement",
+        title: "Moyen de paiement requis",
+        description: "Veuillez selectionner votre moyen de paiement",
         variant: "destructive",
       });
       return;
@@ -115,9 +128,17 @@ export default function DepositPage() {
       });
       return;
     }
+    if (!selectedChannel) {
+      toast({
+        title: "Canal requis",
+        description: "Veuillez selectionner un canal de recharge",
+        variant: "destructive",
+      });
+      return;
+    }
     depositMutation.mutate({
       amount: amount as number,
-      paymentMethod: selectedChannel.name,
+      paymentMethod: selectedPaymentMethod,
       accountName,
       accountNumber,
       country: selectedCountry,
@@ -191,7 +212,7 @@ export default function DepositPage() {
                 key={country.code}
                 onClick={() => {
                   setSelectedCountry(country.code);
-                  setSelectedChannel(null);
+                  setSelectedPaymentMethod("");
                 }}
                 className={`p-3 rounded-lg border text-center font-medium transition-colors ${
                   selectedCountry === country.code
@@ -206,22 +227,22 @@ export default function DepositPage() {
           </div>
         </div>
 
-        {selectedCountry && (
+        {selectedCountry && paymentMethods.length > 0 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Moyen de paiement</label>
             <div className="grid grid-cols-2 gap-2">
-              {paymentChannels.map((channel) => (
+              {paymentMethods.map((method) => (
                 <button
-                  key={channel.id}
-                  onClick={() => setSelectedChannel(channel)}
+                  key={method}
+                  onClick={() => setSelectedPaymentMethod(method)}
                   className={`p-3 rounded-lg border text-center font-medium transition-colors ${
-                    selectedChannel?.id === channel.id
+                    selectedPaymentMethod === method
                       ? "border-amber-500 bg-amber-50 text-amber-700"
                       : "border-gray-200 bg-white text-gray-700"
                   }`}
-                  data-testid={`button-channel-${channel.id}`}
+                  data-testid={`button-method-${method}`}
                 >
-                  {channel.name}
+                  {method}
                 </button>
               ))}
             </div>
@@ -241,7 +262,7 @@ export default function DepositPage() {
         </div>
 
         <div className="bg-white rounded-lg border p-4">
-          <label className="block text-sm text-gray-500 mb-2">Numero de telephone ({selectedChannel?.name || "Mobile Money"})</label>
+          <label className="block text-sm text-gray-500 mb-2">Numero de telephone ({selectedPaymentMethod || "Mobile Money"})</label>
           <input
             type="tel"
             value={accountNumber}
@@ -252,9 +273,29 @@ export default function DepositPage() {
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Canal de recharge</label>
+          <div className="grid grid-cols-2 gap-2">
+            {paymentChannels.filter(c => c.isActive).map((channel) => (
+              <button
+                key={channel.id}
+                onClick={() => setSelectedChannel(channel)}
+                className={`p-3 rounded-lg border text-center font-medium transition-colors ${
+                  selectedChannel?.id === channel.id
+                    ? "border-green-500 bg-green-50 text-green-700"
+                    : "border-gray-200 bg-white text-gray-700"
+                }`}
+                data-testid={`button-channel-${channel.id}`}
+              >
+                {channel.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
           onClick={handleSubmit}
-          disabled={depositMutation.isPending || !amount || !selectedChannel || !accountName || !accountNumber || !selectedCountry}
+          disabled={depositMutation.isPending || !amount || !selectedPaymentMethod || !accountName || !accountNumber || !selectedChannel}
           className="w-full py-4 bg-gray-900 text-white font-semibold rounded-lg disabled:opacity-50"
           data-testid="button-submit-deposit"
         >
