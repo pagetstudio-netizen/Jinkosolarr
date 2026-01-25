@@ -31,11 +31,11 @@ export default function HistoryPage() {
   const currency = countryInfo?.currency || "FCFA";
 
   const { data: deposits = [], isLoading: depositsLoading } = useQuery<Deposit[]>({
-    queryKey: ["/api/deposits"],
+    queryKey: ["/api/deposits/history"],
   });
 
   const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<Withdrawal[]>({
-    queryKey: ["/api/withdrawals"],
+    queryKey: ["/api/withdrawals/history"],
   });
 
   const getStatusIcon = (status: string) => {
