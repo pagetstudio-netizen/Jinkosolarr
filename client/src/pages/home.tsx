@@ -58,16 +58,16 @@ export default function HomePage() {
               className="w-full h-auto object-cover"
             />
             
-            <div className="p-5 text-white">
-              <h2 className="text-[#ff3b30] font-bold text-center text-xl mb-4 tracking-wider">
+            <div className="p-4 text-white">
+              <h2 className="text-[#ff3b30] font-bold text-center text-lg mb-3 tracking-wider">
                 ⚠️ NOTIFIÉ
               </h2>
               
-              <div className="space-y-4 text-[15px] leading-relaxed">
-                <p className="font-semibold text-center text-lg">Bienvenue sur FANUC</p>
-                <p>Investissez dans votre propre machine et générez des revenus quotidiens.</p>
+              <div className="space-y-3 text-[13px] leading-relaxed">
+                <p className="font-semibold text-center text-base">Bienvenue sur FANUC</p>
+                <p className="text-center">Investissez dans votre propre machine et générez des revenus quotidiens.</p>
                 
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   <li className="flex gap-2">
                     <span className="font-bold">1.</span>
                     <span>Les nouveaux utilisateurs reçoivent 500 FCFA à l’inscription.</span>
@@ -82,7 +82,7 @@ export default function HomePage() {
                   </li>
                 </ul>
                 
-                <p className="text-center pt-2 italic text-sm text-gray-300">
+                <p className="text-center pt-1 italic text-[12px] text-gray-300">
                   Cliquez ci-dessous pour rejoindre notre chaîne Telegram officielle.
                 </p>
 
