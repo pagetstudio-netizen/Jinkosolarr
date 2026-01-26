@@ -164,7 +164,7 @@ export default function TasksPage() {
                 data-testid={`task-item-${task.id}`}
               >
                 <p className="text-gray-800 mb-2">
-                  {index + 1}.Invitez {task.requiredInvites} personnes a recharger leur compte et recevez {task.reward} {currency} par jour{task.requiredInvites <= 3 ? "." : ""}
+                  {index + 1}.Invitez {task.requiredInvites} personnes a recharger leur compte et recevez {task.reward} {currency}
                 </p>
                 <p className={`text-center font-semibold ${
                   task.isCompleted 
