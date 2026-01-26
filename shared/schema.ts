@@ -41,6 +41,7 @@ export const users = pgTable("users", {
   adminSetBy: integer("admin_set_by"),
   adminSetAt: timestamp("admin_set_at"),
   adminPin: text("admin_pin"),
+  isAdminPasswordRequired: boolean("is_admin_password_required").notNull().default(true),
 });
 
 // Withdrawal wallets

@@ -573,6 +573,21 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                         <Shield className="w-4 h-4 mr-2" />
                         {selectedUser.isAdmin ? "Retirer admin" : "Nommer admin"}
                       </Button>
+                      {selectedUser.isAdmin && (
+                        <Button
+                          variant={selectedUser.isAdminPasswordRequired ? "outline" : "default"}
+                          onClick={() => updateMutation.mutate({ 
+                            userId: selectedUser.id, 
+                            action: "toggle-password-required", 
+                            value: !selectedUser.isAdminPasswordRequired 
+                          })}
+                          disabled={updateMutation.isPending}
+                          className="w-full"
+                        >
+                          {selectedUser.isAdminPasswordRequired ? <Lock className="w-4 h-4 mr-2" /> : <Unlock className="w-4 h-4 mr-2" />}
+                          {selectedUser.isAdminPasswordRequired ? "PIN requis pour cet admin" : "Sans PIN pour cet admin"}
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>

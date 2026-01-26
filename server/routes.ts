@@ -684,6 +684,11 @@ export async function registerRoutes(
         return res.status(403).json({ message: "Acces refuse" });
       }
       
+      // If password is not required for this admin, auto-verify
+      if (user.isAdminPasswordRequired === false) {
+        return res.json({ success: true });
+      }
+
       if (!user.adminPin) {
         return res.status(400).json({ message: "Code PIN non configure" });
       }
@@ -830,6 +835,13 @@ export async function registerRoutes(
           }
           await storage.updateUser(userId, { adminPin: value });
           await storage.logAdminAction(req.session.userId!, "update_admin_pin", userId, `PIN admin mis à jour`);
+          break;
+        case "toggle-password-required":
+          if (!adminUser?.isSuperAdmin) {
+            return res.status(403).json({ message: "Action réservée au super admin" });
+          }
+          await storage.updateUser(userId, { isAdminPasswordRequired: value });
+          await storage.logAdminAction(req.session.userId!, "toggle_password_required", userId, `Mot de passe admin requis: ${value}`);
           break;
         case "assign-product":
           await storage.purchaseProduct(userId, value, true);
