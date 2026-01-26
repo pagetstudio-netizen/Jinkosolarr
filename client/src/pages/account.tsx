@@ -59,6 +59,11 @@ export default function AccountPage() {
   });
 
   const handleAdminClick = () => {
+    // If password is not required for this admin, navigate directly
+    if (user.isAdminPasswordRequired === false) {
+      navigate("/admin");
+      return;
+    }
     setShowPinModal(true);
   };
 

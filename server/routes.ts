@@ -525,8 +525,7 @@ export async function registerRoutes(
         userId: user.id,
         type: "bonus",
         amount: "50",
-        description: "Bonus quotidien",
-        status: "completed"
+        description: "Bonus quotidien"
       });
 
       res.json({ success: true, message: "Bonus de 50 FCFA ajoute!" });
@@ -882,8 +881,8 @@ export async function registerRoutes(
         dailyEarnings: up.product.dailyEarnings,
         isActive: up.userProduct.isActive,
         purchaseDate: up.userProduct.purchaseDate,
-        daysClaimed: up.userProduct.daysClaimed,
-        totalCycle: up.product.cycle,
+        daysClaimed: up.product.cycleDays - up.userProduct.daysRemaining,
+        totalCycle: up.product.cycleDays,
       })));
     } catch (error: any) {
       res.status(500).json({ message: error.message });
