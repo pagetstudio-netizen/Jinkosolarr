@@ -1,6 +1,7 @@
 import { useAuth } from "@/lib/auth";
-import { Bell } from "lucide-react";
+import { Bell, X, Send } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useState, useEffect } from "react";
 import fanucHeader from "@/assets/images/fanuc-header.png";
 import btnRecharge from "@/assets/images/btn-recharge.png";
 import btnRetirer from "@/assets/images/btn-retirer.png";
@@ -8,10 +9,24 @@ import btnAide from "@/assets/images/btn-aide.png";
 import robotSoldes from "@/assets/images/robot-soldes.png";
 import robotCumulatif from "@/assets/images/robot-cumulatif.png";
 import fanucTeamWide from "@/assets/images/fanuc-team-wide.png";
+import fanucPopupBanner from "@assets/20260126_073237_1769413159534.jpg";
 
 export default function HomePage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    // Show popup on component mount (Accueil tab)
+    setShowPopup(true);
+    
+    // Auto-hide after 8 seconds
+    const timer = setTimeout(() => {
+      setShowPopup(false);
+    }, 8000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   if (!user) return null;
 
@@ -20,6 +35,80 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-full bg-amber-50">
+      {/* Pop-up Notification */}
+      {showPopup && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 animate-in fade-in duration-300"
+          onClick={() => setShowPopup(false)}
+        >
+          <div 
+            className="bg-[#1a1a1a] w-full max-w-sm rounded-2xl overflow-hidden relative animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setShowPopup(false)}
+              className="absolute top-2 right-2 text-white/70 hover:text-white z-10"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <img 
+              src={fanucPopupBanner} 
+              alt="FANUC Banner" 
+              className="w-full h-auto object-cover"
+            />
+            
+            <div className="p-5 text-white">
+              <h2 className="text-[#ff3b30] font-bold text-center text-xl mb-4 tracking-wider">
+                ⚠️ NOTIFIÉ
+              </h2>
+              
+              <div className="space-y-4 text-[15px] leading-relaxed">
+                <p className="font-semibold text-center text-lg">Bienvenue sur FANUC</p>
+                <p>Investissez dans votre propre machine et générez des revenus quotidiens.</p>
+                
+                <ul className="space-y-3">
+                  <li className="flex gap-2">
+                    <span className="font-bold">1.</span>
+                    <span>Les nouveaux utilisateurs reçoivent 500 FCFA à l’inscription.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold">2.</span>
+                    <span>Retrait minimum : 1 200 FCFA.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold">3.</span>
+                    <span>Gagnez 30 % de commission grâce à notre programme de parrainage à trois niveaux.</span>
+                  </li>
+                </ul>
+                
+                <p className="text-center pt-2 italic text-sm text-gray-300">
+                  Cliquez ci-dessous pour rejoindre notre chaîne Telegram officielle.
+                </p>
+
+                <div className="space-y-3 pt-2">
+                  <button 
+                    onClick={() => setShowPopup(false)}
+                    className="w-full py-3 bg-[#333] hover:bg-[#444] rounded-xl font-bold transition-colors"
+                  >
+                    D’ACCORD
+                  </button>
+                  
+                  <a 
+                    href="https://t.me/fanucgroup"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#0088cc] hover:bg-[#0099ee] rounded-xl font-bold transition-colors"
+                  >
+                    <Send className="w-5 h-5 fill-current" />
+                    Rejoindre la chaîne Telegram
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="w-full">
         <img 
           src={fanucHeader} 
