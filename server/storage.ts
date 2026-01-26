@@ -602,7 +602,7 @@ export class DatabaseStorage implements IStorage {
       const userProductsList = await db.select({ 
         productName: products.name,
         productPrice: products.price,
-        purchasedAt: userProducts.purchasedAt,
+        purchaseDate: userProducts.purchaseDate,
         isActive: userProducts.isActive,
       })
       .from(userProducts)
@@ -648,46 +648,66 @@ export class DatabaseStorage implements IStorage {
 
   async getTasksWithStatus(userId: number): Promise<(Task & { isCompleted: boolean; canClaim: boolean; currentInvites: number })[]> {
     const allTasks = await this.getTasks();
+    const user = await this.getUser(userId);
+    if (!user) return [];
+
+    // Get level 1 referrals
+    const level1Refs = await this.getReferrals(userId, 1);
+    
+    // Check which ones have actually RECHARGED and PURCHASED a product
+    const validInvites: User[] = [];
+    for (const ref of level1Refs) {
+      // Must have performed a deposit that was approved
+      const refDeposits = await db.select().from(deposits)
+        .where(and(eq(deposits.userId, ref.id), eq(deposits.status, "approved")));
+      
+      // Must have purchased at least one paid product (not free)
+      const refProducts = await db.select()
+        .from(userProducts)
+        .innerJoin(products, eq(userProducts.productId, products.id))
+        .where(and(
+          eq(userProducts.userId, ref.id),
+          eq(products.isFree, false)
+        ));
+
+      if (refDeposits.length > 0 && refProducts.length > 0) {
+        validInvites.push(ref);
+      }
+    }
+
+    const currentInvites = validInvites.length;
     const completedTasks = await db.select().from(userTasks).where(eq(userTasks.userId, userId));
     const completedIds = new Set(completedTasks.map(t => t.taskId));
-    
-    const teamStats = await this.getTeamStats(userId);
-    const totalInvested = teamStats.level1Invested;
 
     return allTasks.map(task => ({
       ...task,
       isCompleted: completedIds.has(task.id),
-      canClaim: !completedIds.has(task.id) && totalInvested >= task.requiredInvites,
-      currentInvites: totalInvested,
+      canClaim: !completedIds.has(task.id) && currentInvites >= task.requiredInvites,
+      currentInvites: currentInvites,
     }));
   }
 
   async claimTask(userId: number, taskId: number): Promise<void> {
-    const task = await db.select().from(tasks).where(eq(tasks.id, taskId));
-    if (!task[0]) throw new Error("Tâche non trouvée");
+    const tasksStatus = await this.getTasksWithStatus(userId);
+    const taskStatus = tasksStatus.find(t => t.id === taskId);
 
-    const teamStats = await this.getTeamStats(userId);
-    if (teamStats.level1Invested < task[0].requiredInvites) {
-      throw new Error("Conditions non remplies");
-    }
-
-    const existing = await db.select().from(userTasks)
-      .where(and(eq(userTasks.userId, userId), eq(userTasks.taskId, taskId)));
-    if (existing.length > 0) throw new Error("Tâche déjà réclamée");
+    if (!taskStatus) throw new Error("Tâche non trouvée");
+    if (taskStatus.isCompleted) throw new Error("Tâche déjà réclamée");
+    if (!taskStatus.canClaim) throw new Error("Conditions non remplies (recharge et achat requis)");
 
     const user = await this.getUser(userId);
     if (!user) throw new Error("Utilisateur non trouvé");
 
     await db.insert(userTasks).values({ userId, taskId });
     
-    const newBalance = parseFloat(user.balance) + task[0].reward;
+    const newBalance = parseFloat(user.balance) + taskStatus.reward;
     await this.updateUser(userId, { balance: newBalance.toFixed(2) });
     
     await this.createTransaction({
       userId,
       type: "task_reward",
-      amount: task[0].reward.toString(),
-      description: `Récompense: ${task[0].name}`,
+      amount: taskStatus.reward.toString(),
+      description: `Récompense: ${taskStatus.name}`,
     });
   }
 
