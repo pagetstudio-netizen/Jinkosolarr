@@ -29,6 +29,7 @@ export interface IStorage {
   getAllUserProducts(userId: number): Promise<{ userProduct: UserProduct; product: Product }[]>;
   purchaseProduct(userId: number, productId: number, assignedByAdmin?: boolean): Promise<UserProduct>;
   removeUserProduct(userId: number, productId: number): Promise<void>;
+  updateUserProduct(id: number, data: Partial<UserProduct>): Promise<UserProduct>;
   processEarnings(): Promise<void>;
   
   // Deposits
@@ -233,9 +234,18 @@ export class DatabaseStorage implements IStorage {
       productId,
       daysRemaining: product.cycleDays,
       assignedByAdmin,
+      lastEarningDate: new Date(),
     }).returning();
 
     return userProduct;
+  }
+
+  async updateUserProduct(id: number, data: Partial<UserProduct>): Promise<UserProduct> {
+    const [updated] = await db.update(userProducts)
+      .set(data as any)
+      .where(eq(userProducts.id, id))
+      .returning();
+    return updated;
   }
 
   async removeUserProduct(userId: number, productId: number): Promise<void> {
@@ -337,9 +347,15 @@ export class DatabaseStorage implements IStorage {
     const now = new Date();
     
     for (const { userProduct, product, user } of activeProducts) {
-      if (!userProduct.lastEarningDate) continue;
+      // Backfill: if lastEarningDate is null, set it to purchaseDate
+      let lastEarning: Date;
+      if (!userProduct.lastEarningDate) {
+        lastEarning = userProduct.purchaseDate ? new Date(userProduct.purchaseDate) : now;
+        await db.update(userProducts).set({ lastEarningDate: lastEarning }).where(eq(userProducts.id, userProduct.id));
+      } else {
+        lastEarning = new Date(userProduct.lastEarningDate);
+      }
       
-      const lastEarning = new Date(userProduct.lastEarningDate);
       const hoursSinceLastEarning = (now.getTime() - lastEarning.getTime()) / (1000 * 60 * 60);
       
       if (hoursSinceLastEarning >= 24) {
@@ -354,11 +370,19 @@ export class DatabaseStorage implements IStorage {
           totalEarnings: newTotalEarnings.toFixed(2),
         });
 
-        await db.update(userProducts).set({
+        const newDaysRemaining = userProduct.daysRemaining - 1;
+        const updateData: any = {
           lastEarningDate: now,
-          daysRemaining: userProduct.daysRemaining - 1,
+          daysRemaining: newDaysRemaining,
           totalEarned: (parseFloat(userProduct.totalEarned) + earnings).toFixed(2),
-        }).where(eq(userProducts.id, userProduct.id));
+        };
+        
+        // Deactivate if cycle is complete
+        if (newDaysRemaining <= 0) {
+          updateData.isActive = false;
+        }
+
+        await db.update(userProducts).set(updateData).where(eq(userProducts.id, userProduct.id));
 
         await this.createTransaction({
           userId: user.id,

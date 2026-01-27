@@ -278,6 +278,89 @@ export async function registerRoutes(
     }
   });
 
+  // Collect earnings for user (manual trigger)
+  app.post("/api/user/collect-earnings", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(401).json({ message: "Non authentifie" });
+      }
+
+      // Get user's active products
+      const userProductsList = await storage.getAllUserProducts(userId);
+      const now = new Date();
+      let totalCollected = 0;
+      let productsCollected = 0;
+
+      for (const { userProduct, product } of userProductsList) {
+        if (!userProduct.isActive || userProduct.daysRemaining <= 0) continue;
+
+        // Backfill: if lastEarningDate is null, set it to purchaseDate
+        let lastEarning: Date;
+        if (!userProduct.lastEarningDate) {
+          lastEarning = userProduct.purchaseDate ? new Date(userProduct.purchaseDate) : now;
+          await storage.updateUserProduct(userProduct.id, { lastEarningDate: lastEarning });
+        } else {
+          lastEarning = new Date(userProduct.lastEarningDate);
+        }
+
+        const hoursSinceLastEarning = (now.getTime() - lastEarning.getTime()) / (1000 * 60 * 60);
+
+        if (hoursSinceLastEarning >= 24) {
+          const earnings = product.dailyEarnings;
+          const currentUser = await storage.getUser(userId);
+          if (!currentUser) continue;
+          
+          const newBalance = parseFloat(currentUser.balance) + earnings;
+          const newTodayEarnings = parseFloat(currentUser.todayEarnings) + earnings;
+          const newTotalEarnings = parseFloat(currentUser.totalEarnings) + earnings;
+
+          await storage.updateUser(userId, {
+            balance: newBalance.toFixed(2),
+            todayEarnings: newTodayEarnings.toFixed(2),
+            totalEarnings: newTotalEarnings.toFixed(2),
+          });
+
+          const newDaysRemaining = userProduct.daysRemaining - 1;
+          const updateData: any = {
+            lastEarningDate: now,
+            daysRemaining: newDaysRemaining,
+            totalEarned: (parseFloat(userProduct.totalEarned) + earnings).toFixed(2),
+          };
+          
+          // Deactivate if cycle is complete
+          if (newDaysRemaining <= 0) {
+            updateData.isActive = false;
+          }
+
+          await storage.updateUserProduct(userProduct.id, updateData);
+
+          await storage.createTransaction({
+            userId,
+            type: "earning",
+            amount: earnings.toString(),
+            description: `Gains ${product.name}`,
+          });
+
+          totalCollected += earnings;
+          productsCollected++;
+        }
+      }
+
+      const updatedUser = await storage.getUser(userId);
+      res.json({ 
+        success: true, 
+        collected: totalCollected,
+        productsCollected,
+        newBalance: updatedUser?.balance || "0"
+      });
+    } catch (error: any) {
+      console.error("Collect earnings error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Payment Channels
   app.get("/api/payment-channels", requireAuth, async (req, res) => {
     try {

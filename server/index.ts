@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { seed } from "./seed";
+import { storage } from "./storage";
 
 const app = express();
 const httpServer = createServer(app);
@@ -65,6 +66,22 @@ app.use((req, res, next) => {
   await seed().catch(console.error);
   
   await registerRoutes(httpServer, app);
+
+  // Process daily earnings every hour
+  const processEarningsInterval = async () => {
+    try {
+      await storage.processEarnings();
+      log("Daily earnings processed successfully", "earnings");
+    } catch (error) {
+      console.error("Error processing daily earnings:", error);
+    }
+  };
+  
+  // Run immediately on startup
+  setTimeout(processEarningsInterval, 5000);
+  
+  // Then run every hour
+  setInterval(processEarningsInterval, 60 * 60 * 1000);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
