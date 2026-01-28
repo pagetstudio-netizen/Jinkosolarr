@@ -229,12 +229,16 @@ export class DatabaseStorage implements IStorage {
       await this.updateUser(userId, { hasActiveProduct: true });
     }
 
+    // Set lastEarningDate to 24 hours ago so first earnings are credited immediately
+    const yesterday = new Date();
+    yesterday.setHours(yesterday.getHours() - 24);
+    
     const [userProduct] = await db.insert(userProducts).values({
       userId,
       productId,
       daysRemaining: product.cycleDays,
       assignedByAdmin,
-      lastEarningDate: new Date(),
+      lastEarningDate: yesterday,
     }).returning();
 
     return userProduct;

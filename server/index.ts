@@ -80,8 +80,8 @@ app.use((req, res, next) => {
   // Run immediately on startup
   setTimeout(processEarningsInterval, 5000);
   
-  // Then run every hour
-  setInterval(processEarningsInterval, 60 * 60 * 1000);
+  // Then run every 5 minutes to ensure timely earnings processing
+  setInterval(processEarningsInterval, 5 * 60 * 1000);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
