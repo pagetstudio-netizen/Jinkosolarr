@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Coins, Loader2 } from "lucide-react";
 
 import product1 from "@/assets/images/product-1.jpg";
 import product2 from "@/assets/images/product-2.webp";
@@ -19,41 +15,11 @@ import product8 from "@/assets/images/product-8.webp";
 const productImages = [product1, product2, product3, product4, product5, product6, product7, product8];
 
 export default function OrdersPage() {
-  const { user, refreshUser } = useAuth();
-  const { toast } = useToast();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
 
   const { data: userProducts, isLoading } = useQuery<any[]>({
     queryKey: ["/api/user/products"],
-  });
-
-  const collectMutation = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/user/collect-earnings");
-      return res.json();
-    },
-    onSuccess: (data) => {
-      if (data.collected > 0) {
-        toast({
-          title: "Gains collectes",
-          description: `Vous avez collecte ${data.collected.toLocaleString()} FCFA de ${data.productsCollected} produit(s)`,
-        });
-      } else {
-        toast({
-          title: "Aucun gain disponible",
-          description: "Les gains seront disponibles apres 24h",
-        });
-      }
-      queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
-      refreshUser();
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Erreur lors de la collecte",
-        variant: "destructive",
-      });
-    },
   });
 
   if (!user) return null;
@@ -101,30 +67,12 @@ export default function OrdersPage() {
 
       <div className="bg-orange-50 p-3 mx-4 mt-3 rounded-lg">
         <p className="text-xs text-orange-700 leading-relaxed">
-          Les revenus du produit sont regles une fois toutes les 24 heures.
+          Les revenus du produit sont credites automatiquement une fois toutes les 24 heures.
         </p>
         <p className="text-xs text-orange-700 leading-relaxed mt-1">
-          Vous pouvez acheter plusieurs machines pour augmenter vos revenus et les gains journalieres sont regles a chaque 24h.
+          Vous pouvez acheter plusieurs machines pour augmenter vos revenus.
         </p>
       </div>
-
-      {activeTab === "active" && filteredProducts.length > 0 && (
-        <div className="px-4 mt-3">
-          <Button
-            onClick={() => collectMutation.mutate()}
-            disabled={collectMutation.isPending}
-            className="w-full bg-green-500 hover:bg-green-600 text-white"
-            data-testid="btn-collect-earnings"
-          >
-            {collectMutation.isPending ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Coins className="w-4 h-4 mr-2" />
-            )}
-            Collecter mes gains
-          </Button>
-        </div>
-      )}
 
       <div className="flex-1 overflow-y-auto pb-20 px-4 pt-4">
         {isLoading ? (
