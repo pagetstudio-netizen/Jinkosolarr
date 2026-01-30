@@ -1201,6 +1201,22 @@ export async function registerRoutes(
     }
   });
 
+  // Reset stats route (Super Admin only)
+  app.post("/api/admin/reset-stats", requireAdmin, async (req, res) => {
+    try {
+      const adminUser = await storage.getUser(req.session.userId!);
+      if (!adminUser?.isSuperAdmin) {
+        return res.status(403).json({ message: "Action réservée au super admin" });
+      }
+
+      await storage.resetStats();
+      await storage.logAdminAction(req.session.userId!, "reset_stats", null, "Réinitialisation des statistiques");
+      res.json({ success: true, message: "Statistiques réinitialisées" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Gift Codes Routes
   app.get("/api/admin/gift-codes", requireAdmin, async (req, res) => {
     try {

@@ -45,7 +45,7 @@ export default function AdminPage() {
           </div>
 
           <TabsContent value="dashboard" className="mt-4">
-            <AdminDashboard />
+            <AdminDashboard isSuperAdmin={user.isSuperAdmin} />
           </TabsContent>
 
           <TabsContent value="deposits" className="mt-4">

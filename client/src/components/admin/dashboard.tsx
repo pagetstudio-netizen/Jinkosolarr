@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Users, ArrowDownToLine, ArrowUpFromLine, ShoppingCart, Wallet, Clock, TrendingUp, Award, Calendar } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Users, ArrowDownToLine, ArrowUpFromLine, ShoppingCart, Wallet, Clock, TrendingUp, Award, Calendar, RotateCcw, Loader2, AlertTriangle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface DashboardStats {
   totalUsers: number;
@@ -27,10 +30,16 @@ interface DashboardStats {
   totalCommissions: number;
 }
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+  isSuperAdmin: boolean;
+}
+
+export default function AdminDashboard({ isSuperAdmin }: AdminDashboardProps) {
+  const { toast } = useToast();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [appliedDates, setAppliedDates] = useState<{start: string, end: string}>({start: "", end: ""});
+  const [showResetDialog, setShowResetDialog] = useState(false);
 
   const queryParams = new URLSearchParams();
   if (appliedDates.start) queryParams.append("startDate", appliedDates.start);
@@ -56,6 +65,25 @@ export default function AdminDashboard() {
     setEndDate("");
     setAppliedDates({ start: "", end: "" });
   };
+
+  const resetStatsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/admin/reset-stats");
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || "Erreur lors de la reinitialisation");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      setShowResetDialog(false);
+      toast({ title: "Statistiques reinitialisees avec succes!" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -270,6 +298,63 @@ export default function AdminDashboard() {
           <StatCard key={index} stat={stat} />
         ))}
       </div>
+
+      {isSuperAdmin && (
+        <Card className="border-destructive/50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-destructive" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Reinitialiser les statistiques</p>
+                  <p className="text-xs text-muted-foreground">Remet a zero tous les compteurs</p>
+                </div>
+              </div>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => setShowResetDialog(true)}
+                data-testid="button-reset-stats"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reinitialiser
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmer la reinitialisation</DialogTitle>
+            <DialogDescription>
+              Cette action va remettre a zero les soldes, gains totaux et investissements totaux de tous les utilisateurs. 
+              L'historique des transactions sera conserve.
+              Cette action est irreversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowResetDialog(false)}>
+              Annuler
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => resetStatsMutation.mutate()}
+              disabled={resetStatsMutation.isPending}
+              data-testid="button-confirm-reset"
+            >
+              {resetStatsMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Confirmer la reinitialisation"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

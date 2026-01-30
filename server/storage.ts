@@ -85,6 +85,7 @@ export interface IStorage {
   // Admin
   getStats(): Promise<any>;
   logAdminAction(adminId: number, action: string, targetUserId: number | null, details: string): Promise<void>;
+  resetStats(): Promise<void>;
   
   // Gift Codes
   getAllGiftCodes(): Promise<GiftCode[]>;
@@ -912,6 +913,14 @@ export class DatabaseStorage implements IStorage {
 
   async logAdminAction(adminId: number, action: string, targetUserId: number | null, details: string): Promise<void> {
     await db.insert(adminAuditLog).values({ adminId, action, targetUserId, details });
+  }
+
+  async resetStats(): Promise<void> {
+    await db.update(users).set({
+      totalEarnings: "0",
+      totalInvested: "0",
+      balance: "0",
+    });
   }
 
   // Gift Codes
