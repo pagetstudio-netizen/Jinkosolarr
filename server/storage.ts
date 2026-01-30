@@ -847,17 +847,21 @@ export class DatabaseStorage implements IStorage {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
+    // Récupérer la date de réinitialisation des stats
+    const statsResetDateStr = await this.getSetting("statsResetDate");
+    const statsResetDate = statsResetDateStr ? new Date(statsResetDateStr) : new Date(0);
+    
     const filterStart = startDate || new Date(0);
     const filterEnd = endDate || new Date();
     filterEnd.setHours(23, 59, 59, 999);
 
-    const [totalUsersResult] = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const [totalUsersResult] = await db.select({ count: sql<number>`count(*)` }).from(users).where(gte(users.createdAt, statsResetDate));
     const [todayUsersResult] = await db.select({ count: sql<number>`count(*)` }).from(users).where(gte(users.createdAt, today));
     const [periodUsersResult] = await db.select({ count: sql<number>`count(*)` }).from(users)
       .where(and(gte(users.createdAt, filterStart), lte(users.createdAt, filterEnd)));
     
     const [totalDepositsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${deposits.amount}), 0)` })
-      .from(deposits).where(eq(deposits.status, "approved"));
+      .from(deposits).where(and(eq(deposits.status, "approved"), gte(deposits.createdAt, statsResetDate)));
     const [todayDepositsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${deposits.amount}), 0)` })
       .from(deposits).where(and(eq(deposits.status, "approved"), gte(deposits.createdAt, today)));
     const [periodDepositsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${deposits.amount}), 0)` })
@@ -866,7 +870,7 @@ export class DatabaseStorage implements IStorage {
       .from(deposits).where(eq(deposits.status, "pending"));
     
     const [totalWithdrawalsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${withdrawals.amount}), 0)` })
-      .from(withdrawals).where(eq(withdrawals.status, "approved"));
+      .from(withdrawals).where(and(eq(withdrawals.status, "approved"), gte(withdrawals.createdAt, statsResetDate)));
     const [todayWithdrawalsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${withdrawals.amount}), 0)` })
       .from(withdrawals).where(and(eq(withdrawals.status, "approved"), gte(withdrawals.createdAt, today)));
     const [periodWithdrawalsResult] = await db.select({ total: sql<string>`COALESCE(SUM(${withdrawals.amount}), 0)` })
@@ -875,19 +879,19 @@ export class DatabaseStorage implements IStorage {
       .from(withdrawals).where(eq(withdrawals.status, "pending"));
     
     const [usersWithProductsResult] = await db.select({ count: sql<number>`count(DISTINCT ${userProducts.userId})` })
-      .from(userProducts).where(eq(userProducts.isActive, true));
+      .from(userProducts).where(and(eq(userProducts.isActive, true), gte(userProducts.purchaseDate, statsResetDate)));
     
     const [totalBalanceResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(${users.balance} AS DECIMAL)), 0)` })
-      .from(users);
+      .from(users).where(gte(users.createdAt, statsResetDate));
     
     const [totalEarningsResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(${users.totalEarnings} AS DECIMAL)), 0)` })
-      .from(users);
+      .from(users).where(gte(users.createdAt, statsResetDate));
     
     const [totalProductsResult] = await db.select({ count: sql<number>`count(*)` })
-      .from(userProducts).where(eq(userProducts.isActive, true));
+      .from(userProducts).where(and(eq(userProducts.isActive, true), gte(userProducts.purchaseDate, statsResetDate)));
     
     const [totalCommissionsResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)` })
-      .from(transactions).where(eq(transactions.type, "commission"));
+      .from(transactions).where(and(eq(transactions.type, "commission"), gte(transactions.createdAt, statsResetDate)));
 
     return {
       totalUsers: totalUsersResult?.count || 0,
@@ -916,17 +920,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async resetStats(): Promise<void> {
-    await db.delete(transactions);
-    await db.delete(deposits);
-    await db.delete(withdrawals);
-    await db.delete(referralCommissions);
-    await db.delete(userProducts);
-    await db.update(users).set({
-      totalEarnings: "0",
-      totalInvested: "0",
-      balance: "0",
-      hasDeposited: false,
-    }).where(eq(users.isAdmin, false));
+    // Stocke la date de réinitialisation - les stats ne comptent que les données après cette date
+    await this.setSetting("statsResetDate", new Date().toISOString());
   }
 
   // Gift Codes

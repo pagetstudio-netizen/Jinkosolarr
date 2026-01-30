@@ -331,10 +331,9 @@ export default function AdminDashboard({ isSuperAdmin }: AdminDashboardProps) {
           <DialogHeader>
             <DialogTitle>Confirmer la reinitialisation</DialogTitle>
             <DialogDescription>
-              Cette action va remettre a zero toutes les statistiques de la plateforme: 
-              depots, retraits, transactions, produits utilisateurs et commissions.
-              Les comptes administrateurs ne seront pas affectes.
-              Cette action est irreversible.
+              Cette action va remettre les compteurs de statistiques a zero.
+              Les donnees reelles (depots, retraits, produits, comptes) ne seront PAS supprimees.
+              Les statistiques afficheront uniquement les nouvelles donnees apres cette reinitialisation.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
