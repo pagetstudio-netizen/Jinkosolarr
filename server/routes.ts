@@ -581,10 +581,6 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Montant minimum: 1200 FCFA" });
       }
 
-      if (!user.hasDeposited) {
-        return res.status(400).json({ message: "Effectuez d'abord un dépôt" });
-      }
-
       if (!user.hasActiveProduct) {
         return res.status(400).json({ message: "Achetez d'abord un produit" });
       }
