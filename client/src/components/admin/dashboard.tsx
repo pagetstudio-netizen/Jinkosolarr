@@ -331,8 +331,9 @@ export default function AdminDashboard({ isSuperAdmin }: AdminDashboardProps) {
           <DialogHeader>
             <DialogTitle>Confirmer la reinitialisation</DialogTitle>
             <DialogDescription>
-              Cette action va remettre a zero votre solde, gains totaux et investissements totaux. 
-              L'historique des transactions sera conserve.
+              Cette action va remettre a zero toutes les statistiques de la plateforme: 
+              depots, retraits, transactions, produits utilisateurs et commissions.
+              Les comptes administrateurs ne seront pas affectes.
               Cette action est irreversible.
             </DialogDescription>
           </DialogHeader>
