@@ -881,17 +881,27 @@ export class DatabaseStorage implements IStorage {
     const [usersWithProductsResult] = await db.select({ count: sql<number>`count(DISTINCT ${userProducts.userId})` })
       .from(userProducts).where(and(eq(userProducts.isActive, true), gte(userProducts.purchaseDate, statsResetDate)));
     
+    // Récupérer les valeurs baseline pour les compteurs cumulatifs
+    const baselineBalance = parseFloat(await this.getSetting("baselineTotalBalance") || "0");
+    const baselineEarnings = parseFloat(await this.getSetting("baselineTotalEarnings") || "0");
+    const baselineCommissions = parseFloat(await this.getSetting("baselineTotalCommissions") || "0");
+    
     const [totalBalanceResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(${users.balance} AS DECIMAL)), 0)` })
-      .from(users).where(gte(users.createdAt, statsResetDate));
+      .from(users);
     
     const [totalEarningsResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(${users.totalEarnings} AS DECIMAL)), 0)` })
-      .from(users).where(gte(users.createdAt, statsResetDate));
+      .from(users);
     
     const [totalProductsResult] = await db.select({ count: sql<number>`count(*)` })
       .from(userProducts).where(and(eq(userProducts.isActive, true), gte(userProducts.purchaseDate, statsResetDate)));
     
     const [totalCommissionsResult] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)` })
-      .from(transactions).where(and(eq(transactions.type, "commission"), gte(transactions.createdAt, statsResetDate)));
+      .from(transactions).where(eq(transactions.type, "commission"));
+
+    // Soustraire les valeurs baseline pour obtenir les stats depuis la réinitialisation
+    const adjustedBalance = Math.max(0, parseFloat(totalBalanceResult?.total || "0") - baselineBalance);
+    const adjustedEarnings = Math.max(0, parseFloat(totalEarningsResult?.total || "0") - baselineEarnings);
+    const adjustedCommissions = Math.max(0, parseFloat(totalCommissionsResult?.total || "0") - baselineCommissions);
 
     return {
       totalUsers: totalUsersResult?.count || 0,
@@ -908,10 +918,10 @@ export class DatabaseStorage implements IStorage {
       pendingWithdrawals: parseFloat(pendingWithdrawalsResult?.total || "0"),
       pendingWithdrawalsCount: pendingWithdrawalsResult?.count || 0,
       usersWithProducts: usersWithProductsResult?.count || 0,
-      totalBalance: parseFloat(totalBalanceResult?.total || "0"),
-      totalEarnings: parseFloat(totalEarningsResult?.total || "0"),
+      totalBalance: adjustedBalance,
+      totalEarnings: adjustedEarnings,
       totalActiveProducts: totalProductsResult?.count || 0,
-      totalCommissions: parseFloat(totalCommissionsResult?.total || "0"),
+      totalCommissions: adjustedCommissions,
     };
   }
 
@@ -922,6 +932,15 @@ export class DatabaseStorage implements IStorage {
   async resetStats(): Promise<void> {
     // Stocke la date de réinitialisation - les stats ne comptent que les données après cette date
     await this.setSetting("statsResetDate", new Date().toISOString());
+    
+    // Stocker les valeurs baseline pour les compteurs cumulatifs (solde et gains)
+    const [currentBalance] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(${users.balance} AS DECIMAL)), 0)` }).from(users);
+    const [currentEarnings] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(${users.totalEarnings} AS DECIMAL)), 0)` }).from(users);
+    const [currentCommissions] = await db.select({ total: sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)` }).from(transactions).where(eq(transactions.type, "commission"));
+    
+    await this.setSetting("baselineTotalBalance", currentBalance?.total || "0");
+    await this.setSetting("baselineTotalEarnings", currentEarnings?.total || "0");
+    await this.setSetting("baselineTotalCommissions", currentCommissions?.total || "0");
   }
 
   // Gift Codes
