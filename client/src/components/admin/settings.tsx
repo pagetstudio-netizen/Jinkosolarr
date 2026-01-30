@@ -7,10 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, Save, Link, Clock, Percent, Users } from "lucide-react";
+import { Loader2, Save, Link, Clock, Users, CreditCard } from "lucide-react";
 
 const settingsSchema = z.object({
   supportLink: z.string().min(5, "Lien requis"),
@@ -22,6 +23,7 @@ const settingsSchema = z.object({
   level1Commission: z.string().min(1, "Commission requise"),
   level2Commission: z.string().min(1, "Commission requise"),
   level3Commission: z.string().min(1, "Commission requise"),
+  soleaspayEnabled: z.string(),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -49,6 +51,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       level1Commission: "27",
       level2Commission: "2",
       level3Commission: "1",
+      soleaspayEnabled: "true",
     },
   });
 
@@ -64,6 +67,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         level1Commission: settings.level1Commission || "27",
         level2Commission: settings.level2Commission || "2",
         level3Commission: settings.level3Commission || "1",
+        soleaspayEnabled: settings.soleaspayEnabled || "true",
       });
     }
   }, [settings, form]);
@@ -197,6 +201,41 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                 )}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-primary" />
+              Paiement automatique (Soleaspay)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="soleaspayEnabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Activer Soleaspay</FormLabel>
+                    <FormDescription>
+                      Permet le paiement automatique via mobile money
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value === "true"}
+                      onCheckedChange={(checked) => field.onChange(checked ? "true" : "false")}
+                      data-testid="switch-soleaspay"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <p className="text-xs text-muted-foreground">
+              Pays supportes: Cameroun, Burkina Faso, Togo, Benin, Cote d'Ivoire, Congo, RDC
+            </p>
           </CardContent>
         </Card>
 

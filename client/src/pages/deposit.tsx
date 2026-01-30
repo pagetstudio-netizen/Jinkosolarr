@@ -1,22 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
 const PRESET_AMOUNTS = [3000, 5000, 15000, 25000, 50000, 100000];
-
-const PAYMENT_METHODS_BY_COUNTRY: Record<string, string[]> = {
-  CM: ["Orange Money", "MTN"],
-  BF: ["Orange Money", "Moov Money"],
-  TG: ["Moov Money", "Mixx by Yas"],
-  BJ: ["Moov Money", "MTN"],
-  CI: ["Wave", "MTN", "Orange Money", "Moov Money"],
-  CG: ["MTN"],
-};
 
 interface PaymentChannel {
   id: number;
@@ -24,6 +15,26 @@ interface PaymentChannel {
   redirectUrl: string;
   isActive: boolean;
 }
+
+interface SoleaspayServices {
+  enabled: boolean;
+  services: Record<string, Record<string, number>>;
+}
+
+interface DepositResponse {
+  deposit: {
+    id: number;
+    status: string;
+    soleaspayReference?: string;
+    soleaspayOrderId?: string;
+  };
+  soleaspay: boolean;
+  reference?: string;
+  status?: string;
+  message?: string;
+}
+
+type PaymentStatus = "idle" | "processing" | "pending" | "approved" | "rejected";
 
 export default function DepositPage() {
   const { user, refreshUser } = useAuth();
@@ -35,45 +46,131 @@ export default function DepositPage() {
   const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
   const [accountName, setAccountName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
+  const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
   const minDeposit = 3000;
 
-  const paymentMethods = selectedCountry ? PAYMENT_METHODS_BY_COUNTRY[selectedCountry] || [] : [];
+  const { data: soleaspayData } = useQuery<SoleaspayServices>({
+    queryKey: ["/api/soleaspay/services"],
+  });
 
   const { data: paymentChannels = [] } = useQuery<PaymentChannel[]>({
     queryKey: ["/api/payment-channels"],
-    queryFn: async () => {
-      const res = await fetch("/api/payment-channels");
-      return res.json();
-    },
   });
 
-  const depositMutation = useMutation({
-    mutationFn: async (data: { amount: number; paymentMethod: string; accountName: string; accountNumber: string; country: string; paymentChannelId: number }) => {
-      const res = await apiRequest("POST", "/api/deposits", data);
-      return res.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Demande envoyee",
-        description: "Redirection vers le paiement...",
-      });
-      refreshUser();
-      queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
-      
-      if (selectedChannel?.redirectUrl) {
-        window.open(selectedChannel.redirectUrl, "_blank");
+  const soleaspayEnabled = soleaspayData?.enabled ?? false;
+  const soleaspayServices = soleaspayData?.services ?? {};
+
+  const getPaymentMethodsForCountry = (countryCode: string): string[] => {
+    if (soleaspayEnabled && soleaspayServices[countryCode]) {
+      return Object.keys(soleaspayServices[countryCode]);
+    }
+    const countryMethods: Record<string, string[]> = {
+      CM: ["Orange Money", "MTN"],
+      BF: ["Orange Money", "Moov Money"],
+      TG: ["Moov Money", "T-Money"],
+      BJ: ["MTN", "Moov Money"],
+      CI: ["Wave", "MTN", "Orange Money", "Moov Money"],
+      CG: ["MTN", "Airtel Money"],
+      CD: ["Vodacom", "Airtel Money", "Orange Money"],
+    };
+    return countryMethods[countryCode] || [];
+  };
+
+  const paymentMethods = selectedCountry ? getPaymentMethodsForCountry(selectedCountry) : [];
+  const isSoleaspayAvailable = Boolean(
+    soleaspayEnabled && 
+    selectedCountry && 
+    selectedPaymentMethod && 
+    soleaspayServices[selectedCountry]?.[selectedPaymentMethod] !== undefined
+  );
+
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
       }
-      
-      setAmount("");
-      setSelectedPaymentMethod("");
-      setSelectedChannel(null);
-      setAccountName("");
-      setAccountNumber("");
+    };
+  }, []);
+
+  const startPolling = (depositId: number) => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+    }
+
+    pollingRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/deposits/${depositId}/verify`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+
+        if (data.status === "approved") {
+          setPaymentStatus("approved");
+          clearInterval(pollingRef.current!);
+          pollingRef.current = null;
+          refreshUser();
+          queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
+          toast({
+            title: "Paiement reussi",
+            description: "Votre compte a ete credite",
+          });
+        } else if (data.status === "rejected") {
+          setPaymentStatus("rejected");
+          clearInterval(pollingRef.current!);
+          pollingRef.current = null;
+          toast({
+            title: "Paiement echoue",
+            description: "Le paiement a ete refuse",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+      }
+    }, 3000);
+  };
+
+  const depositMutation = useMutation({
+    mutationFn: async (data: { 
+      amount: number; 
+      paymentMethod: string; 
+      accountName: string; 
+      accountNumber: string; 
+      country: string; 
+      paymentChannelId: number;
+      useSoleaspay: boolean;
+    }) => {
+      const res = await apiRequest("POST", "/api/deposits", data);
+      return res.json() as Promise<DepositResponse>;
+    },
+    onSuccess: (data) => {
+      if (data.soleaspay) {
+        setCurrentDepositId(data.deposit.id);
+        setPaymentStatus("pending");
+        startPolling(data.deposit.id);
+        toast({
+          title: "Paiement initie",
+          description: "Validez le paiement sur votre telephone",
+        });
+      } else {
+        toast({
+          title: "Demande envoyee",
+          description: "Votre demande de depot est en attente de validation",
+        });
+        if (selectedChannel?.redirectUrl) {
+          window.open(selectedChannel.redirectUrl, "_blank");
+        }
+        resetForm();
+      }
+      queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
     },
     onError: (error: Error) => {
+      setPaymentStatus("idle");
       toast({
         title: "Erreur",
         description: error.message,
@@ -81,6 +178,16 @@ export default function DepositPage() {
       });
     },
   });
+
+  const resetForm = () => {
+    setAmount("");
+    setSelectedPaymentMethod("");
+    setSelectedChannel(null);
+    setAccountName("");
+    setAccountNumber("");
+    setPaymentStatus("idle");
+    setCurrentDepositId(null);
+  };
 
   const handlePresetClick = (presetAmount: number) => {
     setAmount(presetAmount);
@@ -127,22 +234,82 @@ export default function DepositPage() {
       });
       return;
     }
-    if (!selectedChannel) {
-      toast({
-        title: "Canal requis",
-        description: "Veuillez selectionner un canal de recharge",
-        variant: "destructive",
-      });
-      return;
-    }
+
+    const channelId = selectedChannel?.id || paymentChannels.find(c => c.isActive)?.id || 0;
+
+    setPaymentStatus("processing");
     depositMutation.mutate({
       amount: amount as number,
       paymentMethod: selectedPaymentMethod,
       accountName,
       accountNumber,
       country: selectedCountry,
-      paymentChannelId: selectedChannel.id,
+      paymentChannelId: channelId,
+      useSoleaspay: isSoleaspayAvailable,
     });
+  };
+
+  const renderPaymentStatus = () => {
+    if (paymentStatus === "idle") return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
+          {paymentStatus === "processing" && (
+            <>
+              <Loader2 className="w-16 h-16 text-amber-500 animate-spin mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Traitement en cours</h3>
+              <p className="text-gray-600 text-sm">Veuillez patienter...</p>
+            </>
+          )}
+          {paymentStatus === "pending" && (
+            <>
+              <Clock className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">En attente de validation</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Validez le paiement sur votre telephone mobile
+              </p>
+              <div className="flex items-center justify-center gap-2 text-amber-600">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Verification automatique...</span>
+              </div>
+            </>
+          )}
+          {paymentStatus === "approved" && (
+            <>
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2 text-green-700">Paiement reussi</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Votre compte a ete credite de {amount?.toLocaleString()} {currency}
+              </p>
+              <button
+                onClick={resetForm}
+                className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg"
+                data-testid="button-close-success"
+              >
+                Fermer
+              </button>
+            </>
+          )}
+          {paymentStatus === "rejected" && (
+            <>
+              <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2 text-red-700">Paiement echoue</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Le paiement a ete refuse ou annule
+              </p>
+              <button
+                onClick={resetForm}
+                className="w-full py-3 bg-red-500 text-white font-semibold rounded-lg"
+                data-testid="button-close-error"
+              >
+                Reessayer
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -173,6 +340,13 @@ export default function DepositPage() {
             </button>
           </Link>
         </div>
+
+        {soleaspayEnabled && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <p className="text-sm text-green-700 font-medium">Paiement automatique active</p>
+            <p className="text-xs text-green-600 mt-1">Le paiement sera traite instantanement</p>
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-3">
           {PRESET_AMOUNTS.map((presetAmount) => (
@@ -272,33 +446,35 @@ export default function DepositPage() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Canal de recharge</label>
-          <div className="grid grid-cols-2 gap-2">
-            {paymentChannels.filter(c => c.isActive).map((channel) => (
-              <button
-                key={channel.id}
-                onClick={() => setSelectedChannel(channel)}
-                className={`p-3 rounded-lg border text-center font-medium transition-colors ${
-                  selectedChannel?.id === channel.id
-                    ? "border-green-500 bg-green-50 text-green-700"
-                    : "border-gray-200 bg-white text-gray-700"
-                }`}
-                data-testid={`button-channel-${channel.id}`}
-              >
-                {channel.name}
-              </button>
-            ))}
+        {!isSoleaspayAvailable && paymentChannels.filter(c => c.isActive).length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Canal de recharge</label>
+            <div className="grid grid-cols-2 gap-2">
+              {paymentChannels.filter(c => c.isActive).map((channel) => (
+                <button
+                  key={channel.id}
+                  onClick={() => setSelectedChannel(channel)}
+                  className={`p-3 rounded-lg border text-center font-medium transition-colors ${
+                    selectedChannel?.id === channel.id
+                      ? "border-green-500 bg-green-50 text-green-700"
+                      : "border-gray-200 bg-white text-gray-700"
+                  }`}
+                  data-testid={`button-channel-${channel.id}`}
+                >
+                  {channel.name}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <button
           onClick={handleSubmit}
-          disabled={depositMutation.isPending || !amount || !selectedPaymentMethod || !accountName || !accountNumber || !selectedChannel}
+          disabled={depositMutation.isPending || paymentStatus !== "idle" || !amount || !selectedPaymentMethod || !accountName || !accountNumber}
           className="w-full py-4 bg-gray-900 text-white font-semibold rounded-lg disabled:opacity-50"
           data-testid="button-submit-deposit"
         >
-          {depositMutation.isPending ? "Envoi en cours..." : "Recharger"}
+          {depositMutation.isPending ? "Envoi en cours..." : isSoleaspayAvailable ? "Payer maintenant" : "Recharger"}
         </button>
 
         <div className="bg-white rounded-lg p-4">
@@ -312,6 +488,8 @@ export default function DepositPage() {
           </p>
         </div>
       </div>
+
+      {renderPaymentStatus()}
     </div>
   );
 }
