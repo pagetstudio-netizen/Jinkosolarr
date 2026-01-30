@@ -6,6 +6,13 @@ import bcrypt from "bcrypt";
 import { registerSchema, loginSchema } from "@shared/schema";
 import { z } from "zod";
 import MemoryStore from "memorystore";
+import { 
+  initiatePayment, 
+  verifyPayment, 
+  isSoleaspaySupported, 
+  mapSoleaspayStatus,
+  SOLEASPAY_SERVICE_MAP 
+} from "./soleaspay";
 
 declare module "express-session" {
   interface SessionData {
@@ -371,10 +378,24 @@ export async function registerRoutes(
     }
   });
 
+  // Get Soleaspay supported services
+  app.get("/api/soleaspay/services", requireAuth, async (req, res) => {
+    try {
+      const settings = await storage.getSettings();
+      const soleaspayEnabled = settings.soleaspayEnabled !== "false";
+      res.json({ 
+        enabled: soleaspayEnabled,
+        services: SOLEASPAY_SERVICE_MAP 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Deposits
   app.post("/api/deposits", requireAuth, async (req, res) => {
     try {
-      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId } = req.body;
+      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId, useSoleaspay } = req.body;
       const user = await storage.getUser(req.session.userId!);
       
       if (!user) {
@@ -389,6 +410,59 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Tous les champs sont requis" });
       }
 
+      const settings = await storage.getSettings();
+      const soleaspayEnabled = settings.soleaspayEnabled !== "false";
+
+      const orderId = `FANUC-${Date.now()}-${user.id}`;
+      
+      if (useSoleaspay && soleaspayEnabled && isSoleaspaySupported(country, paymentMethod)) {
+        try {
+          const paymentResult = await initiatePayment(
+            accountNumber,
+            amount,
+            country,
+            paymentMethod,
+            orderId,
+            accountName,
+            `user${user.id}@fanuc.com`
+          );
+
+          if (paymentResult.success && paymentResult.data) {
+            const deposit = await storage.createDeposit({
+              userId: req.session.userId!,
+              amount,
+              accountName,
+              accountNumber,
+              country,
+              paymentMethod,
+              paymentChannelId,
+              status: "processing",
+              soleaspayReference: paymentResult.data.reference,
+              soleaspayOrderId: orderId,
+            });
+
+            return res.json({ 
+              deposit,
+              soleaspay: true,
+              reference: paymentResult.data.reference,
+              status: paymentResult.status,
+              message: paymentResult.message
+            });
+          } else {
+            return res.status(400).json({ 
+              message: paymentResult.message || "Erreur Soleaspay",
+              soleaspay: true
+            });
+          }
+        } catch (soleaspayError: any) {
+          console.error("[soleaspay] Payment error:", soleaspayError);
+          return res.status(400).json({ 
+            message: soleaspayError.message || "Erreur de paiement Soleaspay",
+            soleaspay: true
+          });
+        }
+      }
+
       const deposit = await storage.createDeposit({
         userId: req.session.userId!,
         amount,
@@ -400,9 +474,87 @@ export async function registerRoutes(
         status: "pending",
       });
 
-      res.json({ deposit });
+      res.json({ deposit, soleaspay: false });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Verify Soleaspay payment status
+  app.get("/api/deposits/:id/verify", requireAuth, async (req, res) => {
+    try {
+      const depositId = parseInt(req.params.id);
+      const deposit = await storage.getDeposit(depositId);
+      
+      if (!deposit) {
+        return res.status(404).json({ message: "Depot non trouve" });
+      }
+
+      if (deposit.userId !== req.session.userId) {
+        return res.status(403).json({ message: "Acces refuse" });
+      }
+
+      if (!deposit.soleaspayReference || !deposit.soleaspayOrderId) {
+        return res.json({ 
+          status: deposit.status,
+          soleaspay: false 
+        });
+      }
+
+      if (deposit.status === "approved" || deposit.status === "rejected") {
+        return res.json({ 
+          status: deposit.status,
+          soleaspay: true 
+        });
+      }
+
+      try {
+        const verifyResult = await verifyPayment(deposit.soleaspayOrderId, deposit.soleaspayReference);
+        const newStatus = mapSoleaspayStatus(verifyResult.status);
+
+        if (newStatus !== "pending" && newStatus !== deposit.status) {
+          await storage.updateDeposit(depositId, { 
+            status: newStatus,
+            processedAt: new Date()
+          });
+
+          if (newStatus === "approved") {
+            const user = await storage.getUser(deposit.userId);
+            if (user) {
+              const newBalance = parseFloat(user.balance) + deposit.amount;
+              await storage.updateUser(deposit.userId, {
+                balance: newBalance.toFixed(2),
+                hasDeposited: true,
+              });
+
+              await storage.createTransaction({
+                userId: deposit.userId,
+                type: "deposit",
+                amount: deposit.amount.toString(),
+                description: `Depot Soleaspay #${deposit.id}`,
+              });
+
+              await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
+            }
+          }
+        }
+
+        return res.json({ 
+          status: newStatus,
+          soleaspay: true,
+          soleaspayStatus: verifyResult.status,
+          message: verifyResult.message
+        });
+      } catch (verifyError: any) {
+        console.error("[soleaspay] Verify error:", verifyError);
+        return res.json({ 
+          status: deposit.status,
+          soleaspay: true,
+          error: "Erreur de verification"
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 

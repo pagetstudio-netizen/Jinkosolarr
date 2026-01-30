@@ -94,6 +94,8 @@ export const deposits = pgTable("deposits", {
   paymentMethod: text("payment_method").notNull(),
   paymentChannelId: integer("payment_channel_id"),
   status: text("status").notNull().default("pending"),
+  soleaspayReference: text("soleaspay_reference"),
+  soleaspayOrderId: text("soleaspay_order_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   processedAt: timestamp("processed_at"),
   processedBy: integer("processed_by"),
