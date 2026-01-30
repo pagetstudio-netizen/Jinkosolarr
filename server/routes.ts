@@ -1209,8 +1209,8 @@ export async function registerRoutes(
         return res.status(403).json({ message: "Action réservée au super admin" });
       }
 
-      await storage.resetStats();
-      await storage.logAdminAction(req.session.userId!, "reset_stats", null, "Réinitialisation des statistiques");
+      await storage.resetStats(req.session.userId!);
+      await storage.logAdminAction(req.session.userId!, "reset_stats", req.session.userId!, "Réinitialisation des statistiques du compte admin");
       res.json({ success: true, message: "Statistiques réinitialisées" });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
