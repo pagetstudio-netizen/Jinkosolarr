@@ -409,6 +409,12 @@ export default function DepositPage() {
           </div>
         </div>
 
+        {selectedCountry === "CG" && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-700 font-medium">Depot par MoneyFusion</p>
+          </div>
+        )}
+
         {selectedCountry && paymentMethods.length > 0 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Moyen de paiement</label>
