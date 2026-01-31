@@ -62,8 +62,14 @@ export default function DepositPage() {
     queryKey: ["/api/payment-channels"],
   });
 
+  const { data: settings } = useQuery<Record<string, string>>({
+    queryKey: ["/api/settings"],
+  });
+
   const soleaspayEnabled = soleaspayData?.enabled ?? false;
   const soleaspayServices = soleaspayData?.services ?? {};
+  const congoPaymentLink = settings?.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0";
+  const isCongoUser = user?.country === "CG";
 
   const getPaymentMethodsForCountry = (countryCode: string): string[] => {
     if (soleaspayEnabled && soleaspayServices[countryCode]) {
@@ -341,10 +347,32 @@ export default function DepositPage() {
           </Link>
         </div>
 
-        {soleaspayEnabled && (
+        {soleaspayEnabled && !isCongoUser && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <p className="text-sm text-green-700 font-medium">Paiement automatique active</p>
             <p className="text-xs text-green-600 mt-1">Le paiement sera traite instantanement</p>
+          </div>
+        )}
+
+        {isCongoUser && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-3">
+            <p className="text-sm text-amber-800 font-medium">Congo Brazzaville - Paiement via MoneyFusion</p>
+            <p className="text-xs text-amber-700">
+              Les depots pour le Congo Brazzaville sont traites via MoneyFusion. 
+              Cliquez sur le bouton ci-dessous pour effectuer votre paiement.
+            </p>
+            <a
+              href={congoPaymentLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full py-3 bg-amber-500 text-white font-semibold rounded-lg text-center"
+              data-testid="link-congo-payment"
+            >
+              Payer via MoneyFusion
+            </a>
+            <p className="text-xs text-amber-600 text-center">
+              Apres le paiement, creez un depot manuel et l'administrateur validera votre paiement.
+            </p>
           </div>
         )}
 

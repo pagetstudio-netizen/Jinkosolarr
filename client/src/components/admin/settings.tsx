@@ -24,6 +24,7 @@ const settingsSchema = z.object({
   level2Commission: z.string().min(1, "Commission requise"),
   level3Commission: z.string().min(1, "Commission requise"),
   soleaspayEnabled: z.string(),
+  congoPaymentLink: z.string().min(5, "Lien requis"),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -52,6 +53,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       level2Commission: "2",
       level3Commission: "1",
       soleaspayEnabled: "true",
+      congoPaymentLink: "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
     },
   });
 
@@ -68,6 +70,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         level2Commission: settings.level2Commission || "2",
         level3Commission: settings.level3Commission || "1",
         soleaspayEnabled: settings.soleaspayEnabled || "true",
+        congoPaymentLink: settings.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
       });
     }
   }, [settings, form]);
@@ -143,6 +146,23 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                   <FormControl>
                     <Input {...field} placeholder="https://t.me/..." />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="congoPaymentLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lien paiement Congo Brazzaville</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="https://my.moneyfusion.net/..." />
+                  </FormControl>
+                  <FormDescription>
+                    Lien MoneyFusion pour les depots Congo Brazzaville (Soleaspay non disponible)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
