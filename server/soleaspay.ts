@@ -26,7 +26,6 @@ export const SOLEASPAY_SERVICE_MAP: Record<string, Record<string, number>> = {
   },
   CG: {
     "MTN": 56,
-    "Airtel Money": 55,
   },
   CD: {
     "Vodacom": 52,
