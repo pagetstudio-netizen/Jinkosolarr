@@ -88,9 +88,11 @@ export default function DepositPage() {
   };
 
   const paymentMethods = selectedCountry ? getPaymentMethodsForCountry(selectedCountry) : [];
+  // Soleaspay n'est pas disponible pour le Congo Brazzaville (CG)
   const isSoleaspayAvailable = Boolean(
     soleaspayEnabled && 
     selectedCountry && 
+    selectedCountry !== "CG" &&
     selectedPaymentMethod && 
     soleaspayServices[selectedCountry]?.[selectedPaymentMethod] !== undefined
   );
