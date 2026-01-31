@@ -81,7 +81,7 @@ export default function DepositPage() {
       TG: ["Moov Money", "T-Money"],
       BJ: ["MTN", "Moov Money"],
       CI: ["Wave", "MTN", "Orange Money", "Moov Money"],
-      CG: ["MTN", "Airtel Money"],
+      CG: ["MTN"],
       CD: ["Vodacom", "Airtel Money", "Orange Money"],
     };
     return countryMethods[countryCode] || [];
