@@ -803,6 +803,15 @@ export async function registerRoutes(
   });
 
   // Settings
+  app.get("/api/settings", async (req, res) => {
+    try {
+      const settings = await storage.getSettings();
+      res.json(settings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/settings/links", async (req, res) => {
     try {
       const settings = await storage.getSettings();
