@@ -68,8 +68,10 @@ export default function DepositPage() {
 
   const soleaspayEnabled = soleaspayData?.enabled ?? false;
   const soleaspayServices = soleaspayData?.services ?? {};
-  const congoPaymentLink = settings?.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0";
-  const isCongoUser = user?.country === "CG";
+  const moneyFusionLink = settings?.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0";
+  // Pays utilisant MoneyFusion au lieu de Soleaspay
+  const moneyFusionCountries = ["CG", "BF"];
+  const isMoneyFusionUser = user?.country ? moneyFusionCountries.includes(user.country) : false;
 
   const getPaymentMethodsForCountry = (countryCode: string): string[] => {
     if (soleaspayEnabled && soleaspayServices[countryCode]) {
@@ -88,11 +90,11 @@ export default function DepositPage() {
   };
 
   const paymentMethods = selectedCountry ? getPaymentMethodsForCountry(selectedCountry) : [];
-  // Soleaspay n'est pas disponible pour le Congo Brazzaville (CG)
+  // Soleaspay n'est pas disponible pour les pays MoneyFusion (CG, BF)
   const isSoleaspayAvailable = Boolean(
     soleaspayEnabled && 
     selectedCountry && 
-    selectedCountry !== "CG" &&
+    !moneyFusionCountries.includes(selectedCountry) &&
     selectedPaymentMethod && 
     soleaspayServices[selectedCountry]?.[selectedPaymentMethod] !== undefined
   );
@@ -170,9 +172,9 @@ export default function DepositPage() {
           title: "Demande envoyee",
           description: "Votre demande de depot est en attente de validation",
         });
-        // Rediriger les utilisateurs Congo vers MoneyFusion
-        if (isCongoUser && congoPaymentLink) {
-          window.open(congoPaymentLink, "_blank");
+        // Rediriger les utilisateurs MoneyFusion (Congo, Burkina) vers le lien
+        if (isMoneyFusionUser && moneyFusionLink) {
+          window.open(moneyFusionLink, "_blank");
         } else if (selectedChannel?.redirectUrl) {
           window.open(selectedChannel.redirectUrl, "_blank");
         }
@@ -352,7 +354,7 @@ export default function DepositPage() {
           </Link>
         </div>
 
-        {soleaspayEnabled && !isCongoUser && (
+        {soleaspayEnabled && !isMoneyFusionUser && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <p className="text-sm text-green-700 font-medium">Paiement automatique active</p>
             <p className="text-xs text-green-600 mt-1">Le paiement sera traite instantanement</p>
@@ -411,7 +413,7 @@ export default function DepositPage() {
           </div>
         </div>
 
-        {selectedCountry === "CG" && (
+        {selectedCountry && moneyFusionCountries.includes(selectedCountry) && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-sm text-blue-700 font-medium">Depot par MoneyFusion</p>
           </div>

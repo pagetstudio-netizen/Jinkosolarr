@@ -156,12 +156,12 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               name="congoPaymentLink"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Lien paiement Congo Brazzaville</FormLabel>
+                  <FormLabel>Lien MoneyFusion</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="https://my.moneyfusion.net/..." />
                   </FormControl>
                   <FormDescription>
-                    Lien MoneyFusion pour les depots Congo Brazzaville (Soleaspay non disponible)
+                    Lien MoneyFusion pour Congo Brazzaville et Burkina Faso
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
