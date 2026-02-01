@@ -67,6 +67,7 @@ export interface IStorage {
   createReferralCommission(data: Partial<ReferralCommission>): Promise<ReferralCommission>;
   getUserCommissions(userId: number): Promise<number>;
   getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Commission: number; level2Commission: number; level3Commission: number; level1Invested: number; level2Invested: number; level3Invested: number; level1Recharged: number }>;
+  getTeamStatsSimple(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number }>;
   
   // Tasks
   getTasks(): Promise<Task[]>;
@@ -665,6 +666,52 @@ export class DatabaseStorage implements IStorage {
       .from(referralCommissions)
       .where(eq(referralCommissions.userId, userId));
     return parseFloat(result[0]?.total || "0");
+  }
+
+  async getTeamStatsSimple(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number }> {
+    const user = await this.getUser(userId);
+    if (!user) return { level1Count: 0, level2Count: 0, level3Count: 0, totalCommission: 0 };
+
+    const level1Result = await db.select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(eq(users.referredBy, user.referralCode));
+    const level1Count = Number(level1Result[0]?.count || 0);
+
+    let level2Count = 0;
+    let level3Count = 0;
+    
+    if (level1Count > 0) {
+      const level1Codes = await db.select({ code: users.referralCode })
+        .from(users)
+        .where(eq(users.referredBy, user.referralCode));
+      
+      if (level1Codes.length > 0) {
+        const level2Result = await db.select({ count: sql<number>`count(*)` })
+          .from(users)
+          .where(sql`${users.referredBy} IN (${sql.join(level1Codes.map(u => sql`${u.code}`), sql`, `)})`);
+        level2Count = Number(level2Result[0]?.count || 0);
+        
+        if (level2Count > 0) {
+          const level2Codes = await db.select({ code: users.referralCode })
+            .from(users)
+            .where(sql`${users.referredBy} IN (${sql.join(level1Codes.map(u => sql`${u.code}`), sql`, `)})`);
+          
+          if (level2Codes.length > 0) {
+            const level3Result = await db.select({ count: sql<number>`count(*)` })
+              .from(users)
+              .where(sql`${users.referredBy} IN (${sql.join(level2Codes.map(u => sql`${u.code}`), sql`, `)})`);
+            level3Count = Number(level3Result[0]?.count || 0);
+          }
+        }
+      }
+    }
+
+    const commResult = await db.select({ total: sql<string>`COALESCE(SUM(${referralCommissions.amount}), 0)` })
+      .from(referralCommissions)
+      .where(eq(referralCommissions.userId, userId));
+    const totalCommission = parseFloat(commResult[0]?.total || "0");
+
+    return { level1Count, level2Count, level3Count, totalCommission };
   }
 
   async getTeamStats(userId: number): Promise<{ level1Count: number; level2Count: number; level3Count: number; totalCommission: number; level1Commission: number; level2Commission: number; level3Commission: number; level1Invested: number; level2Invested: number; level3Invested: number; level1Recharged: number }> {

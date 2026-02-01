@@ -999,13 +999,8 @@ export async function registerRoutes(
       
       const { users: allUsers, total } = await storage.getAllUsers(search, limit, offset);
       const usersWithTeam = await Promise.all(allUsers.map(async (user) => {
-        const teamStats = await storage.getTeamStats(user.id);
-        let referrerName = null;
-        if (user.referredBy) {
-          const referrer = await storage.getUserByReferralCode(user.referredBy);
-          if (referrer) referrerName = referrer.fullName;
-        }
-        return { ...user, password: undefined, ...teamStats, referrerName };
+        const teamStats = await storage.getTeamStatsSimple(user.id);
+        return { ...user, password: undefined, ...teamStats, referrerName: null };
       }));
       res.json({ users: usersWithTeam, total, page, limit, totalPages: Math.ceil(total / limit) });
     } catch (error: any) {
