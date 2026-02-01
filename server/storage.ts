@@ -17,7 +17,7 @@ export interface IStorage {
   getUserByReferralCode(code: string): Promise<User | undefined>;
   createUser(data: Partial<User>): Promise<User>;
   updateUser(id: number, data: Partial<User>): Promise<User>;
-  getAllUsers(filter?: string): Promise<User[]>;
+  getAllUsers(filter?: string, limit?: number, offset?: number): Promise<{ users: User[], total: number }>;
   
   // Products
   getProducts(): Promise<Product[]>;
@@ -142,9 +142,34 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getAllUsers(filter?: string): Promise<User[]> {
-    let query = db.select().from(users).orderBy(desc(users.createdAt));
-    return await query;
+  async getAllUsers(filter?: string, limit: number = 50, offset: number = 0): Promise<{ users: User[], total: number }> {
+    let conditions: any[] = [];
+    
+    if (filter && filter.trim()) {
+      const searchTerm = `%${filter.trim().toLowerCase()}%`;
+      conditions.push(
+        or(
+          sql`LOWER(${users.phone}) LIKE ${searchTerm}`,
+          sql`LOWER(${users.fullName}) LIKE ${searchTerm}`,
+          sql`LOWER(${users.referralCode}) LIKE ${searchTerm}`
+        )
+      );
+    }
+    
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+    
+    const [countResult] = await db.select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(whereClause);
+    
+    const userList = await db.select()
+      .from(users)
+      .where(whereClause)
+      .orderBy(desc(users.createdAt))
+      .limit(limit)
+      .offset(offset);
+    
+    return { users: userList, total: Number(countResult.count) };
   }
 
   // Products

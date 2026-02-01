@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { formatCurrency } from "@/lib/countries";
-import { Search, Edit, Ban, Shield, Lock, Unlock, Star, Users, Loader2, UserPlus, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Search, Edit, Ban, Shield, Lock, Unlock, Star, Users, Loader2, UserPlus, ChevronDown, ChevronUp, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import type { User, Product } from "@shared/schema";
 
 interface UserProductItem {
@@ -61,10 +61,20 @@ interface AdminUsersProps {
   isSuperAdmin: boolean;
 }
 
+interface UsersResponse {
+  users: UserWithTeam[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
   const { toast } = useToast();
   const [, navigate] = useLocation();
-  const [filter, setFilter] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<"all" | "banned" | "blocked" | "promoter">("all");
   const [selectedUser, setSelectedUser] = useState<UserWithTeam | null>(null);
   const [editBalance, setEditBalance] = useState("");
@@ -74,9 +84,31 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
   const [teamUserId, setTeamUserId] = useState<number | null>(null);
   const [adminPinInput, setAdminPinInput] = useState("");
 
-  const { data: users, isLoading } = useQuery<UserWithTeam[]>({
-    queryKey: ["/api/admin/users"],
+  // Debounce search input
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      setDebouncedSearch(value);
+      setCurrentPage(1);
+    }, 500);
+  };
+
+  const { data: usersData, isLoading } = useQuery<UsersResponse>({
+    queryKey: ["/api/admin/users", { search: debouncedSearch, page: currentPage }],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (debouncedSearch) params.set("search", debouncedSearch);
+      params.set("page", currentPage.toString());
+      params.set("limit", "50");
+      const res = await fetch(`/api/admin/users?${params}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch users");
+      return res.json();
+    },
   });
+
+  const users = usersData?.users || [];
 
   const { data: products } = useQuery<Product[]>({
     queryKey: ["/api/admin/products/all"],
@@ -142,19 +174,14 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
     },
   });
 
-  const statusFilteredUsers = users?.filter(u => {
+  // Client-side status filter only (search is now server-side)
+  const filteredUsers = users.filter(u => {
     if (statusFilter === "all") return true;
     if (statusFilter === "banned") return u.isBanned;
     if (statusFilter === "blocked") return u.isWithdrawalBlocked;
     if (statusFilter === "promoter") return u.isPromoter;
     return true;
-  }) || [];
-
-  const filteredUsers = statusFilteredUsers.filter(u => 
-    u.phone.includes(filter) || 
-    u.fullName.toLowerCase().includes(filter.toLowerCase()) ||
-    u.referralCode.toLowerCase().includes(filter.toLowerCase())
-  );
+  });
 
   const openTeamModal = (userId: number) => {
     setTeamUserId(userId);
@@ -206,12 +233,20 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Rechercher par telephone, nom ou code..."
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            value={searchInput}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10"
+            data-testid="input-search-users"
           />
         </div>
       </div>
+
+      {usersData && (
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>{usersData.total} utilisateur{usersData.total > 1 ? "s" : ""} trouve{usersData.total > 1 ? "s" : ""}</span>
+          <span>Page {usersData.page} / {usersData.totalPages}</span>
+        </div>
+      )}
 
       <div className="flex gap-2 overflow-x-auto">
         {(["all", "banned", "blocked", "promoter"] as const).map((status) => (
@@ -291,6 +326,34 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
           </div>
         )}
       </div>
+
+      {usersData && usersData.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1 || isLoading}
+            data-testid="button-prev-page"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Precedent
+          </Button>
+          <span className="text-sm text-muted-foreground px-2">
+            {currentPage} / {usersData.totalPages}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setCurrentPage(p => Math.min(usersData.totalPages, p + 1))}
+            disabled={currentPage === usersData.totalPages || isLoading}
+            data-testid="button-next-page"
+          >
+            Suivant
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
 
       <Dialog open={showTeamModal} onOpenChange={() => { setShowTeamModal(false); setTeamUserId(null); }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">

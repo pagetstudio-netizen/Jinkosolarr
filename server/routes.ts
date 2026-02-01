@@ -992,7 +992,12 @@ export async function registerRoutes(
 
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
-      const allUsers = await storage.getAllUsers();
+      const search = (req.query.search as string) || "";
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = (page - 1) * limit;
+      
+      const { users: allUsers, total } = await storage.getAllUsers(search, limit, offset);
       const usersWithTeam = await Promise.all(allUsers.map(async (user) => {
         const teamStats = await storage.getTeamStats(user.id);
         let referrerName = null;
@@ -1002,7 +1007,7 @@ export async function registerRoutes(
         }
         return { ...user, password: undefined, ...teamStats, referrerName };
       }));
-      res.json(usersWithTeam);
+      res.json({ users: usersWithTeam, total, page, limit, totalPages: Math.ceil(total / limit) });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
