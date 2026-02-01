@@ -4,12 +4,12 @@ import * as schema from "@shared/schema";
 
 const { Pool } = pg;
 
-// Utiliser Supabase en priorité, sinon la base Replit
-const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+// Utiliser la base Replit (DATABASE_URL) comme base principale
+const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   throw new Error(
-    "SUPABASE_DATABASE_URL or DATABASE_URL must be set.",
+    "DATABASE_URL must be set.",
   );
 }
 
