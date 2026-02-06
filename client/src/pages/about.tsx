@@ -17,24 +17,24 @@ export default function AboutPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-orange-500">Qui sommes-nous ?</h2>
           <p className="text-gray-600 leading-relaxed">
-            ELF est une plateforme d'investissement leader, specialisee dans l'equipement industriel et la robotique. Notre mission est de democratiser l'acces aux investissements industriels de haute technologie pour les utilisateurs en Afrique francophone.
+            Fondee en 1966 sous le nom d'Elf Aquitaine, ELF est l'une des marques les plus emblematiques du secteur petrochimique francais, specialisee dans la formulation de lubrifiants moteurs de haute technicite et de carburants de performance. Issue de la fusion de societes petrolieres regionales, ELF s'est rapidement imposee comme un acteur majeur de l'exploitation et de la valorisation des hydrocarbures.
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Grace a notre technologie de pointe et a notre expertise sectorielle, nous offrons a nos utilisateurs des opportunites uniques de generer des revenus quotidiens en participant au financement et a l'exploitation d'equipements industriels reels.
+            Grace a notre expertise et a notre technologie de pointe, nous offrons a nos utilisateurs des opportunites uniques de generer des revenus quotidiens en participant au financement et a l'exploitation d'equipements petroliers et energetiques reels.
           </p>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-orange-500">Notre vision</h2>
+          <h2 className="text-xl font-bold text-orange-500">Notre heritage</h2>
           <p className="text-gray-600 leading-relaxed">
-            Nous croyons en un avenir ou chacun peut beneficier de la croissance industrielle. ELF s'engage a fournir une plateforme transparente, securisee et rentable pour tous nos partenaires et investisseurs.
+            ELF a consolide sa reputation via des programmes ambitieux dans le sport mecanique, notamment la Formule 1, le rallye automobile et les championnats de motocyclisme. Son partenariat historique avec Renault F1 et Yamaha MotoGP a permis le developpement de lubrifiants optimises pour des conditions extremes.
           </p>
         </div>
 
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-orange-500">Securite et Fiabilite</h2>
           <p className="text-gray-600 leading-relaxed">
-            La securite de vos fonds et la transparence de nos operations sont nos priorites absolues. Nous utilisons les technologies les plus avancees pour garantir la protection de vos donnees et la regularite de vos gains.
+            La securite de vos fonds et la transparence de nos operations sont nos priorites absolues. L'empreinte d'ELF dans le domaine energetique et technologique illustre parfaitement la capacite d'une entreprise a conjuguer ingenierie avancee, innovation scientifique et strategie de marque perenne.
           </p>
         </div>
       </div>

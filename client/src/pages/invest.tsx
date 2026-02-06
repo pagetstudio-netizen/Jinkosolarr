@@ -96,7 +96,7 @@ export default function InvestPage() {
   return (
     <div className="flex flex-col min-h-full bg-white">
       <header className="px-4 py-3 border-b">
-        <h1 className="text-sm font-semibold text-gray-700 text-center">Investissement dans les machines ELF</h1>
+        <h1 className="text-sm font-semibold text-gray-700 text-center">Investissement dans les produits ELF</h1>
       </header>
 
       <div className="grid grid-cols-2 gap-3 px-4 pt-4">

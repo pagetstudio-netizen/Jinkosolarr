@@ -65,7 +65,7 @@ export default function HomePage() {
               
               <div className="space-y-3 text-[13px] leading-relaxed">
                 <p className="font-semibold text-center text-base">Bienvenue sur ELF</p>
-                <p className="text-center">Investissez dans votre propre machine et générez des revenus quotidiens.</p>
+                <p className="text-center">Investissez dans le secteur pétrolier et énergétique et générez des revenus quotidiens.</p>
                 
                 <ul className="space-y-2">
                   <li className="flex gap-2">
@@ -149,7 +149,7 @@ export default function HomePage() {
         <Bell className="w-5 h-5 text-white flex-shrink-0" />
         <div className="overflow-hidden flex-1">
           <p className="text-white text-sm font-medium whitespace-nowrap animate-marquee">
-            Rejoignez ELF, la plateforme incontournable pour investir dans l'industrie et gagner des revenus quotidiens!
+            Rejoignez ELF, la plateforme incontournable pour investir dans le secteur petrolier et gagner des revenus quotidiens!
           </p>
         </div>
       </div>

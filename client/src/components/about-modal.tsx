@@ -20,17 +20,16 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
 
         <div className="space-y-4 text-sm text-muted-foreground">
           <p>
-            ELF est une plateforme d'investissement innovante spécialisée dans les produits industriels et robotiques.
+            ELF, fondée en 1966 sous le nom d'Elf Aquitaine, est l'une des marques les plus emblématiques du secteur pétrolier français, spécialisée dans les lubrifiants moteurs de haute technicité et les carburants de performance.
           </p>
           <p>
-            Notre mission est de permettre à chacun de participer à la révolution industrielle 4.0 et de bénéficier
-            des revenus générés par les équipements de pointe.
+            Partenaire historique de la Formule 1 et du MotoGP, ELF développe des lubrifiants optimisés pour des conditions extrêmes, alliant innovation scientifique et excellence industrielle.
           </p>
           <div className="bg-secondary rounded-lg p-4 space-y-2">
             <h4 className="font-medium text-foreground">Nos avantages :</h4>
             <ul className="space-y-1">
               <li>- Revenus quotidiens automatiques</li>
-              <li>- Produits industriels de qualité</li>
+              <li>- Produits pétroliers et lubrifiants de qualité</li>
               <li>- Système de parrainage attractif</li>
               <li>- Support client disponible</li>
             </ul>
