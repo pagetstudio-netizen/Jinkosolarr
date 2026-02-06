@@ -39,7 +39,7 @@ export async function seed() {
       sortOrder: 0,
     },
     {
-      name: "Robot industriel FANUC",
+      name: "Robot industriel ELF",
       price: 3000,
       dailyEarnings: 400,
       cycleDays: 80,
@@ -47,7 +47,7 @@ export async function seed() {
       sortOrder: 1,
     },
     {
-      name: "Presse CNC FANUC",
+      name: "Presse CNC ELF",
       price: 7000,
       dailyEarnings: 850,
       cycleDays: 80,
@@ -55,7 +55,7 @@ export async function seed() {
       sortOrder: 2,
     },
     {
-      name: "Grue industrielle FANUC",
+      name: "Grue industrielle ELF",
       price: 12000,
       dailyEarnings: 1200,
       cycleDays: 80,
@@ -63,7 +63,7 @@ export async function seed() {
       sortOrder: 3,
     },
     {
-      name: "Robot de precision FANUC",
+      name: "Robot de precision ELF",
       price: 21000,
       dailyEarnings: 2100,
       cycleDays: 80,
@@ -71,7 +71,7 @@ export async function seed() {
       sortOrder: 4,
     },
     {
-      name: "Excavatrice FANUC",
+      name: "Excavatrice ELF",
       price: 25000,
       dailyEarnings: 2600,
       cycleDays: 80,
@@ -79,7 +79,7 @@ export async function seed() {
       sortOrder: 5,
     },
     {
-      name: "Machine de soudure FANUC",
+      name: "Machine de soudure ELF",
       price: 35000,
       dailyEarnings: 3600,
       cycleDays: 80,
@@ -87,7 +87,7 @@ export async function seed() {
       sortOrder: 6,
     },
     {
-      name: "Grue mobile FANUC",
+      name: "Grue mobile ELF",
       price: 50000,
       dailyEarnings: 5700,
       cycleDays: 80,
@@ -95,7 +95,7 @@ export async function seed() {
       sortOrder: 7,
     },
     {
-      name: "Robot collaboratif FANUC",
+      name: "Robot collaboratif ELF",
       price: 100000,
       dailyEarnings: 11500,
       cycleDays: 80,
@@ -103,7 +103,7 @@ export async function seed() {
       sortOrder: 8,
     },
     {
-      name: "Robot industriel FANUC XL",
+      name: "Robot industriel ELF XL",
       price: 150000,
       dailyEarnings: 19000,
       cycleDays: 80,

@@ -54,7 +54,7 @@ export default function GiftCodePage() {
   };
 
   const openTelegramGroup = () => {
-    window.open("https://t.me/fanucgroup", "_blank");
+    window.open("https://t.me/elfgroup", "_blank");
   };
 
   return (

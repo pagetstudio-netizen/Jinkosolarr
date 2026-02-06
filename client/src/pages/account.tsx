@@ -22,7 +22,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-import fanucLogo from "@/assets/images/fanuc-circle-logo.png";
+import elfLogo from "@/assets/images/fanuc-circle-logo.png";
 import mascotWaving from "@/assets/images/mascot-waving.png";
 import retirerBtn from "@/assets/images/retirer-btn.png";
 import rechargerBtn from "@/assets/images/recharger-btn.png";
@@ -99,7 +99,7 @@ export default function AccountPage() {
     <div className="flex flex-col min-h-full bg-white">
       <div className="flex-1 overflow-y-auto pb-24">
         <div className="flex items-center gap-3 px-4 py-4">
-          <img src={fanucLogo} alt="FANUC" className="w-10 h-10 object-contain" />
+          <img src={elfLogo} alt="ELF" className="w-10 h-10 object-contain" />
           <span className="text-xl font-bold text-gray-800" data-testid="text-user-phone">
             +{phonePrefix} {user.phone}
           </span>

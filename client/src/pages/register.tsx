@@ -13,7 +13,7 @@ import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { Loader2 } from "lucide-react";
 import authBgVideo from "@/assets/videos/auth-background.mp4";
 import authSound from "@/assets/audio/auth-sound.mp3";
-import fanucLogo from "@/assets/images/fanuc-logo.png";
+import elfLogo from "@/assets/images/fanuc-logo.png";
 
 const registerSchema = z.object({
   fullName: z.string().min(2, "Le nom complet est requis"),
@@ -63,7 +63,7 @@ export default function RegisterPage() {
       });
       toast({ 
         title: "Inscription reussie!", 
-        description: "Bienvenue sur Fanuc! Vous avez recu 500 FCFA de bonus.",
+        description: "Bienvenue sur ELF! Vous avez recu 500 FCFA de bonus.",
       });
       navigate("/");
     } catch (error: any) {
@@ -96,7 +96,7 @@ export default function RegisterPage() {
       
       <div className="relative z-10 w-full max-w-sm px-8 py-8">
         <div className="text-center mb-8">
-          <img src={fanucLogo} alt="FANUC" className="h-12 mx-auto" />
+          <img src={elfLogo} alt="ELF" className="h-12 mx-auto" />
         </div>
 
         <Form {...form}>

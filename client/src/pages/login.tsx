@@ -14,7 +14,7 @@ import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { Loader2 } from "lucide-react";
 import authBgVideo from "@/assets/videos/auth-background.mp4";
 import authSound from "@/assets/audio/auth-sound.mp3";
-import fanucLogo from "@/assets/images/fanuc-logo.png";
+import elfLogo from "@/assets/images/fanuc-logo.png";
 
 const loginSchema = z.object({
   phone: z.string().min(8, "Numero de telephone invalide"),
@@ -30,7 +30,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
-  const savedCredentials = typeof window !== 'undefined' ? localStorage.getItem('fanuc_credentials') : null;
+  const savedCredentials = typeof window !== 'undefined' ? localStorage.getItem('elf_credentials') : null;
   const parsedCredentials = savedCredentials ? JSON.parse(savedCredentials) : null;
   
   const [rememberMe, setRememberMe] = useState(!!parsedCredentials);
@@ -50,16 +50,16 @@ export default function LoginPage() {
       await login(data.phone, data.country, data.password);
       
       if (rememberMe) {
-        localStorage.setItem('fanuc_credentials', JSON.stringify({
+        localStorage.setItem('elf_credentials', JSON.stringify({
           phone: data.phone,
           country: data.country,
           password: data.password
         }));
       } else {
-        localStorage.removeItem('fanuc_credentials');
+        localStorage.removeItem('elf_credentials');
       }
       
-      toast({ title: "Connexion reussie", description: "Bienvenue sur Fanuc!" });
+      toast({ title: "Connexion reussie", description: "Bienvenue sur ELF!" });
       navigate("/");
     } catch (error: any) {
       toast({
@@ -91,7 +91,7 @@ export default function LoginPage() {
       
       <div className="relative z-10 w-full max-w-sm px-8 py-12">
         <div className="text-center mb-10">
-          <img src={fanucLogo} alt="FANUC" className="h-12 mx-auto" />
+          <img src={elfLogo} alt="ELF" className="h-12 mx-auto" />
         </div>
 
         <Form {...form}>

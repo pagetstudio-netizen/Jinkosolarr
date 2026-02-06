@@ -111,7 +111,7 @@ export async function initiatePayment(
   paymentMethod: string,
   orderId: string,
   payerName: string,
-  payerEmail: string = "customer@fanuc.com"
+  payerEmail: string = "customer@elf.com"
 ): Promise<SoleaspayPaymentResponse> {
   const serviceId = getServiceId(country, paymentMethod);
   if (!serviceId) {
@@ -121,14 +121,14 @@ export async function initiatePayment(
   const currency = getCurrency(country);
   const baseUrl = process.env.REPLIT_DEV_DOMAIN 
     ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-    : "https://fanuc.replit.app";
+    : "https://elf.replit.app";
 
   const requestBody: SoleaspayPaymentRequest = {
     wallet: wallet.replace(/\s/g, ""),
     amount,
     currency,
     order_id: orderId,
-    description: `Depot FANUC #${orderId}`,
+    description: `Depot ELF #${orderId}`,
     payer: payerName,
     payerEmail,
     successUrl: `${baseUrl}/deposit-success`,

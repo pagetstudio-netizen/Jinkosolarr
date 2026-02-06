@@ -17,7 +17,7 @@ export default function AboutPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-orange-500">Qui sommes-nous ?</h2>
           <p className="text-gray-600 leading-relaxed">
-            FANUC est une plateforme d'investissement leader, specialisee dans l'equipement industriel et la robotique. Notre mission est de democratiser l'acces aux investissements industriels de haute technologie pour les utilisateurs en Afrique francophone.
+            ELF est une plateforme d'investissement leader, specialisee dans l'equipement industriel et la robotique. Notre mission est de democratiser l'acces aux investissements industriels de haute technologie pour les utilisateurs en Afrique francophone.
           </p>
           <p className="text-gray-600 leading-relaxed">
             Grace a notre technologie de pointe et a notre expertise sectorielle, nous offrons a nos utilisateurs des opportunites uniques de generer des revenus quotidiens en participant au financement et a l'exploitation d'equipements industriels reels.
@@ -27,7 +27,7 @@ export default function AboutPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-orange-500">Notre vision</h2>
           <p className="text-gray-600 leading-relaxed">
-            Nous croyons en un avenir ou chacun peut beneficier de la croissance industrielle. FANUC s'engage a fournir une plateforme transparente, securisee et rentable pour tous nos partenaires et investisseurs.
+            Nous croyons en un avenir ou chacun peut beneficier de la croissance industrielle. ELF s'engage a fournir une plateforme transparente, securisee et rentable pour tous nos partenaires et investisseurs.
           </p>
         </div>
 

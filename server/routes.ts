@@ -48,7 +48,7 @@ export async function registerRoutes(
   app.use(
     session({
       store: new SessionStore({ checkPeriod: 86400000 }),
-      secret: process.env.SESSION_SECRET || "fanuc-secret-key",
+      secret: process.env.SESSION_SECRET || "elf-secret-key",
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -413,7 +413,7 @@ export async function registerRoutes(
       const settings = await storage.getSettings();
       const soleaspayEnabled = settings.soleaspayEnabled !== "false";
 
-      const orderId = `FANUC-${Date.now()}-${user.id}`;
+      const orderId = `ELF-${Date.now()}-${user.id}`;
       
       if (useSoleaspay && soleaspayEnabled && isSoleaspaySupported(country, paymentMethod)) {
         try {
@@ -424,7 +424,7 @@ export async function registerRoutes(
             paymentMethod,
             orderId,
             accountName,
-            `user${user.id}@fanuc.com`
+            `user${user.id}@elf.com`
           );
 
           if (paymentResult.success && paymentResult.data) {

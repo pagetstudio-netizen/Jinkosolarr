@@ -28,7 +28,7 @@ export default function ServicePage() {
           <div className="bg-gradient-to-r from-teal-600 to-teal-500 p-6">
             <div className="flex items-start gap-4">
               <div className="flex-1">
-                <h2 className="text-white text-xl font-bold mb-2">Bonjour, bienvenue chez FANUC</h2>
+                <h2 className="text-white text-xl font-bold mb-2">Bonjour, bienvenue chez ELF</h2>
                 <p className="text-white/90 text-sm leading-relaxed">
                   Votre satisfaction est notre priorite. Si vous avez des questions sur votre Compte ou nos services, n'hesitez pas a nous contacter.
                 </p>
@@ -71,7 +71,7 @@ export default function ServicePage() {
             data-testid="button-channel-link"
           >
             <img src={telegramIcon} alt="Telegram" className="w-12 h-12 rounded-lg" />
-            <span className="flex-1 text-left text-gray-700 font-medium">Chaine officielle de FANUC</span>
+            <span className="flex-1 text-left text-gray-700 font-medium">Chaine officielle de ELF</span>
             <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Connecter</span>
           </button>
         </div>

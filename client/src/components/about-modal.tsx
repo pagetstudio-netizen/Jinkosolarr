@@ -12,15 +12,15 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-xl font-bold text-primary-foreground">F</span>
+              <span className="text-xl font-bold text-primary-foreground">E</span>
             </div>
-            À propos de FANUC
+            À propos de ELF
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 text-sm text-muted-foreground">
           <p>
-            FANUC est une plateforme d'investissement innovante spécialisée dans les produits industriels et robotiques.
+            ELF est une plateforme d'investissement innovante spécialisée dans les produits industriels et robotiques.
           </p>
           <p>
             Notre mission est de permettre à chacun de participer à la révolution industrielle 4.0 et de bénéficier

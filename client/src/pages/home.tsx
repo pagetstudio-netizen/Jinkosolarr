@@ -2,14 +2,14 @@ import { useAuth } from "@/lib/auth";
 import { Bell, X, Send } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
-import fanucHeader from "@/assets/images/fanuc-header.png";
+import elfHeader from "@/assets/images/fanuc-header.png";
 import btnRecharge from "@/assets/images/btn-recharge.png";
 import btnRetirer from "@/assets/images/btn-retirer.png";
 import btnAide from "@/assets/images/btn-aide.png";
 import robotSoldes from "@/assets/images/robot-soldes.png";
 import robotCumulatif from "@/assets/images/robot-cumulatif.png";
-import fanucTeamWide from "@/assets/images/fanuc-team-wide.png";
-import fanucPopupBanner from "@assets/20260126_073237_1769413159534.jpg";
+import elfTeamWide from "@/assets/images/fanuc-team-wide.png";
+import elfPopupBanner from "@assets/20260126_073237_1769413159534.jpg";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -53,8 +53,8 @@ export default function HomePage() {
             </button>
             
             <img 
-              src={fanucPopupBanner} 
-              alt="FANUC Banner" 
+              src={elfPopupBanner} 
+              alt="ELF Banner" 
               className="w-full h-auto object-cover"
             />
             
@@ -64,7 +64,7 @@ export default function HomePage() {
               </h2>
               
               <div className="space-y-3 text-[13px] leading-relaxed">
-                <p className="font-semibold text-center text-base">Bienvenue sur FANUC</p>
+                <p className="font-semibold text-center text-base">Bienvenue sur ELF</p>
                 <p className="text-center">Investissez dans votre propre machine et générez des revenus quotidiens.</p>
                 
                 <ul className="space-y-2">
@@ -95,7 +95,7 @@ export default function HomePage() {
                   </button>
                   
                   <a 
-                    href="https://t.me/fanucgroup"
+                    href="https://t.me/elfgroup"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3 bg-[#0088cc] hover:bg-[#0099ee] rounded-xl font-bold transition-colors"
@@ -111,8 +111,8 @@ export default function HomePage() {
       )}
       <div className="w-full">
         <img 
-          src={fanucHeader} 
-          alt="FANUC" 
+          src={elfHeader} 
+          alt="ELF" 
           className="w-full h-44 object-cover"
         />
       </div>
@@ -149,7 +149,7 @@ export default function HomePage() {
         <Bell className="w-5 h-5 text-white flex-shrink-0" />
         <div className="overflow-hidden flex-1">
           <p className="text-white text-sm font-medium whitespace-nowrap animate-marquee">
-            Rejoignez FANUC, la plateforme incontournable pour investir dans l'industrie et gagner des revenus quotidiens!
+            Rejoignez ELF, la plateforme incontournable pour investir dans l'industrie et gagner des revenus quotidiens!
           </p>
         </div>
       </div>
@@ -194,8 +194,8 @@ export default function HomePage() {
 
       <div className="px-3 mt-4 pb-4">
         <img 
-          src={fanucTeamWide} 
-          alt="FANUC Team" 
+          src={elfTeamWide} 
+          alt="ELF Team" 
           className="w-full h-auto rounded-xl object-cover"
         />
       </div>
