@@ -22,7 +22,7 @@ export default function BottomNav() {
   const [location, navigate] = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50" style={{ backgroundColor: "#0d0d1a", borderTop: "1px solid #2a2a4a" }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200">
       <div className="flex items-center justify-around h-16 pb-1">
         {navItems.map((item) => {
           const isActive = location === item.path;

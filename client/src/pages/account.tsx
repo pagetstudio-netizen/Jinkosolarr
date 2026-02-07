@@ -19,7 +19,7 @@ import {
   Shield,
   LogOut
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -32,18 +32,6 @@ export default function AccountPage() {
   const [, navigate] = useLocation();
   const [showPinModal, setShowPinModal] = useState(false);
   const [adminPin, setAdminPin] = useState("");
-  const [countdown, setCountdown] = useState({ hours: 2, minutes: 5 });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev.minutes === 0 && prev.hours === 0) return prev;
-        if (prev.minutes === 0) return { hours: prev.hours - 1, minutes: 59 };
-        return { ...prev, minutes: prev.minutes - 1 };
-      });
-    }, 60000);
-    return () => clearInterval(timer);
-  }, []);
 
   const verifyPinMutation = useMutation({
     mutationFn: async (pin: string) => {
@@ -109,27 +97,25 @@ export default function AccountPage() {
     });
   };
 
-  const countdownStr = `${String(countdown.hours).padStart(2, "0")}:${String(countdown.minutes).padStart(2, "0")}`;
-
   return (
-    <div className="flex flex-col min-h-full" style={{ backgroundColor: "#1a1a2e" }}>
+    <div className="flex flex-col min-h-full bg-white">
       <div className="flex-1 overflow-y-auto pb-24">
 
         <div className="flex items-center gap-3 px-4 pt-5 pb-3">
-          <div className="w-12 h-12 rounded-full border-2 border-gray-500 flex items-center justify-center overflow-hidden" style={{ backgroundColor: "#252545" }}>
+          <div className="w-12 h-12 rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
             <img src={elfLogo} alt="ELF" className="w-10 h-10 object-contain" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-white text-base font-semibold" data-testid="text-user-phone">
+              <span className="text-gray-900 text-base font-semibold" data-testid="text-user-phone">
                 (+{phonePrefix}) {user.phone} {"\u00b7"} VIP0
               </span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-gray-400 text-sm" data-testid="text-user-id">
+              <span className="text-gray-500 text-sm" data-testid="text-user-id">
                 ID: {user.referralCode}
               </span>
-              <button onClick={handleCopyId} className="text-gray-400" data-testid="button-copy-id">
+              <button onClick={handleCopyId} className="text-gray-500" data-testid="button-copy-id">
                 <Copy className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -137,26 +123,19 @@ export default function AccountPage() {
         </div>
 
         <div className="px-4 flex gap-3">
-          <div className="flex-1 rounded-xl px-4 py-3" style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}>
-            <p className="text-white text-2xl font-bold" data-testid="text-total-earnings">
+          <div className="flex-1 rounded-xl px-4 py-3 bg-gray-50 border border-gray-200">
+            <p className="text-gray-900 text-2xl font-bold" data-testid="text-total-earnings">
               {totalEarnings.toLocaleString()} {currency}
             </p>
-            <p className="text-gray-400 text-sm mt-0.5">Revenu cumul{"\u00e9"}</p>
+            <p className="text-gray-500 text-sm mt-0.5">Revenu cumul{"\u00e9"}</p>
           </div>
-          <div className="flex-1 rounded-xl px-4 py-3 relative" style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}>
-            <p className="text-white text-2xl font-bold" data-testid="text-account-balance">
+          <div className="flex-1 rounded-xl px-4 py-3 bg-gray-50 border border-gray-200">
+            <p className="text-gray-900 text-2xl font-bold" data-testid="text-account-balance">
               {balance.toLocaleString()} {currency}
             </p>
             <div className="flex items-center gap-1 mt-0.5">
-              <p className="text-gray-400 text-sm">Solde disponible</p>
+              <p className="text-gray-500 text-sm">Solde disponible</p>
               <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-            </div>
-            <div
-              className="absolute -right-2 -bottom-2 w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold"
-              style={{ backgroundColor: "#ff6600" }}
-              data-testid="text-countdown"
-            >
-              {countdownStr}
             </div>
           </div>
         </div>
@@ -165,42 +144,38 @@ export default function AccountPage() {
           <div className="flex justify-between gap-2">
             <Link href="/deposit" className="flex-1">
               <button
-                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl"
-                style={{ backgroundColor: "#252545", border: "2px solid #4a6cf7" }}
+                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl bg-blue-50 border-2 border-blue-500"
                 data-testid="button-account-deposit"
               >
-                <Monitor className="w-7 h-7 text-white" />
-                <span className="text-white text-xs font-medium">Recharge</span>
+                <Monitor className="w-7 h-7 text-blue-600" />
+                <span className="text-gray-800 text-xs font-medium">Recharge</span>
               </button>
             </Link>
             <Link href="/withdrawal" className="flex-1">
               <button
-                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl"
-                style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}
+                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl bg-gray-50 border border-gray-200"
                 data-testid="button-account-withdraw"
               >
-                <DollarSign className="w-7 h-7 text-white" />
-                <span className="text-white text-xs font-medium">Retrait</span>
+                <DollarSign className="w-7 h-7 text-gray-700" />
+                <span className="text-gray-800 text-xs font-medium">Retrait</span>
               </button>
             </Link>
             <Link href="/wallet" className="flex-1">
               <button
-                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl"
-                style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}
+                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl bg-gray-50 border border-gray-200"
                 data-testid="button-wallet"
               >
-                <Wallet className="w-7 h-7 text-white" />
-                <span className="text-white text-xs font-medium">Banque</span>
+                <Wallet className="w-7 h-7 text-gray-700" />
+                <span className="text-gray-800 text-xs font-medium">Banque</span>
               </button>
             </Link>
             <button
               onClick={() => navigate("/service")}
-              className="flex-1 flex flex-col items-center gap-2 py-3 rounded-xl"
-              style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}
+              className="flex-1 flex flex-col items-center gap-2 py-3 rounded-xl bg-gray-50 border border-gray-200"
               data-testid="button-support"
             >
-              <Headphones className="w-7 h-7 text-white" />
-              <span className="text-white text-xs font-medium">Assistance</span>
+              <Headphones className="w-7 h-7 text-gray-700" />
+              <span className="text-gray-800 text-xs font-medium">Assistance</span>
             </button>
           </div>
         </div>
@@ -230,85 +205,79 @@ export default function AccountPage() {
         <div className="px-4 mt-5">
           <Link href="/gift-code">
             <div
-              className="flex items-center justify-between py-4 border-b"
-              style={{ borderColor: "#2a2a4a" }}
+              className="flex items-center justify-between py-4 border-b border-gray-200"
               data-testid="button-gift-code"
             >
               <div className="flex items-center gap-3">
-                <Gift className="w-5 h-5 text-gray-400" />
-                <span className="text-white text-sm">Echanger la r{"\u00e9"}compense</span>
+                <Gift className="w-5 h-5 text-gray-500" />
+                <span className="text-gray-800 text-sm">Echanger la r{"\u00e9"}compense</span>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-500" />
+              <ChevronRight className="w-5 h-5 text-gray-400" />
             </div>
           </Link>
 
           <Link href="/history">
             <div
-              className="flex items-center justify-between py-4 border-b"
-              style={{ borderColor: "#2a2a4a" }}
+              className="flex items-center justify-between py-4 border-b border-gray-200"
               data-testid="button-history"
             >
               <div className="flex items-center gap-3">
-                <ClipboardList className="w-5 h-5 text-gray-400" />
-                <span className="text-white text-sm">Enregistrement</span>
+                <ClipboardList className="w-5 h-5 text-gray-500" />
+                <span className="text-gray-800 text-sm">Enregistrement</span>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-500" />
+              <ChevronRight className="w-5 h-5 text-gray-400" />
             </div>
           </Link>
 
           <Link href="/orders">
             <div
-              className="flex items-center justify-between py-4 border-b"
-              style={{ borderColor: "#2a2a4a" }}
+              className="flex items-center justify-between py-4 border-b border-gray-200"
               data-testid="button-transactions"
             >
               <div className="flex items-center gap-3">
-                <ClipboardList className="w-5 h-5 text-gray-400" />
-                <span className="text-white text-sm">Transactions</span>
+                <ClipboardList className="w-5 h-5 text-gray-500" />
+                <span className="text-gray-800 text-sm">Transactions</span>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-500" />
+              <ChevronRight className="w-5 h-5 text-gray-400" />
             </div>
           </Link>
 
           <button
             onClick={() => navigate("/change-password")}
-            className="w-full flex items-center justify-between py-4 border-b"
-            style={{ borderColor: "#2a2a4a" }}
+            className="w-full flex items-center justify-between py-4 border-b border-gray-200"
             data-testid="button-change-password"
           >
             <div className="flex items-center gap-3">
-              <Lock className="w-5 h-5 text-gray-400" />
-              <span className="text-white text-sm">Changer le mot de passe</span>
+              <Lock className="w-5 h-5 text-gray-500" />
+              <span className="text-gray-800 text-sm">Changer le mot de passe</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-500" />
+            <ChevronRight className="w-5 h-5 text-gray-400" />
           </button>
 
           <Link href="/rules">
             <div
-              className="flex items-center justify-between py-4 border-b"
-              style={{ borderColor: "#2a2a4a" }}
+              className="flex items-center justify-between py-4 border-b border-gray-200"
               data-testid="button-rules"
             >
               <div className="flex items-center gap-3">
-                <BookOpen className="w-5 h-5 text-gray-400" />
-                <span className="text-white text-sm">Guide utilisateur</span>
+                <BookOpen className="w-5 h-5 text-gray-500" />
+                <span className="text-gray-800 text-sm">Guide utilisateur</span>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-500" />
+              <ChevronRight className="w-5 h-5 text-gray-400" />
             </div>
           </Link>
 
           {user.isAdmin && (
             <button
               onClick={handleAdminClick}
-              className="w-full flex items-center justify-between py-4 border-b"
-              style={{ borderColor: "#2a2a4a" }}
+              className="w-full flex items-center justify-between py-4 border-b border-gray-200"
               data-testid="button-admin"
             >
               <div className="flex items-center gap-3">
-                <Shield className="w-5 h-5 text-gray-400" />
-                <span className="text-white text-sm">Panel Admin</span>
+                <Shield className="w-5 h-5 text-gray-500" />
+                <span className="text-gray-800 text-sm">Panel Admin</span>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-500" />
+              <ChevronRight className="w-5 h-5 text-gray-400" />
             </button>
           )}
 
@@ -318,8 +287,8 @@ export default function AccountPage() {
             data-testid="button-logout"
           >
             <div className="flex items-center gap-3">
-              <LogOut className="w-5 h-5 text-red-400" />
-              <span className="text-red-400 text-sm">D{"\u00e9"}connexion</span>
+              <LogOut className="w-5 h-5 text-red-500" />
+              <span className="text-red-500 text-sm">D{"\u00e9"}connexion</span>
             </div>
             <ChevronRight className="w-5 h-5 text-red-400" />
           </button>
