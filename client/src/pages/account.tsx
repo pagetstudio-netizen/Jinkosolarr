@@ -5,28 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
 import { 
-  Info, 
-  Headphones, 
+  Monitor,
+  DollarSign,
+  Wallet,
+  Headphones,
   Gift,
-  FileText,
-  CreditCard,
+  ClipboardList,
   Lock,
-  LogOut,
-  Shield,
-  Loader2,
+  BookOpen,
   ChevronRight,
-  History
+  Copy,
+  Loader2,
+  Shield,
+  LogOut
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 import elfLogo from "@/assets/images/fanuc-circle-logo.png";
-import mascotWaving from "@/assets/images/mascot-waving.png";
-import retirerBtn from "@/assets/images/retirer-btn.png";
-import rechargerBtn from "@/assets/images/recharger-btn.png";
-import tasksBanner from "@/assets/images/tasks-banner.webp";
 
 export default function AccountPage() {
   const { user, logout } = useAuth();
@@ -34,6 +32,18 @@ export default function AccountPage() {
   const [, navigate] = useLocation();
   const [showPinModal, setShowPinModal] = useState(false);
   const [adminPin, setAdminPin] = useState("");
+  const [countdown, setCountdown] = useState({ hours: 2, minutes: 5 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev.minutes === 0 && prev.hours === 0) return prev;
+        if (prev.minutes === 0) return { hours: prev.hours - 1, minutes: 59 };
+        return { ...prev, minutes: prev.minutes - 1 };
+      });
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   const verifyPinMutation = useMutation({
     mutationFn: async (pin: string) => {
@@ -59,8 +69,7 @@ export default function AccountPage() {
   });
 
   const handleAdminClick = () => {
-    // If password is not required for this admin, navigate directly
-    if (user.isAdminPasswordRequired === false) {
+    if (user?.isAdminPasswordRequired === false) {
       navigate("/admin");
       return;
     }
@@ -82,6 +91,7 @@ export default function AccountPage() {
   if (!user) return null;
 
   const balance = parseFloat(user.balance || "0");
+  const totalEarnings = parseFloat(user.totalEarnings || "0");
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
   const phonePrefix = country?.phonePrefix || "";
@@ -91,183 +101,228 @@ export default function AccountPage() {
     navigate("/login");
   };
 
-  const goToService = () => {
-    navigate("/service");
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(user.referralCode || "");
+    toast({
+      title: "Copie",
+      description: "ID copie dans le presse-papiers",
+    });
   };
 
-  return (
-    <div className="flex flex-col min-h-full bg-white">
-      <div className="flex-1 overflow-y-auto pb-24">
-        <div className="flex items-center gap-3 px-4 py-4">
-          <img src={elfLogo} alt="ELF" className="w-10 h-10 object-contain" />
-          <span className="text-xl font-bold text-gray-800" data-testid="text-user-phone">
-            +{phonePrefix} {user.phone}
-          </span>
-        </div>
+  const countdownStr = `${String(countdown.hours).padStart(2, "0")}:${String(countdown.minutes).padStart(2, "0")}`;
 
-        <div className="px-4">
-          <div className="bg-pink-200 rounded-3xl p-5 relative overflow-hidden shadow-md" style={{ minHeight: "160px" }}>
-            <div className="relative z-10">
-              <p className="text-gray-700 font-medium text-base mb-1">Soldes du Compte</p>
-              <p className="text-4xl font-bold text-gray-800" data-testid="text-account-balance">
-                {balance.toLocaleString()} {currency}
-              </p>
+  return (
+    <div className="flex flex-col min-h-full" style={{ backgroundColor: "#1a1a2e" }}>
+      <div className="flex-1 overflow-y-auto pb-24">
+
+        <div className="flex items-center gap-3 px-4 pt-5 pb-3">
+          <div className="w-12 h-12 rounded-full border-2 border-gray-500 flex items-center justify-center overflow-hidden" style={{ backgroundColor: "#252545" }}>
+            <img src={elfLogo} alt="ELF" className="w-10 h-10 object-contain" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-white text-base font-semibold" data-testid="text-user-phone">
+                (+{phonePrefix}) {user.phone} · VIP0
+              </span>
             </div>
-            <img 
-              src={mascotWaving} 
-              alt="Mascot" 
-              className="absolute right-0 bottom-0 h-36 object-contain"
-              style={{ marginRight: "-10px", marginBottom: "-5px" }}
-            />
-            
-            <div className="flex gap-4 mt-6 relative z-10 pr-20">
-              <Link href="/withdrawal" className="flex-1">
-                <img 
-                  src={retirerBtn} 
-                  alt="Retirer" 
-                  className="w-full h-10 object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                  data-testid="button-account-withdraw"
-                />
-              </Link>
-              <Link href="/deposit" className="flex-1">
-                <img 
-                  src={rechargerBtn} 
-                  alt="Recharger" 
-                  className="w-full h-10 object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                  data-testid="button-account-deposit"
-                />
-              </Link>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-gray-400 text-sm" data-testid="text-user-id">
+                ID: {user.referralCode}
+              </span>
+              <button onClick={handleCopyId} className="text-gray-400" data-testid="button-copy-id">
+                <Copy className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="px-4 mt-4">
-          <Link href="/tasks">
-            <div className="relative rounded-2xl overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow" style={{ minHeight: "120px" }}>
-              <img 
-                src={tasksBanner} 
-                alt="Factory" 
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40"></div>
-              <div className="relative z-10 p-4 h-full flex flex-col justify-between">
-                <div>
-                  <h3 className="text-white text-xl font-bold mb-1">Centre de taches</h3>
-                  <p className="text-white/90 text-sm">
-                    Accomplissez des missions pour gagner des bonus supplementaires.
-                  </p>
-                </div>
-                <button className="self-start bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-1 mt-3 hover:bg-red-600 transition-colors">
-                  Acceder <ChevronRight className="w-4 h-4" />
-                </button>
+        <div className="px-4 flex gap-3">
+          <div className="flex-1 rounded-xl px-4 py-3" style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}>
+            <p className="text-white text-2xl font-bold" data-testid="text-total-earnings">
+              {totalEarnings.toLocaleString()} {currency}
+            </p>
+            <p className="text-gray-400 text-sm mt-0.5">Revenu cumul{"\u00e9"}</p>
+          </div>
+          <div className="flex-1 rounded-xl px-4 py-3 relative" style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}>
+            <p className="text-white text-2xl font-bold" data-testid="text-account-balance">
+              {balance.toLocaleString()} {currency}
+            </p>
+            <div className="flex items-center gap-1 mt-0.5">
+              <p className="text-gray-400 text-sm">Solde disponible</p>
+              <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+            </div>
+            <div
+              className="absolute -right-2 -bottom-2 w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold"
+              style={{ backgroundColor: "#ff6600" }}
+              data-testid="text-countdown"
+            >
+              {countdownStr}
+            </div>
+          </div>
+        </div>
+
+        <div className="px-4 mt-5">
+          <div className="flex justify-between gap-2">
+            <Link href="/deposit" className="flex-1">
+              <button
+                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl"
+                style={{ backgroundColor: "#252545", border: "2px solid #4a6cf7" }}
+                data-testid="button-account-deposit"
+              >
+                <Monitor className="w-7 h-7 text-white" />
+                <span className="text-white text-xs font-medium">Recharge</span>
+              </button>
+            </Link>
+            <Link href="/withdrawal" className="flex-1">
+              <button
+                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl"
+                style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}
+                data-testid="button-account-withdraw"
+              >
+                <DollarSign className="w-7 h-7 text-white" />
+                <span className="text-white text-xs font-medium">Retrait</span>
+              </button>
+            </Link>
+            <Link href="/wallet" className="flex-1">
+              <button
+                className="w-full flex flex-col items-center gap-2 py-3 rounded-xl"
+                style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}
+                data-testid="button-wallet"
+              >
+                <Wallet className="w-7 h-7 text-white" />
+                <span className="text-white text-xs font-medium">Banque</span>
+              </button>
+            </Link>
+            <button
+              onClick={() => navigate("/service")}
+              className="flex-1 flex flex-col items-center gap-2 py-3 rounded-xl"
+              style={{ backgroundColor: "#252545", border: "1px solid #3a3a5c" }}
+              data-testid="button-support"
+            >
+              <Headphones className="w-7 h-7 text-white" />
+              <span className="text-white text-xs font-medium">Assistance</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="px-4 mt-5">
+          <Link href="/team">
+            <div
+              className="rounded-2xl p-5 relative overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, #2a2a6e 0%, #3b3ba0 30%, #4a3a8a 60%, #5a3a70 100%)",
+                minHeight: "130px",
+              }}
+            >
+              <div className="absolute inset-0 opacity-20" style={{
+                backgroundImage: "radial-gradient(circle at 70% 50%, rgba(100,150,255,0.3) 0%, transparent 60%), radial-gradient(circle at 30% 80%, rgba(150,100,255,0.2) 0%, transparent 50%)",
+              }}></div>
+              <div className="relative z-10">
+                <h3 className="text-white text-xl font-bold mb-2">Des revenus plus {"\u00e9"}lev{"\u00e9"}s</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Invitez vos {"\u00e0"} amis {"\u00e0"} nous rejoindre and obtenez plus des r{"\u00e9"}compenses {"\u00e9"}lev{"\u00e9"}es directement et automatiquement.
+                </p>
               </div>
             </div>
           </Link>
         </div>
 
-        <div className="px-4 mt-6">
-          <div className="grid grid-cols-4 gap-4">
-            <button
-              onClick={() => navigate("/about")}
-              className="flex flex-col items-center gap-2"
-              data-testid="button-about"
+        <div className="px-4 mt-5">
+          <Link href="/gift-code">
+            <div
+              className="flex items-center justify-between py-4 border-b"
+              style={{ borderColor: "#2a2a4a" }}
+              data-testid="button-gift-code"
             >
-              <div className="w-14 h-14 rounded-2xl bg-pink-100 flex items-center justify-center">
-                <Info className="w-7 h-7 text-pink-400" />
+              <div className="flex items-center gap-3">
+                <Gift className="w-5 h-5 text-gray-400" />
+                <span className="text-white text-sm">Echanger la r{"\u00e9"}compense</span>
               </div>
-              <span className="text-xs text-gray-600 text-center leading-tight">a propos de nous</span>
-            </button>
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            </div>
+          </Link>
 
-            <button
-              onClick={goToService}
-              className="flex flex-col items-center gap-2"
-              data-testid="button-support"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
-                <Headphones className="w-7 h-7 text-amber-500" />
-              </div>
-              <span className="text-xs text-gray-600 text-center leading-tight">Service Client</span>
-            </button>
-
-            <Link href="/gift-code">
-              <button className="flex flex-col items-center gap-2" data-testid="button-gift-code">
-                <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center">
-                  <Gift className="w-7 h-7 text-orange-500" />
-                </div>
-                <span className="text-xs text-gray-600 text-center leading-tight">Code Cadeau</span>
-              </button>
-            </Link>
-
-            <button
-              onClick={() => navigate("/rules")}
-              className="flex flex-col items-center gap-2"
-              data-testid="button-rules"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-pink-100 flex items-center justify-center">
-                <FileText className="w-7 h-7 text-pink-400" />
-              </div>
-              <span className="text-xs text-gray-600 text-center leading-tight">Regles de la plateforme</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-4 gap-4 mt-4">
-            <button
-              onClick={() => navigate("/wallet")}
-              className="flex flex-col items-center gap-2"
-              data-testid="button-wallet"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
-                <CreditCard className="w-7 h-7 text-blue-500" />
-              </div>
-              <span className="text-xs text-gray-600 text-center leading-tight">Lier le compte de portefeuille</span>
-            </button>
-
-            <button
-              onClick={() => navigate("/change-password")}
-              className="flex flex-col items-center gap-2"
-              data-testid="button-change-password"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
-                <Lock className="w-7 h-7 text-amber-500" />
-              </div>
-              <span className="text-xs text-gray-600 text-center leading-tight">Changer le mot de passe</span>
-            </button>
-
-            {user.isAdmin && (
-              <button
-                onClick={handleAdminClick}
-                className="flex flex-col items-center gap-2"
-                data-testid="button-admin"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center">
-                  <Shield className="w-7 h-7 text-red-500" />
-                </div>
-                <span className="text-xs text-gray-600 text-center leading-tight">Panel Admin</span>
-              </button>
-            )}
-
-            <button
-              onClick={() => navigate("/history")}
-              className="flex flex-col items-center gap-2"
+          <Link href="/history">
+            <div
+              className="flex items-center justify-between py-4 border-b"
+              style={{ borderColor: "#2a2a4a" }}
               data-testid="button-history"
             >
-              <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
-                <History className="w-7 h-7 text-gray-500" />
+              <div className="flex items-center gap-3">
+                <ClipboardList className="w-5 h-5 text-gray-400" />
+                <span className="text-white text-sm">Enregistrement</span>
               </div>
-              <span className="text-xs text-gray-600 text-center leading-tight">Historique</span>
-            </button>
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            </div>
+          </Link>
 
-            <button
-              onClick={handleLogout}
-              className="flex flex-col items-center gap-2"
-              data-testid="button-logout"
+          <Link href="/orders">
+            <div
+              className="flex items-center justify-between py-4 border-b"
+              style={{ borderColor: "#2a2a4a" }}
+              data-testid="button-transactions"
             >
-              <div className="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center">
-                <LogOut className="w-7 h-7 text-red-500" />
+              <div className="flex items-center gap-3">
+                <ClipboardList className="w-5 h-5 text-gray-400" />
+                <span className="text-white text-sm">Transactions</span>
               </div>
-              <span className="text-xs text-gray-600 text-center leading-tight">Deconnexion</span>
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            </div>
+          </Link>
+
+          <button
+            onClick={() => navigate("/change-password")}
+            className="w-full flex items-center justify-between py-4 border-b"
+            style={{ borderColor: "#2a2a4a" }}
+            data-testid="button-change-password"
+          >
+            <div className="flex items-center gap-3">
+              <Lock className="w-5 h-5 text-gray-400" />
+              <span className="text-white text-sm">Changer le mot de passe</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-500" />
+          </button>
+
+          <Link href="/rules">
+            <div
+              className="flex items-center justify-between py-4 border-b"
+              style={{ borderColor: "#2a2a4a" }}
+              data-testid="button-rules"
+            >
+              <div className="flex items-center gap-3">
+                <BookOpen className="w-5 h-5 text-gray-400" />
+                <span className="text-white text-sm">Guide utilisateur</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            </div>
+          </Link>
+
+          {user.isAdmin && (
+            <button
+              onClick={handleAdminClick}
+              className="w-full flex items-center justify-between py-4 border-b"
+              style={{ borderColor: "#2a2a4a" }}
+              data-testid="button-admin"
+            >
+              <div className="flex items-center gap-3">
+                <Shield className="w-5 h-5 text-gray-400" />
+                <span className="text-white text-sm">Panel Admin</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-500" />
             </button>
-          </div>
+          )}
+
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-between py-4"
+            data-testid="button-logout"
+          >
+            <div className="flex items-center gap-3">
+              <LogOut className="w-5 h-5 text-red-400" />
+              <span className="text-red-400 text-sm">D{"\u00e9"}connexion</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-red-400" />
+          </button>
         </div>
       </div>
       
