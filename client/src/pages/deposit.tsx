@@ -63,7 +63,7 @@ export default function DepositPage() {
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
-  const minDeposit = 5000;
+  const minDeposit = 3000;
 
   const { data: soleaspayData } = useQuery<SoleaspayServices>({
     queryKey: ["/api/soleaspay/services"],
@@ -381,7 +381,7 @@ export default function DepositPage() {
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
             <h2 className="font-bold text-gray-800 text-sm">
-              Montant du depot Le plus bas ( {currency} {minDeposit.toLocaleString()} )
+              Montant du depot le plus bas ( {currency} {minDeposit.toLocaleString()} )
             </h2>
           </div>
           <div className="border border-gray-200 rounded-lg p-3">
@@ -533,10 +533,10 @@ export default function DepositPage() {
           </div>
           <div className="space-y-2 text-sm text-gray-600 leading-relaxed">
             <p className="font-medium text-gray-700">*Instructions de depot:</p>
-            <p>1. Le montant minimum du depot est de {minDeposit.toLocaleString()} {currency}. Les virements inferieurs a {minDeposit.toLocaleString()} {currency} ne pourront pas aboutir.</p>
-            <p>2. Chaque fois que vous rechargez, vous devez soumettre a nouveau la demande de recharge pour obtenir le dernier numero de recharge de la plateforme a transferer. Veuillez ne pas transferer vers l'ancien numero de recharge, sinon le compte ne sera pas credite.</p>
-            <p>3. Si le depot est reussi, le montant sera credite sur votre compte dans un delai de 1 a 5 minutes.</p>
-            <p>4. Effectuez la premiere recharge et achetez des produits ELF pour activer la fonction de retrait.</p>
+            <p>1. Le montant minimum de depot est de {minDeposit.toLocaleString()} {currency}. Les virements inferieurs a {minDeposit.toLocaleString()} {currency} ne pourront pas etre credites sur le compte.</p>
+            <p>2. A chaque recharge, vous devez soumettre une nouvelle demande pour obtenir le dernier numero de recharge de la plateforme. Veuillez ne pas transferer vers un ancien numero, sinon le compte ne sera pas credite.</p>
+            <p>3. Apres un depot reussi, le montant sera credite sur votre compte dans un delai de 1 a 5 minutes.</p>
+            <p>4. Effectuez votre premiere recharge et achetez des produits ELF pour activer la fonction de retrait.</p>
           </div>
         </div>
       </div>
