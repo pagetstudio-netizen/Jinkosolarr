@@ -12,7 +12,7 @@ export const INPAY_COUNTRY_PREFIX: Record<string, string> = {
   TG: "228",
   BJ: "229",
   CI: "225",
-  CG: "243",
+  CG: "242",
   CD: "243",
   SN: "221",
   ML: "223",

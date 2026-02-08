@@ -87,6 +87,16 @@ Preferred communication style: Simple, everyday language.
 - `DATABASE_URL`: PostgreSQL connection string
 - `SESSION_SECRET`: Secret for session encryption (optional, has fallback)
 
+## Recent Changes (February 2026)
+- Integrated InPay Africa payment gateway for automated deposits and withdrawals
+- InPay supports: payin (deposits), payout (withdrawals), webhooks, balance check
+- InPay replaces/supplements Soleaspay for mobile money payments across all supported countries
+- Added webhook endpoints: POST /api/webhooks/inpay/payin and /api/webhooks/inpay/payout
+- Admin can approve withdrawals via InPay automatic payout or manual approval
+- Admin can check InPay merchant balance via GET /api/admin/inpay/balance
+- InPay credentials stored as secrets: INPAY_MERCHANT_ID, INPAY_API_KEY, INPAY_BASE_URL
+- Platform setting `inpayEnabled` controls InPay availability (default: true)
+
 ## Recent Changes (January 2026)
 - Completed full frontend implementation with all pages and modals
 - Implemented complete backend with all API routes
