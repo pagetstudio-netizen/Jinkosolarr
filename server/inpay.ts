@@ -1,10 +1,29 @@
 import crypto from "crypto";
 
-const INPAY_CONFIG = {
-  merchantId: process.env.INPAY_MERCHANT_ID || "",
-  apiKey: process.env.INPAY_API_KEY || "",
-  baseUrl: process.env.INPAY_BASE_URL || "https://v175361856367348.inpayafrica.net",
+interface InpayCredentials {
+  merchantId: string;
+  apiKey: string;
+  baseUrl: string;
+}
+
+const INPAY_COUNTRY_CREDENTIALS: Record<string, InpayCredentials> = {
+  TG: {
+    merchantId: process.env.INPAY_MERCHANT_ID || "",
+    apiKey: process.env.INPAY_API_KEY || "",
+    baseUrl: process.env.INPAY_BASE_URL || "",
+  },
+  BF: {
+    merchantId: process.env.INPAY_BF_MERCHANT_ID || "",
+    apiKey: process.env.INPAY_BF_API_KEY || "",
+    baseUrl: process.env.INPAY_BF_BASE_URL || "",
+  },
 };
+
+function getCredentials(countryCode: string): InpayCredentials | null {
+  const creds = INPAY_COUNTRY_CREDENTIALS[countryCode];
+  if (!creds || !creds.merchantId || !creds.apiKey || !creds.baseUrl) return null;
+  return creds;
+}
 
 export const INPAY_COUNTRY_PREFIX: Record<string, string> = {
   CM: "237",
@@ -63,7 +82,7 @@ export const INPAY_BANK_CODES: Record<string, Record<string, string>> = {
   },
 };
 
-function generateSign(params: Record<string, string>): string {
+function generateSign(params: Record<string, string>, apiKey: string): string {
   const filtered: Record<string, string> = {};
   for (const [key, value] of Object.entries(params)) {
     if (value !== "" && value !== undefined && value !== null && key !== "sign") {
@@ -73,11 +92,11 @@ function generateSign(params: Record<string, string>): string {
 
   const sortedKeys = Object.keys(filtered).sort();
   const queryString = sortedKeys.map(k => `${k}=${filtered[k]}`).join("&");
-  const stringSignTemp = `${queryString}&key=${INPAY_CONFIG.apiKey}`;
+  const stringSignTemp = `${queryString}&key=${apiKey}`;
   return crypto.createHash("md5").update(stringSignTemp).digest("hex").toLowerCase();
 }
 
-export function verifySign(data: Record<string, string>): boolean {
+export function verifySign(data: Record<string, string>, countryCode?: string): boolean {
   const receivedSign = data.sign;
   if (!receivedSign) return false;
 
@@ -88,12 +107,25 @@ export function verifySign(data: Record<string, string>): boolean {
     }
   }
 
-  const calculatedSign = generateSign(params);
-  return receivedSign.toLowerCase() === calculatedSign;
+  if (countryCode) {
+    const creds = getCredentials(countryCode);
+    if (creds) {
+      const calculatedSign = generateSign(params, creds.apiKey);
+      return receivedSign.toLowerCase() === calculatedSign;
+    }
+  }
+
+  for (const creds of Object.values(INPAY_COUNTRY_CREDENTIALS)) {
+    if (!creds.apiKey) continue;
+    const calculatedSign = generateSign(params, creds.apiKey);
+    if (receivedSign.toLowerCase() === calculatedSign) return true;
+  }
+
+  return false;
 }
 
 export function isInpaySupported(country: string): boolean {
-  return !!INPAY_COUNTRY_PREFIX[country];
+  return !!INPAY_COUNTRY_PREFIX[country] && !!getCredentials(country);
 }
 
 export function getBankCode(country: string, paymentMethod: string): string | null {
@@ -160,10 +192,15 @@ export async function initiatePayin(params: {
     throw new Error(`Pays non supporte par InPay: ${params.countryCode}`);
   }
 
+  const creds = getCredentials(params.countryCode);
+  if (!creds) {
+    throw new Error(`Pas de credentials InPay pour: ${params.countryCode}`);
+  }
+
   const roundedAmount = Math.ceil(params.amount / 5) * 5;
 
   const data: Record<string, string> = {
-    merchantid: INPAY_CONFIG.merchantId,
+    merchantid: creds.merchantId,
     out_trade_no: params.outTradeNo,
     total_fee: roundedAmount.toFixed(2),
     notify_url: params.notifyUrl,
@@ -174,9 +211,9 @@ export async function initiatePayin(params: {
     country_prefix: countryPrefix,
   };
 
-  data.sign = generateSign(data);
+  data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${INPAY_CONFIG.baseUrl}/inpays/payin/unifiedorder`, {
+  const response = await fetch(`${creds.baseUrl}/inpays/payin/unifiedorder`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -186,16 +223,21 @@ export async function initiatePayin(params: {
   return result;
 }
 
-export async function queryPayin(outTradeNo: string): Promise<InpayQueryResponse> {
+export async function queryPayin(outTradeNo: string, countryCode: string): Promise<InpayQueryResponse> {
+  const creds = getCredentials(countryCode);
+  if (!creds) {
+    throw new Error(`Pas de credentials InPay pour: ${countryCode}`);
+  }
+
   const data: Record<string, string> = {
-    merchantid: INPAY_CONFIG.merchantId,
+    merchantid: creds.merchantId,
     out_trade_no: outTradeNo,
     timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 
-  data.sign = generateSign(data);
+  data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${INPAY_CONFIG.baseUrl}/inpays/payin/query`, {
+  const response = await fetch(`${creds.baseUrl}/inpays/payin/query`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -220,10 +262,15 @@ export async function initiatePayout(params: {
     throw new Error(`Pays non supporte par InPay: ${params.countryCode}`);
   }
 
+  const creds = getCredentials(params.countryCode);
+  if (!creds) {
+    throw new Error(`Pas de credentials InPay pour: ${params.countryCode}`);
+  }
+
   const roundedAmount = Math.ceil(params.amount / 5) * 5;
 
   const data: Record<string, string> = {
-    merchantid: INPAY_CONFIG.merchantId,
+    merchantid: creds.merchantId,
     out_trade_no: params.outTradeNo,
     total_fee: roundedAmount.toFixed(2),
     notify_url: params.notifyUrl,
@@ -236,9 +283,9 @@ export async function initiatePayout(params: {
     country_prefix: countryPrefix,
   };
 
-  data.sign = generateSign(data);
+  data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${INPAY_CONFIG.baseUrl}/inpays/payout/unifiedorder`, {
+  const response = await fetch(`${creds.baseUrl}/inpays/payout/unifiedorder`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -247,16 +294,21 @@ export async function initiatePayout(params: {
   return await response.json() as InpayPayoutResponse;
 }
 
-export async function queryPayout(outTradeNo: string): Promise<InpayQueryResponse> {
+export async function queryPayout(outTradeNo: string, countryCode: string): Promise<InpayQueryResponse> {
+  const creds = getCredentials(countryCode);
+  if (!creds) {
+    throw new Error(`Pas de credentials InPay pour: ${countryCode}`);
+  }
+
   const data: Record<string, string> = {
-    merchantid: INPAY_CONFIG.merchantId,
+    merchantid: creds.merchantId,
     out_trade_no: outTradeNo,
     timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 
-  data.sign = generateSign(data);
+  data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${INPAY_CONFIG.baseUrl}/inpays/payout/query`, {
+  const response = await fetch(`${creds.baseUrl}/inpays/payout/query`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -265,21 +317,32 @@ export async function queryPayout(outTradeNo: string): Promise<InpayQueryRespons
   return await response.json() as InpayQueryResponse;
 }
 
-export async function getPayoutBalance(): Promise<InpayBalanceResponse> {
+export async function getPayoutBalance(countryCode?: string): Promise<InpayBalanceResponse> {
+  const creds = countryCode ? getCredentials(countryCode) : getCredentials("TG");
+  if (!creds) {
+    throw new Error(`Pas de credentials InPay pour: ${countryCode || "TG"}`);
+  }
+
   const data: Record<string, string> = {
-    merchantid: INPAY_CONFIG.merchantId,
+    merchantid: creds.merchantId,
     timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 
-  data.sign = generateSign(data);
+  data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${INPAY_CONFIG.baseUrl}/inpays/payout/balance`, {
+  const response = await fetch(`${creds.baseUrl}/inpays/payout/balance`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
   return await response.json() as InpayBalanceResponse;
+}
+
+export function getConfiguredCountries(): string[] {
+  return Object.entries(INPAY_COUNTRY_CREDENTIALS)
+    .filter(([_, creds]) => creds.merchantId && creds.apiKey && creds.baseUrl)
+    .map(([code]) => code);
 }
 
 export function mapInpayPayinStatus(status: string): "pending" | "approved" | "rejected" {

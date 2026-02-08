@@ -22,6 +22,7 @@ import {
   verifySign,
   isInpaySupported,
   getBankCode,
+  getConfiguredCountries,
   mapInpayPayinStatus,
   mapInpayPayoutStatus,
   INPAY_BANK_CODES,
@@ -565,7 +566,7 @@ export async function registerRoutes(
 
       if (deposit.inpayOutTradeNo) {
         try {
-          const queryResult = await queryPayin(deposit.inpayOutTradeNo);
+          const queryResult = await queryPayin(deposit.inpayOutTradeNo, deposit.country);
           if (queryResult.code === 0 && queryResult.data) {
             const newStatus = mapInpayPayinStatus(queryResult.data.status);
 
@@ -794,6 +795,7 @@ export async function registerRoutes(
       res.json({
         enabled: inpayEnabled,
         bankCodes: INPAY_BANK_CODES,
+        configuredCountries: getConfiguredCountries(),
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1300,9 +1302,10 @@ export async function registerRoutes(
   // Admin InPay balance check
   app.get("/api/admin/inpay/balance", requireAdmin, async (req, res) => {
     try {
-      const result = await getPayoutBalance();
+      const country = (req.query.country as string) || "TG";
+      const result = await getPayoutBalance(country);
       if (result.code === 0 && result.data) {
-        res.json({ balance: result.data.balance });
+        res.json({ balance: result.data.balance, country });
       } else {
         res.status(400).json({ message: result.message || "Erreur InPay" });
       }

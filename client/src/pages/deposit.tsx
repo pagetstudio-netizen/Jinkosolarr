@@ -24,6 +24,7 @@ interface SoleaspayServices {
 interface InpayServices {
   enabled: boolean;
   bankCodes: Record<string, Record<string, string>>;
+  configuredCountries: string[];
 }
 
 interface DepositResponse {
@@ -84,6 +85,7 @@ export default function DepositPage() {
   const soleaspayServices = soleaspayData?.services ?? {};
   const inpayEnabled = inpayData?.enabled ?? false;
   const inpayBankCodes = inpayData?.bankCodes ?? {};
+  const inpayConfiguredCountries = inpayData?.configuredCountries ?? [];
   const moneyFusionLink = settings?.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0";
   const moneyFusionCountries = ["CG", "BF"];
   const isMoneyFusionUser = user?.country ? moneyFusionCountries.includes(user.country) : false;
@@ -116,7 +118,8 @@ export default function DepositPage() {
   const isInpayAvailable = Boolean(
     inpayEnabled &&
     selectedCountry &&
-    inpayBankCodes[selectedCountry]
+    inpayBankCodes[selectedCountry] &&
+    inpayConfiguredCountries.includes(selectedCountry)
   );
 
   const isAutoPaymentAvailable = isInpayAvailable || isSoleaspayAvailable;

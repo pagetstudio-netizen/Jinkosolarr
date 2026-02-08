@@ -94,8 +94,12 @@ Preferred communication style: Simple, everyday language.
 - Added webhook endpoints: POST /api/webhooks/inpay/payin and /api/webhooks/inpay/payout
 - Admin can approve withdrawals via InPay automatic payout or manual approval
 - Admin can check InPay merchant balance via GET /api/admin/inpay/balance
-- InPay credentials stored as secrets: INPAY_MERCHANT_ID, INPAY_API_KEY, INPAY_BASE_URL
+- InPay uses per-country credentials (each country has its own merchant account)
+- Togo credentials: INPAY_MERCHANT_ID, INPAY_API_KEY, INPAY_BASE_URL
+- Burkina Faso credentials: INPAY_BF_MERCHANT_ID, INPAY_BF_API_KEY, INPAY_BF_BASE_URL
+- To add a new country: add INPAY_{CC}_MERCHANT_ID, INPAY_{CC}_API_KEY, INPAY_{CC}_BASE_URL secrets and add entry to INPAY_COUNTRY_CREDENTIALS in server/inpay.ts
 - Platform setting `inpayEnabled` controls InPay availability (default: true)
+- /api/inpay/services returns configuredCountries list so frontend only shows InPay for countries with credentials
 
 ## Recent Changes (January 2026)
 - Completed full frontend implementation with all pages and modals
