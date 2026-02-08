@@ -13,6 +13,19 @@ import {
   mapSoleaspayStatus,
   SOLEASPAY_SERVICE_MAP 
 } from "./soleaspay";
+import {
+  initiatePayin,
+  queryPayin,
+  initiatePayout,
+  queryPayout,
+  getPayoutBalance,
+  verifySign,
+  isInpaySupported,
+  getBankCode,
+  mapInpayPayinStatus,
+  mapInpayPayoutStatus,
+  INPAY_BANK_CODES,
+} from "./inpay";
 
 declare module "express-session" {
   interface SessionData {
@@ -395,7 +408,7 @@ export async function registerRoutes(
   // Deposits
   app.post("/api/deposits", requireAuth, async (req, res) => {
     try {
-      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId, useSoleaspay } = req.body;
+      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId, useSoleaspay, useInpay } = req.body;
       const user = await storage.getUser(req.session.userId!);
       
       if (!user) {
@@ -412,8 +425,60 @@ export async function registerRoutes(
 
       const settings = await storage.getSettings();
       const soleaspayEnabled = settings.soleaspayEnabled !== "false";
+      const inpayEnabled = settings.inpayEnabled !== "false";
 
       const orderId = `ELF-${Date.now()}-${user.id}`;
+
+      if (useInpay && inpayEnabled && isInpaySupported(country)) {
+        try {
+          const baseUrl = process.env.REPLIT_DEV_DOMAIN
+            ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+            : process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : "https://elf.replit.app";
+
+          const paymentResult = await initiatePayin({
+            outTradeNo: orderId,
+            amount,
+            notifyUrl: `${baseUrl}/api/webhooks/inpay/payin`,
+            customerName: accountName,
+            customerMobile: accountNumber,
+            customerEmail: `user${user.id}@elf.com`,
+            countryCode: country,
+          });
+
+          if (paymentResult.code === 0 && paymentResult.data) {
+            const deposit = await storage.createDeposit({
+              userId: req.session.userId!,
+              amount,
+              accountName,
+              accountNumber,
+              country,
+              paymentMethod,
+              paymentChannelId,
+              status: "processing",
+              inpayOrderNumber: paymentResult.data.order_number,
+              inpayOutTradeNo: orderId,
+            });
+
+            return res.json({
+              deposit,
+              inpay: true,
+              paymentUrl: paymentResult.data.url,
+              orderNumber: paymentResult.data.order_number,
+            });
+          } else {
+            return res.status(400).json({
+              message: paymentResult.message || "Erreur InPay",
+              inpay: true,
+            });
+          }
+        } catch (inpayError: any) {
+          console.error("[inpay] Payment error:", inpayError);
+          return res.status(400).json({
+            message: inpayError.message || "Erreur de paiement InPay",
+            inpay: true,
+          });
+        }
+      }
       
       if (useSoleaspay && soleaspayEnabled && isSoleaspaySupported(country, paymentMethod)) {
         try {
@@ -474,13 +539,13 @@ export async function registerRoutes(
         status: "pending",
       });
 
-      res.json({ deposit, soleaspay: false });
+      res.json({ deposit, soleaspay: false, inpay: false });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
   });
 
-  // Verify Soleaspay payment status
+  // Verify payment status (Soleaspay or InPay)
   app.get("/api/deposits/:id/verify", requireAuth, async (req, res) => {
     try {
       const depositId = parseInt(req.params.id);
@@ -494,65 +559,101 @@ export async function registerRoutes(
         return res.status(403).json({ message: "Acces refuse" });
       }
 
-      if (!deposit.soleaspayReference || !deposit.soleaspayOrderId) {
-        return res.json({ 
-          status: deposit.status,
-          soleaspay: false 
-        });
-      }
-
       if (deposit.status === "approved" || deposit.status === "rejected") {
-        return res.json({ 
-          status: deposit.status,
-          soleaspay: true 
-        });
+        return res.json({ status: deposit.status });
       }
 
-      try {
-        const verifyResult = await verifyPayment(deposit.soleaspayOrderId, deposit.soleaspayReference);
-        const newStatus = mapSoleaspayStatus(verifyResult.status);
+      if (deposit.inpayOutTradeNo) {
+        try {
+          const queryResult = await queryPayin(deposit.inpayOutTradeNo);
+          if (queryResult.code === 0 && queryResult.data) {
+            const newStatus = mapInpayPayinStatus(queryResult.data.status);
 
-        if (newStatus !== "pending" && newStatus !== deposit.status) {
-          await storage.updateDeposit(depositId, { 
-            status: newStatus,
-            processedAt: new Date()
-          });
-
-          if (newStatus === "approved") {
-            const user = await storage.getUser(deposit.userId);
-            if (user) {
-              const newBalance = parseFloat(user.balance) + deposit.amount;
-              await storage.updateUser(deposit.userId, {
-                balance: newBalance.toFixed(2),
-                hasDeposited: true,
+            if (newStatus !== "pending" && newStatus !== deposit.status) {
+              await storage.updateDeposit(depositId, {
+                status: newStatus,
+                processedAt: new Date(),
               });
 
-              await storage.createTransaction({
-                userId: deposit.userId,
-                type: "deposit",
-                amount: deposit.amount.toString(),
-                description: `Depot Soleaspay #${deposit.id}`,
-              });
+              if (newStatus === "approved") {
+                const user = await storage.getUser(deposit.userId);
+                if (user) {
+                  const newBalance = parseFloat(user.balance) + deposit.amount;
+                  await storage.updateUser(deposit.userId, {
+                    balance: newBalance.toFixed(2),
+                    hasDeposited: true,
+                  });
 
-              await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
+                  await storage.createTransaction({
+                    userId: deposit.userId,
+                    type: "deposit",
+                    amount: deposit.amount.toString(),
+                    description: `Depot InPay #${deposit.id}`,
+                  });
+
+                  await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
+                }
+              }
+            }
+
+            return res.json({ status: newStatus, inpay: true });
+          }
+          return res.json({ status: deposit.status, inpay: true });
+        } catch (err: any) {
+          console.error("[inpay] Query payin error:", err);
+          return res.json({ status: deposit.status, inpay: true, error: "Erreur de verification" });
+        }
+      }
+
+      if (deposit.soleaspayReference && deposit.soleaspayOrderId) {
+        try {
+          const verifyResult = await verifyPayment(deposit.soleaspayOrderId, deposit.soleaspayReference);
+          const newStatus = mapSoleaspayStatus(verifyResult.status);
+
+          if (newStatus !== "pending" && newStatus !== deposit.status) {
+            await storage.updateDeposit(depositId, { 
+              status: newStatus,
+              processedAt: new Date()
+            });
+
+            if (newStatus === "approved") {
+              const user = await storage.getUser(deposit.userId);
+              if (user) {
+                const newBalance = parseFloat(user.balance) + deposit.amount;
+                await storage.updateUser(deposit.userId, {
+                  balance: newBalance.toFixed(2),
+                  hasDeposited: true,
+                });
+
+                await storage.createTransaction({
+                  userId: deposit.userId,
+                  type: "deposit",
+                  amount: deposit.amount.toString(),
+                  description: `Depot Soleaspay #${deposit.id}`,
+                });
+
+                await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
+              }
             }
           }
-        }
 
-        return res.json({ 
-          status: newStatus,
-          soleaspay: true,
-          soleaspayStatus: verifyResult.status,
-          message: verifyResult.message
-        });
-      } catch (verifyError: any) {
-        console.error("[soleaspay] Verify error:", verifyError);
-        return res.json({ 
-          status: deposit.status,
-          soleaspay: true,
-          error: "Erreur de verification"
-        });
+          return res.json({ 
+            status: newStatus,
+            soleaspay: true,
+            soleaspayStatus: verifyResult.status,
+            message: verifyResult.message
+          });
+        } catch (verifyError: any) {
+          console.error("[soleaspay] Verify error:", verifyError);
+          return res.json({ 
+            status: deposit.status,
+            soleaspay: true,
+            error: "Erreur de verification"
+          });
+        }
       }
+
+      return res.json({ status: deposit.status });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -562,6 +663,138 @@ export async function registerRoutes(
     try {
       const deposits = await storage.getUserDeposits(req.session.userId!);
       res.json(deposits);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // InPay Payin Webhook (no auth - called by InPay server)
+  app.post("/api/webhooks/inpay/payin", async (req, res) => {
+    try {
+      const data = req.body;
+      console.log("[inpay] Payin webhook received:", JSON.stringify(data));
+
+      if (!verifySign(data)) {
+        console.error("[inpay] Payin webhook: invalid signature");
+        return res.status(400).send("Sign error");
+      }
+
+      const outTradeNo = data.out_trade_no;
+      const status = data.status;
+
+      const allDeposits = await storage.getDeposits();
+      const deposit = allDeposits.find((d: any) => d.inpayOutTradeNo === outTradeNo);
+
+      if (!deposit) {
+        console.error("[inpay] Payin webhook: deposit not found for", outTradeNo);
+        return res.status(404).send("Order not found");
+      }
+
+      if (deposit.status === "approved" || deposit.status === "rejected") {
+        return res.send("success");
+      }
+
+      const newStatus = mapInpayPayinStatus(status);
+
+      if (newStatus !== "pending") {
+        await storage.updateDeposit(deposit.id, {
+          status: newStatus,
+          processedAt: new Date(),
+        });
+
+        if (newStatus === "approved") {
+          const user = await storage.getUser(deposit.userId);
+          if (user) {
+            const newBalance = parseFloat(user.balance) + deposit.amount;
+            await storage.updateUser(deposit.userId, {
+              balance: newBalance.toFixed(2),
+              hasDeposited: true,
+            });
+
+            await storage.createTransaction({
+              userId: deposit.userId,
+              type: "deposit",
+              amount: deposit.amount.toString(),
+              description: `Depot InPay #${deposit.id}`,
+            });
+
+            await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
+          }
+        }
+
+        console.log(`[inpay] Payin webhook: deposit ${deposit.id} updated to ${newStatus}`);
+      }
+
+      res.send("success");
+    } catch (error: any) {
+      console.error("[inpay] Payin webhook error:", error);
+      res.status(500).send("error");
+    }
+  });
+
+  // InPay Payout Webhook (no auth - called by InPay server)
+  app.post("/api/webhooks/inpay/payout", async (req, res) => {
+    try {
+      const data = req.body;
+      console.log("[inpay] Payout webhook received:", JSON.stringify(data));
+
+      if (!verifySign(data)) {
+        console.error("[inpay] Payout webhook: invalid signature");
+        return res.status(400).send("Sign error");
+      }
+
+      const outTradeNo = data.out_trade_no;
+      const status = data.status;
+
+      const allWithdrawals = await storage.getWithdrawals();
+      const withdrawal = allWithdrawals.find((w: any) => w.inpayOutTradeNo === outTradeNo);
+
+      if (!withdrawal) {
+        console.error("[inpay] Payout webhook: withdrawal not found for", outTradeNo);
+        return res.status(404).send("Order not found");
+      }
+
+      if (withdrawal.status === "approved" || withdrawal.status === "rejected") {
+        return res.send("success");
+      }
+
+      const newStatus = mapInpayPayoutStatus(status);
+
+      if (newStatus !== "pending") {
+        await storage.updateWithdrawal(withdrawal.id, {
+          status: newStatus,
+          processedAt: new Date(),
+        });
+
+        if (newStatus === "rejected") {
+          const user = await storage.getUser(withdrawal.userId);
+          if (user) {
+            const refundBalance = parseFloat(user.balance) + withdrawal.amount;
+            await storage.updateUser(withdrawal.userId, {
+              balance: refundBalance.toFixed(2),
+            });
+          }
+        }
+
+        console.log(`[inpay] Payout webhook: withdrawal ${withdrawal.id} updated to ${newStatus}`);
+      }
+
+      res.send("success");
+    } catch (error: any) {
+      console.error("[inpay] Payout webhook error:", error);
+      res.status(500).send("error");
+    }
+  });
+
+  // InPay services info endpoint
+  app.get("/api/inpay/services", async (_req, res) => {
+    try {
+      const settings = await storage.getSettings();
+      const inpayEnabled = settings.inpayEnabled !== "false";
+      res.json({
+        enabled: inpayEnabled,
+        bankCodes: INPAY_BANK_CODES,
+      });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -955,13 +1188,69 @@ export async function registerRoutes(
 
   app.post("/api/admin/withdrawals/:id/approve", requireAdmin, async (req, res) => {
     try {
-      const withdrawal = await storage.updateWithdrawal(parseInt(req.params.id), {
+      const { useInpayPayout } = req.body || {};
+      const withdrawalId = parseInt(req.params.id);
+      const existingWithdrawal = await storage.getWithdrawals();
+      const withdrawalData = existingWithdrawal.find(w => w.id === withdrawalId);
+      
+      if (!withdrawalData) {
+        return res.status(404).json({ message: "Retrait non trouve" });
+      }
+
+      const settings = await storage.getSettings();
+      const inpayEnabled = settings.inpayEnabled !== "false";
+
+      if (useInpayPayout && inpayEnabled && isInpaySupported(withdrawalData.country)) {
+        const bankCode = getBankCode(withdrawalData.country, withdrawalData.paymentMethod);
+        if (!bankCode) {
+          return res.status(400).json({ message: `Methode de paiement non supportee par InPay: ${withdrawalData.paymentMethod}` });
+        }
+
+        const outTradeNo = `PAYOUT-${Date.now()}-${withdrawalData.userId}`;
+        const baseUrl = process.env.REPLIT_DEV_DOMAIN
+          ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+          : process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : "https://elf.replit.app";
+
+        try {
+          const user = await storage.getUser(withdrawalData.userId);
+          const payoutResult = await initiatePayout({
+            outTradeNo,
+            amount: withdrawalData.netAmount,
+            notifyUrl: `${baseUrl}/api/webhooks/inpay/payout`,
+            bankCode,
+            accountNumber: withdrawalData.accountNumber,
+            customerName: withdrawalData.accountName,
+            customerMobile: withdrawalData.accountNumber,
+            customerEmail: user ? `user${user.id}@elf.com` : "customer@elf.com",
+            countryCode: withdrawalData.country,
+          });
+
+          if (payoutResult.code === 0) {
+            const withdrawal = await storage.updateWithdrawal(withdrawalId, {
+              status: "processing",
+              inpayOutTradeNo: outTradeNo,
+              inpayOrderNumber: payoutResult.data?.orderNumber || "",
+              processedBy: req.session.userId,
+            });
+
+            await storage.logAdminAction(req.session.userId!, "approve_withdrawal_inpay", withdrawalData.userId, `Retrait ${withdrawalId} envoyé via InPay: ${withdrawalData.netAmount}F`);
+            return res.json({ ...withdrawal, inpayPayout: true });
+          } else {
+            return res.status(400).json({ message: payoutResult.message || "Erreur InPay payout" });
+          }
+        } catch (inpayErr: any) {
+          console.error("[inpay] Payout error:", inpayErr);
+          return res.status(400).json({ message: inpayErr.message || "Erreur InPay" });
+        }
+      }
+
+      const withdrawal = await storage.updateWithdrawal(withdrawalId, {
         status: "approved",
         processedAt: new Date(),
         processedBy: req.session.userId,
       });
 
-      await storage.logAdminAction(req.session.userId!, "approve_withdrawal", withdrawal.userId, `Retrait ${withdrawal.id} approuvé: ${withdrawal.netAmount}F`);
+      await storage.logAdminAction(req.session.userId!, "approve_withdrawal", withdrawalData.userId, `Retrait ${withdrawal.id} approuvé: ${withdrawalData.netAmount}F`);
       res.json(withdrawal);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -1003,6 +1292,20 @@ export async function registerRoutes(
         return { ...user, password: undefined, ...teamStats, referrerName: null };
       }));
       res.json({ users: usersWithTeam, total, page, limit, totalPages: Math.ceil(total / limit) });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin InPay balance check
+  app.get("/api/admin/inpay/balance", requireAdmin, async (req, res) => {
+    try {
+      const result = await getPayoutBalance();
+      if (result.code === 0 && result.data) {
+        res.json({ balance: result.data.balance });
+      } else {
+        res.status(400).json({ message: result.message || "Erreur InPay" });
+      }
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

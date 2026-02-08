@@ -21,14 +21,24 @@ interface SoleaspayServices {
   services: Record<string, Record<string, number>>;
 }
 
+interface InpayServices {
+  enabled: boolean;
+  bankCodes: Record<string, Record<string, string>>;
+}
+
 interface DepositResponse {
   deposit: {
     id: number;
     status: string;
     soleaspayReference?: string;
     soleaspayOrderId?: string;
+    inpayOutTradeNo?: string;
+    inpayOrderNumber?: string;
   };
-  soleaspay: boolean;
+  soleaspay?: boolean;
+  inpay?: boolean;
+  paymentUrl?: string;
+  orderNumber?: string;
   reference?: string;
   status?: string;
   message?: string;
@@ -58,6 +68,10 @@ export default function DepositPage() {
     queryKey: ["/api/soleaspay/services"],
   });
 
+  const { data: inpayData } = useQuery<InpayServices>({
+    queryKey: ["/api/inpay/services"],
+  });
+
   const { data: paymentChannels = [] } = useQuery<PaymentChannel[]>({
     queryKey: ["/api/payment-channels"],
   });
@@ -68,8 +82,9 @@ export default function DepositPage() {
 
   const soleaspayEnabled = soleaspayData?.enabled ?? false;
   const soleaspayServices = soleaspayData?.services ?? {};
+  const inpayEnabled = inpayData?.enabled ?? false;
+  const inpayBankCodes = inpayData?.bankCodes ?? {};
   const moneyFusionLink = settings?.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0";
-  // Pays utilisant MoneyFusion au lieu de Soleaspay
   const moneyFusionCountries = ["CG", "BF"];
   const isMoneyFusionUser = user?.country ? moneyFusionCountries.includes(user.country) : false;
 
@@ -90,7 +105,6 @@ export default function DepositPage() {
   };
 
   const paymentMethods = selectedCountry ? getPaymentMethodsForCountry(selectedCountry) : [];
-  // Soleaspay n'est pas disponible pour les pays MoneyFusion (CG, BF)
   const isSoleaspayAvailable = Boolean(
     soleaspayEnabled && 
     selectedCountry && 
@@ -98,6 +112,14 @@ export default function DepositPage() {
     selectedPaymentMethod && 
     soleaspayServices[selectedCountry]?.[selectedPaymentMethod] !== undefined
   );
+
+  const isInpayAvailable = Boolean(
+    inpayEnabled &&
+    selectedCountry &&
+    inpayBankCodes[selectedCountry]
+  );
+
+  const isAutoPaymentAvailable = isInpayAvailable || isSoleaspayAvailable;
 
   useEffect(() => {
     return () => {
@@ -154,12 +176,22 @@ export default function DepositPage() {
       country: string; 
       paymentChannelId: number;
       useSoleaspay: boolean;
+      useInpay: boolean;
     }) => {
       const res = await apiRequest("POST", "/api/deposits", data);
       return res.json() as Promise<DepositResponse>;
     },
     onSuccess: (data) => {
-      if (data.soleaspay) {
+      if (data.inpay && data.paymentUrl) {
+        setCurrentDepositId(data.deposit.id);
+        setPaymentStatus("pending");
+        startPolling(data.deposit.id);
+        window.open(data.paymentUrl, "_blank");
+        toast({
+          title: "Paiement initie",
+          description: "Completez le paiement dans la page ouverte",
+        });
+      } else if (data.soleaspay) {
         setCurrentDepositId(data.deposit.id);
         setPaymentStatus("pending");
         startPolling(data.deposit.id);
@@ -172,7 +204,6 @@ export default function DepositPage() {
           title: "Demande envoyee",
           description: "Votre demande de depot est en attente de validation",
         });
-        // Rediriger les utilisateurs MoneyFusion (Congo, Burkina) vers le lien
         if (isMoneyFusionUser && moneyFusionLink) {
           window.open(moneyFusionLink, "_blank");
         } else if (selectedChannel?.redirectUrl) {
@@ -259,6 +290,7 @@ export default function DepositPage() {
       country: selectedCountry,
       paymentChannelId: channelId,
       useSoleaspay: isSoleaspayAvailable,
+      useInpay: isInpayAvailable,
     });
   };
 
@@ -354,7 +386,7 @@ export default function DepositPage() {
           </Link>
         </div>
 
-        {soleaspayEnabled && !isMoneyFusionUser && (
+        {isAutoPaymentAvailable && !isMoneyFusionUser && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <p className="text-sm text-green-700 font-medium">Paiement automatique active</p>
             <p className="text-xs text-green-600 mt-1">Le paiement sera traite instantanement</p>
@@ -465,7 +497,7 @@ export default function DepositPage() {
           />
         </div>
 
-        {!isSoleaspayAvailable && paymentChannels.filter(c => c.isActive).length > 0 && (
+        {!isAutoPaymentAvailable && paymentChannels.filter(c => c.isActive).length > 0 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Canal de recharge</label>
             <div className="grid grid-cols-2 gap-2">
@@ -493,7 +525,7 @@ export default function DepositPage() {
           className="w-full py-4 bg-gray-900 text-white font-semibold rounded-lg disabled:opacity-50"
           data-testid="button-submit-deposit"
         >
-          {depositMutation.isPending ? "Envoi en cours..." : isSoleaspayAvailable ? "Payer maintenant" : "Recharger"}
+          {depositMutation.isPending ? "Envoi en cours..." : isAutoPaymentAvailable ? "Payer maintenant" : "Recharger"}
         </button>
 
         <div className="bg-white rounded-lg p-4">

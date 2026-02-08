@@ -169,6 +169,7 @@ export async function seed() {
     { key: "level2Commission", value: "2" },
     { key: "level3Commission", value: "1" },
     { key: "soleaspayEnabled", value: "true" },
+    { key: "inpayEnabled", value: "true" },
   ];
 
   for (const settingData of requiredSettings) {
