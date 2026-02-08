@@ -27,7 +27,10 @@ const INPAY_COUNTRY_CREDENTIALS: Record<string, InpayCredentials> = {
 function getCredentials(countryCode: string): InpayCredentials | null {
   const creds = INPAY_COUNTRY_CREDENTIALS[countryCode];
   if (!creds || !creds.merchantId || !creds.apiKey || !creds.baseUrl) return null;
-  return creds;
+  return {
+    ...creds,
+    baseUrl: creds.baseUrl.replace(/\/+$/, ""),
+  };
 }
 
 export const INPAY_COUNTRY_PREFIX: Record<string, string> = {
@@ -218,14 +221,22 @@ export async function initiatePayin(params: {
 
   data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${creds.baseUrl}/inpays/payin/unifiedorder`, {
+  const url = `${creds.baseUrl}/inpays/payin/unifiedorder`;
+  console.log(`[inpay] Payin request to ${url} for country ${params.countryCode}, merchantId: ${creds.merchantId}`);
+
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
-  const result = await response.json() as InpayPayinResponse;
-  return result;
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as InpayPayinResponse;
+  } catch {
+    console.error(`[inpay] Payin response not JSON (${response.status}):`, text.substring(0, 500));
+    throw new Error(`InPay a retourne une reponse invalide (${response.status}). Verifiez les credentials pour ${params.countryCode}.`);
+  }
 }
 
 export async function queryPayin(outTradeNo: string, countryCode: string): Promise<InpayQueryResponse> {
@@ -248,7 +259,13 @@ export async function queryPayin(outTradeNo: string, countryCode: string): Promi
     body: JSON.stringify(data),
   });
 
-  return await response.json() as InpayQueryResponse;
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as InpayQueryResponse;
+  } catch {
+    console.error(`[inpay] Query payin response not JSON (${response.status}):`, text.substring(0, 500));
+    throw new Error(`InPay query invalide (${response.status})`);
+  }
 }
 
 export async function initiatePayout(params: {
@@ -290,13 +307,22 @@ export async function initiatePayout(params: {
 
   data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${creds.baseUrl}/inpays/payout/unifiedorder`, {
+  const url = `${creds.baseUrl}/inpays/payout/unifiedorder`;
+  console.log(`[inpay] Payout request to ${url} for country ${params.countryCode}, merchantId: ${creds.merchantId}`);
+
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
-  return await response.json() as InpayPayoutResponse;
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as InpayPayoutResponse;
+  } catch {
+    console.error(`[inpay] Payout response not JSON (${response.status}):`, text.substring(0, 500));
+    throw new Error(`InPay payout invalide (${response.status}). Verifiez les credentials pour ${params.countryCode}.`);
+  }
 }
 
 export async function queryPayout(outTradeNo: string, countryCode: string): Promise<InpayQueryResponse> {
@@ -319,7 +345,13 @@ export async function queryPayout(outTradeNo: string, countryCode: string): Prom
     body: JSON.stringify(data),
   });
 
-  return await response.json() as InpayQueryResponse;
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as InpayQueryResponse;
+  } catch {
+    console.error(`[inpay] Query payout response not JSON (${response.status}):`, text.substring(0, 500));
+    throw new Error(`InPay query payout invalide (${response.status})`);
+  }
 }
 
 export async function getPayoutBalance(countryCode?: string): Promise<InpayBalanceResponse> {
@@ -341,7 +373,13 @@ export async function getPayoutBalance(countryCode?: string): Promise<InpayBalan
     body: JSON.stringify(data),
   });
 
-  return await response.json() as InpayBalanceResponse;
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as InpayBalanceResponse;
+  } catch {
+    console.error(`[inpay] Balance response not JSON (${response.status}):`, text.substring(0, 500));
+    throw new Error(`InPay balance invalide (${response.status})`);
+  }
 }
 
 export function getConfiguredCountries(): string[] {
