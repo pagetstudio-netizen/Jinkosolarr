@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
-const PRESET_AMOUNTS = [3000, 5000, 15000, 25000, 50000, 100000];
+const PRESET_AMOUNTS = [5000, 10000, 20000, 50000, 100000, 200000, 300000, 400000, 800000];
 
 interface PaymentChannel {
   id: number;
@@ -63,7 +63,7 @@ export default function DepositPage() {
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
-  const minDeposit = 3000;
+  const minDeposit = 5000;
 
   const { data: soleaspayData } = useQuery<SoleaspayServices>({
     queryKey: ["/api/soleaspay/services"],
@@ -305,19 +305,19 @@ export default function DepositPage() {
         <div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
           {paymentStatus === "processing" && (
             <>
-              <Loader2 className="w-16 h-16 text-amber-500 animate-spin mx-auto mb-4" />
+              <Loader2 className="w-16 h-16 text-[#2196F3] animate-spin mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Traitement en cours</h3>
               <p className="text-gray-600 text-sm">Veuillez patienter...</p>
             </>
           )}
           {paymentStatus === "pending" && (
             <>
-              <Clock className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+              <Clock className="w-16 h-16 text-[#2196F3] mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">En attente de validation</h3>
               <p className="text-gray-600 text-sm mb-4">
                 Validez le paiement sur votre telephone mobile
               </p>
-              <div className="flex items-center justify-center gap-2 text-amber-600">
+              <div className="flex items-center justify-center gap-2 text-[#2196F3]">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="text-sm">Verification automatique...</span>
               </div>
@@ -362,65 +362,56 @@ export default function DepositPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="flex items-center px-4 py-3 border-b bg-white">
+      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#e0f7fa] to-white">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">
             <ArrowLeft className="w-5 h-5 text-gray-700" />
           </button>
         </Link>
-        <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-8">Recharger</h1>
+        <h1 className="text-lg font-semibold text-gray-800">Economiser</h1>
+        <Link href="/deposits-history">
+          <button className="p-2" data-testid="button-history">
+            <Clock className="w-5 h-5 text-[#2196F3]" />
+          </button>
+        </Link>
       </header>
 
-      <div className="p-4 space-y-6">
-        <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-500">Actifs totaux({currency})</p>
-            <p className="text-3xl font-bold text-gray-900">{parseFloat(user?.balance || "0").toLocaleString()}</p>
+      <div className="p-4 space-y-5">
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+            <h2 className="font-bold text-gray-800 text-sm">
+              Montant du depot Le plus bas ( {currency} {minDeposit.toLocaleString()} )
+            </h2>
           </div>
-          <Link href="/deposits-history">
-            <button className="flex items-center gap-1 px-3 py-1 border rounded-full text-sm text-gray-600" data-testid="button-facture">
-              Facture
-              <span className="text-amber-600">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </span>
-            </button>
-          </Link>
+          <div className="border border-gray-200 rounded-lg p-3">
+            <div className="grid grid-cols-3 gap-2">
+              {PRESET_AMOUNTS.map((presetAmount) => (
+                <button
+                  key={presetAmount}
+                  onClick={() => handlePresetClick(presetAmount)}
+                  className={`py-2.5 px-2 rounded-full border text-center text-sm font-medium transition-colors ${
+                    amount === presetAmount
+                      ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
+                      : "border-gray-300 bg-white text-gray-700"
+                  }`}
+                  data-testid={`button-preset-${presetAmount}`}
+                >
+                  {presetAmount.toLocaleString()}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {isAutoPaymentAvailable && !isMoneyFusionUser && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-sm text-green-700 font-medium">Paiement automatique active</p>
-            <p className="text-xs text-green-600 mt-1">Le paiement sera traite instantanement</p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-3 gap-3">
-          {PRESET_AMOUNTS.map((presetAmount) => (
-            <button
-              key={presetAmount}
-              onClick={() => handlePresetClick(presetAmount)}
-              className={`py-3 px-2 rounded-lg border-2 text-center font-medium transition-colors ${
-                amount === presetAmount
-                  ? "border-gray-900 bg-gray-900 text-white"
-                  : "border-gray-300 bg-white text-gray-800 hover:border-gray-400"
-              }`}
-              data-testid={`button-preset-${presetAmount}`}
-            >
-              {presetAmount.toLocaleString()}
-            </button>
-          ))}
-        </div>
-
-        <div className="bg-white rounded-lg border p-4">
-          <label className="block text-sm text-gray-500 mb-2">Montant de recharge</label>
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
+          <span className="font-bold text-gray-800 text-sm">{currency}</span>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-            placeholder="Entrez le montant de recharge"
-            className="w-full text-lg outline-none"
+            placeholder="Veuillez entrer le montant de la recharge"
+            className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
             data-testid="input-deposit-amount"
           />
         </div>
@@ -435,9 +426,9 @@ export default function DepositPage() {
                   setSelectedCountry(country.code);
                   setSelectedPaymentMethod("");
                 }}
-                className={`p-3 rounded-lg border text-center font-medium transition-colors ${
+                className={`p-2.5 rounded-lg border text-center text-sm font-medium transition-colors ${
                   selectedCountry === country.code
-                    ? "border-amber-500 bg-amber-50 text-amber-700"
+                    ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
                     : "border-gray-200 bg-white text-gray-700"
                 }`}
                 data-testid={`button-country-${country.code}`}
@@ -456,16 +447,19 @@ export default function DepositPage() {
 
         {selectedCountry && paymentMethods.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Moyen de paiement</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+              <h2 className="font-bold text-gray-800 text-sm">Canal de depot</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {paymentMethods.map((method) => (
                 <button
                   key={method}
                   onClick={() => setSelectedPaymentMethod(method)}
-                  className={`p-3 rounded-lg border text-center font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                     selectedPaymentMethod === method
-                      ? "border-amber-500 bg-amber-50 text-amber-700"
-                      : "border-gray-200 bg-white text-gray-700"
+                      ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
+                      : "border-gray-300 bg-white text-gray-700"
                   }`}
                   data-testid={`button-method-${method}`}
                 >
@@ -476,42 +470,43 @@ export default function DepositPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-lg border p-4">
-          <label className="block text-sm text-gray-500 mb-2">Nom du titulaire du compte</label>
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
           <input
             type="text"
             value={accountName}
             onChange={(e) => setAccountName(e.target.value)}
-            placeholder="Ex: Jean Dupont"
-            className="w-full text-lg outline-none"
+            placeholder="Nom du titulaire du compte"
+            className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
             data-testid="input-account-name"
           />
         </div>
 
-        <div className="bg-white rounded-lg border p-4">
-          <label className="block text-sm text-gray-500 mb-2">Numero de telephone ({selectedPaymentMethod || "Mobile Money"})</label>
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
           <input
             type="tel"
             value={accountNumber}
             onChange={(e) => setAccountNumber(e.target.value)}
-            placeholder="Ex: 99123456"
-            className="w-full text-lg outline-none"
+            placeholder={`Numero ${selectedPaymentMethod || "Mobile Money"}`}
+            className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
             data-testid="input-account-number"
           />
         </div>
 
         {!isAutoPaymentAvailable && paymentChannels.filter(c => c.isActive).length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Canal de recharge</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+              <h2 className="font-bold text-gray-800 text-sm">Canal de recharge</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {paymentChannels.filter(c => c.isActive).map((channel) => (
                 <button
                   key={channel.id}
                   onClick={() => setSelectedChannel(channel)}
-                  className={`p-3 rounded-lg border text-center font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
                     selectedChannel?.id === channel.id
-                      ? "border-green-500 bg-green-50 text-green-700"
-                      : "border-gray-200 bg-white text-gray-700"
+                      ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
+                      : "border-gray-300 bg-white text-gray-700"
                   }`}
                   data-testid={`button-channel-${channel.id}`}
                 >
@@ -525,21 +520,24 @@ export default function DepositPage() {
         <button
           onClick={handleSubmit}
           disabled={depositMutation.isPending || paymentStatus !== "idle" || !amount || !selectedPaymentMethod || !accountName || !accountNumber}
-          className="w-full py-4 bg-gray-900 text-white font-semibold rounded-lg disabled:opacity-50"
+          className="w-full py-3.5 bg-[#78c5d6] text-white font-semibold rounded-full disabled:opacity-50 text-base"
           data-testid="button-submit-deposit"
         >
-          {depositMutation.isPending ? "Envoi en cours..." : isAutoPaymentAvailable ? "Payer maintenant" : "Recharger"}
+          {depositMutation.isPending ? "Envoi en cours..." : "Depot immediat"}
         </button>
 
-        <div className="bg-white rounded-lg p-4">
-          <h3 className="font-semibold text-gray-800 mb-3">Conseils de recharge</h3>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            <span className="font-bold">1. Montant minimum de depot : {currency}{minDeposit}.</span> A chaque depot, 
-            vous devez saisir le mode de paiement fourni par la plateforme pour recevoir les informations 
-            relatives a votre commande, et effectuer le depot et le paiement conformement au montant demande ; 
-            dans le cas contraire, le montant de la commande ne sera pas pris en compte et ne pourra pas etre 
-            credite sur votre compte.
-          </p>
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+            <h2 className="font-bold text-gray-800 text-sm">Description du depot</h2>
+          </div>
+          <div className="space-y-2 text-sm text-gray-600 leading-relaxed">
+            <p className="font-medium text-gray-700">*Instructions de depot:</p>
+            <p>1. Le montant minimum du depot est de {minDeposit.toLocaleString()} {currency}. Les virements inferieurs a {minDeposit.toLocaleString()} {currency} ne pourront pas aboutir.</p>
+            <p>2. Chaque fois que vous rechargez, vous devez soumettre a nouveau la demande de recharge pour obtenir le dernier numero de recharge de la plateforme a transferer. Veuillez ne pas transferer vers l'ancien numero de recharge, sinon le compte ne sera pas credite.</p>
+            <p>3. Si le depot est reussi, le montant sera credite sur votre compte dans un delai de 1 a 5 minutes.</p>
+            <p>4. Effectuez la premiere recharge et achetez des produits ELF pour activer la fonction de retrait.</p>
+          </div>
         </div>
       </div>
 

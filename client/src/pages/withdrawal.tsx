@@ -3,8 +3,8 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ChevronRight, Wallet } from "lucide-react";
-import { Link, useLocation, useRoute } from "wouter";
+import { ArrowLeft, Plus, ChevronRight, Clock } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode, getPaymentMethodsForCountry } from "@/lib/countries";
 import {
@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface Wallet {
+interface WalletData {
   id: number;
   userId: number;
   accountName: string;
@@ -34,7 +34,7 @@ export default function WithdrawalPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number | "">("");
-  const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<WalletData | null>(null);
   const [showWalletDialog, setShowWalletDialog] = useState(false);
   const [showAddWalletDialog, setShowAddWalletDialog] = useState(false);
   const [newWalletName, setNewWalletName] = useState("");
@@ -65,7 +65,7 @@ export default function WithdrawalPage() {
   const currentHour = new Date().getHours();
   const isWithinWithdrawalHours = currentHour >= withdrawalStartHour && currentHour < withdrawalEndHour;
 
-  const { data: wallets = [] } = useQuery<Wallet[]>({
+  const { data: wallets = [] } = useQuery<WalletData[]>({
     queryKey: ["/api/wallets"],
   });
 
@@ -172,18 +172,25 @@ export default function WithdrawalPage() {
   if (wallets.length === 0) {
     return (
       <div className="min-h-screen bg-white">
-        <header className="flex items-center px-4 py-3 border-b bg-white">
+        <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#e0f7fa] to-white">
           <Link href="/account">
             <button className="p-2" data-testid="button-back">
               <ArrowLeft className="w-5 h-5 text-gray-700" />
             </button>
           </Link>
-          <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-8">Retrait</h1>
+          <h1 className="text-lg font-semibold text-gray-800">Les retraits</h1>
+          <Link href="/history">
+            <button className="p-2" data-testid="button-history">
+              <Clock className="w-5 h-5 text-[#2196F3]" />
+            </button>
+          </Link>
         </header>
 
         <div className="flex flex-col items-center justify-center p-8 mt-20">
-          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mb-6">
-            <Wallet className="w-10 h-10 text-amber-600" />
+          <div className="w-20 h-20 bg-[#e0f7fa] rounded-full flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-[#26a69a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+            </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-800 mb-2 text-center">Aucun portefeuille</h2>
           <p className="text-gray-500 text-center mb-6">
@@ -191,7 +198,7 @@ export default function WithdrawalPage() {
           </p>
           <Button 
             onClick={() => navigate("/account")}
-            className="bg-amber-500 hover:bg-amber-600 text-white px-6"
+            className="bg-[#26a69a] text-white px-6"
             data-testid="button-go-to-wallet"
           >
             Ajouter un portefeuille
@@ -203,54 +210,75 @@ export default function WithdrawalPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="flex items-center px-4 py-3 border-b bg-white">
+      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#e0f7fa] to-white">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">
             <ArrowLeft className="w-5 h-5 text-gray-700" />
           </button>
         </Link>
-        <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-8">Retrait</h1>
+        <h1 className="text-lg font-semibold text-gray-800">Les retraits</h1>
+        <Link href="/history">
+          <button className="p-2" data-testid="button-history">
+            <Clock className="w-5 h-5 text-[#26a69a]" />
+          </button>
+        </Link>
       </header>
 
-      <div className="p-4 space-y-6">
-        <div 
-          className="rounded-lg p-4 flex items-center justify-between bg-gradient-to-r from-amber-800 to-amber-700"
-        >
-          <div>
-            <p className="text-3xl font-bold text-white">{parseFloat(user?.balance || "0").toLocaleString()}</p>
-            <p className="text-sm text-amber-200">Solde restant ({currency})</p>
-            <Link href="/deposit-history">
-              <button className="mt-2 px-4 py-1 bg-amber-500 text-white text-sm font-medium rounded-full">
-                Enregistrement
-              </button>
-            </Link>
-          </div>
-          <div className="w-16 h-16 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center shadow-lg">
-              <span className="text-2xl font-bold text-amber-800">$</span>
-            </div>
-          </div>
+      <div className="px-4 pt-2 pb-4">
+        <div className="bg-gradient-to-r from-[#b2dfdb] via-[#80cbc4] to-[#e0f2f1] rounded-xl p-5">
+          <h2 className="text-2xl font-bold text-gray-800">{currency} {parseFloat(user?.balance || "0").toLocaleString()}</h2>
+          <p className="text-sm text-gray-600 mt-1">Solde du compte</p>
         </div>
+      </div>
 
+      <div className="px-4 space-y-5">
         <button
           onClick={() => wallets.length > 0 ? setShowWalletDialog(true) : setShowAddWalletDialog(true)}
-          className="w-full bg-white rounded-lg border p-4 flex items-center justify-between"
+          className="w-full bg-white rounded-lg border border-gray-200 p-4 flex items-center justify-between"
           data-testid="button-select-wallet"
         >
-          <span className="text-gray-600">
-            {selectedWallet ? (
-              <span className="text-gray-900 font-medium">{selectedWallet.accountName} - {selectedWallet.accountNumber}</span>
-            ) : (
-              "Selectionnez votre portefeuille"
-            )}
-          </span>
-          <ArrowLeft className="w-4 h-4 text-gray-400 rotate-180" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+              </svg>
+            </div>
+            <span className="text-gray-700 text-sm">
+              {selectedWallet ? (
+                <span className="font-medium">{selectedWallet.accountName} - {selectedWallet.accountNumber}</span>
+              ) : (
+                "Choisissez votre compte bancaire"
+              )}
+            </span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-gray-400" />
         </button>
 
-        <div className={`rounded-lg p-3 text-sm ${isWithinWithdrawalHours ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-orange-50 border border-orange-200 text-orange-700'}`}>
-          Horaires de retrait: {withdrawalStartHour}h - {withdrawalEndHour}h
-          {!isWithinWithdrawalHours && " (Ferme actuellement)"}
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">Montant du retrait</p>
+          <div className="border border-gray-200 rounded-lg px-4 py-3 flex items-center gap-3">
+            <span className="font-bold text-gray-800 text-sm">{currency}</span>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
+              placeholder="Veuillez entrer le montant de retrait"
+              className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
+              data-testid="input-withdrawal-amount"
+            />
+          </div>
         </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-600">Montant a recevoir {currency} {amountAfterFees.toLocaleString()}</span>
+          <span className="text-gray-500">La taxe {withdrawalFee}%</span>
+        </div>
+
+        {!isWithinWithdrawalHours && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-orange-700 text-sm">
+            Horaires de retrait: {withdrawalStartHour}h - {withdrawalEndHour}h (Ferme actuellement)
+          </div>
+        )}
 
         {!hasActiveProduct && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
@@ -258,53 +286,28 @@ export default function WithdrawalPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-lg border p-4">
-          <label className="block text-sm text-gray-500 mb-2">Montant ({currency})</label>
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-gray-900">{currency}</span>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-              placeholder="5000"
-              className="flex-1 text-xl outline-none"
-              data-testid="input-withdrawal-amount"
-            />
+        <div>
+          <h3 className="font-bold text-gray-800 text-sm mb-3">Instructions pour retraits</h3>
+          <div className="space-y-2 text-sm text-gray-600 leading-relaxed">
+            <p>1. L'heure de retrait est de {withdrawalStartHour}h00 a {withdrawalEndHour}h00 tous les jours et les retraits sont disponibles tous les jours.</p>
+            <p>2. Vous pouvez retirer de l'argent une fois par jour.</p>
+            <p>3. Le montant minimum de retrait est de {minWithdrawal} {currency}.</p>
+            <p>4. Des frais de traitement de {withdrawalFee} % seront factures pour les retraits ;</p>
+            <p>5. Retirez de l'argent aujourd'hui et il arrivera demain. Le delai d'arrivee ne depassera pas 48 heures ;</p>
+            <p>6. Si le retrait echoue, veuillez verifier soigneusement si les informations bancaires que vous avez renseignees sont correctes, puis soumettez a nouveau la demande de retrait ou utilisez d'autres banques pour retirer de l'argent ;</p>
+            <p>7. Effectuez la premiere recharge et achetez des produits ELF pour activer la fonction de retrait ;</p>
           </div>
-          {amount && Number(amount) > 0 && (
-            <div className="border-t mt-3 pt-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-500">Frais ({withdrawalFee}%)</span>
-                <span className="text-red-500">-{Math.floor(Number(amount) * withdrawalFee / 100).toLocaleString()} {currency}</span>
-              </div>
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-gray-700 font-medium">Montant a recevoir</span>
-                <span className="text-green-600 font-bold text-lg">{amountAfterFees.toLocaleString()} {currency}</span>
-              </div>
-            </div>
-          )}
         </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
-          className="w-full py-4 bg-amber-100 border-2 border-amber-400 text-amber-700 font-semibold rounded-full disabled:opacity-50"
-          data-testid="button-submit-withdrawal"
-        >
-          {withdrawMutation.isPending ? "Envoi en cours..." : "Retirer de l'argent"}
-        </button>
-
-        <div className="bg-white rounded-lg p-4 space-y-3">
-          <h3 className="font-semibold text-gray-800">Conseils</h3>
-          <p className="text-sm text-gray-600">
-            1. Les retraits sont disponibles de 9h00 a 18h00.
-          </p>
-          <p className="text-sm text-gray-600">
-            2. Le montant minimum par retrait est de {minWithdrawal} {currency}, avec des frais de {withdrawalFee}%.
-          </p>
-          <p className="text-sm text-gray-600">
-            3. Les fonds seront credites sur votre compte dans un delai de 1h a 24h apres la demande de retrait.
-          </p>
+        <div className="pb-6">
+          <button
+            onClick={handleSubmit}
+            disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
+            className="w-full py-3.5 bg-[#78c5d6] text-white font-semibold rounded-full disabled:opacity-50 text-base"
+            data-testid="button-submit-withdrawal"
+          >
+            {withdrawMutation.isPending ? "Envoi en cours..." : "Retirer de l'argent"}
+          </button>
         </div>
       </div>
 
@@ -322,7 +325,7 @@ export default function WithdrawalPage() {
                   setShowWalletDialog(false);
                 }}
                 className={`w-full p-3 rounded-lg border text-left ${
-                  selectedWallet?.id === wallet.id ? "border-amber-500 bg-amber-50" : "border-gray-200"
+                  selectedWallet?.id === wallet.id ? "border-[#26a69a] bg-[#e0f7fa]" : "border-gray-200"
                 }`}
                 data-testid={`button-wallet-${wallet.id}`}
               >
@@ -392,7 +395,7 @@ export default function WithdrawalPage() {
             <button
               onClick={handleAddWallet}
               disabled={addWalletMutation.isPending}
-              className="w-full py-3 bg-amber-500 text-white font-semibold rounded-lg disabled:opacity-50"
+              className="w-full py-3 bg-[#26a69a] text-white font-semibold rounded-lg disabled:opacity-50"
               data-testid="button-save-wallet"
             >
               {addWalletMutation.isPending ? "Enregistrement..." : "Enregistrer"}
