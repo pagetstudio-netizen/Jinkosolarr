@@ -17,6 +17,11 @@ const INPAY_COUNTRY_CREDENTIALS: Record<string, InpayCredentials> = {
     apiKey: process.env.INPAY_BF_API_KEY || "",
     baseUrl: process.env.INPAY_BF_BASE_URL || "",
   },
+  CI: {
+    merchantId: process.env.INPAY_CI_MERCHANT_ID || "",
+    apiKey: process.env.INPAY_CI_API_KEY || "",
+    baseUrl: process.env.INPAY_CI_BASE_URL || "",
+  },
 };
 
 function getCredentials(countryCode: string): InpayCredentials | null {
