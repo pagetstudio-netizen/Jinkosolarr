@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { formatCurrency, getCountryByCode } from "@/lib/countries";
-import { Loader2, AlertTriangle, Gift, Wallet } from "lucide-react";
+import { Loader2, AlertTriangle, Settings, DollarSign } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 import product1 from "@/assets/images/product-1.jpg";
@@ -31,6 +31,7 @@ export default function InvestPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
+  const [activeTab, setActiveTab] = useState<"sale" | "presale">("sale");
 
   const { data: products, isLoading } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
@@ -40,7 +41,6 @@ export default function InvestPage() {
     queryKey: ["/api/user/products"],
   });
 
-  
   const purchaseMutation = useMutation({
     mutationFn: async (productId: number) => {
       const response = await apiRequest("POST", `/api/products/${productId}/purchase`, {});
@@ -66,7 +66,6 @@ export default function InvestPage() {
   if (!user) return null;
 
   const balance = parseFloat(user.balance || "0");
-  const totalEarnings = parseFloat(user.totalEarnings || "0");
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
 
@@ -94,53 +93,80 @@ export default function InvestPage() {
   const paidProducts = products?.filter(p => !p.isFree) || [];
 
   return (
-    <div className="flex flex-col min-h-full bg-white">
-      <header className="px-4 py-3 border-b">
-        <h1 className="text-sm font-semibold text-gray-700 text-center">Investissement dans les produits ELF</h1>
-      </header>
-
-      <div className="grid grid-cols-2 gap-3 px-4 pt-4">
-        <div className="bg-gradient-to-r from-pink-400 to-pink-300 rounded-xl p-4 text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <p className="text-xl font-bold" data-testid="text-active-products">
-              {activeProductsCount}
-            </p>
-            <p className="text-xs opacity-90 mt-1">Produits actifs</p>
+    <div className="flex flex-col min-h-full bg-gray-50">
+      <div className="bg-gradient-to-b from-blue-100 to-gray-50 px-4 pt-4 pb-2">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+              <Settings className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-xl font-bold text-gray-800" data-testid="text-active-products">
+                {activeProductsCount}
+              </p>
+              <p className="text-xs text-gray-500">Mes Produits</p>
+            </div>
           </div>
-          <div className="absolute right-2 bottom-2 opacity-80">
-            <Gift className="w-10 h-10" />
-          </div>
-        </div>
-        <div className="bg-gradient-to-r from-pink-400 to-pink-300 rounded-xl p-4 text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <p className="text-xl font-bold" data-testid="text-product-revenue">
-              {totalProductRevenue.toLocaleString()} {currency}
-            </p>
-            <p className="text-xs opacity-90 mt-1">Revenu total produits</p>
-          </div>
-          <div className="absolute right-2 bottom-2 opacity-80">
-            <Wallet className="w-10 h-10" />
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-xl font-bold text-gray-800" data-testid="text-product-revenue">
+                {currency} {totalProductRevenue.toLocaleString()}
+              </p>
+              <p className="text-xs text-gray-500">Mes revenus</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-20 px-4 pt-4">
-        {isLoading ? (
-          <div className="space-y-4">
+      <div className="flex px-4 pt-3 bg-gray-50">
+        <button
+          onClick={() => setActiveTab("sale")}
+          className={`flex-1 pb-2 text-sm font-medium text-center border-b-2 transition-colors ${
+            activeTab === "sale" 
+              ? "border-blue-500 text-blue-600" 
+              : "border-transparent text-gray-400"
+          }`}
+          data-testid="tab-products-sale"
+        >
+          Produits en vente
+        </button>
+        <button
+          onClick={() => setActiveTab("presale")}
+          className={`flex-1 pb-2 text-sm font-medium text-center border-b-2 transition-colors ${
+            activeTab === "presale" 
+              ? "border-blue-500 text-blue-600" 
+              : "border-transparent text-gray-400"
+          }`}
+          data-testid="tab-products-presale"
+        >
+          Produits en pre-vente
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto pb-20 px-4 pt-3">
+        {activeTab === "presale" ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-sm">Aucun produit en pre-vente pour le moment</p>
+          </div>
+        ) : isLoading ? (
+          <div className="space-y-3">
             {Array(4).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-40 w-full rounded-xl" />
+              <Skeleton key={i} className="h-32 w-full rounded-xl" />
             ))}
           </div>
         ) : paidProducts.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {paidProducts.map((product, index) => (
               <div 
                 key={product.id} 
-                className="bg-white rounded-xl p-4 shadow-sm border"
+                className="bg-white rounded-xl p-4 shadow-sm"
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-24 h-24 flex-shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-20 h-20 flex-shrink-0">
                     <img 
                       src={getProductImage(index)} 
                       alt={product.name}
@@ -148,27 +174,40 @@ export default function InvestPage() {
                     />
                   </div>
 
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <p className="text-gray-600 text-[13px]">Prix : <span className="text-red-500 font-bold">{product.price.toLocaleString()} Fcfa</span></p>
-                    <p className="text-gray-600 text-[13px]">Gains/jour : <span className="text-green-500 font-medium">{product.dailyEarnings.toLocaleString()} Fcfa</span></p>
-                    <p className="text-gray-600 text-[13px]">Duree : <span className="text-blue-500 font-medium">{product.cycleDays} Jours</span></p>
-                    <p className="text-gray-600 text-[13px]">Gains total : <span className="text-orange-500 font-medium">{product.totalReturn.toLocaleString()} Fcfa</span></p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-800 text-sm mb-1" data-testid={`text-product-name-${product.id}`}>
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      Prix: <span className="text-red-500 font-semibold">{product.price.toLocaleString()} {currency}</span>
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Revenu quotidien: <span className="text-orange-500 font-semibold">{product.dailyEarnings.toLocaleString()} {currency}</span>
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Revenu total: <span className="text-orange-500 font-semibold">{product.totalReturn.toLocaleString()} {currency}</span>
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Periode de revenu: <span className="text-gray-700 font-semibold">{product.cycleDays} jours</span>
+                    </p>
                   </div>
+
+                  <Button
+                    onClick={() => handleBuyClick(product)}
+                    size="sm"
+                    className="rounded-full shrink-0"
+                    data-testid={`button-purchase-${product.id}`}
+                  >
+                    Acheter
+                  </Button>
                 </div>
-                <button
-                  onClick={() => handleBuyClick(product)}
-                  className="w-full mt-3 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
-                  data-testid={`button-purchase-${product.id}`}
-                >
-                  Acheter
-                </button>
               </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
-            <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Aucun produit disponible</p>
+            <Settings className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-400">Aucun produit disponible</p>
           </div>
         )}
       </div>
@@ -185,19 +224,19 @@ export default function InvestPage() {
           {confirmProduct && (
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-bold text-red-500 text-lg">{confirmProduct.name}</h4>
+                <h4 className="font-bold text-blue-600 text-lg">{confirmProduct.name}</h4>
                 <div className="mt-2 space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Prix:</span>
-                    <span className="font-medium">{confirmProduct.price.toLocaleString()} Fcfa</span>
+                    <span className="font-medium">{confirmProduct.price.toLocaleString()} {currency}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Gains quotidiens:</span>
-                    <span className="font-medium text-green-500">{confirmProduct.dailyEarnings.toLocaleString()} Fcfa</span>
+                    <span className="font-medium text-green-500">{confirmProduct.dailyEarnings.toLocaleString()} {currency}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Revenu total:</span>
-                    <span className="font-medium text-green-500">{confirmProduct.totalReturn.toLocaleString()} Fcfa</span>
+                    <span className="font-medium text-green-500">{confirmProduct.totalReturn.toLocaleString()} {currency}</span>
                   </div>
                 </div>
               </div>
@@ -221,13 +260,13 @@ export default function InvestPage() {
           )}
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setConfirmProduct(null)}>
+            <Button variant="outline" onClick={() => setConfirmProduct(null)} data-testid="button-cancel-purchase">
               Annuler
             </Button>
             <Button 
               onClick={confirmPurchase}
               disabled={purchaseMutation.isPending || !!(confirmProduct && balance < confirmProduct.price)}
-              className="bg-green-600 hover:bg-green-700"
+              data-testid="button-confirm-purchase"
             >
               {purchaseMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
