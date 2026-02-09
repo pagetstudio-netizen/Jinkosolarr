@@ -10,16 +10,12 @@ import { formatCurrency, getCountryByCode } from "@/lib/countries";
 import { Loader2, AlertTriangle, Settings, DollarSign } from "lucide-react";
 import type { Product } from "@shared/schema";
 
-import product1 from "@/assets/images/product-1.jpg";
-import product2 from "@/assets/images/product-2.webp";
-import product3 from "@/assets/images/product-3.webp";
-import product4 from "@/assets/images/product-4.webp";
-import product5 from "@/assets/images/product-5.webp";
-import product6 from "@/assets/images/product-6.webp";
-import product7 from "@/assets/images/product-7.webp";
-import product8 from "@/assets/images/product-8.webp";
+import elfExpert1 from "@/assets/images/elf-expert-1.jpeg";
+import elfExpert2 from "@/assets/images/elf-expert-2.webp";
+import elfStation1 from "@/assets/images/elf-station-1.jpg";
+import elfStation2 from "@/assets/images/elf-station-2.jpeg";
 
-const productImages = [product1, product2, product3, product4, product5, product6, product7, product8];
+const productImages = [elfExpert1, elfExpert2, elfStation1, elfStation2];
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
