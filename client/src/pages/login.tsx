@@ -78,8 +78,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen relative flex flex-col overflow-hidden bg-white">
       <div className="relative z-10 flex-1 flex flex-col">
-        <div className="w-full">
+        <div className="w-full relative">
           <img src={authBanner} alt="ELF" className="w-full object-cover" />
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
         </div>
 
         <div className="relative z-10 bg-white dark:bg-gray-900 rounded-t-3xl px-6 pt-8 pb-10 -mt-6">
