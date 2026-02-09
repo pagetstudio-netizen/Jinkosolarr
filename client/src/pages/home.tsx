@@ -23,7 +23,7 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slideInterval = useRef<NodeJS.Timeout | null>(null);
 
-  const bannerSlides = [bannerPlatform, bannerService];
+  const bannerSlides = [heroImg, bannerPlatform, bannerService];
 
   const { data: userProducts } = useQuery<any[]>({
     queryKey: ["/api/user-products"],
