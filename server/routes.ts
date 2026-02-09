@@ -1689,7 +1689,21 @@ export async function registerRoutes(
   app.patch("/api/admin/banners/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const banner = await storage.updateBannerImage(id, req.body);
+      const { imageData, isActive, sortOrder } = req.body;
+      const updateData: any = {};
+      if (typeof imageData === "string") updateData.imageData = imageData;
+      if (typeof isActive === "boolean") {
+        if (!isActive) {
+          const allBanners = await storage.getActiveBannerImages();
+          const activeCount = allBanners.filter(b => b.id !== id).length;
+          if (activeCount < 1) {
+            return res.status(400).json({ message: "Il doit rester au moins une banniere active" });
+          }
+        }
+        updateData.isActive = isActive;
+      }
+      if (typeof sortOrder === "number") updateData.sortOrder = sortOrder;
+      const banner = await storage.updateBannerImage(id, updateData);
       await storage.logAdminAction(req.session.userId!, "update_banner", null, `Banniere #${id} modifiee`);
       res.json(banner);
     } catch (error: any) {
