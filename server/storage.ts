@@ -818,31 +818,39 @@ export class DatabaseStorage implements IStorage {
     const user = await this.getUser(userId);
     if (!user) return [];
 
-    // Get level 1 referrals
     const level1Refs = await this.getReferrals(userId, 1);
     
-    // Check which ones have actually RECHARGED and PURCHASED a product
-    const validInvites: User[] = [];
+    let currentInvites = 0;
     for (const ref of level1Refs) {
-      // Must have performed a deposit that was approved
-      const refDeposits = await db.select().from(deposits)
-        .where(and(eq(deposits.userId, ref.id), eq(deposits.status, "approved")));
+      const hasApprovedDeposit = ref.hasDeposited === true;
       
-      // Must have purchased at least one paid product (not free)
+      if (!hasApprovedDeposit) {
+        const refDeposits = await db.select().from(deposits)
+          .where(and(eq(deposits.userId, ref.id), eq(deposits.status, "approved")))
+          .limit(1);
+        if (refDeposits.length > 0) {
+          currentInvites++;
+          continue;
+        }
+      } else {
+        currentInvites++;
+        continue;
+      }
+
       const refProducts = await db.select()
         .from(userProducts)
         .innerJoin(products, eq(userProducts.productId, products.id))
         .where(and(
           eq(userProducts.userId, ref.id),
           eq(products.isFree, false)
-        ));
+        ))
+        .limit(1);
 
-      if (refDeposits.length > 0 && refProducts.length > 0) {
-        validInvites.push(ref);
+      if (refProducts.length > 0) {
+        currentInvites++;
       }
     }
 
-    const currentInvites = validInvites.length;
     const completedTasks = await db.select().from(userTasks).where(eq(userTasks.userId, userId));
     const completedIds = new Set(completedTasks.map(t => t.taskId));
 
