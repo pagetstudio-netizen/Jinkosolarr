@@ -1,10 +1,10 @@
 import { 
   users, products, userProducts, deposits, withdrawals, withdrawalWallets,
   paymentChannels, referralCommissions, tasks, userTasks, transactions, platformSettings, adminAuditLog,
-  giftCodes, giftCodeClaims,
+  giftCodes, giftCodeClaims, bannerImages,
   type User, type Product, type UserProduct, type Deposit, type Withdrawal, type WithdrawalWallet,
   type PaymentChannel, type ReferralCommission, type Task, type UserTask, type Transaction, type PlatformSetting,
-  type GiftCode, type GiftCodeClaim
+  type GiftCode, type GiftCodeClaim, type BannerImage
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, gte, lte, or } from "drizzle-orm";
@@ -95,6 +95,13 @@ export interface IStorage {
   deleteGiftCode(id: number): Promise<void>;
   hasUserClaimedGiftCode(userId: number, giftCodeId: number): Promise<boolean>;
   claimGiftCode(userId: number, giftCodeId: number, amount: number): Promise<void>;
+
+  // Banner Images
+  getBannerImages(): Promise<BannerImage[]>;
+  getActiveBannerImages(): Promise<BannerImage[]>;
+  createBannerImage(data: Partial<BannerImage>): Promise<BannerImage>;
+  updateBannerImage(id: number, data: Partial<BannerImage>): Promise<BannerImage>;
+  deleteBannerImage(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1065,6 +1072,32 @@ export class DatabaseStorage implements IStorage {
         description: `Bonus code cadeau`
       });
     });
+  }
+
+  async getBannerImages(): Promise<BannerImage[]> {
+    return await db.select().from(bannerImages).orderBy(bannerImages.sortOrder);
+  }
+
+  async getActiveBannerImages(): Promise<BannerImage[]> {
+    return await db.select().from(bannerImages).where(eq(bannerImages.isActive, true)).orderBy(bannerImages.sortOrder);
+  }
+
+  async createBannerImage(data: Partial<BannerImage>): Promise<BannerImage> {
+    const maxOrder = await db.select({ max: sql<number>`COALESCE(MAX(${bannerImages.sortOrder}), 0)` }).from(bannerImages);
+    const [banner] = await db.insert(bannerImages).values({
+      ...data,
+      sortOrder: (maxOrder[0]?.max || 0) + 1,
+    } as any).returning();
+    return banner;
+  }
+
+  async updateBannerImage(id: number, data: Partial<BannerImage>): Promise<BannerImage> {
+    const [banner] = await db.update(bannerImages).set(data).where(eq(bannerImages.id, id)).returning();
+    return banner;
+  }
+
+  async deleteBannerImage(id: number): Promise<void> {
+    await db.delete(bannerImages).where(eq(bannerImages.id, id));
   }
 }
 
