@@ -12,8 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import { Loader2, Eye, EyeOff, Smartphone, Lock, ChevronDown } from "lucide-react";
-import authBgVideo from "@/assets/videos/auth-background.mp4";
-import elfLogo from "@/assets/images/fanuc-logo.png";
+import authBanner from "@assets/file_000000008af071f5ba7601c65d2d6fc9_1770651769766.png";
 
 const loginSchema = z.object({
   phone: z.string().min(8, "Numero de telephone invalide"),
@@ -77,25 +76,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col overflow-hidden">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src={authBgVideo} type="video/mp4" />
-      </video>
-      
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-white/95" />
-
+    <div className="min-h-screen relative flex flex-col overflow-hidden bg-white">
       <div className="relative z-10 flex-1 flex flex-col">
-        <div className="flex-1 flex items-center justify-center pt-16 pb-8">
-          <img src={elfLogo} alt="ELF" className="h-24" />
+        <div className="w-full">
+          <img src={authBanner} alt="ELF" className="w-full object-cover" />
         </div>
 
-        <div className="relative z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-t-3xl px-6 pt-8 pb-10">
+        <div className="relative z-10 bg-white dark:bg-gray-900 rounded-t-3xl px-6 pt-8 pb-10 -mt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
