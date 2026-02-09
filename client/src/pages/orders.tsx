@@ -43,12 +43,12 @@ export default function OrdersPage() {
           onClick={() => setActiveTab("active")}
           className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
             activeTab === "active"
-              ? "text-orange-500 border-b-2 border-orange-500"
+              ? "text-[#2196F3] border-b-2 border-[#2196F3]"
               : "text-gray-500"
           }`}
           data-testid="orders-tab-active"
         >
-          <span className="w-2 h-2 rounded-full bg-orange-400"></span>
+          <span className="w-2 h-2 rounded-full bg-[#2196F3]"></span>
           En cours
         </button>
         <button
@@ -65,11 +65,11 @@ export default function OrdersPage() {
         </button>
       </div>
 
-      <div className="bg-orange-50 p-3 mx-4 mt-3 rounded-lg">
-        <p className="text-xs text-orange-700 leading-relaxed">
+      <div className="bg-blue-50 p-3 mx-4 mt-3 rounded-lg">
+        <p className="text-xs text-blue-700 leading-relaxed">
           Les revenus du produit sont credites automatiquement une fois toutes les 24 heures.
         </p>
-        <p className="text-xs text-orange-700 leading-relaxed mt-1">
+        <p className="text-xs text-blue-700 leading-relaxed mt-1">
           Vous pouvez acheter plusieurs machines pour augmenter vos revenus.
         </p>
       </div>
@@ -130,7 +130,7 @@ export default function OrdersPage() {
                           Duree : <span className="text-blue-500 font-medium">{up.product?.cycleDays || 0} Jours</span>
                         </p>
                         <p className="text-gray-600">
-                          Jours restants : <span className="text-orange-500 font-medium">{up.daysRemaining || 0}</span>
+                          Jours restants : <span className="text-[#2196F3] font-medium">{up.daysRemaining || 0}</span>
                         </p>
                         <p className="text-gray-600">
                           Total gagne : <span className="text-green-600 font-bold">{totalEarned.toLocaleString()} Fcfa</span>

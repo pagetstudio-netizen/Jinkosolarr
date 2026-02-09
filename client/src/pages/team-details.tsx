@@ -73,7 +73,7 @@ export default function TeamDetailsPage() {
       <header className="flex items-center px-4 py-3 border-b border-gray-100">
         <Link href="/team">
           <Button variant="ghost" size="icon" data-testid="button-back-team">
-            <ArrowLeft className="w-5 h-5 text-orange-500" />
+            <ArrowLeft className="w-5 h-5 text-[#2196F3]" />
           </Button>
         </Link>
         <h1 className="text-base font-bold text-blue-600 flex-1 text-center pr-10" data-testid="text-page-title">
@@ -88,18 +88,18 @@ export default function TeamDetailsPage() {
             onClick={() => setActiveLevel(level.num)}
             className={`py-3 text-center transition-colors border-b-2 ${
               activeLevel === level.num
-                ? "border-orange-500 bg-orange-50/50"
+                ? "border-[#2196F3] bg-blue-50/50"
                 : "border-transparent"
             }`}
             data-testid={`tab-level-${level.num}`}
           >
             <p className={`text-sm font-bold ${
-              activeLevel === level.num ? "text-orange-500" : "text-gray-500"
+              activeLevel === level.num ? "text-[#2196F3]" : "text-gray-500"
             }`}>
               {level.total.toLocaleString("en-US", { minimumFractionDigits: 2 })}
             </p>
             <p className={`text-[11px] mt-0.5 ${
-              activeLevel === level.num ? "text-orange-500" : "text-gray-400"
+              activeLevel === level.num ? "text-[#2196F3]" : "text-gray-400"
             }`}>
               Niveau {level.num}({level.count})
             </p>
@@ -128,7 +128,7 @@ export default function TeamDetailsPage() {
                 }`}
                 data-testid={`team-member-${member.id}`}
               >
-                <div className="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-full bg-[#2196F3] flex items-center justify-center shrink-0">
                   <span className="text-white text-sm font-bold">C</span>
                 </div>
                 <div className="flex-1 min-w-0">

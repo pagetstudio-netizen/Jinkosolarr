@@ -275,7 +275,7 @@ export default function WithdrawalPage() {
         </div>
 
         {!isWithinWithdrawalHours && (
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-orange-700 text-sm">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-700 text-sm">
             Horaires de retrait: {withdrawalStartHour}h - {withdrawalEndHour}h (Ferme actuellement)
           </div>
         )}

@@ -98,10 +98,10 @@ export default function TasksPage() {
       <header className="flex items-center px-4 py-3 border-b bg-white">
         <Link href="/">
           <button className="p-1" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-orange-500" />
+            <ChevronLeft className="w-6 h-6 text-[#2196F3]" />
           </button>
         </Link>
-        <h1 className="flex-1 text-center text-lg font-semibold text-orange-500 pr-6">Liste des taches</h1>
+        <h1 className="flex-1 text-center text-lg font-semibold text-[#2196F3] pr-6">Liste des taches</h1>
       </header>
 
       <div className="relative">
@@ -132,7 +132,7 @@ export default function TasksPage() {
               {dailyBonusStatus?.canClaim ? "Bonus 50F" : "Bonus 50F"}
             </button>
             <button 
-              className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg"
+              className="bg-[#2196F3] text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg"
               data-testid="button-claim-rewards"
               onClick={claimAllRewards}
               disabled={claimMutation.isPending}
@@ -170,8 +170,8 @@ export default function TasksPage() {
                   task.isCompleted 
                     ? "text-green-500" 
                     : task.canClaim 
-                      ? "text-orange-500" 
-                      : "text-orange-500"
+                      ? "text-[#2196F3]" 
+                      : "text-[#2196F3]"
                 }`}>
                   {task.isCompleted ? (
                     "Termine"

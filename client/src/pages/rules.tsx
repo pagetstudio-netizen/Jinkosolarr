@@ -15,7 +15,7 @@ export default function RulesPage() {
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         <section className="space-y-3">
-          <h2 className="text-lg font-bold text-orange-500 border-l-4 border-orange-500 pl-3">1. Investissement</h2>
+          <h2 className="text-lg font-bold text-[#2196F3] border-l-4 border-[#2196F3] pl-3">1. Investissement</h2>
           <ul className="list-disc pl-5 space-y-2 text-gray-600 text-sm">
             <li>Chaque utilisateur peut posseder plusieurs produits d'investissement simultanement.</li>
             <li>Les revenus sont generes quotidiennement et accredites sur votre solde de compte toutes les 24 heures.</li>
@@ -24,7 +24,7 @@ export default function RulesPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-bold text-orange-500 border-l-4 border-orange-500 pl-3">2. Depots et Retraits</h2>
+          <h2 className="text-lg font-bold text-[#2196F3] border-l-4 border-[#2196F3] pl-3">2. Depots et Retraits</h2>
           <ul className="list-disc pl-5 space-y-2 text-gray-600 text-sm">
             <li>Le montant minimum de depot est de 3000 FCFA.</li>
             <li>Le montant minimum de retrait est de 1200 FCFA.</li>
@@ -35,7 +35,7 @@ export default function RulesPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-bold text-orange-500 border-l-4 border-orange-500 pl-3">3. Systeme de Parrainage</h2>
+          <h2 className="text-lg font-bold text-[#2196F3] border-l-4 border-[#2196F3] pl-3">3. Systeme de Parrainage</h2>
           <ul className="list-disc pl-5 space-y-2 text-gray-600 text-sm">
             <li>Commission de niveau 1 : 27% sur le PREMIER investissement du filleul.</li>
             <li>Commission de niveau 2 : 2% sur le PREMIER investissement du filleul.</li>
@@ -45,7 +45,7 @@ export default function RulesPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-bold text-orange-500 border-l-4 border-orange-500 pl-3">4. Securite</h2>
+          <h2 className="text-lg font-bold text-[#2196F3] border-l-4 border-[#2196F3] pl-3">4. Securite</h2>
           <ul className="list-disc pl-5 space-y-2 text-gray-600 text-sm">
             <li>Vous etes responsable de la securite de votre mot de passe.</li>
             <li>Ne partagez jamais vos identifiants de connexion avec des tiers.</li>

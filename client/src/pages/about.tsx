@@ -15,7 +15,7 @@ export default function AboutPage() {
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-orange-500">Qui sommes-nous ?</h2>
+          <h2 className="text-xl font-bold text-[#2196F3]">Qui sommes-nous ?</h2>
           <p className="text-gray-600 leading-relaxed">
             Fondee en 1966 sous le nom d'Elf Aquitaine, ELF est l'une des marques les plus emblematiques du secteur petrochimique francais, specialisee dans la formulation de lubrifiants moteurs de haute technicite et de carburants de performance. Issue de la fusion de societes petrolieres regionales, ELF s'est rapidement imposee comme un acteur majeur de l'exploitation et de la valorisation des hydrocarbures.
           </p>
@@ -25,14 +25,14 @@ export default function AboutPage() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-orange-500">Notre heritage</h2>
+          <h2 className="text-xl font-bold text-[#2196F3]">Notre heritage</h2>
           <p className="text-gray-600 leading-relaxed">
             ELF a consolide sa reputation via des programmes ambitieux dans le sport mecanique, notamment la Formule 1, le rallye automobile et les championnats de motocyclisme. Son partenariat historique avec Renault F1 et Yamaha MotoGP a permis le developpement de lubrifiants optimises pour des conditions extremes.
           </p>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-orange-500">Securite et Fiabilite</h2>
+          <h2 className="text-xl font-bold text-[#2196F3]">Securite et Fiabilite</h2>
           <p className="text-gray-600 leading-relaxed">
             La securite de vos fonds et la transparence de nos operations sont nos priorites absolues. L'empreinte d'ELF dans le domaine energetique et technologique illustre parfaitement la capacite d'une entreprise a conjuguer ingenierie avancee, innovation scientifique et strategie de marque perenne.
           </p>

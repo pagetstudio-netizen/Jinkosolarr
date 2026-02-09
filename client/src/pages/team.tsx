@@ -149,8 +149,8 @@ export default function TeamPage() {
               </div>
             </div>
             <div className="bg-gray-50 rounded-xl p-4 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
-                <Gift className="w-4 h-4 text-orange-500" />
+              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                <Gift className="w-4 h-4 text-[#2196F3]" />
               </div>
               <div>
                 <p className="text-lg font-bold text-gray-800" data-testid="text-total-revenue">{currency}{totalRevenue.toFixed(0)}</p>

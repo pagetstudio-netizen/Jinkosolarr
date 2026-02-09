@@ -149,8 +149,8 @@ export default function AdminDashboard({ isSuperAdmin }: AdminDashboardProps) {
       value: `${stats.pendingWithdrawals.toLocaleString()} F`,
       subtitle: `${stats.pendingWithdrawalsCount} demande(s)`,
       icon: Clock,
-      color: "text-orange-500",
-      bg: "bg-orange-500/20",
+      color: "text-[#2196F3]",
+      bg: "bg-[#2196F3]/20",
     },
   ];
 

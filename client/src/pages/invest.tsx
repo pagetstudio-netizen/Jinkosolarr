@@ -182,10 +182,10 @@ export default function InvestPage() {
                       Prix: <span className="text-red-500 font-semibold">{product.price.toLocaleString()} {currency}</span>
                     </p>
                     <p className="text-xs text-gray-500">
-                      Revenu quotidien: <span className="text-orange-500 font-semibold">{product.dailyEarnings.toLocaleString()} {currency}</span>
+                      Revenu quotidien: <span className="text-[#2196F3] font-semibold">{product.dailyEarnings.toLocaleString()} {currency}</span>
                     </p>
                     <p className="text-xs text-gray-500">
-                      Revenu total: <span className="text-orange-500 font-semibold">{product.totalReturn.toLocaleString()} {currency}</span>
+                      Revenu total: <span className="text-[#2196F3] font-semibold">{product.totalReturn.toLocaleString()} {currency}</span>
                     </p>
                     <p className="text-xs text-gray-500">
                       Periode de revenu: <span className="text-gray-700 font-semibold">{product.cycleDays} jours</span>

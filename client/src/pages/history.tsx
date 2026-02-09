@@ -46,7 +46,7 @@ export default function HistoryPage() {
       case "rejected":
         return <XCircle className="w-5 h-5 text-red-500" />;
       default:
-        return <Clock className="w-5 h-5 text-orange-500" />;
+        return <Clock className="w-5 h-5 text-[#2196F3]" />;
     }
   };
 
@@ -72,7 +72,7 @@ export default function HistoryPage() {
       case "rejected":
         return "text-red-600 bg-red-50";
       default:
-        return "text-orange-600 bg-orange-50";
+        return "text-[#2196F3] bg-blue-50";
     }
   };
 
@@ -105,7 +105,7 @@ export default function HistoryPage() {
           onClick={() => setActiveTab("deposits")}
           className={`flex-1 py-3 text-center font-medium text-base transition-colors ${
             activeTab === "deposits"
-              ? "text-orange-500"
+              ? "text-[#2196F3]"
               : "text-gray-500"
           }`}
           data-testid="tab-deposits"
@@ -114,13 +114,13 @@ export default function HistoryPage() {
             <ArrowDownToLine className="w-4 h-4" />
             Depots
           </div>
-          {activeTab === "deposits" && <div className="h-0.5 bg-orange-500 w-full mt-2" />}
+          {activeTab === "deposits" && <div className="h-0.5 bg-[#2196F3] w-full mt-2" />}
         </button>
         <button
           onClick={() => setActiveTab("withdrawals")}
           className={`flex-1 py-3 text-center font-medium text-base transition-colors ${
             activeTab === "withdrawals"
-              ? "text-orange-500"
+              ? "text-[#2196F3]"
               : "text-gray-500"
           }`}
           data-testid="tab-withdrawals"
@@ -138,7 +138,7 @@ export default function HistoryPage() {
           <div className="p-4 space-y-4">
             {depositsLoading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#2196F3]" />
               </div>
             ) : deposits.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
@@ -160,7 +160,7 @@ export default function HistoryPage() {
                           ? "text-green-600" 
                           : deposit.status === "rejected" 
                             ? "text-red-600" 
-                            : "text-orange-500"
+                            : "text-[#2196F3]"
                       }`}>
                         {getStatusText(deposit.status)}
                       </span>
@@ -190,7 +190,7 @@ export default function HistoryPage() {
           <div className="p-4 space-y-4">
             {withdrawalsLoading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#2196F3]" />
               </div>
             ) : withdrawals.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
@@ -212,7 +212,7 @@ export default function HistoryPage() {
                           ? "text-green-600" 
                           : withdrawal.status === "rejected" 
                             ? "text-red-600" 
-                            : "text-orange-500"
+                            : "text-[#2196F3]"
                       }`}>
                         {getStatusText(withdrawal.status)}
                       </span>
