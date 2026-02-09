@@ -1649,5 +1649,68 @@ export async function registerRoutes(
     }
   });
 
+  // Banner Images Routes (public)
+  app.get("/api/banners", async (req, res) => {
+    try {
+      const banners = await storage.getActiveBannerImages();
+      res.json(banners);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Banner Images Admin Routes
+  app.get("/api/admin/banners", requireAdmin, async (req, res) => {
+    try {
+      const banners = await storage.getBannerImages();
+      res.json(banners);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/banners", requireAdmin, async (req, res) => {
+    try {
+      const { imageData } = req.body;
+      if (!imageData || typeof imageData !== "string") {
+        return res.status(400).json({ message: "Image requise" });
+      }
+      const banner = await storage.createBannerImage({
+        imageData,
+        createdBy: req.session.userId,
+      });
+      await storage.logAdminAction(req.session.userId!, "create_banner", null, `Banniere ajoutee`);
+      res.json(banner);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/banners/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const banner = await storage.updateBannerImage(id, req.body);
+      await storage.logAdminAction(req.session.userId!, "update_banner", null, `Banniere #${id} modifiee`);
+      res.json(banner);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/banners/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const allBanners = await storage.getBannerImages();
+      if (allBanners.length <= 1) {
+        return res.status(400).json({ message: "Impossible de supprimer la derniere banniere" });
+      }
+      await storage.deleteBannerImage(id);
+      await storage.logAdminAction(req.session.userId!, "delete_banner", null, `Banniere #${id} supprimee`);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   return httpServer;
 }

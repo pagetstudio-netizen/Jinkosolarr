@@ -16,6 +16,13 @@ import elfPopupBanner from "@assets/20260126_073237_1769413159534.jpg";
 import bannerService from "@/assets/images/banner-service.png";
 import bannerPlatform from "@/assets/images/banner-platform.png";
 
+interface BannerImage {
+  id: number;
+  imageData: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
 export default function HomePage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
@@ -23,7 +30,17 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slideInterval = useRef<NodeJS.Timeout | null>(null);
 
-  const bannerSlides = [heroImg, bannerPlatform, bannerService];
+  const fallbackSlides = [heroImg, bannerPlatform, bannerService];
+
+  const { data: apiBanners } = useQuery<BannerImage[]>({
+    queryKey: ["/api/banners"],
+  });
+
+  const bannerSlides = apiBanners && apiBanners.length > 0
+    ? apiBanners.map((b) => b.imageData)
+    : fallbackSlides;
+
+  const shouldAutoScroll = bannerSlides.length > 1;
 
   const { data: userProducts } = useQuery<any[]>({
     queryKey: ["/api/user-products"],
@@ -32,10 +49,11 @@ export default function HomePage() {
 
   const startSlideshow = useCallback(() => {
     if (slideInterval.current) clearInterval(slideInterval.current);
+    if (!shouldAutoScroll) return;
     slideInterval.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
     }, 4000);
-  }, [bannerSlides.length]);
+  }, [bannerSlides.length, shouldAutoScroll]);
 
   useEffect(() => {
     setShowPopup(true);
@@ -46,11 +64,19 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    startSlideshow();
+    if (shouldAutoScroll) {
+      startSlideshow();
+    }
     return () => {
       if (slideInterval.current) clearInterval(slideInterval.current);
     };
-  }, [startSlideshow]);
+  }, [startSlideshow, shouldAutoScroll]);
+
+  useEffect(() => {
+    if (currentSlide >= bannerSlides.length) {
+      setCurrentSlide(0);
+    }
+  }, [bannerSlides.length, currentSlide]);
 
   if (!user) return null;
 
@@ -145,22 +171,24 @@ export default function HomePage() {
               />
             ))}
           </div>
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {bannerSlides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setCurrentSlide(index);
-                  startSlideshow();
-                }}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  currentSlide === index
-                    ? "w-5 bg-white"
-                    : "w-1.5 bg-white/50"
-                }`}
-              />
-            ))}
-          </div>
+          {shouldAutoScroll && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {bannerSlides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setCurrentSlide(index);
+                    startSlideshow();
+                  }}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    currentSlide === index
+                      ? "w-5 bg-white"
+                      : "w-1.5 bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

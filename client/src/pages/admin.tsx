@@ -12,6 +12,7 @@ import AdminProducts from "@/components/admin/products";
 import AdminChannels from "@/components/admin/channels";
 import AdminSettings from "@/components/admin/settings";
 import AdminGiftCodes from "@/components/admin/gift-codes";
+import AdminBanners from "@/components/admin/banners";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ export default function AdminPage() {
               <TabsTrigger value="users" data-testid="tab-users">Utilisateurs</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Produits</TabsTrigger>
               <TabsTrigger value="channels" data-testid="tab-channels">Canaux</TabsTrigger>
+              <TabsTrigger value="banners" data-testid="tab-banners">Bannieres</TabsTrigger>
               <TabsTrigger value="giftcodes" data-testid="tab-giftcodes">Codes Cadeaux</TabsTrigger>
               <TabsTrigger value="settings" data-testid="tab-settings">Parametres</TabsTrigger>
             </TabsList>
@@ -66,6 +68,10 @@ export default function AdminPage() {
 
           <TabsContent value="channels" className="mt-4">
             <AdminChannels isSuperAdmin={user.isSuperAdmin} />
+          </TabsContent>
+
+          <TabsContent value="banners" className="mt-4">
+            <AdminBanners />
           </TabsContent>
 
           <TabsContent value="giftcodes" className="mt-4">
