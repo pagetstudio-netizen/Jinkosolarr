@@ -117,11 +117,9 @@ export async function seed() {
     if (!existing) {
       await db.insert(products).values(productData);
       console.log(`Product added: ${productData.name}`);
-    } else {
-      await db.update(products).set(productData).where(eq(products.id, existing.id));
     }
   }
-  console.log("Products synchronized");
+  console.log("Products check complete (existing values preserved)");
 
   // Check if tasks exist
   const existingTasks = await db.select().from(tasks);
@@ -139,12 +137,9 @@ export async function seed() {
     if (!existing) {
       await db.insert(tasks).values(taskData);
       console.log(`Task added: ${taskData.name}`);
-    } else {
-      // Update existing task to match seed data
-      await db.update(tasks).set(taskData).where(eq(tasks.id, existing.id));
     }
   }
-  console.log("Tasks synchronized");
+  console.log("Tasks check complete (existing values preserved)");
 
   // Check if payment channels exist
   const existingChannels = await db.select().from(paymentChannels);
@@ -178,10 +173,10 @@ export async function seed() {
       await db.insert(platformSettings).values(settingData);
       console.log(`Setting added: ${settingData.key}`);
     } else {
-      await db.update(platformSettings).set({ value: settingData.value }).where(eq(platformSettings.id, existing.id));
+      console.log(`Setting preserved: ${settingData.key} = ${existing.value}`);
     }
   }
-  console.log("Settings synchronized");
+  console.log("Settings check complete (existing values preserved)");
 
   console.log("Database seeding complete!");
 }
