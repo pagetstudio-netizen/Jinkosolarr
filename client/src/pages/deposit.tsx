@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock, ChevronRight, ChevronDown, X, Check, MapPin, CreditCard } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
@@ -59,6 +59,8 @@ export default function DepositPage() {
   const [accountNumber, setAccountNumber] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
   const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
+  const [showCountrySheet, setShowCountrySheet] = useState(false);
+  const [showPaymentSheet, setShowPaymentSheet] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
@@ -418,52 +420,36 @@ export default function DepositPage() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Pays</label>
-          <div className="grid grid-cols-2 gap-2">
-            {COUNTRIES.map((country: { code: string; name: string }) => (
-              <button
-                key={country.code}
-                onClick={() => {
-                  setSelectedCountry(country.code);
-                  setSelectedPaymentMethod("");
-                }}
-                className={`p-2.5 rounded-lg border text-center text-sm font-medium transition-colors ${
-                  selectedCountry === country.code
-                    ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
-                    : "border-gray-200 bg-white text-gray-700"
-                }`}
-                data-testid={`button-country-${country.code}`}
-              >
-                {country.name}
-              </button>
-            ))}
+        <button
+          onClick={() => setShowCountrySheet(true)}
+          className="w-full border border-gray-200 rounded-full px-4 py-3 flex items-center justify-between"
+          data-testid="button-open-country"
+        >
+          <div className="flex items-center gap-3">
+            <MapPin className="w-4 h-4 text-[#2196F3]" />
+            <span className={`text-sm ${selectedCountry ? "text-gray-800 font-medium" : "text-gray-500"}`}>
+              {selectedCountry
+                ? COUNTRIES.find((c: { code: string }) => c.code === selectedCountry)?.name || "Pays"
+                : "Selectionnez votre pays"}
+            </span>
           </div>
-        </div>
+          <ChevronDown className="w-4 h-4 text-gray-400" />
+        </button>
 
         {selectedCountry && paymentMethods.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
-              <h2 className="font-bold text-gray-800 text-sm">Canal de depot</h2>
+          <button
+            onClick={() => setShowPaymentSheet(true)}
+            className="w-full border border-gray-200 rounded-full px-4 py-3 flex items-center justify-between"
+            data-testid="button-open-payment"
+          >
+            <div className="flex items-center gap-3">
+              <CreditCard className="w-4 h-4 text-[#2196F3]" />
+              <span className={`text-sm ${selectedPaymentMethod ? "text-gray-800 font-medium" : "text-gray-500"}`}>
+                {selectedPaymentMethod || "Selectionnez le mode de paiement"}
+              </span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {paymentMethods.map((method) => (
-                <button
-                  key={method}
-                  onClick={() => setSelectedPaymentMethod(method)}
-                  className={`px-4 py-2.5 rounded-full border-2 text-sm font-semibold transition-colors ${
-                    selectedPaymentMethod === method
-                      ? "border-[#2196F3] bg-[#2196F3] text-white shadow-sm"
-                      : "border-gray-300 bg-white text-gray-800"
-                  }`}
-                  data-testid={`button-method-${method}`}
-                >
-                  {method}
-                </button>
-              ))}
-            </div>
-          </div>
+            <ChevronDown className="w-4 h-4 text-gray-400" />
+          </button>
         )}
 
         <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
@@ -536,6 +522,93 @@ export default function DepositPage() {
           </div>
         </div>
       </div>
+
+      {showCountrySheet && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowCountrySheet(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300 max-h-[60vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <h3 className="text-base font-bold text-gray-800">Selectionnez votre pays</h3>
+              <button
+                onClick={() => setShowCountrySheet(false)}
+                className="p-1"
+                data-testid="button-close-country-sheet"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-4 space-y-1">
+              {COUNTRIES.map((country: { code: string; name: string }) => (
+                <button
+                  key={country.code}
+                  onClick={() => {
+                    setSelectedCountry(country.code);
+                    setSelectedPaymentMethod("");
+                    setShowCountrySheet(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-colors ${
+                    selectedCountry === country.code
+                      ? "bg-[#e3f2fd] text-[#2196F3]"
+                      : "text-gray-700"
+                  }`}
+                  data-testid={`button-country-${country.code}`}
+                >
+                  <span className="text-sm font-medium">{country.name}</span>
+                  {selectedCountry === country.code && (
+                    <Check className="w-5 h-5 text-[#2196F3]" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPaymentSheet && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowPaymentSheet(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300 max-h-[60vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <h3 className="text-base font-bold text-gray-800">Mode de paiement</h3>
+              <button
+                onClick={() => setShowPaymentSheet(false)}
+                className="p-1"
+                data-testid="button-close-payment-sheet"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-4 space-y-1">
+              {paymentMethods.map((method) => (
+                <button
+                  key={method}
+                  onClick={() => {
+                    setSelectedPaymentMethod(method);
+                    setShowPaymentSheet(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-colors ${
+                    selectedPaymentMethod === method
+                      ? "bg-[#e3f2fd] text-[#2196F3]"
+                      : "text-gray-700"
+                  }`}
+                  data-testid={`button-method-${method}`}
+                >
+                  <span className="text-sm font-medium">{method}</span>
+                  {selectedPaymentMethod === method && (
+                    <Check className="w-5 h-5 text-[#2196F3]" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {renderPaymentStatus()}
     </div>
