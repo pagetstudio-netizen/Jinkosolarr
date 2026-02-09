@@ -6,14 +6,15 @@ import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 
 import elfLogo from "@assets/elf-logo-1-jpg_1770372668472.webp";
-import elfTeamImg from "@/assets/images/elf-team.webp";
-import elfStationImg from "@/assets/images/elf-station.jpeg";
-import elfExpertLogo from "@/assets/images/elf-expert-logo.jpeg";
-import elfStation2Img from "@/assets/images/elf-station-2.jpg";
+import heroImg from "@assets/images_(12)_1770548411196.jpeg";
+import stationImg from "@assets/images_(10)_1770548411220.jpeg";
 import iconRecharger from "@assets/20260208_191924_1770580677527.png";
 import iconRetraits from "@assets/20260208_191333_1770580677612.png";
 import iconAider from "@assets/20260208_105040_1770548435850.png";
 import iconEnregistrer from "@assets/images_(6)_1770548411064.png";
+import elfTeamImg from "@/assets/images/elf-team.webp";
+import bannerService from "@/assets/images/banner-service.png";
+import bannerPlatform from "@/assets/images/banner-platform.png";
 
 interface BannerImage {
   id: number;
@@ -29,7 +30,7 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slideInterval = useRef<NodeJS.Timeout | null>(null);
 
-  const fallbackSlides = [elfExpertLogo, elfStationImg, elfStation2Img];
+  const fallbackSlides = [heroImg, bannerPlatform, bannerService];
 
   const { data: apiBanners } = useQuery<BannerImage[]>({
     queryKey: ["/api/banners"],
@@ -251,7 +252,7 @@ export default function HomePage() {
       <div className="px-4 mt-4 pb-24">
         <div className="flex gap-3" style={{ height: "280px" }}>
           <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-balance">
-            <img src={elfStationImg} alt="ELF Station" className="absolute inset-0 w-full h-full object-cover" />
+            <img src={stationImg} alt="ELF Station" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/20"></div>
             <div className="relative z-10 flex flex-col justify-between h-full p-4">
               <h3 className="text-white text-3xl font-black mt-8">Balance</h3>
@@ -263,7 +264,7 @@ export default function HomePage() {
 
           <div className="flex-1 flex flex-col gap-3">
             <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-cumulatif">
-              <img src={elfStation2Img} alt="ELF Station" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={stationImg} alt="ELF Station" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative z-10 flex flex-col justify-center h-full p-3">
                 <h3 className="text-white text-lg font-black">Cumulatif</h3>
@@ -274,7 +275,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-active-products">
-              <img src={elfExpertLogo} alt="ELF Expert" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={stationImg} alt="ELF Station" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative z-10 flex flex-col justify-center h-full p-3">
                 <h3 className="text-white text-lg font-black">Active product</h3>
