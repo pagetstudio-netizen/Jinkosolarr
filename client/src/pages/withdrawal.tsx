@@ -293,7 +293,7 @@ export default function WithdrawalPage() {
             <p>2. Vous pouvez retirer de l'argent une fois par jour.</p>
             <p>3. Le montant minimum de retrait est de {minWithdrawal} {currency}.</p>
             <p>4. Des frais de traitement de {withdrawalFee} % seront factures pour les retraits ;</p>
-            <p>5. Retirez de l'argent aujourd'hui et il arrivera demain. Le delai d'arrivee ne depassera pas 48 heures ;</p>
+            <p>5. Les retraits sont traites dans un delai de 1h a 24h maximum ;</p>
             <p>6. Si le retrait echoue, veuillez verifier soigneusement si les informations bancaires que vous avez renseignees sont correctes, puis soumettez a nouveau la demande de retrait ou utilisez d'autres banques pour retirer de l'argent ;</p>
             <p>7. Effectuez la premiere recharge et achetez des produits ELF pour activer la fonction de retrait ;</p>
           </div>

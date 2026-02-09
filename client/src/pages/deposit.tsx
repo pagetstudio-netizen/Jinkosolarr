@@ -439,11 +439,6 @@ export default function DepositPage() {
           </div>
         </div>
 
-        {selectedCountry && moneyFusionCountries.includes(selectedCountry) && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-blue-700 font-medium">Depot par MoneyFusion</p>
-          </div>
-        )}
 
         {selectedCountry && paymentMethods.length > 0 && (
           <div>
@@ -534,7 +529,7 @@ export default function DepositPage() {
           <div className="space-y-2 text-sm text-gray-600 leading-relaxed">
             <p className="font-medium text-gray-700">*Instructions de depot:</p>
             <p>1. Le montant minimum de depot est de {minDeposit.toLocaleString()} {currency}. Les virements inferieurs a {minDeposit.toLocaleString()} {currency} ne pourront pas etre credites sur le compte.</p>
-            <p>2. A chaque recharge, vous devez soumettre une nouvelle demande pour obtenir le dernier numero de recharge de la plateforme. Veuillez ne pas transferer vers un ancien numero, sinon le compte ne sera pas credite.</p>
+            <p>2. Selectionnez votre pays et votre moyen de paiement, puis renseignez vos informations pour effectuer le depot.</p>
             <p>3. Apres un depot reussi, le montant sera credite sur votre compte dans un delai de 1 a 5 minutes.</p>
             <p>4. Effectuez votre premiere recharge et achetez des produits ELF pour activer la fonction de retrait.</p>
           </div>
