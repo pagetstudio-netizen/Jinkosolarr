@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ChevronRight, Clock, Wallet } from "lucide-react";
+import { ArrowLeft, ChevronRight, Clock, Wallet, ShieldCheck, Headphones, Plus, Loader2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
@@ -145,19 +145,82 @@ export default function WithdrawalPage() {
     navigate("/wallet?from=withdrawal");
   };
 
+  const hasWallets = wallets.length > 0;
+
+  const { isLoading: walletsLoading } = useQuery<WalletData[]>({
+    queryKey: ["/api/wallets"],
+    refetchOnWindowFocus: true,
+  });
+
+  if (walletsLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#2196F3]" />
+      </div>
+    );
+  }
+
+  if (!hasWallets) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <Link href="/account">
+            <Button size="icon" variant="ghost" data-testid="button-back">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <h1 className="text-lg font-semibold text-gray-800">Les retraits</h1>
+          <Link href="/history">
+            <Button size="icon" variant="ghost" data-testid="button-history">
+              <Clock className="w-5 h-5 text-[#2196F3]" />
+            </Button>
+          </Link>
+        </header>
+
+        <div className="flex-1 flex flex-col items-center justify-center px-8">
+          <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center mb-6">
+            <ShieldCheck className="w-12 h-12 text-[#2196F3]" />
+          </div>
+
+          <h2 className="text-xl font-bold text-gray-800 text-center mb-3" data-testid="text-no-wallet-title">
+            Portefeuille requis
+          </h2>
+
+          <p className="text-gray-500 text-center text-sm leading-relaxed mb-8 max-w-xs">
+            Veuillez creer un portefeuille de retrait pour effectuer vos transactions en toute serenite.
+          </p>
+
+          <Button
+            onClick={() => navigate("/wallet")}
+            className="bg-[#2196F3] rounded-full px-8"
+            data-testid="button-create-wallet"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Creer un portefeuille
+          </Button>
+
+          <div className="mt-10 flex items-center gap-2 text-gray-400 text-xs">
+            <Headphones className="w-4 h-4" />
+            <span>Besoin d'aide ? Contactez le service client</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
-          <button className="p-2" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
-          </button>
+          <Button size="icon" variant="ghost" data-testid="button-back">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
         </Link>
         <h1 className="text-lg font-semibold text-gray-800">Les retraits</h1>
         <Link href="/history">
-          <button className="p-2" data-testid="button-history">
+          <Button size="icon" variant="ghost" data-testid="button-history">
             <Clock className="w-5 h-5 text-[#2196F3]" />
-          </button>
+          </Button>
         </Link>
       </header>
 
@@ -171,9 +234,10 @@ export default function WithdrawalPage() {
       </div>
 
       <div className="px-4 space-y-4">
-        <button
+        <Button
+          variant="outline"
           onClick={handleSelectWallet}
-          className="w-full bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between shadow-sm"
+          className="w-full rounded-xl border-gray-200 p-4 h-auto flex items-center justify-between"
           data-testid="button-select-wallet"
         >
           <div className="flex items-center gap-3">
@@ -192,7 +256,7 @@ export default function WithdrawalPage() {
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-gray-400" />
-        </button>
+        </Button>
 
         <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
           <p className="text-sm font-medium text-gray-700 mb-2">Montant du retrait</p>
@@ -225,14 +289,14 @@ export default function WithdrawalPage() {
           </div>
         )}
 
-        <button
+        <Button
           onClick={handleSubmit}
           disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
-          className="w-full py-3.5 bg-[#2196F3] text-white font-semibold rounded-full disabled:opacity-50 text-base shadow-lg"
+          className="w-full py-3.5 bg-[#2196F3] rounded-full text-base"
           data-testid="button-submit-withdrawal"
         >
           {withdrawMutation.isPending ? "Envoi en cours..." : "Retirer de l'argent"}
-        </button>
+        </Button>
 
         <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
           <h3 className="font-bold text-gray-800 text-sm mb-3">Instructions pour retraits</h3>
