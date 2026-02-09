@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPaymentMethodsForCountry } from "@/lib/countries";
 import { Loader2, Plus, Trash2, CreditCard, Check, ChevronLeft } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import type { WithdrawalWallet } from "@shared/schema";
 import bankIcon from "@/assets/images/bank-icon.png";
 
@@ -28,6 +28,10 @@ type WalletForm = z.infer<typeof walletSchema>;
 export default function WalletPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
+  const searchString = useSearch();
+  const params = new URLSearchParams(searchString);
+  const selectMode = params.get("from") === "withdrawal";
   const [showForm, setShowForm] = useState(false);
 
   const { data: wallets, isLoading } = useQuery<WithdrawalWallet[]>({
@@ -102,41 +106,66 @@ export default function WalletPage() {
     },
   });
 
+  const handleSelectWallet = (wallet: WithdrawalWallet) => {
+    if (selectMode) {
+      localStorage.setItem("selectedWalletId", wallet.id.toString());
+      navigate("/withdrawal");
+    }
+  };
+
   if (!user) return null;
 
   const paymentMethods = getPaymentMethodsForCountry(user.country);
+  const backLink = selectMode ? "/withdrawal" : "/account";
 
   return (
     <div className="flex flex-col min-h-full bg-white">
       <header className="flex items-center px-4 py-3 border-b bg-white">
-        <Link href="/account">
+        <Link href={backLink}>
           <button className="p-1" data-testid="button-back">
             <ChevronLeft className="w-6 h-6 text-gray-600" />
           </button>
         </Link>
-        <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-6">Compte de retrait</h1>
+        <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-6">
+          {selectMode ? "Selectionner un portefeuille" : "Compte de retrait"}
+        </h1>
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 py-6 pb-24">
-        <div className="flex justify-center mb-6">
-          <img src={bankIcon} alt="Bank" className="w-32 h-32 object-contain" />
-        </div>
+        {!selectMode && (
+          <div className="flex justify-center mb-6">
+            <img src={bankIcon} alt="Bank" className="w-32 h-32 object-contain" />
+          </div>
+        )}
 
-        <h2 className="text-center text-xl font-bold text-gray-800 mb-6">Gestion des portefeuilles</h2>
+        {selectMode && (
+          <p className="text-sm text-gray-500 text-center mb-4">
+            Appuyez sur un portefeuille pour le selectionner
+          </p>
+        )}
+
+        <h2 className="text-center text-xl font-bold text-gray-800 mb-6">
+          {selectMode ? "Vos portefeuilles" : "Gestion des portefeuilles"}
+        </h2>
 
         <div className="space-y-4">
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
+              <Loader2 className="w-6 h-6 animate-spin text-[#2196F3]" />
             </div>
           ) : wallets && wallets.length > 0 ? (
             wallets.map((wallet) => (
-              <Card key={wallet.id} className={wallet.isDefault ? "border-amber-500 border-2" : ""}>
+              <Card
+                key={wallet.id}
+                className={`${wallet.isDefault ? "border-[#2196F3] border-2" : ""} ${selectMode ? "cursor-pointer" : ""}`}
+                onClick={() => selectMode && handleSelectWallet(wallet)}
+                data-testid={`wallet-card-${wallet.id}`}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-amber-500" />
+                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <CreditCard className="w-5 h-5 text-[#2196F3]" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-800">{wallet.accountName}</p>
@@ -144,32 +173,39 @@ export default function WalletPage() {
                         <p className="text-xs text-gray-400">{wallet.paymentMethod}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {!wallet.isDefault && (
+                    {!selectMode && (
+                      <div className="flex items-center gap-2">
+                        {!wallet.isDefault && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setDefaultMutation.mutate(wallet.id)}
+                            disabled={setDefaultMutation.isPending}
+                            data-testid={`button-set-default-${wallet.id}`}
+                          >
+                            <Check className="w-4 h-4 text-green-500" />
+                          </Button>
+                        )}
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => setDefaultMutation.mutate(wallet.id)}
-                          disabled={setDefaultMutation.isPending}
-                          data-testid={`button-set-default-${wallet.id}`}
+                          onClick={() => deleteMutation.mutate(wallet.id)}
+                          disabled={deleteMutation.isPending}
+                          data-testid={`button-delete-wallet-${wallet.id}`}
                         >
-                          <Check className="w-4 h-4 text-green-500" />
+                          <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
-                      )}
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => deleteMutation.mutate(wallet.id)}
-                        disabled={deleteMutation.isPending}
-                        data-testid={`button-delete-wallet-${wallet.id}`}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
+                      </div>
+                    )}
+                    {selectMode && (
+                      <div className="flex items-center">
+                        <ChevronLeft className="w-5 h-5 text-gray-300 rotate-180" />
+                      </div>
+                    )}
                   </div>
                   {wallet.isDefault && (
                     <div className="mt-2">
-                      <span className="text-xs bg-amber-100 text-amber-600 px-2 py-1 rounded">Par defaut</span>
+                      <span className="text-xs bg-blue-50 text-[#2196F3] px-2 py-1 rounded">Par defaut</span>
                     </div>
                   )}
                 </CardContent>
@@ -244,7 +280,7 @@ export default function WalletPage() {
                       <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="flex-1">
                         Annuler
                       </Button>
-                      <Button type="submit" className="flex-1 bg-amber-500 hover:bg-amber-600" disabled={addMutation.isPending}>
+                      <Button type="submit" className="flex-1 bg-[#2196F3]" disabled={addMutation.isPending}>
                         {addMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ajouter"}
                       </Button>
                     </div>
@@ -253,7 +289,7 @@ export default function WalletPage() {
               </CardContent>
             </Card>
           ) : (
-            <Button className="w-full bg-amber-500 hover:bg-amber-600" onClick={() => setShowForm(true)} data-testid="button-add-wallet">
+            <Button className="w-full bg-[#2196F3]" onClick={() => setShowForm(true)} data-testid="button-add-wallet">
               <Plus className="w-4 h-4 mr-2" />
               Ajouter un portefeuille
             </Button>
