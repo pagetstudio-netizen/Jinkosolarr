@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
-const PRESET_AMOUNTS = [5000, 10000, 20000, 50000, 100000, 200000, 300000, 400000, 800000];
+const PRESET_AMOUNTS = [3000, 5000, 10000, 20000, 50000, 100000, 200000, 300000, 800000];
 
 interface PaymentChannel {
   id: number;
@@ -63,7 +63,7 @@ export default function DepositPage() {
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
-  const minDeposit = 5000;
+  const minDeposit = 3000;
 
   const { data: soleaspayData } = useQuery<SoleaspayServices>({
     queryKey: ["/api/soleaspay/services"],
@@ -531,7 +531,7 @@ export default function DepositPage() {
             <p className="font-medium text-gray-700">*Instructions de depot:</p>
             <p>1. Le montant minimum de depot est de {minDeposit.toLocaleString()} {currency}. Les virements inferieurs a {minDeposit.toLocaleString()} {currency} ne pourront pas etre credites sur le compte.</p>
             <p>2. Chaque fois que vous rechargez, vous devez soumettre a nouveau la demande de recharge pour obtenir le dernier numero de recharge de la plateforme.</p>
-            <p>3. Apres un depot reussi, le montant sera credite sur votre compte dans un delai de 1 a 5 minutes.</p>
+            <p>3. Apres un depot reussi, le montant sera credite sur votre compte dans un delai de 1 minute a 24h maximum.</p>
             <p>4. Effectuez votre premiere recharge et achetez des produits ELF pour activer la fonction de retrait.</p>
           </div>
         </div>
