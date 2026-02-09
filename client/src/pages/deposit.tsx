@@ -453,10 +453,10 @@ export default function DepositPage() {
                 <button
                   key={method}
                   onClick={() => setSelectedPaymentMethod(method)}
-                  className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                  className={`px-4 py-2.5 rounded-full border-2 text-sm font-semibold transition-colors ${
                     selectedPaymentMethod === method
-                      ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
-                      : "border-gray-300 bg-white text-gray-700"
+                      ? "border-[#2196F3] bg-[#2196F3] text-white shadow-sm"
+                      : "border-gray-300 bg-white text-gray-800"
                   }`}
                   data-testid={`button-method-${method}`}
                 >
@@ -500,10 +500,10 @@ export default function DepositPage() {
                 <button
                   key={channel.id}
                   onClick={() => setSelectedChannel(channel)}
-                  className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                  className={`px-4 py-2.5 rounded-full border-2 text-sm font-semibold transition-colors ${
                     selectedChannel?.id === channel.id
-                      ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
-                      : "border-gray-300 bg-white text-gray-700"
+                      ? "border-[#2196F3] bg-[#2196F3] text-white shadow-sm"
+                      : "border-gray-300 bg-white text-gray-800"
                   }`}
                   data-testid={`button-channel-${channel.id}`}
                 >
@@ -517,7 +517,7 @@ export default function DepositPage() {
         <button
           onClick={handleSubmit}
           disabled={depositMutation.isPending || paymentStatus !== "idle" || !amount || !selectedPaymentMethod || !accountName || !accountNumber}
-          className="w-full py-3.5 bg-[#78c5d6] text-white font-semibold rounded-full disabled:opacity-50 text-base"
+          className="w-full py-3.5 bg-[#2196F3] text-white font-bold rounded-full disabled:opacity-40 text-base shadow-md shadow-blue-200"
           data-testid="button-submit-deposit"
         >
           {depositMutation.isPending ? "Envoi en cours..." : "Depot immediat"}
