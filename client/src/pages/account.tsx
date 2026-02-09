@@ -24,7 +24,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-import elfLogo from "@/assets/images/fanuc-circle-logo.png";
+import elfLogo from "@/assets/images/elf-circle-logo.png";
 
 export default function AccountPage() {
   const { user, logout } = useAuth();

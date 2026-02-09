@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCountryByCode } from "@/lib/countries";
 import { Copy, Users, Gift } from "lucide-react";
 import { Link } from "wouter";
-import fanucTeam from "@/assets/images/fanuc-team-wide.png";
+import elfTeam from "@/assets/images/elf-team-wide.png";
 
 interface TeamStats {
   level1Count: number;
@@ -59,7 +59,7 @@ export default function TeamPage() {
         <div className="bg-gradient-to-b from-blue-400 to-blue-300 px-4 pt-4 pb-0 relative">
           <h1 className="text-white font-bold text-lg mb-3">L'equipe</h1>
           <div className="rounded-t-2xl overflow-hidden">
-            <img src={fanucTeam} alt="Team" className="w-full h-32 object-cover" />
+            <img src={elfTeam} alt="Team" className="w-full h-32 object-cover" />
           </div>
         </div>
 
