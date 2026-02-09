@@ -190,6 +190,7 @@ export async function initiatePayin(params: {
   outTradeNo: string;
   amount: number;
   notifyUrl: string;
+  bankCode: string;
   customerName: string;
   customerMobile: string;
   customerEmail: string;
@@ -207,14 +208,20 @@ export async function initiatePayin(params: {
 
   const roundedAmount = Math.ceil(params.amount / 5) * 5;
 
+  let mobile = params.customerMobile.replace(/\s+/g, "").replace(/^0+/, "");
+  if (!mobile.startsWith(countryPrefix)) {
+    mobile = countryPrefix + mobile;
+  }
+
   const data: Record<string, string> = {
     merchantid: creds.merchantId,
     out_trade_no: params.outTradeNo,
     total_fee: roundedAmount.toFixed(2),
     notify_url: params.notifyUrl,
+    bank_code: params.bankCode,
     timestamp: Math.floor(Date.now() / 1000).toString(),
     customer_name: params.customerName,
-    customer_mobile: params.customerMobile,
+    customer_mobile: mobile,
     customer_email: params.customerEmail,
     country_prefix: countryPrefix,
   };
@@ -222,7 +229,7 @@ export async function initiatePayin(params: {
   data.sign = generateSign(data, creds.apiKey);
 
   const url = `${creds.baseUrl}/inpays/payin/unifiedorder`;
-  console.log(`[inpay] Payin request to ${url} for country ${params.countryCode}, merchantId: ${creds.merchantId}`);
+  console.log(`[inpay] Payin request to ${url} for country ${params.countryCode}, merchantId: ${creds.merchantId}, bank_code: ${params.bankCode}, mobile: ${mobile}`);
 
   const response = await fetch(url, {
     method: "POST",
@@ -291,6 +298,16 @@ export async function initiatePayout(params: {
 
   const roundedAmount = Math.ceil(params.amount / 5) * 5;
 
+  let mobile = params.customerMobile.replace(/\s+/g, "").replace(/^0+/, "");
+  if (!mobile.startsWith(countryPrefix)) {
+    mobile = countryPrefix + mobile;
+  }
+
+  let accountNum = params.accountNumber.replace(/\s+/g, "").replace(/^0+/, "");
+  if (!accountNum.startsWith(countryPrefix)) {
+    accountNum = countryPrefix + accountNum;
+  }
+
   const data: Record<string, string> = {
     merchantid: creds.merchantId,
     out_trade_no: params.outTradeNo,
@@ -298,9 +315,9 @@ export async function initiatePayout(params: {
     notify_url: params.notifyUrl,
     timestamp: Math.floor(Date.now() / 1000).toString(),
     bank_code: params.bankCode,
-    account_number: params.accountNumber,
+    account_number: accountNum,
     customer_name: params.customerName,
-    customer_mobile: params.customerMobile,
+    customer_mobile: mobile,
     customer_email: params.customerEmail,
     country_prefix: countryPrefix,
   };
@@ -308,7 +325,7 @@ export async function initiatePayout(params: {
   data.sign = generateSign(data, creds.apiKey);
 
   const url = `${creds.baseUrl}/inpays/payout/unifiedorder`;
-  console.log(`[inpay] Payout request to ${url} for country ${params.countryCode}, merchantId: ${creds.merchantId}`);
+  console.log(`[inpay] Payout request to ${url} for country ${params.countryCode}, merchantId: ${creds.merchantId}, bank_code: ${params.bankCode}, account: ${accountNum}`);
 
   const response = await fetch(url, {
     method: "POST",

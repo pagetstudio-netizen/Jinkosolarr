@@ -118,7 +118,9 @@ export default function DepositPage() {
   const isInpayAvailable = Boolean(
     inpayEnabled &&
     selectedCountry &&
+    selectedPaymentMethod &&
     inpayBankCodes[selectedCountry] &&
+    inpayBankCodes[selectedCountry][selectedPaymentMethod] &&
     inpayConfiguredCountries.includes(selectedCountry)
   );
 

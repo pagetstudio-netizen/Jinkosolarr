@@ -432,6 +432,11 @@ export async function registerRoutes(
 
       if (useInpay && inpayEnabled && isInpaySupported(country)) {
         try {
+          const bankCode = getBankCode(country, paymentMethod);
+          if (!bankCode) {
+            return res.status(400).json({ message: `Methode de paiement "${paymentMethod}" non supportee par InPay pour ce pays` });
+          }
+
           const baseUrl = process.env.REPLIT_DEV_DOMAIN
             ? `https://${process.env.REPLIT_DEV_DOMAIN}`
             : process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : "https://elf.replit.app";
@@ -440,6 +445,7 @@ export async function registerRoutes(
             outTradeNo: orderId,
             amount,
             notifyUrl: `${baseUrl}/api/webhooks/inpay/payin`,
+            bankCode,
             customerName: accountName,
             customerMobile: accountNumber,
             customerEmail: `user${user.id}@elf.com`,
