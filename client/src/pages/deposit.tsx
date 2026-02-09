@@ -3,12 +3,11 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock, Info } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
 import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
-const PRESET_AMOUNTS = [3000, 5000, 10000, 20000, 50000, 100000, 200000, 300000, 800000];
+const PRESET_AMOUNTS = [5000, 10000, 20000, 50000, 100000, 200000, 300000, 400000, 800000];
 
 interface PaymentChannel {
   id: number;
@@ -64,7 +63,7 @@ export default function DepositPage() {
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
-  const minDeposit = 3000;
+  const minDeposit = 5000;
 
   const { data: soleaspayData } = useQuery<SoleaspayServices>({
     queryKey: ["/api/soleaspay/services"],
@@ -333,13 +332,13 @@ export default function DepositPage() {
               <p className="text-gray-600 text-sm mb-4">
                 Votre compte a ete credite de {amount?.toLocaleString()} {currency}
               </p>
-              <Button
+              <button
                 onClick={resetForm}
-                className="w-full bg-green-500"
+                className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg"
                 data-testid="button-close-success"
               >
                 Fermer
-              </Button>
+              </button>
             </>
           )}
           {paymentStatus === "rejected" && (
@@ -349,13 +348,13 @@ export default function DepositPage() {
               <p className="text-gray-600 text-sm mb-4">
                 Le paiement a ete refuse ou annule
               </p>
-              <Button
+              <button
                 onClick={resetForm}
-                className="w-full bg-red-500"
+                className="w-full py-3 bg-red-500 text-white font-semibold rounded-lg"
                 data-testid="button-close-error"
               >
                 Reessayer
-              </Button>
+              </button>
             </>
           )}
         </div>
@@ -364,65 +363,63 @@ export default function DepositPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
+    <div className="min-h-screen bg-white">
+      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#64B5F6] to-white">
         <Link href="/account">
-          <Button size="icon" variant="ghost" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          <button className="p-2" data-testid="button-back">
+            <ArrowLeft className="w-5 h-5 text-gray-700" />
+          </button>
         </Link>
-        <h1 className="text-lg font-semibold text-gray-800">Recharger</h1>
+        <h1 className="text-lg font-semibold text-gray-800">Economiser</h1>
         <Link href="/deposits-history">
-          <Button size="icon" variant="ghost" data-testid="button-history">
+          <button className="p-2" data-testid="button-history">
             <Clock className="w-5 h-5 text-[#2196F3]" />
-          </Button>
+          </button>
         </Link>
       </header>
 
-      <div className="px-4 pt-4 pb-4">
-        <div className="bg-gradient-to-r from-[#1976D2] to-[#2196F3] rounded-2xl p-5 shadow-lg">
-          <p className="text-sm text-white/80">Solde du compte</p>
-          <h2 className="text-3xl font-bold text-white mt-1" data-testid="text-balance">
-            {currency} {parseFloat(user?.balance || "0").toLocaleString()}
-          </h2>
-          <p className="text-xs text-white/60 mt-2">Depot min. {minDeposit.toLocaleString()} {currency}</p>
-        </div>
-      </div>
-
-      <div className="px-4 space-y-4 pb-8">
-        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-800 mb-3">Choisir le montant</p>
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {PRESET_AMOUNTS.map((presetAmount) => (
-              <button
-                key={presetAmount}
-                onClick={() => handlePresetClick(presetAmount)}
-                className={`py-2.5 px-2 rounded-lg text-center text-sm font-medium transition-all ${
-                  amount === presetAmount
-                    ? "bg-[#2196F3] text-white shadow-sm"
-                    : "bg-gray-50 text-gray-700 border border-gray-200"
-                }`}
-                data-testid={`button-preset-${presetAmount}`}
-              >
-                {presetAmount.toLocaleString()}
-              </button>
-            ))}
+      <div className="p-4 space-y-5">
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+            <h2 className="font-bold text-gray-800 text-sm">
+              Montant du depot le plus bas ( {currency} {minDeposit.toLocaleString()} )
+            </h2>
           </div>
-          <div className="border border-gray-200 rounded-lg px-4 py-3 flex items-center gap-3 bg-gray-50">
-            <span className="font-bold text-gray-800 text-sm">{currency}</span>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-              placeholder="Ou saisir un montant"
-              className="flex-1 text-sm outline-none text-gray-700 bg-transparent"
-              data-testid="input-deposit-amount"
-            />
+          <div className="border border-gray-200 rounded-lg p-3">
+            <div className="grid grid-cols-3 gap-2">
+              {PRESET_AMOUNTS.map((presetAmount) => (
+                <button
+                  key={presetAmount}
+                  onClick={() => handlePresetClick(presetAmount)}
+                  className={`py-2.5 px-2 rounded-full border text-center text-sm font-medium transition-colors ${
+                    amount === presetAmount
+                      ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
+                      : "border-gray-300 bg-white text-gray-700"
+                  }`}
+                  data-testid={`button-preset-${presetAmount}`}
+                >
+                  {presetAmount.toLocaleString()}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-800 mb-3">Votre pays</p>
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
+          <span className="font-bold text-gray-800 text-sm">{currency}</span>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
+            placeholder="Veuillez entrer le montant de la recharge"
+            className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
+            data-testid="input-deposit-amount"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Pays</label>
           <div className="grid grid-cols-2 gap-2">
             {COUNTRIES.map((country: { code: string; name: string }) => (
               <button
@@ -431,10 +428,10 @@ export default function DepositPage() {
                   setSelectedCountry(country.code);
                   setSelectedPaymentMethod("");
                 }}
-                className={`p-2.5 rounded-lg text-center text-sm font-medium transition-all ${
+                className={`p-2.5 rounded-lg border text-center text-sm font-medium transition-colors ${
                   selectedCountry === country.code
-                    ? "bg-[#2196F3] text-white shadow-sm"
-                    : "bg-gray-50 text-gray-700 border border-gray-200"
+                    ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
+                    : "border-gray-200 bg-white text-gray-700"
                 }`}
                 data-testid={`button-country-${country.code}`}
               >
@@ -445,17 +442,20 @@ export default function DepositPage() {
         </div>
 
         {selectedCountry && paymentMethods.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <p className="text-sm font-semibold text-gray-800 mb-3">Moyen de paiement</p>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+              <h2 className="font-bold text-gray-800 text-sm">Canal de depot</h2>
+            </div>
             <div className="flex flex-wrap gap-2">
               {paymentMethods.map((method) => (
                 <button
                   key={method}
                   onClick={() => setSelectedPaymentMethod(method)}
-                  className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-4 py-2.5 rounded-full border-2 text-sm font-semibold transition-colors ${
                     selectedPaymentMethod === method
-                      ? "bg-[#2196F3] text-white shadow-sm"
-                      : "bg-gray-50 text-gray-700 border border-gray-200"
+                      ? "border-[#2196F3] bg-[#2196F3] text-white shadow-sm"
+                      : "border-gray-300 bg-white text-gray-800"
                   }`}
                   data-testid={`button-method-${method}`}
                 >
@@ -466,42 +466,43 @@ export default function DepositPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm space-y-3">
-          <p className="text-sm font-semibold text-gray-800">Informations de paiement</p>
-          <div className="border border-gray-200 rounded-lg px-4 py-3 bg-gray-50">
-            <input
-              type="text"
-              value={accountName}
-              onChange={(e) => setAccountName(e.target.value)}
-              placeholder="Nom du titulaire du compte"
-              className="w-full text-sm outline-none text-gray-700 bg-transparent"
-              data-testid="input-account-name"
-            />
-          </div>
-          <div className="border border-gray-200 rounded-lg px-4 py-3 bg-gray-50">
-            <input
-              type="tel"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              placeholder={`Numero ${selectedPaymentMethod || "Mobile Money"}`}
-              className="w-full text-sm outline-none text-gray-700 bg-transparent"
-              data-testid="input-account-number"
-            />
-          </div>
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
+          <input
+            type="text"
+            value={accountName}
+            onChange={(e) => setAccountName(e.target.value)}
+            placeholder="Nom du titulaire du compte"
+            className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
+            data-testid="input-account-name"
+          />
+        </div>
+
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
+          <input
+            type="tel"
+            value={accountNumber}
+            onChange={(e) => setAccountNumber(e.target.value)}
+            placeholder={`Numero ${selectedPaymentMethod || "Mobile Money"}`}
+            className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
+            data-testid="input-account-number"
+          />
         </div>
 
         {!isAutoPaymentAvailable && paymentChannels.filter(c => c.isActive).length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <p className="text-sm font-semibold text-gray-800 mb-3">Canal de recharge</p>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+              <h2 className="font-bold text-gray-800 text-sm">Canal de recharge</h2>
+            </div>
             <div className="flex flex-wrap gap-2">
               {paymentChannels.filter(c => c.isActive).map((channel) => (
                 <button
                   key={channel.id}
                   onClick={() => setSelectedChannel(channel)}
-                  className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-4 py-2.5 rounded-full border-2 text-sm font-semibold transition-colors ${
                     selectedChannel?.id === channel.id
-                      ? "bg-[#2196F3] text-white shadow-sm"
-                      : "bg-gray-50 text-gray-700 border border-gray-200"
+                      ? "border-[#2196F3] bg-[#2196F3] text-white shadow-sm"
+                      : "border-gray-300 bg-white text-gray-800"
                   }`}
                   data-testid={`button-channel-${channel.id}`}
                 >
@@ -512,25 +513,26 @@ export default function DepositPage() {
           </div>
         )}
 
-        <Button
+        <button
           onClick={handleSubmit}
           disabled={depositMutation.isPending || paymentStatus !== "idle" || !amount || !selectedPaymentMethod || !accountName || !accountNumber}
-          className="w-full py-3.5 bg-[#2196F3] rounded-full text-base"
+          className="w-full py-3.5 bg-[#2196F3] text-white font-bold rounded-full disabled:opacity-40 text-base shadow-md shadow-blue-200"
           data-testid="button-submit-deposit"
         >
           {depositMutation.isPending ? "Envoi en cours..." : "Depot immediat"}
-        </Button>
+        </button>
 
-        <div className="bg-blue-50 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Info className="w-4 h-4 text-[#2196F3]" />
-            <p className="text-sm font-semibold text-[#2196F3]">Instructions de depot</p>
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+            <h2 className="font-bold text-gray-800 text-sm">Description du depot</h2>
           </div>
-          <div className="space-y-1.5 text-xs text-gray-600 leading-relaxed">
-            <p>1. Le montant minimum de depot est de {minDeposit.toLocaleString()} {currency}.</p>
-            <p>2. Selectionnez votre pays et votre moyen de paiement.</p>
-            <p>3. Le montant sera credite sous 1 a 5 minutes.</p>
-            <p>4. Achetez des produits ELF pour activer la fonction de retrait.</p>
+          <div className="space-y-2 text-sm text-gray-600 leading-relaxed">
+            <p className="font-medium text-gray-700">*Instructions de depot:</p>
+            <p>1. Le montant minimum de depot est de {minDeposit.toLocaleString()} {currency}. Les virements inferieurs a {minDeposit.toLocaleString()} {currency} ne pourront pas etre credites sur le compte.</p>
+            <p>2. Chaque fois que vous rechargez, vous devez soumettre a nouveau la demande de recharge pour obtenir le dernier numero de recharge de la plateforme.</p>
+            <p>3. Apres un depot reussi, le montant sera credite sur votre compte dans un delai de 1 a 5 minutes.</p>
+            <p>4. Effectuez votre premiere recharge et achetez des produits ELF pour activer la fonction de retrait.</p>
           </div>
         </div>
       </div>
