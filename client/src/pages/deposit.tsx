@@ -551,7 +551,7 @@ export default function DepositPage() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setShowCountrySheet(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300 max-h-[60vh] flex flex-col">
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300 flex flex-col">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <h3 className="text-base font-bold text-gray-800">Selectionnez votre pays</h3>
               <button
@@ -562,7 +562,7 @@ export default function DepositPage() {
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <div className="overflow-y-auto p-4 space-y-1">
+            <div className="p-4 space-y-1">
               {COUNTRIES.map((country: { code: string; name: string }) => (
                 <button
                   key={country.code}
