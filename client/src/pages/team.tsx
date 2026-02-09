@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { getCountryByCode } from "@/lib/countries";
 import { Copy, Users, Gift } from "lucide-react";
+import { Link } from "wouter";
 import fanucTeam from "@/assets/images/fanuc-team-wide.png";
 
 interface TeamStats {
@@ -104,9 +105,11 @@ export default function TeamPage() {
               <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
               <h2 className="font-semibold text-gray-800 text-sm">Mon equipe</h2>
             </div>
-            <button className="text-xs text-gray-500" data-testid="link-team-details">
-              Details de l'equipe &gt;
-            </button>
+            <Link href="/team-details">
+              <span className="text-xs text-blue-500 font-medium" data-testid="link-team-details">
+                Details de l'equipe &gt;
+              </span>
+            </Link>
           </div>
 
           <div className="space-y-0">
