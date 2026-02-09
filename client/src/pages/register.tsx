@@ -95,13 +95,13 @@ export default function RegisterPage() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-white/95" />
 
       <div className="relative z-10 flex-1 flex flex-col">
-        <div className="flex-1 flex items-center justify-center pt-8 pb-4">
-          <img src={elfLogo} alt="ELF" className="h-16" />
+        <div className="flex-1 flex items-center justify-center pt-12 pb-6">
+          <img src={elfLogo} alt="ELF" className="h-24" />
         </div>
 
-        <div className="relative z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-t-3xl px-6 pt-6 pb-8">
+        <div className="relative z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-t-3xl px-6 pt-8 pb-10">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="phone"
@@ -112,20 +112,20 @@ export default function RegisterPage() {
                         <button
                           type="button"
                           onClick={() => setCountryModalOpen(true)}
-                          className="flex items-center gap-1 pl-4 pr-2 py-3 text-gray-600 dark:text-gray-300 shrink-0"
+                          className="flex items-center gap-1.5 pl-4 pr-2 py-3.5 text-gray-600 dark:text-gray-300 shrink-0"
                           data-testid="button-select-country"
                         >
-                          <Smartphone className="w-4 h-4 text-blue-500" />
-                          <span className="text-sm font-medium">
+                          <Smartphone className="w-5 h-5 text-blue-500" />
+                          <span className="text-base font-medium">
                             {countryData ? `+${countryData.phonePrefix}` : ""}
                           </span>
-                          <ChevronDown className="w-3 h-3" />
+                          <ChevronDown className="w-4 h-4" />
                         </button>
                         <Input
                           {...field}
                           type="tel"
                           placeholder="Veuillez entrer le numero de compte"
-                          className="border-0 bg-transparent h-12 text-sm focus-visible:ring-0 shadow-none px-2"
+                          className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2"
                           data-testid="input-phone"
                         />
                       </div>
@@ -143,13 +143,13 @@ export default function RegisterPage() {
                     <FormControl>
                       <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 overflow-visible">
                         <div className="pl-4 pr-2">
-                          <Lock className="w-4 h-4 text-gray-400" />
+                          <Lock className="w-5 h-5 text-gray-400" />
                         </div>
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
-                          placeholder="Veuillez entrer le numero de compte mot de ..."
-                          className="border-0 bg-transparent h-12 text-sm focus-visible:ring-0 shadow-none px-2"
+                          placeholder="Veuillez saisir votre mot de passe"
+                          className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2"
                           data-testid="input-password"
                         />
                         <button
@@ -175,13 +175,13 @@ export default function RegisterPage() {
                     <FormControl>
                       <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 overflow-visible">
                         <div className="pl-4 pr-2">
-                          <Lock className="w-4 h-4 text-gray-400" />
+                          <Lock className="w-5 h-5 text-gray-400" />
                         </div>
                         <Input
                           {...field}
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Entrez le mot de passe en double"
-                          className="border-0 bg-transparent h-12 text-sm focus-visible:ring-0 shadow-none px-2"
+                          className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2"
                           data-testid="input-confirm-password"
                         />
                         <button
@@ -207,12 +207,12 @@ export default function RegisterPage() {
                     <FormControl>
                       <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 overflow-visible">
                         <div className="pl-4 pr-2">
-                          <CheckSquare className="w-4 h-4 text-blue-500" />
+                          <CheckSquare className="w-5 h-5 text-blue-500" />
                         </div>
                         <Input
                           {...field}
                           placeholder="Code d'invitation"
-                          className="border-0 bg-transparent h-12 text-sm focus-visible:ring-0 shadow-none px-2"
+                          className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2"
                           data-testid="input-invitation-code"
                         />
                       </div>
@@ -228,7 +228,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => navigate("/login")}
-                  className="text-blue-500 text-sm font-medium"
+                  className="text-blue-500 text-base font-medium"
                   data-testid="link-login"
                 >
                   Se connecter &gt;
@@ -238,13 +238,13 @@ export default function RegisterPage() {
               <div className="pt-2">
                 <Button
                   type="submit"
-                  className="w-full h-12 rounded-full text-base font-semibold bg-gradient-to-r from-blue-400 to-blue-500 border-0"
+                  className="w-full h-14 rounded-full text-lg font-semibold bg-gradient-to-r from-blue-400 to-blue-500 border-0"
                   disabled={isLoading}
                   data-testid="button-register"
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       Inscription...
                     </>
                   ) : (
