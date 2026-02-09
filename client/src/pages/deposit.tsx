@@ -305,54 +305,77 @@ export default function DepositPage() {
     if (paymentStatus === "idle") return null;
 
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
+      <div className="fixed inset-0 z-50">
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl animate-in slide-in-from-bottom duration-300 flex flex-col items-center px-6 pt-3 pb-8">
+          <div className="w-10 h-1 bg-gray-300 rounded-full mb-6" />
+
           {paymentStatus === "processing" && (
             <>
-              <Loader2 className="w-16 h-16 text-[#2196F3] animate-spin mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Traitement en cours</h3>
-              <p className="text-gray-600 text-sm">Veuillez patienter...</p>
+              <div className="w-20 h-20 rounded-full bg-[#e3f2fd] flex items-center justify-center mb-5">
+                <Loader2 className="w-10 h-10 text-[#2196F3] animate-spin" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Traitement en cours</h3>
+              <p className="text-gray-500 text-sm">Veuillez patienter...</p>
             </>
           )}
+
           {paymentStatus === "pending" && (
             <>
-              <Clock className="w-16 h-16 text-[#2196F3] mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">En attente de validation</h3>
-              <p className="text-gray-600 text-sm mb-4">
-                Validez le paiement sur votre telephone mobile
-              </p>
-              <div className="flex items-center justify-center gap-2 text-[#2196F3]">
+              <div className="w-20 h-20 rounded-full bg-[#e3f2fd] flex items-center justify-center mb-5">
+                <Clock className="w-10 h-10 text-[#2196F3]" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Validation requise</h3>
+              <p className="text-gray-500 text-sm mb-5">Confirmez le paiement depuis votre telephone</p>
+              <div className="w-full bg-[#e3f2fd] rounded-xl p-4 mb-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-[#2196F3] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs font-bold">i</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">En attente de confirmation</p>
+                    <p className="text-sm text-gray-600 mt-1">Un message a ete envoye sur votre numero. Composez votre code PIN pour valider.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-[#2196F3]">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm">Verification automatique...</span>
+                <span className="text-sm font-medium">Verification en cours...</span>
               </div>
             </>
           )}
+
           {paymentStatus === "approved" && (
             <>
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2 text-green-700">Paiement reussi</h3>
-              <p className="text-gray-600 text-sm mb-4">
+              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-5">
+                <CheckCircle className="w-10 h-10 text-green-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement reussi</h3>
+              <p className="text-gray-500 text-sm mb-5">
                 Votre compte a ete credite de {amount?.toLocaleString()} {currency}
               </p>
               <button
                 onClick={resetForm}
-                className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg"
+                className="w-full py-3.5 bg-green-500 text-white font-bold rounded-full text-base"
                 data-testid="button-close-success"
               >
                 Fermer
               </button>
             </>
           )}
+
           {paymentStatus === "rejected" && (
             <>
-              <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2 text-red-700">Paiement echoue</h3>
-              <p className="text-gray-600 text-sm mb-4">
+              <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-5">
+                <XCircle className="w-10 h-10 text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement echoue</h3>
+              <p className="text-gray-500 text-sm mb-5">
                 Le paiement a ete refuse ou annule
               </p>
               <button
                 onClick={resetForm}
-                className="w-full py-3 bg-red-500 text-white font-semibold rounded-lg"
+                className="w-full py-3.5 bg-red-500 text-white font-bold rounded-full text-base"
                 data-testid="button-close-error"
               >
                 Reessayer
