@@ -172,7 +172,7 @@ export default function WithdrawalPage() {
   if (wallets.length === 0) {
     return (
       <div className="min-h-screen bg-white">
-        <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#e0f7fa] to-white">
+        <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-blue-50 to-white">
           <Link href="/account">
             <button className="p-2" data-testid="button-back">
               <ArrowLeft className="w-5 h-5 text-gray-700" />
@@ -187,8 +187,8 @@ export default function WithdrawalPage() {
         </header>
 
         <div className="flex flex-col items-center justify-center p-8 mt-20">
-          <div className="w-20 h-20 bg-[#e0f7fa] rounded-full flex items-center justify-center mb-6">
-            <svg className="w-10 h-10 text-[#26a69a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-[#2196F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
             </svg>
           </div>
@@ -198,7 +198,7 @@ export default function WithdrawalPage() {
           </p>
           <Button 
             onClick={() => navigate("/account")}
-            className="bg-[#26a69a] text-white px-6"
+            className="bg-[#2196F3] text-white px-6"
             data-testid="button-go-to-wallet"
           >
             Ajouter un portefeuille
@@ -210,7 +210,7 @@ export default function WithdrawalPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#e0f7fa] to-white">
+      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-blue-50 to-white">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">
             <ArrowLeft className="w-5 h-5 text-gray-700" />
@@ -219,13 +219,13 @@ export default function WithdrawalPage() {
         <h1 className="text-lg font-semibold text-gray-800">Les retraits</h1>
         <Link href="/history">
           <button className="p-2" data-testid="button-history">
-            <Clock className="w-5 h-5 text-[#26a69a]" />
+            <Clock className="w-5 h-5 text-[#2196F3]" />
           </button>
         </Link>
       </header>
 
       <div className="px-4 pt-2 pb-4">
-        <div className="bg-gradient-to-r from-[#b2dfdb] via-[#80cbc4] to-[#e0f2f1] rounded-xl p-5">
+        <div className="bg-gradient-to-r from-blue-100 via-blue-200 to-blue-50 rounded-xl p-5">
           <h2 className="text-2xl font-bold text-gray-800">{currency} {parseFloat(user?.balance || "0").toLocaleString()}</h2>
           <p className="text-sm text-gray-600 mt-1">Solde du compte</p>
         </div>
@@ -286,7 +286,18 @@ export default function WithdrawalPage() {
           </div>
         )}
 
-        <div>
+        <div className="pb-2">
+          <button
+            onClick={handleSubmit}
+            disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
+            className="w-full py-3.5 bg-[#2196F3] text-white font-semibold rounded-full disabled:opacity-50 text-base shadow-md"
+            data-testid="button-submit-withdrawal"
+          >
+            {withdrawMutation.isPending ? "Envoi en cours..." : "Retirer de l'argent"}
+          </button>
+        </div>
+
+        <div className="pb-6">
           <h3 className="font-bold text-gray-800 text-sm mb-3">Instructions pour retraits</h3>
           <div className="space-y-2 text-sm text-gray-600 leading-relaxed">
             <p>1. L'heure de retrait est de {withdrawalStartHour}h00 a {withdrawalEndHour}h00 tous les jours et les retraits sont disponibles tous les jours.</p>
@@ -297,17 +308,6 @@ export default function WithdrawalPage() {
             <p>6. Si le retrait echoue, veuillez verifier soigneusement si les informations bancaires que vous avez renseignees sont correctes, puis soumettez a nouveau la demande de retrait ou utilisez d'autres banques pour retirer de l'argent ;</p>
             <p>7. Effectuez la premiere recharge et achetez des produits ELF pour activer la fonction de retrait ;</p>
           </div>
-        </div>
-
-        <div className="pb-6">
-          <button
-            onClick={handleSubmit}
-            disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
-            className="w-full py-3.5 bg-[#78c5d6] text-white font-semibold rounded-full disabled:opacity-50 text-base"
-            data-testid="button-submit-withdrawal"
-          >
-            {withdrawMutation.isPending ? "Envoi en cours..." : "Retirer de l'argent"}
-          </button>
         </div>
       </div>
 
@@ -325,7 +325,7 @@ export default function WithdrawalPage() {
                   setShowWalletDialog(false);
                 }}
                 className={`w-full p-3 rounded-lg border text-left ${
-                  selectedWallet?.id === wallet.id ? "border-[#26a69a] bg-[#e0f7fa]" : "border-gray-200"
+                  selectedWallet?.id === wallet.id ? "border-[#2196F3] bg-blue-50" : "border-gray-200"
                 }`}
                 data-testid={`button-wallet-${wallet.id}`}
               >
@@ -395,7 +395,7 @@ export default function WithdrawalPage() {
             <button
               onClick={handleAddWallet}
               disabled={addWalletMutation.isPending}
-              className="w-full py-3 bg-[#26a69a] text-white font-semibold rounded-lg disabled:opacity-50"
+              className="w-full py-3 bg-[#2196F3] text-white font-semibold rounded-lg disabled:opacity-50"
               data-testid="button-save-wallet"
             >
               {addWalletMutation.isPending ? "Enregistrement..." : "Enregistrer"}
