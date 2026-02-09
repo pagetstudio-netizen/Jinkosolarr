@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
-const PRESET_AMOUNTS = [5000, 10000, 20000, 50000, 100000, 200000, 300000, 400000, 800000];
+const PRESET_AMOUNTS = [3000, 5000, 10000, 20000, 50000, 100000, 200000, 300000, 800000];
 
 interface PaymentChannel {
   id: number;
