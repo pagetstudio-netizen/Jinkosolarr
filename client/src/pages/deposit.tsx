@@ -9,6 +9,16 @@ import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
 const PRESET_AMOUNTS = [3000, 5000, 10000, 20000, 50000, 100000, 200000, 300000, 800000];
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  CM: "\u{1F1E8}\u{1F1F2}",
+  BF: "\u{1F1E7}\u{1F1EB}",
+  TG: "\u{1F1F9}\u{1F1EC}",
+  BJ: "\u{1F1E7}\u{1F1EF}",
+  CI: "\u{1F1E8}\u{1F1EE}",
+  CG: "\u{1F1E8}\u{1F1EC}",
+  CD: "\u{1F1E8}\u{1F1E9}",
+};
+
 interface PaymentChannel {
   id: number;
   name: string;
@@ -449,14 +459,18 @@ export default function DepositPage() {
           data-testid="button-open-country"
         >
           <div className="flex items-center gap-3">
-            <MapPin className="w-4 h-4 text-[#2196F3]" />
+            {selectedCountry ? (
+              <span className="text-xl">{COUNTRY_FLAGS[selectedCountry] || ""}</span>
+            ) : (
+              <MapPin className="w-4 h-4 text-[#2196F3]" />
+            )}
             <span className={`text-sm ${selectedCountry ? "text-gray-800 font-medium" : "text-gray-500"}`}>
               {selectedCountry
                 ? COUNTRIES.find((c: { code: string }) => c.code === selectedCountry)?.name || "Pays"
                 : "Selectionnez votre pays"}
             </span>
           </div>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronRight className="w-4 h-4 text-gray-400" />
         </button>
 
         {selectedCountry && paymentMethods.length > 0 && (
@@ -562,7 +576,7 @@ export default function DepositPage() {
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <div className="p-4 space-y-1">
+            <div className="p-4 space-y-2">
               {COUNTRIES.map((country: { code: string; name: string }) => (
                 <button
                   key={country.code}
@@ -573,14 +587,17 @@ export default function DepositPage() {
                   }}
                   className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-colors ${
                     selectedCountry === country.code
-                      ? "bg-[#e3f2fd] text-[#2196F3]"
-                      : "text-gray-700"
+                      ? "bg-[#2196F3] text-white"
+                      : "bg-gray-50 text-gray-700"
                   }`}
                   data-testid={`button-country-${country.code}`}
                 >
-                  <span className="text-sm font-medium">{country.name}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{COUNTRY_FLAGS[country.code] || ""}</span>
+                    <span className="text-sm font-semibold">{country.name}</span>
+                  </div>
                   {selectedCountry === country.code && (
-                    <Check className="w-5 h-5 text-[#2196F3]" />
+                    <Check className="w-5 h-5 text-white" />
                   )}
                 </button>
               ))}
