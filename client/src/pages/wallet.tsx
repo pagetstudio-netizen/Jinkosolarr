@@ -5,17 +5,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPaymentMethodsForCountry } from "@/lib/countries";
-import { Loader2, Plus, Trash2, CreditCard, Check, ChevronLeft } from "lucide-react";
+import { Loader2, Plus, Trash2, CreditCard, Check, ArrowLeft, ChevronRight, Wallet, User, Phone, Shield } from "lucide-react";
 import { Link, useLocation, useSearch } from "wouter";
 import type { WithdrawalWallet } from "@shared/schema";
-import bankIcon from "@/assets/images/bank-icon.png";
 
 const walletSchema = z.object({
   accountName: z.string().min(2, "Nom du compte requis"),
@@ -120,21 +117,24 @@ export default function WalletPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-white">
-      <header className="flex items-center px-4 py-3 border-b bg-white">
+      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#64B5F6] to-white">
         <Link href={backLink}>
-          <button className="p-1" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-gray-600" />
+          <button className="p-2" data-testid="button-back">
+            <ArrowLeft className="w-5 h-5 text-gray-700" />
           </button>
         </Link>
-        <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-6">
-          {selectMode ? "Selectionner un portefeuille" : "Compte de retrait"}
+        <h1 className="text-lg font-semibold text-gray-800">
+          {selectMode ? "Selectionner" : "Compte de retrait"}
         </h1>
+        <div className="w-9" />
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6 pb-24">
-        {!selectMode && (
-          <div className="flex justify-center mb-6">
-            <img src={bankIcon} alt="Bank" className="w-32 h-32 object-contain" />
+      <div className="flex-1 overflow-y-auto px-5 py-6 pb-24">
+        {!selectMode && !showForm && (
+          <div className="flex justify-center mb-5">
+            <div className="w-20 h-20 rounded-full bg-[#e3f2fd] flex items-center justify-center">
+              <Wallet className="w-10 h-10 text-[#2196F3]" />
+            </div>
           </div>
         )}
 
@@ -144,155 +144,200 @@ export default function WalletPage() {
           </p>
         )}
 
-        <h2 className="text-center text-xl font-bold text-gray-800 mb-6">
-          {selectMode ? "Vos portefeuilles" : "Gestion des portefeuilles"}
-        </h2>
+        {!showForm && (
+          <h2 className="text-center text-lg font-bold text-gray-800 mb-1">
+            {selectMode ? "Vos portefeuilles" : "Gestion des portefeuilles"}
+          </h2>
+        )}
+        {!showForm && !selectMode && (
+          <p className="text-center text-sm text-gray-500 mb-6">Gerez vos comptes de retrait</p>
+        )}
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-[#2196F3]" />
             </div>
-          ) : wallets && wallets.length > 0 ? (
+          ) : wallets && wallets.length > 0 && !showForm ? (
             wallets.map((wallet) => (
-              <Card
+              <div
                 key={wallet.id}
-                className={`${wallet.isDefault ? "border-[#2196F3] border-2" : ""} ${selectMode ? "cursor-pointer" : ""}`}
+                className={`rounded-2xl border overflow-hidden ${
+                  wallet.isDefault ? "border-[#2196F3] bg-[#f8fbff]" : "border-gray-100 bg-white"
+                } ${selectMode ? "cursor-pointer" : ""} shadow-sm`}
                 onClick={() => selectMode && handleSelectWallet(wallet)}
                 data-testid={`wallet-card-${wallet.id}`}
               >
-                <CardContent className="p-4">
+                <div className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-[#2196F3]" />
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        wallet.isDefault ? "bg-[#2196F3]" : "bg-[#e3f2fd]"
+                      }`}>
+                        <CreditCard className={`w-5 h-5 ${wallet.isDefault ? "text-white" : "text-[#2196F3]"}`} />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800">{wallet.accountName}</p>
-                        <p className="text-sm text-gray-500">{wallet.accountNumber}</p>
-                        <p className="text-xs text-gray-400">{wallet.paymentMethod}</p>
+                        <p className="font-semibold text-gray-800">{wallet.accountName}</p>
+                        <p className="text-sm text-gray-500 mt-0.5">{wallet.accountNumber}</p>
+                        <span className="inline-block text-xs text-[#2196F3] bg-[#e3f2fd] px-2 py-0.5 rounded-full mt-1.5 font-medium">
+                          {wallet.paymentMethod}
+                        </span>
                       </div>
                     </div>
                     {!selectMode && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         {!wallet.isDefault && (
-                          <Button
-                            size="icon"
-                            variant="ghost"
+                          <button
                             onClick={() => setDefaultMutation.mutate(wallet.id)}
                             disabled={setDefaultMutation.isPending}
+                            className="p-2 rounded-full"
                             data-testid={`button-set-default-${wallet.id}`}
                           >
                             <Check className="w-4 h-4 text-green-500" />
-                          </Button>
+                          </button>
                         )}
-                        <Button
-                          size="icon"
-                          variant="ghost"
+                        <button
                           onClick={() => deleteMutation.mutate(wallet.id)}
                           disabled={deleteMutation.isPending}
+                          className="p-2 rounded-full"
                           data-testid={`button-delete-wallet-${wallet.id}`}
                         >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
+                          <Trash2 className="w-4 h-4 text-red-400" />
+                        </button>
                       </div>
                     )}
                     {selectMode && (
-                      <div className="flex items-center">
-                        <ChevronLeft className="w-5 h-5 text-gray-300 rotate-180" />
-                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-300" />
                     )}
                   </div>
                   {wallet.isDefault && (
-                    <div className="mt-2">
-                      <span className="text-xs bg-blue-50 text-[#2196F3] px-2 py-1 rounded">Par defaut</span>
+                    <div className="mt-3 pt-3 border-t border-blue-100 flex items-center gap-2">
+                      <Shield className="w-3.5 h-3.5 text-[#2196F3]" />
+                      <span className="text-xs font-medium text-[#2196F3]">Portefeuille par defaut</span>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))
           ) : !showForm ? (
             <div className="text-center py-8">
-              <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 mb-4">Aucun portefeuille enregistre</p>
+              <div className="w-16 h-16 rounded-full bg-[#e3f2fd] flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="w-8 h-8 text-[#2196F3]" />
+              </div>
+              <p className="text-gray-500 text-sm mb-1">Aucun portefeuille enregistre</p>
+              <p className="text-gray-400 text-xs">Ajoutez un portefeuille pour effectuer des retraits</p>
             </div>
           ) : null}
 
           {showForm ? (
-            <Card>
-              <CardContent className="p-4">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit((data) => addMutation.mutate(data))} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="accountName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nom du compte</FormLabel>
+            <div>
+              <h2 className="text-center text-lg font-bold text-gray-800 mb-1">Nouveau portefeuille</h2>
+              <p className="text-center text-sm text-gray-500 mb-6">Ajoutez un compte de retrait</p>
+
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit((data) => addMutation.mutate(data))} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="accountName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom du compte</label>
+                        <FormControl>
+                          <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                              <User className="w-4 h-4 text-[#2196F3]" />
+                            </div>
+                            <input
+                              {...field}
+                              placeholder="Votre nom complet"
+                              className="w-full border border-gray-200 rounded-full pl-10 pr-4 py-3 text-sm outline-none focus:border-[#2196F3] bg-white"
+                              data-testid="input-wallet-name"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="accountNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Numero</label>
+                        <FormControl>
+                          <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                              <Phone className="w-4 h-4 text-[#2196F3]" />
+                            </div>
+                            <input
+                              {...field}
+                              type="tel"
+                              placeholder="Votre numero"
+                              className="w-full border border-gray-200 rounded-full pl-10 pr-4 py-3 text-sm outline-none focus:border-[#2196F3] bg-white"
+                              data-testid="input-wallet-number"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Moyen de paiement</label>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <Input {...field} placeholder="Votre nom complet" data-testid="input-wallet-name" />
+                            <SelectTrigger className="rounded-full border-gray-200 h-12" data-testid="select-wallet-method">
+                              <SelectValue placeholder="Choisir le moyen de paiement" />
+                            </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                          <SelectContent>
+                            {paymentMethods.map((method) => (
+                              <SelectItem key={method} value={method}>
+                                {method}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="accountNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Numero</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="tel" placeholder="Votre numero" data-testid="input-wallet-number" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="paymentMethod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Moyen de paiement</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-wallet-method">
-                                <SelectValue placeholder="Choisir" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {paymentMethods.map((method) => (
-                                <SelectItem key={method} value={method}>
-                                  {method}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="flex gap-2">
-                      <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="flex-1">
-                        Annuler
-                      </Button>
-                      <Button type="submit" className="flex-1 bg-[#2196F3]" disabled={addMutation.isPending}>
-                        {addMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ajouter"}
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowForm(false)}
+                      className="flex-1 py-3 border border-gray-200 rounded-full text-sm font-medium text-gray-700"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={addMutation.isPending}
+                      className="flex-1 py-3 bg-[#2196F3] text-white rounded-full text-sm font-bold disabled:opacity-40 shadow-md shadow-blue-200"
+                    >
+                      {addMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Ajouter"}
+                    </button>
+                  </div>
+                </form>
+              </Form>
+            </div>
           ) : (
-            <Button className="w-full bg-[#2196F3]" onClick={() => setShowForm(true)} data-testid="button-add-wallet">
-              <Plus className="w-4 h-4 mr-2" />
+            <button
+              className="w-full py-3.5 bg-[#2196F3] text-white font-bold rounded-full text-base shadow-md shadow-blue-200 flex items-center justify-center gap-2"
+              onClick={() => setShowForm(true)}
+              data-testid="button-add-wallet"
+            >
+              <Plus className="w-4 h-4" />
               Ajouter un portefeuille
-            </Button>
+            </button>
           )}
         </div>
       </div>
