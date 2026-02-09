@@ -27,7 +27,7 @@ export default function DepositHistoryPage() {
       case "approved":
         return "text-green-600 bg-green-100";
       case "pending":
-        return "text-amber-600 bg-amber-100";
+        return "text-blue-600 bg-blue-100";
       case "rejected":
         return "text-red-600 bg-red-100";
       default:

@@ -129,7 +129,7 @@ export default function HistoryPage() {
             <ArrowUpFromLine className="w-4 h-4" />
             Retraits
           </div>
-          {activeTab === "withdrawals" && <div className="h-0.5 bg-yellow-400 w-full mt-2" />}
+          {activeTab === "withdrawals" && <div className="h-0.5 bg-[#2196F3] w-full mt-2" />}
         </button>
       </div>
 

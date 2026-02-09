@@ -109,7 +109,7 @@ export default function GiftCodePage() {
             <Button
               onClick={handleSubmit}
               disabled={claimMutation.isPending}
-              className="w-full bg-amber-500 text-white rounded-xl"
+              className="w-full bg-[#2196F3] text-white rounded-xl"
               data-testid="button-submit-code"
             >
               {claimMutation.isPending ? (

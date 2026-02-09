@@ -59,7 +59,7 @@ export default function HomePage() {
             </button>
             <img src={elfPopupBanner} alt="ELF Banner" className="w-full h-auto object-cover" />
             <div className="p-4 text-white">
-              <h2 className="text-[#ff3b30] font-bold text-center text-lg mb-3 tracking-wider">
+              <h2 className="text-[#2196F3] font-bold text-center text-lg mb-3 tracking-wider">
                 NOTIFIE
               </h2>
               <div className="space-y-3 text-[13px] leading-relaxed">

@@ -130,8 +130,8 @@ export default function AdminDashboard({ isSuperAdmin }: AdminDashboardProps) {
       value: `${stats.pendingDeposits.toLocaleString()} F`,
       subtitle: `${stats.pendingDepositsCount} demande(s)`,
       icon: Clock,
-      color: "text-yellow-600",
-      bg: "bg-yellow-500/20",
+      color: "text-[#2196F3]",
+      bg: "bg-blue-500/20",
     },
   ];
 

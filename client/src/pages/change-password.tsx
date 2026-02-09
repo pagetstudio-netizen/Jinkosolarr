@@ -142,7 +142,7 @@ export default function ChangePasswordPage() {
           <Button
             onClick={handleSubmit}
             disabled={changePasswordMutation.isPending}
-            className="w-full bg-amber-500 hover:bg-amber-600"
+            className="w-full bg-[#2196F3]"
             data-testid="button-change-password-submit"
           >
             {changePasswordMutation.isPending ? (
