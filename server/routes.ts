@@ -445,6 +445,7 @@ export async function registerRoutes(
             outTradeNo: orderId,
             amount,
             notifyUrl: `${baseUrl}/api/webhooks/inpay/payin`,
+            returnUrl: `${baseUrl}/deposit`,
             bankCode,
             customerName: accountName,
             customerMobile: accountNumber,

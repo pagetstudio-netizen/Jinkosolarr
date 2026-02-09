@@ -190,6 +190,7 @@ export async function initiatePayin(params: {
   outTradeNo: string;
   amount: number;
   notifyUrl: string;
+  returnUrl: string;
   bankCode: string;
   customerName: string;
   customerMobile: string;
@@ -218,6 +219,7 @@ export async function initiatePayin(params: {
     out_trade_no: params.outTradeNo,
     total_fee: roundedAmount.toFixed(2),
     notify_url: params.notifyUrl,
+    return_url: params.returnUrl,
     bank_code: params.bankCode,
     timestamp: Math.floor(Date.now() / 1000).toString(),
     customer_name: params.customerName,
