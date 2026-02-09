@@ -1,7 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import { Bell, X, Send } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 
@@ -12,48 +12,17 @@ import iconRecharger from "@assets/20260208_191924_1770580677527.png";
 import iconRetraits from "@assets/20260208_191333_1770580677612.png";
 import iconAider from "@assets/20260208_105040_1770548435850.png";
 import iconEnregistrer from "@assets/images_(6)_1770548411064.png";
-import elfTeamImg from "@/assets/images/elf-team.webp";
-import bannerService from "@/assets/images/banner-service.png";
-import bannerPlatform from "@/assets/images/banner-platform.png";
-
-interface BannerImage {
-  id: number;
-  imageData: string;
-  sortOrder: number;
-  isActive: boolean;
-}
+import elfPopupBanner from "@assets/20260126_073237_1769413159534.jpg";
 
 export default function HomePage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [showPopup, setShowPopup] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const slideInterval = useRef<NodeJS.Timeout | null>(null);
-
-  const fallbackSlides = [heroImg, bannerPlatform, bannerService];
-
-  const { data: apiBanners } = useQuery<BannerImage[]>({
-    queryKey: ["/api/banners"],
-  });
-
-  const bannerSlides = apiBanners && apiBanners.length > 0
-    ? apiBanners.map((b) => b.imageData)
-    : fallbackSlides;
-
-  const shouldAutoScroll = bannerSlides.length > 1;
 
   const { data: userProducts } = useQuery<any[]>({
     queryKey: ["/api/user-products"],
     enabled: !!user,
   });
-
-  const startSlideshow = useCallback(() => {
-    if (slideInterval.current) clearInterval(slideInterval.current);
-    if (!shouldAutoScroll) return;
-    slideInterval.current = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
-    }, 4000);
-  }, [bannerSlides.length, shouldAutoScroll]);
 
   useEffect(() => {
     setShowPopup(true);
@@ -62,21 +31,6 @@ export default function HomePage() {
     }, 8000);
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    if (shouldAutoScroll) {
-      startSlideshow();
-    }
-    return () => {
-      if (slideInterval.current) clearInterval(slideInterval.current);
-    };
-  }, [startSlideshow, shouldAutoScroll]);
-
-  useEffect(() => {
-    if (currentSlide >= bannerSlides.length) {
-      setCurrentSlide(0);
-    }
-  }, [bannerSlides.length, currentSlide]);
 
   if (!user) return null;
 
@@ -103,7 +57,7 @@ export default function HomePage() {
             >
               <X className="w-6 h-6" />
             </button>
-            <img src={elfTeamImg} alt="ELF Banner" className="w-full h-auto object-cover" />
+            <img src={elfPopupBanner} alt="ELF Banner" className="w-full h-auto object-cover" />
             <div className="p-4 text-white">
               <h2 className="text-[#2196F3] font-bold text-center text-lg mb-3 tracking-wider">
                 NOTIFIE
@@ -157,38 +111,13 @@ export default function HomePage() {
       </div>
 
       <div className="px-4">
-        <div className="rounded-2xl overflow-hidden relative" data-testid="img-hero">
-          <div
-            className="flex transition-transform duration-700 ease-in-out"
-            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-          >
-            {bannerSlides.map((slide, index) => (
-              <img
-                key={index}
-                src={slide}
-                alt={`ELF Banner ${index + 1}`}
-                className="w-full h-48 object-cover flex-shrink-0"
-              />
-            ))}
-          </div>
-          {shouldAutoScroll && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {bannerSlides.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setCurrentSlide(index);
-                    startSlideshow();
-                  }}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    currentSlide === index
-                      ? "w-5 bg-white"
-                      : "w-1.5 bg-white/50"
-                  }`}
-                />
-              ))}
-            </div>
-          )}
+        <div className="rounded-2xl overflow-hidden">
+          <img
+            src={heroImg}
+            alt="ELF Expert"
+            className="w-full h-48 object-cover"
+            data-testid="img-hero"
+          />
         </div>
       </div>
 

@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Send, Users, Megaphone, Headphones, Clock, ExternalLink } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import serviceImg from "@/assets/images/elf-service-client.png";
+import telegramIcon from "@/assets/images/telegram-icon.png";
 
 export default function ServicePage() {
   const { data: settings } = useQuery<{ supportLink: string; channelLink: string; groupLink: string }>({
@@ -14,88 +13,72 @@ export default function ServicePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
+    <div className="flex flex-col min-h-full bg-white">
+      <header className="flex items-center px-4 py-3 border-b bg-white">
         <Link href="/account">
-          <Button size="icon" variant="ghost" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          <button className="p-1" data-testid="button-back">
+            <ChevronLeft className="w-6 h-6 text-gray-600" />
+          </button>
         </Link>
-        <h1 className="text-lg font-semibold text-gray-800">Support</h1>
-        <div className="w-9" />
+        <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-6">Service en ligne</h1>
       </header>
 
-      <div className="px-4 pt-4">
-        <div className="rounded-2xl overflow-hidden shadow-sm">
-          <img src={serviceImg} alt="ELF Service Client" className="w-full h-auto object-cover" />
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+        <div className="relative rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-teal-600 to-teal-500 p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <h2 className="text-white text-xl font-bold mb-2">Bonjour, bienvenue chez ELF</h2>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  Votre satisfaction est notre priorite. Si vous avez des questions sur votre Compte ou nos services, n'hesitez pas a nous contacter.
+                </p>
+              </div>
+              <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
+                <span className="text-4xl">👩‍💼</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div className="px-4 pt-5 pb-3">
-        <div className="flex items-center gap-2 justify-center mb-1">
-          <Clock className="w-4 h-4 text-[#2196F3]" />
-          <p className="text-sm font-medium text-gray-600">Disponible 7j/7</p>
+        <div className="text-center">
+          <p className="text-pink-500 text-xl font-medium">9h a 17h GMT</p>
         </div>
-      </div>
 
-      <div className="px-4 space-y-3 pb-8">
-        <button
-          onClick={() => openLink(settings?.supportLink || "https://t.me/+DOnUcJs7idVmN2E0")}
-          className="w-full bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-center gap-4"
-          data-testid="button-support-link"
-        >
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#1976D2] to-[#42A5F5] flex items-center justify-center shrink-0">
-            <Headphones className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="font-semibold text-gray-900 text-sm">Service Client</p>
-            <p className="text-xs text-gray-400 mt-0.5">Assistance personnalisee</p>
-          </div>
-          <div className="flex items-center gap-1 text-[#2196F3] shrink-0">
-            <span className="text-xs font-medium">Ouvrir</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </div>
-        </button>
+        <div className="space-y-4">
+          <button
+            onClick={() => openLink(settings?.supportLink || "https://t.me/+DOnUcJs7idVmN2E0")}
+            className="w-full bg-gray-100 rounded-xl p-4 flex items-center gap-4 hover:bg-gray-200 transition-colors"
+            data-testid="button-support-link"
+          >
+            <img src={telegramIcon} alt="Telegram" className="w-12 h-12 rounded-lg" />
+            <span className="flex-1 text-left text-gray-700 font-medium">Service Client</span>
+            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Connecter</span>
+          </button>
 
-        <button
-          onClick={() => openLink(settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0")}
-          className="w-full bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-center gap-4"
-          data-testid="button-group-link"
-        >
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-400 flex items-center justify-center shrink-0">
-            <Users className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="font-semibold text-gray-900 text-sm">Groupe de discussion</p>
-            <p className="text-xs text-gray-400 mt-0.5">Echangez avec la communaute</p>
-          </div>
-          <div className="flex items-center gap-1 text-emerald-600 shrink-0">
-            <span className="text-xs font-medium">Rejoindre</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </div>
-        </button>
+          <button
+            onClick={() => openLink(settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0")}
+            className="w-full bg-gray-100 rounded-xl p-4 flex items-center gap-4 hover:bg-gray-200 transition-colors"
+            data-testid="button-group-link"
+          >
+            <img src={telegramIcon} alt="Telegram" className="w-12 h-12 rounded-lg" />
+            <span className="flex-1 text-left text-gray-700 font-medium">Groupe de discussion</span>
+            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Connecter</span>
+          </button>
 
-        <button
-          onClick={() => openLink(settings?.channelLink || "https://t.me/+DOnUcJs7idVmN2E0")}
-          className="w-full bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-center gap-4"
-          data-testid="button-channel-link"
-        >
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0088cc] to-[#00bbff] flex items-center justify-center shrink-0">
-            <Megaphone className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="font-semibold text-gray-900 text-sm">Chaine officielle</p>
-            <p className="text-xs text-gray-400 mt-0.5">Actualites et annonces</p>
-          </div>
-          <div className="flex items-center gap-1 text-[#0088cc] shrink-0">
-            <span className="text-xs font-medium">Suivre</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </div>
-        </button>
+          <button
+            onClick={() => openLink(settings?.channelLink || "https://t.me/+DOnUcJs7idVmN2E0")}
+            className="w-full bg-gray-100 rounded-xl p-4 flex items-center gap-4 hover:bg-gray-200 transition-colors"
+            data-testid="button-channel-link"
+          >
+            <img src={telegramIcon} alt="Telegram" className="w-12 h-12 rounded-lg" />
+            <span className="flex-1 text-left text-gray-700 font-medium">Chaine officielle de ELF</span>
+            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Connecter</span>
+          </button>
+        </div>
 
-        <div className="bg-blue-50 rounded-xl p-4 mt-4">
-          <p className="text-gray-600 text-xs leading-relaxed text-center">
-            Notre equipe est a votre disposition pour repondre a toutes vos questions concernant vos investissements, depots et retraits.
+        <div className="text-center px-4">
+          <p className="text-gray-600 text-sm leading-relaxed">
+            Contactez notre service client pour obtenir des conseils d'investissement et maximiser vos revenus quotidiens ! Ne manquez pas les opportunites de croissance.
           </p>
         </div>
       </div>

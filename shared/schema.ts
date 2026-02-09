@@ -207,16 +207,6 @@ export const giftCodes = pgTable("gift_codes", {
   isActive: boolean("is_active").notNull().default(true),
 });
 
-// Banner images for home carousel
-export const bannerImages = pgTable("banner_images", {
-  id: serial("id").primaryKey(),
-  imageData: text("image_data").notNull(),
-  sortOrder: integer("sort_order").notNull().default(0),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-});
-
 // Gift code claims
 export const giftCodeClaims = pgTable("gift_code_claims", {
   id: serial("id").primaryKey(),
@@ -343,4 +333,3 @@ export type PlatformSetting = typeof platformSettings.$inferSelect;
 export type AdminAuditLog = typeof adminAuditLog.$inferSelect;
 export type GiftCode = typeof giftCodes.$inferSelect;
 export type GiftCodeClaim = typeof giftCodeClaims.$inferSelect;
-export type BannerImage = typeof bannerImages.$inferSelect;

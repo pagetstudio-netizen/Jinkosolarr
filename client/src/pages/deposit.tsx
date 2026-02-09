@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock, Info, ChevronRight, MapPin, CreditCard, Check, X } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock, Info } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode, COUNTRIES } from "@/lib/countries";
@@ -60,8 +60,6 @@ export default function DepositPage() {
   const [accountNumber, setAccountNumber] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
   const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
-  const [showCountrySheet, setShowCountrySheet] = useState(false);
-  const [showPaymentSheet, setShowPaymentSheet] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
@@ -306,94 +304,59 @@ export default function DepositPage() {
     if (paymentStatus === "idle") return null;
 
     return (
-      <div className="fixed inset-0 z-50">
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl animate-in slide-in-from-bottom duration-300">
-          <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mt-3" />
-
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
           {paymentStatus === "processing" && (
-            <div className="px-6 pt-6 pb-10 text-center">
-              <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-[#1976D2] to-[#2196F3] flex items-center justify-center">
-                <Loader2 className="w-10 h-10 text-white animate-spin" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-1">Traitement en cours</h3>
-              <p className="text-gray-500 text-sm">Votre demande est en cours de traitement</p>
-              <div className="mt-5 flex items-center justify-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#2196F3] animate-pulse" />
-                <span className="w-2 h-2 rounded-full bg-[#2196F3] animate-pulse [animation-delay:0.2s]" />
-                <span className="w-2 h-2 rounded-full bg-[#2196F3] animate-pulse [animation-delay:0.4s]" />
-              </div>
-            </div>
+            <>
+              <Loader2 className="w-16 h-16 text-[#2196F3] animate-spin mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Traitement en cours</h3>
+              <p className="text-gray-600 text-sm">Veuillez patienter...</p>
+            </>
           )}
-
           {paymentStatus === "pending" && (
-            <div className="px-6 pt-6 pb-10 text-center">
-              <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-[#1976D2] to-[#42A5F5] flex items-center justify-center relative">
-                <svg className="w-20 h-20 absolute animate-spin [animation-duration:3s]" viewBox="0 0 80 80">
-                  <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
-                  <circle cx="40" cy="40" r="36" fill="none" stroke="white" strokeWidth="3" strokeDasharray="60 170" strokeLinecap="round" />
-                </svg>
-                <Clock className="w-9 h-9 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-1">Validation requise</h3>
-              <p className="text-gray-500 text-sm mb-5">
-                Confirmez le paiement depuis votre telephone
+            <>
+              <Clock className="w-16 h-16 text-[#2196F3] mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">En attente de validation</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Validez le paiement sur votre telephone mobile
               </p>
-              <div className="bg-blue-50 rounded-xl p-4 flex items-start gap-3 text-left">
-                <Info className="w-5 h-5 text-[#2196F3] shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">En attente de confirmation</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Un message a ete envoye sur votre numero. Composez votre code PIN pour valider.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-5 flex items-center justify-center gap-2 text-[#2196F3]">
+              <div className="flex items-center justify-center gap-2 text-[#2196F3]">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-xs font-medium">Verification en cours...</span>
+                <span className="text-sm">Verification automatique...</span>
               </div>
-            </div>
+            </>
           )}
-
           {paymentStatus === "approved" && (
-            <div className="px-6 pt-6 pb-10 text-center">
-              <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-emerald-500 to-green-400 flex items-center justify-center">
-                <CheckCircle className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-1">Depot reussi</h3>
-              <p className="text-gray-500 text-sm mb-2">
-                Votre solde a ete mis a jour
-              </p>
-              <p className="text-2xl font-bold text-emerald-600 mb-6">
-                +{amount?.toLocaleString()} {currency}
+            <>
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2 text-green-700">Paiement reussi</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Votre compte a ete credite de {amount?.toLocaleString()} {currency}
               </p>
               <Button
                 onClick={resetForm}
-                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-green-400 rounded-full text-base"
+                className="w-full bg-green-500"
                 data-testid="button-close-success"
               >
-                Continuer
+                Fermer
               </Button>
-            </div>
+            </>
           )}
-
           {paymentStatus === "rejected" && (
-            <div className="px-6 pt-6 pb-10 text-center">
-              <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-red-500 to-rose-400 flex items-center justify-center">
-                <XCircle className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-1">Echec du paiement</h3>
-              <p className="text-gray-500 text-sm mb-6">
-                La transaction n'a pas abouti. Veuillez reessayer.
+            <>
+              <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2 text-red-700">Paiement echoue</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Le paiement a ete refuse ou annule
               </p>
               <Button
                 onClick={resetForm}
-                className="w-full py-3 bg-gradient-to-r from-red-500 to-rose-400 rounded-full text-base"
+                className="w-full bg-red-500"
                 data-testid="button-close-error"
               >
                 Reessayer
               </Button>
-            </div>
+            </>
           )}
         </div>
       </div>
@@ -458,51 +421,50 @@ export default function DepositPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => setShowCountrySheet(true)}
-          className="w-full bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-center justify-between"
-          data-testid="button-open-country-sheet"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-[#2196F3]" />
-            </div>
-            <div className="text-left">
-              <p className="text-xs text-gray-400">Pays</p>
-              <p className="text-sm font-semibold text-gray-800">
-                {selectedCountry
-                  ? COUNTRIES.find((c: { code: string }) => c.code === selectedCountry)?.name || selectedCountry
-                  : "Selectionnez votre pays"}
-              </p>
-            </div>
+        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+          <p className="text-sm font-semibold text-gray-800 mb-3">Votre pays</p>
+          <div className="grid grid-cols-2 gap-2">
+            {COUNTRIES.map((country: { code: string; name: string }) => (
+              <button
+                key={country.code}
+                onClick={() => {
+                  setSelectedCountry(country.code);
+                  setSelectedPaymentMethod("");
+                }}
+                className={`p-2.5 rounded-lg text-center text-sm font-medium transition-all ${
+                  selectedCountry === country.code
+                    ? "bg-[#2196F3] text-white shadow-sm"
+                    : "bg-gray-50 text-gray-700 border border-gray-200"
+                }`}
+                data-testid={`button-country-${country.code}`}
+              >
+                {country.name}
+              </button>
+            ))}
           </div>
-          <ChevronRight className="w-5 h-5 text-gray-400" />
-        </button>
+        </div>
 
-        <button
-          onClick={() => {
-            if (!selectedCountry) {
-              toast({ title: "Pays requis", description: "Veuillez d'abord selectionner votre pays", variant: "destructive" });
-              return;
-            }
-            setShowPaymentSheet(true);
-          }}
-          className="w-full bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-center justify-between"
-          data-testid="button-open-payment-sheet"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-[#2196F3]" />
-            </div>
-            <div className="text-left">
-              <p className="text-xs text-gray-400">Moyen de paiement</p>
-              <p className="text-sm font-semibold text-gray-800">
-                {selectedPaymentMethod || "Selectionnez le mode de depot"}
-              </p>
+        {selectedCountry && paymentMethods.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+            <p className="text-sm font-semibold text-gray-800 mb-3">Moyen de paiement</p>
+            <div className="flex flex-wrap gap-2">
+              {paymentMethods.map((method) => (
+                <button
+                  key={method}
+                  onClick={() => setSelectedPaymentMethod(method)}
+                  className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    selectedPaymentMethod === method
+                      ? "bg-[#2196F3] text-white shadow-sm"
+                      : "bg-gray-50 text-gray-700 border border-gray-200"
+                  }`}
+                  data-testid={`button-method-${method}`}
+                >
+                  {method}
+                </button>
+              ))}
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-gray-400" />
-        </button>
+        )}
 
         <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm space-y-3">
           <p className="text-sm font-semibold text-gray-800">Informations de paiement</p>
@@ -574,104 +536,6 @@ export default function DepositPage() {
       </div>
 
       {renderPaymentStatus()}
-
-      {showCountrySheet && (
-        <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setShowCountrySheet(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[60vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h3 className="text-lg font-bold text-gray-800">Selectionnez votre pays</h3>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setShowCountrySheet(false)}
-                data-testid="button-close-country-sheet"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <div className="overflow-y-auto p-4 space-y-1">
-              {COUNTRIES.map((country: { code: string; name: string }) => (
-                <button
-                  key={country.code}
-                  onClick={() => {
-                    setSelectedCountry(country.code);
-                    setSelectedPaymentMethod("");
-                    setShowCountrySheet(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-colors ${
-                    selectedCountry === country.code
-                      ? "bg-blue-50"
-                      : ""
-                  }`}
-                  data-testid={`button-country-${country.code}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-gray-800">{country.name}</span>
-                  </div>
-                  {selectedCountry === country.code && (
-                    <Check className="w-5 h-5 text-[#2196F3]" />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showPaymentSheet && (
-        <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setShowPaymentSheet(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[60vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h3 className="text-lg font-bold text-gray-800">Mode de paiement</h3>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setShowPaymentSheet(false)}
-                data-testid="button-close-payment-sheet"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <div className="overflow-y-auto p-4 space-y-1">
-              {paymentMethods.length > 0 ? paymentMethods.map((method) => (
-                <button
-                  key={method}
-                  onClick={() => {
-                    setSelectedPaymentMethod(method);
-                    setShowPaymentSheet(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-colors ${
-                    selectedPaymentMethod === method
-                      ? "bg-blue-50"
-                      : ""
-                  }`}
-                  data-testid={`button-method-${method}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <CreditCard className="w-4 h-4 text-gray-500" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-800">{method}</span>
-                  </div>
-                  {selectedPaymentMethod === method && (
-                    <Check className="w-5 h-5 text-[#2196F3]" />
-                  )}
-                </button>
-              )) : (
-                <p className="text-center text-gray-400 text-sm py-6">Aucun moyen de paiement disponible</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
