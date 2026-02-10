@@ -1037,7 +1037,16 @@ export async function registerRoutes(
         }
       }
 
-      res.json({ canClaim, hoursRemaining });
+      const allTransactions = await storage.getUserTransactions(req.session.userId!);
+      const bonusTransactions = allTransactions.filter(
+        (t: any) => t.type === "bonus" && t.description === "Bonus quotidien"
+      );
+      const totalBonusClaimed = bonusTransactions.reduce(
+        (sum: number, t: any) => sum + parseFloat(t.amount || "0"), 0
+      );
+      const daysPointed = bonusTransactions.length;
+
+      res.json({ canClaim, hoursRemaining, totalBonusClaimed, daysPointed });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
