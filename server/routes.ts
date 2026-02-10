@@ -308,64 +308,78 @@ export async function registerRoutes(
         return res.status(401).json({ message: "Non authentifie" });
       }
 
-      // Get user's active products
       const userProductsList = await storage.getAllUserProducts(userId);
       const now = new Date();
       let totalCollected = 0;
       let productsCollected = 0;
 
       for (const { userProduct, product } of userProductsList) {
-        if (!userProduct.isActive || userProduct.daysRemaining <= 0) continue;
+        try {
+          if (!userProduct.isActive || userProduct.daysRemaining <= 0) continue;
 
-        // Backfill: if lastEarningDate is null, set it to purchaseDate
-        let lastEarning: Date;
-        if (!userProduct.lastEarningDate) {
-          lastEarning = userProduct.purchaseDate ? new Date(userProduct.purchaseDate) : now;
-          await storage.updateUserProduct(userProduct.id, { lastEarningDate: lastEarning });
-        } else {
-          lastEarning = new Date(userProduct.lastEarningDate);
+          let lastEarning: Date;
+          if (!userProduct.lastEarningDate) {
+            if (userProduct.purchaseDate) {
+              const purchaseDate = new Date(userProduct.purchaseDate);
+              const hoursSincePurchase = (now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60);
+              if (hoursSincePurchase < 24) {
+                lastEarning = new Date(purchaseDate.getTime() - (25 * 60 * 60 * 1000));
+              } else {
+                lastEarning = purchaseDate;
+              }
+            } else {
+              lastEarning = new Date(now.getTime() - (25 * 60 * 60 * 1000));
+            }
+            await storage.updateUserProduct(userProduct.id, { lastEarningDate: lastEarning });
+          } else {
+            lastEarning = new Date(userProduct.lastEarningDate);
+          }
+
+          const hoursSinceLastEarning = (now.getTime() - lastEarning.getTime()) / (1000 * 60 * 60);
+
+          if (hoursSinceLastEarning >= 24) {
+            const earnings = product.dailyEarnings;
+
+            totalCollected += earnings;
+            productsCollected++;
+
+            const newDaysRemaining = userProduct.daysRemaining - 1;
+            const updateData: any = {
+              lastEarningDate: now,
+              daysRemaining: newDaysRemaining,
+              totalEarned: (parseFloat(userProduct.totalEarned || "0") + earnings).toFixed(2),
+            };
+            
+            if (newDaysRemaining <= 0) {
+              updateData.isActive = false;
+            }
+
+            await storage.updateUserProduct(userProduct.id, updateData);
+
+            await storage.createTransaction({
+              userId,
+              type: "earning",
+              amount: earnings.toString(),
+              description: `Gains ${product.name}`,
+            });
+          }
+        } catch (productError) {
+          console.error(`Error processing product ${userProduct.id}:`, productError);
         }
+      }
 
-        const hoursSinceLastEarning = (now.getTime() - lastEarning.getTime()) / (1000 * 60 * 60);
-
-        if (hoursSinceLastEarning >= 24) {
-          const earnings = product.dailyEarnings;
-          const currentUser = await storage.getUser(userId);
-          if (!currentUser) continue;
-          
-          const newBalance = parseFloat(currentUser.balance) + earnings;
-          const newTodayEarnings = parseFloat(currentUser.todayEarnings) + earnings;
-          const newTotalEarnings = parseFloat(currentUser.totalEarnings) + earnings;
+      if (totalCollected > 0) {
+        const freshUser = await storage.getUser(userId);
+        if (freshUser) {
+          const newBalance = parseFloat(freshUser.balance || "0") + totalCollected;
+          const newTodayEarnings = parseFloat(freshUser.todayEarnings || "0") + totalCollected;
+          const newTotalEarnings = parseFloat(freshUser.totalEarnings || "0") + totalCollected;
 
           await storage.updateUser(userId, {
             balance: newBalance.toFixed(2),
             todayEarnings: newTodayEarnings.toFixed(2),
             totalEarnings: newTotalEarnings.toFixed(2),
           });
-
-          const newDaysRemaining = userProduct.daysRemaining - 1;
-          const updateData: any = {
-            lastEarningDate: now,
-            daysRemaining: newDaysRemaining,
-            totalEarned: (parseFloat(userProduct.totalEarned) + earnings).toFixed(2),
-          };
-          
-          // Deactivate if cycle is complete
-          if (newDaysRemaining <= 0) {
-            updateData.isActive = false;
-          }
-
-          await storage.updateUserProduct(userProduct.id, updateData);
-
-          await storage.createTransaction({
-            userId,
-            type: "earning",
-            amount: earnings.toString(),
-            description: `Gains ${product.name}`,
-          });
-
-          totalCollected += earnings;
-          productsCollected++;
         }
       }
 

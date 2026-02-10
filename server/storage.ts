@@ -376,50 +376,77 @@ export class DatabaseStorage implements IStorage {
 
     const now = new Date();
     
+    const userEarnings = new Map<number, number>();
+    
     for (const { userProduct, product, user } of activeProducts) {
-      // Backfill: if lastEarningDate is null, set it to purchaseDate
-      let lastEarning: Date;
-      if (!userProduct.lastEarningDate) {
-        lastEarning = userProduct.purchaseDate ? new Date(userProduct.purchaseDate) : now;
-        await db.update(userProducts).set({ lastEarningDate: lastEarning }).where(eq(userProducts.id, userProduct.id));
-      } else {
-        lastEarning = new Date(userProduct.lastEarningDate);
-      }
-      
-      const hoursSinceLastEarning = (now.getTime() - lastEarning.getTime()) / (1000 * 60 * 60);
-      
-      if (hoursSinceLastEarning >= 24) {
-        const earnings = product.dailyEarnings;
-        const newBalance = parseFloat(user.balance) + earnings;
-        const newTodayEarnings = parseFloat(user.todayEarnings) + earnings;
-        const newTotalEarnings = parseFloat(user.totalEarnings) + earnings;
-        
-        await this.updateUser(user.id, {
-          balance: newBalance.toFixed(2),
-          todayEarnings: newTodayEarnings.toFixed(2),
-          totalEarnings: newTotalEarnings.toFixed(2),
-        });
-
-        const newDaysRemaining = userProduct.daysRemaining - 1;
-        const updateData: any = {
-          lastEarningDate: now,
-          daysRemaining: newDaysRemaining,
-          totalEarned: (parseFloat(userProduct.totalEarned) + earnings).toFixed(2),
-        };
-        
-        // Deactivate if cycle is complete
-        if (newDaysRemaining <= 0) {
-          updateData.isActive = false;
+      try {
+        let lastEarning: Date;
+        if (!userProduct.lastEarningDate) {
+          if (userProduct.purchaseDate) {
+            const purchaseDate = new Date(userProduct.purchaseDate);
+            const hoursSincePurchase = (now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60);
+            if (hoursSincePurchase < 24) {
+              lastEarning = new Date(purchaseDate.getTime() - (25 * 60 * 60 * 1000));
+            } else {
+              lastEarning = purchaseDate;
+            }
+          } else {
+            lastEarning = new Date(now.getTime() - (25 * 60 * 60 * 1000));
+          }
+          await db.update(userProducts).set({ lastEarningDate: lastEarning }).where(eq(userProducts.id, userProduct.id));
+        } else {
+          lastEarning = new Date(userProduct.lastEarningDate);
         }
+        
+        const hoursSinceLastEarning = (now.getTime() - lastEarning.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursSinceLastEarning >= 24) {
+          const earnings = product.dailyEarnings;
 
-        await db.update(userProducts).set(updateData).where(eq(userProducts.id, userProduct.id));
+          const currentTotal = userEarnings.get(user.id) || 0;
+          userEarnings.set(user.id, currentTotal + earnings);
 
-        await this.createTransaction({
-          userId: user.id,
-          type: "earning",
-          amount: earnings.toString(),
-          description: `Gains ${product.name}`,
-        });
+          const newDaysRemaining = userProduct.daysRemaining - 1;
+          const updateData: any = {
+            lastEarningDate: now,
+            daysRemaining: newDaysRemaining,
+            totalEarned: (parseFloat(userProduct.totalEarned || "0") + earnings).toFixed(2),
+          };
+          
+          if (newDaysRemaining <= 0) {
+            updateData.isActive = false;
+          }
+
+          await db.update(userProducts).set(updateData).where(eq(userProducts.id, userProduct.id));
+
+          await this.createTransaction({
+            userId: user.id,
+            type: "earning",
+            amount: earnings.toString(),
+            description: `Gains ${product.name}`,
+          });
+        }
+      } catch (productError) {
+        console.error(`processEarnings error for product ${userProduct.id}:`, productError);
+      }
+    }
+
+    for (const [userId, totalEarnings] of userEarnings.entries()) {
+      try {
+        const freshUser = await this.getUser(userId);
+        if (freshUser) {
+          const newBalance = parseFloat(freshUser.balance || "0") + totalEarnings;
+          const newTodayEarnings = parseFloat(freshUser.todayEarnings || "0") + totalEarnings;
+          const newTotalEarnings = parseFloat(freshUser.totalEarnings || "0") + totalEarnings;
+          
+          await this.updateUser(userId, {
+            balance: newBalance.toFixed(2),
+            todayEarnings: newTodayEarnings.toFixed(2),
+            totalEarnings: newTotalEarnings.toFixed(2),
+          });
+        }
+      } catch (userError) {
+        console.error(`processEarnings user update error for user ${userId}:`, userError);
       }
     }
   }
