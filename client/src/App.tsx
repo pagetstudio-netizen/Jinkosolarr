@@ -28,6 +28,7 @@ import RulesPage from "@/pages/rules";
 import GiftCodePage from "@/pages/gift-code";
 import TeamDetailsPage from "@/pages/team-details";
 import MyProductsPage from "@/pages/my-products";
+import CheckinPage from "@/pages/checkin";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -163,6 +164,13 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <MyProductsPage />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/checkin">
+        <ProtectedRoute>
+          <AppLayout>
+            <CheckinPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>

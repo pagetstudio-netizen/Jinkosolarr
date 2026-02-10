@@ -156,7 +156,7 @@ export default function HomePage() {
         </button>
 
         <button
-          onClick={() => navigate("/history")}
+          onClick={() => navigate("/checkin")}
           className="flex flex-col items-center gap-1"
           data-testid="button-enregistrer"
         >
