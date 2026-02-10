@@ -317,37 +317,32 @@ export async function registerRoutes(
         try {
           if (!userProduct.isActive || userProduct.daysRemaining <= 0) continue;
 
-          let lastEarning: Date;
-          if (!userProduct.lastEarningDate) {
-            if (userProduct.purchaseDate) {
-              const purchaseDate = new Date(userProduct.purchaseDate);
-              const hoursSincePurchase = (now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60);
-              if (hoursSincePurchase < 24) {
-                lastEarning = new Date(purchaseDate.getTime() - (25 * 60 * 60 * 1000));
-              } else {
-                lastEarning = purchaseDate;
-              }
-            } else {
-              lastEarning = new Date(now.getTime() - (25 * 60 * 60 * 1000));
-            }
-            await storage.updateUserProduct(userProduct.id, { lastEarningDate: lastEarning });
-          } else {
-            lastEarning = new Date(userProduct.lastEarningDate);
-          }
+          const purchaseDate = userProduct.purchaseDate ? new Date(userProduct.purchaseDate) : null;
+          if (!purchaseDate) continue;
 
-          const hoursSinceLastEarning = (now.getTime() - lastEarning.getTime()) / (1000 * 60 * 60);
+          const lastEarning = userProduct.lastEarningDate ? new Date(userProduct.lastEarningDate) : purchaseDate;
 
-          if (hoursSinceLastEarning >= 24) {
-            const earnings = product.dailyEarnings;
+          const msSincePurchase = now.getTime() - purchaseDate.getTime();
+          const daysSincePurchase = Math.floor(msSincePurchase / (24 * 60 * 60 * 1000));
 
-            totalCollected += earnings;
+          const msSinceLastEarning = now.getTime() - lastEarning.getTime();
+          const cyclesSinceLastEarning = Math.floor(msSinceLastEarning / (24 * 60 * 60 * 1000));
+
+          if (cyclesSinceLastEarning >= 1 && daysSincePurchase >= 1) {
+            const cyclesToCredit = Math.min(cyclesSinceLastEarning, userProduct.daysRemaining);
+            const earningsPerCycle = product.dailyEarnings;
+            const totalEarningsForProduct = earningsPerCycle * cyclesToCredit;
+
+            const newLastEarningDate = new Date(lastEarning.getTime() + (cyclesToCredit * 24 * 60 * 60 * 1000));
+
+            totalCollected += totalEarningsForProduct;
             productsCollected++;
 
-            const newDaysRemaining = userProduct.daysRemaining - 1;
+            const newDaysRemaining = userProduct.daysRemaining - cyclesToCredit;
             const updateData: any = {
-              lastEarningDate: now,
+              lastEarningDate: newLastEarningDate,
               daysRemaining: newDaysRemaining,
-              totalEarned: (parseFloat(userProduct.totalEarned || "0") + earnings).toFixed(2),
+              totalEarned: (parseFloat(userProduct.totalEarned || "0") + totalEarningsForProduct).toFixed(2),
             };
             
             if (newDaysRemaining <= 0) {
@@ -356,12 +351,14 @@ export async function registerRoutes(
 
             await storage.updateUserProduct(userProduct.id, updateData);
 
-            await storage.createTransaction({
-              userId,
-              type: "earning",
-              amount: earnings.toString(),
-              description: `Gains ${product.name}`,
-            });
+            for (let i = 0; i < cyclesToCredit; i++) {
+              await storage.createTransaction({
+                userId,
+                type: "earning",
+                amount: earningsPerCycle.toString(),
+                description: `Gains ${product.name}`,
+              });
+            }
           }
         } catch (productError) {
           console.error(`Error processing product ${userProduct.id}:`, productError);

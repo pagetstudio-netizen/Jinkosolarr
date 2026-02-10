@@ -380,37 +380,32 @@ export class DatabaseStorage implements IStorage {
     
     for (const { userProduct, product, user } of activeProducts) {
       try {
-        let lastEarning: Date;
-        if (!userProduct.lastEarningDate) {
-          if (userProduct.purchaseDate) {
-            const purchaseDate = new Date(userProduct.purchaseDate);
-            const hoursSincePurchase = (now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60);
-            if (hoursSincePurchase < 24) {
-              lastEarning = new Date(purchaseDate.getTime() - (25 * 60 * 60 * 1000));
-            } else {
-              lastEarning = purchaseDate;
-            }
-          } else {
-            lastEarning = new Date(now.getTime() - (25 * 60 * 60 * 1000));
-          }
-          await db.update(userProducts).set({ lastEarningDate: lastEarning }).where(eq(userProducts.id, userProduct.id));
-        } else {
-          lastEarning = new Date(userProduct.lastEarningDate);
-        }
-        
-        const hoursSinceLastEarning = (now.getTime() - lastEarning.getTime()) / (1000 * 60 * 60);
-        
-        if (hoursSinceLastEarning >= 24) {
-          const earnings = product.dailyEarnings;
+        const purchaseDate = userProduct.purchaseDate ? new Date(userProduct.purchaseDate) : null;
+        if (!purchaseDate) continue;
+
+        const lastEarning = userProduct.lastEarningDate ? new Date(userProduct.lastEarningDate) : purchaseDate;
+
+        const msSincePurchase = now.getTime() - purchaseDate.getTime();
+        const daysSincePurchase = Math.floor(msSincePurchase / (24 * 60 * 60 * 1000));
+
+        const msSinceLastEarning = now.getTime() - lastEarning.getTime();
+        const cyclesSinceLastEarning = Math.floor(msSinceLastEarning / (24 * 60 * 60 * 1000));
+
+        if (cyclesSinceLastEarning >= 1 && daysSincePurchase >= 1) {
+          const cyclesToCredit = Math.min(cyclesSinceLastEarning, userProduct.daysRemaining);
+          const earningsPerCycle = product.dailyEarnings;
+          const totalEarningsForProduct = earningsPerCycle * cyclesToCredit;
+
+          const newLastEarningDate = new Date(lastEarning.getTime() + (cyclesToCredit * 24 * 60 * 60 * 1000));
 
           const currentTotal = userEarnings.get(user.id) || 0;
-          userEarnings.set(user.id, currentTotal + earnings);
+          userEarnings.set(user.id, currentTotal + totalEarningsForProduct);
 
-          const newDaysRemaining = userProduct.daysRemaining - 1;
+          const newDaysRemaining = userProduct.daysRemaining - cyclesToCredit;
           const updateData: any = {
-            lastEarningDate: now,
+            lastEarningDate: newLastEarningDate,
             daysRemaining: newDaysRemaining,
-            totalEarned: (parseFloat(userProduct.totalEarned || "0") + earnings).toFixed(2),
+            totalEarned: (parseFloat(userProduct.totalEarned || "0") + totalEarningsForProduct).toFixed(2),
           };
           
           if (newDaysRemaining <= 0) {
@@ -419,12 +414,14 @@ export class DatabaseStorage implements IStorage {
 
           await db.update(userProducts).set(updateData).where(eq(userProducts.id, userProduct.id));
 
-          await this.createTransaction({
-            userId: user.id,
-            type: "earning",
-            amount: earnings.toString(),
-            description: `Gains ${product.name}`,
-          });
+          for (let i = 0; i < cyclesToCredit; i++) {
+            await this.createTransaction({
+              userId: user.id,
+              type: "earning",
+              amount: earningsPerCycle.toString(),
+              description: `Gains ${product.name}`,
+            });
+          }
         }
       } catch (productError) {
         console.error(`processEarnings error for product ${userProduct.id}:`, productError);
