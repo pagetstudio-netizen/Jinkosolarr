@@ -7,7 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import giftBanner from "@/assets/images/gift-banner.webp";
+import giftBanner from "@assets/436d1e2_upload-1-mvvsrwhr5qqo-elf2cuneaffairede28099etat-2_1770737042194.jpg";
 import telegramIcon from "@/assets/images/telegram-icon.png";
 
 export default function GiftCodePage() {
