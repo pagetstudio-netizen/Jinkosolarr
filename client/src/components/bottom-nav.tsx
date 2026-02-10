@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { Home, Users, User, ShoppingCart } from "lucide-react";
+import { Home, Users, User } from "lucide-react";
 
 const ProduitIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -13,7 +13,6 @@ const ProduitIcon = () => (
 const navItems = [
   { path: "/", label: "Accueil", icon: "home" },
   { path: "/invest", label: "Produit", icon: "produit" },
-  { path: "/tasks", label: "Moi", icon: "moi" },
   { path: "/team", label: "Equipe", icon: "equipe" },
   { path: "/account", label: "Compte", icon: "compte" },
 ];
@@ -38,7 +37,6 @@ export default function BottomNav() {
               <div className="mb-0.5" style={{ color }}>
                 {item.icon === "home" && <Home className="w-6 h-6" />}
                 {item.icon === "produit" && <ProduitIcon />}
-                {item.icon === "moi" && <ShoppingCart className="w-6 h-6" />}
                 {item.icon === "equipe" && <Users className="w-6 h-6" />}
                 {item.icon === "compte" && <User className="w-6 h-6" />}
               </div>
