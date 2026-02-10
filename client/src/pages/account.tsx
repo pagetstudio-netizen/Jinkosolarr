@@ -174,12 +174,12 @@ export default function AccountPage() {
                 <span className="text-gray-700 text-xs font-medium">Retirer</span>
               </button>
             </Link>
-            <Link href="/team" className="flex-1">
-              <button className="w-full flex flex-col items-center gap-2" data-testid="button-team">
+            <Link href="/my-products" className="flex-1">
+              <button className="w-full flex flex-col items-center gap-2" data-testid="button-my-products">
                 <div className="w-14 h-14 rounded-full bg-[#42A5F5] flex items-center justify-center">
                   <Users className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-gray-700 text-xs font-medium">Equipe</span>
+                <span className="text-gray-700 text-xs font-medium">Mes produits</span>
               </button>
             </Link>
             <Link href="/wallet" className="flex-1">
