@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight, Headphones } from "lucide-react";
 import { Link } from "wouter";
 import telegramIcon from "@/assets/images/telegram-icon.png";
 
@@ -14,72 +14,68 @@ export default function ServicePage() {
 
   return (
     <div className="flex flex-col min-h-full bg-white">
-      <header className="flex items-center px-4 py-3 border-b bg-white">
+      <header className="flex items-center justify-between px-4 py-3 bg-white border-b">
         <Link href="/account">
           <button className="p-1" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-gray-600" />
+            <ArrowLeft className="w-5 h-5 text-[#2196F3]" />
           </button>
         </Link>
-        <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-6">Service en ligne</h1>
+        <h1 className="text-[#2196F3] text-base font-semibold">Service client</h1>
+        <div className="w-7" />
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-        <div className="relative rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-teal-600 to-teal-500 p-6">
-            <div className="flex items-start gap-4">
-              <div className="flex-1">
-                <h2 className="text-white text-xl font-bold mb-2">Bonjour, bienvenue chez ELF</h2>
-                <p className="text-white/90 text-sm leading-relaxed">
-                  Votre satisfaction est notre priorite. Si vous avez des questions sur votre Compte ou nos services, n'hesitez pas a nous contacter.
-                </p>
-              </div>
-              <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
-                <span className="text-4xl">👩‍💼</span>
-              </div>
-            </div>
+      <div className="flex-1 overflow-y-auto pb-24">
+
+        <div className="bg-[#2196F3] px-6 py-10 flex flex-col items-center">
+          <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
+            <Headphones className="w-8 h-8 text-white" />
           </div>
+          <h2 className="text-white text-xl font-bold text-center">Bienvenue sur</h2>
+          <h2 className="text-white text-xl font-bold text-center">Service client</h2>
         </div>
 
-        <div className="text-center">
-          <p className="text-pink-500 text-xl font-medium">9h a 17h GMT</p>
-        </div>
-
-        <div className="space-y-4">
+        <div className="px-5 py-4 space-y-0">
           <button
             onClick={() => openLink(settings?.supportLink || "https://t.me/+DOnUcJs7idVmN2E0")}
-            className="w-full bg-gray-100 rounded-xl p-4 flex items-center gap-4 hover:bg-gray-200 transition-colors"
+            className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
             data-testid="button-support-link"
           >
-            <img src={telegramIcon} alt="Telegram" className="w-12 h-12 rounded-lg" />
-            <span className="flex-1 text-left text-gray-700 font-medium">Service Client</span>
-            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Connecter</span>
-          </button>
-
-          <button
-            onClick={() => openLink(settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0")}
-            className="w-full bg-gray-100 rounded-xl p-4 flex items-center gap-4 hover:bg-gray-200 transition-colors"
-            data-testid="button-group-link"
-          >
-            <img src={telegramIcon} alt="Telegram" className="w-12 h-12 rounded-lg" />
-            <span className="flex-1 text-left text-gray-700 font-medium">Groupe de discussion</span>
-            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Connecter</span>
+            <img src={telegramIcon} alt="Telegram" className="w-11 h-11 rounded-full" />
+            <span className="flex-1 text-left text-gray-800 font-medium text-base">Telegram</span>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
           </button>
 
           <button
             onClick={() => openLink(settings?.channelLink || "https://t.me/+DOnUcJs7idVmN2E0")}
-            className="w-full bg-gray-100 rounded-xl p-4 flex items-center gap-4 hover:bg-gray-200 transition-colors"
+            className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
             data-testid="button-channel-link"
           >
-            <img src={telegramIcon} alt="Telegram" className="w-12 h-12 rounded-lg" />
-            <span className="flex-1 text-left text-gray-700 font-medium">Chaine officielle de ELF</span>
-            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Connecter</span>
+            <img src={telegramIcon} alt="Telegram" className="w-11 h-11 rounded-full" />
+            <span className="flex-1 text-left text-gray-800 font-medium text-base">chaine Telegram</span>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </button>
+
+          <button
+            onClick={() => openLink(settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0")}
+            className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
+            data-testid="button-group-link"
+          >
+            <img src={telegramIcon} alt="Telegram" className="w-11 h-11 rounded-full" />
+            <span className="flex-1 text-left text-gray-800 font-medium text-base">Groupe Telegram</span>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
           </button>
         </div>
 
-        <div className="text-center px-4">
-          <p className="text-gray-600 text-sm leading-relaxed">
-            Contactez notre service client pour obtenir des conseils d'investissement et maximiser vos revenus quotidiens ! Ne manquez pas les opportunites de croissance.
-          </p>
+        <div className="mx-5 mt-4 bg-gray-50 rounded-2xl p-5">
+          <p className="text-gray-900 text-xl font-bold text-center mb-1">9:00-20:00</p>
+          <p className="text-gray-500 text-sm text-center mb-4">Service client en ligne</p>
+
+          <div className="space-y-3 text-gray-600 text-sm leading-relaxed">
+            <p>1. Si vous ne parvenez pas a ouvrir l'application Telegram officielle ci-dessus, veuillez utiliser un autre navigateur.</p>
+            <p>2. Pour toute question concernant notre plateforme, veuillez contacter notre service client en ligne. Ils repondront a toutes vos questions.</p>
+            <p>3. Si notre service client en ligne ne repond pas immediatement a votre message, veuillez patienter. Nous recevons actuellement un grand nombre de messages. Notre service client en ligne vous repondra des que possible. Merci de votre comprehension et de votre soutien !</p>
+            <p>4. Pour gagner plus d'argent, rejoignez notre chaine Telegram officielle !</p>
+          </div>
         </div>
       </div>
     </div>
