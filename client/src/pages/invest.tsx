@@ -119,52 +119,52 @@ export default function InvestPage() {
             {paidProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl overflow-visible shadow-sm"
+                className="bg-white rounded-2xl overflow-visible shadow-sm relative"
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="relative">
-                  <div className="bg-[#2196F3] rounded-t-2xl px-4 py-3">
-                    <h3 className="text-white font-bold text-base" data-testid={`text-product-name-${product.id}`}>
+                <div className="relative pt-2 px-3">
+                  <div className="inline-block bg-[#2196F3] rounded-lg px-4 py-1.5">
+                    <h3 className="text-white font-bold text-sm" data-testid={`text-product-name-${product.id}`}>
                       {product.name}
                     </h3>
                   </div>
-                  <div className="absolute top-2 right-3">
-                    <div className="w-8 h-8 bg-[#1976D2] rounded-full flex items-center justify-center shadow-md">
-                      <span className="text-white text-xs font-bold">NEW</span>
+                  <div className="absolute top-0 right-0 w-12 h-12 overflow-hidden rounded-tr-2xl">
+                    <div className="absolute top-1 right-1 w-7 h-7 bg-[#1976D2] rounded-full flex items-center justify-center shadow-md z-10">
+                      <span className="text-white text-[8px] font-bold">HOT</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="px-4 py-3 flex gap-3">
-                  <div className="w-20 h-16 flex-shrink-0 flex items-center">
+                <div className="px-4 py-2 flex gap-3">
+                  <div className="w-20 flex-shrink-0 flex items-center justify-center">
                     <img
                       src={elfLogoCard}
                       alt="ELF"
-                      className="w-full h-full object-contain"
+                      className="w-full object-contain"
                     />
                   </div>
 
-                  <div className="flex-1 space-y-1">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500">prix</span>
+                  <div className="flex-1 space-y-0.5">
+                    <div className="flex justify-between items-center flex-wrap gap-1">
+                      <span className="text-xs text-gray-400">prix</span>
                       <span className="text-sm font-bold text-gray-800">{product.price.toLocaleString()} {currency}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500">Benefice quotidien</span>
+                    <div className="flex justify-between items-center flex-wrap gap-1">
+                      <span className="text-xs text-gray-400">Benefice quotidien</span>
                       <span className="text-sm font-bold text-gray-800">{product.dailyEarnings.toLocaleString()} {currency}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500">Revenu total</span>
+                    <div className="flex justify-between items-center flex-wrap gap-1">
+                      <span className="text-xs text-gray-400">Revenu total</span>
                       <span className="text-sm font-bold text-gray-800">{product.totalReturn.toLocaleString()} {currency}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500">Nombre de jours</span>
+                    <div className="flex justify-between items-center flex-wrap gap-1">
+                      <span className="text-xs text-gray-400">Nombre de jours</span>
                       <span className="text-sm font-bold text-gray-800">{product.cycleDays} jours</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="px-6 pb-4">
+                <div className="px-6 pb-4 pt-1">
                   <button
                     onClick={() => handleBuyClick(product)}
                     className="w-full bg-[#2196F3] text-white font-bold py-3 rounded-full text-base shadow-md active:opacity-90 transition-opacity"
