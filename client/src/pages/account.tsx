@@ -29,10 +29,6 @@ export default function AccountPage() {
   const [showPinModal, setShowPinModal] = useState(false);
   const [adminPin, setAdminPin] = useState("");
 
-  const { data: teamStats } = useQuery<any>({
-    queryKey: ["/api/team/stats"],
-  });
-
   const { data: withdrawals } = useQuery<any[]>({
     queryKey: ["/api/user/withdrawals"],
   });
@@ -89,10 +85,6 @@ export default function AccountPage() {
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
   const phonePrefix = country?.phonePrefix || "";
-
-  const level1Count = teamStats?.level1Count || 0;
-  const level2Count = teamStats?.level2Count || 0;
-  const level3Count = teamStats?.level3Count || 0;
 
   const handleLogout = async () => {
     await logout();
@@ -163,26 +155,6 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <div className="flex justify-between mt-5 gap-3">
-            <div className="flex-1 bg-gray-900 rounded-lg py-3 text-center">
-              <p className="text-white text-lg font-bold">{level1Count}</p>
-              <p className="text-gray-400 text-xs mt-0.5">B-27%</p>
-            </div>
-            <div className="flex-1 bg-gray-900 rounded-lg py-3 text-center">
-              <p className="text-white text-lg font-bold">{level2Count}</p>
-              <p className="text-gray-400 text-xs mt-0.5">C-2%</p>
-            </div>
-            <div className="flex-1 bg-gray-900 rounded-lg py-3 text-center">
-              <p className="text-white text-lg font-bold">{level3Count}</p>
-              <p className="text-gray-400 text-xs mt-0.5">D-1%</p>
-            </div>
-          </div>
-
-          <Link href="/team">
-            <button className="w-full mt-4 py-3.5 rounded-full text-white font-semibold text-sm" style={{ backgroundColor: "#2196F3" }} data-testid="button-view-commissions">
-              Voir les commissions d'equipe
-            </button>
-          </Link>
         </div>
 
         <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-5">
