@@ -26,7 +26,7 @@ export async function seed() {
     console.log("Super admin created: +99935673 / pagetstudio / PIN: 9993");
   }
 
-  // Check if products exist
+  // Check if products exist - update all products to match VIP structure
   const existingProducts = await db.select().from(products);
   const requiredProducts = [
     {
@@ -39,87 +39,99 @@ export async function seed() {
       sortOrder: 0,
     },
     {
-      name: "Lubrifiant ELF Evolution",
+      name: "VIP 1",
       price: 3000,
-      dailyEarnings: 400,
-      cycleDays: 80,
+      dailyEarnings: 450,
+      cycleDays: 100,
       totalReturn: 32000,
       sortOrder: 1,
     },
     {
-      name: "Huile ELF Sporti TXI",
+      name: "VIP 2",
       price: 7000,
-      dailyEarnings: 850,
-      cycleDays: 80,
+      dailyEarnings: 900,
+      cycleDays: 100,
       totalReturn: 68000,
       sortOrder: 2,
     },
     {
-      name: "Carburant ELF Performance",
-      price: 12000,
-      dailyEarnings: 1200,
-      cycleDays: 80,
+      name: "VIP 3",
+      price: 15000,
+      dailyEarnings: 1750,
+      cycleDays: 100,
       totalReturn: 96000,
       sortOrder: 3,
     },
     {
-      name: "Huile ELF Tranself",
-      price: 21000,
-      dailyEarnings: 2100,
-      cycleDays: 80,
+      name: "VIP 4",
+      price: 20000,
+      dailyEarnings: 2300,
+      cycleDays: 100,
       totalReturn: 144000,
       sortOrder: 4,
     },
     {
-      name: "Lubrifiant ELF Solaris",
-      price: 25000,
-      dailyEarnings: 2600,
-      cycleDays: 80,
+      name: "VIP 5",
+      price: 35000,
+      dailyEarnings: 3700,
+      cycleDays: 100,
       totalReturn: 172000,
       sortOrder: 5,
     },
     {
-      name: "Huile ELF Competition",
-      price: 35000,
-      dailyEarnings: 3600,
-      cycleDays: 80,
+      name: "VIP 6",
+      price: 50000,
+      dailyEarnings: 6700,
+      cycleDays: 100,
       totalReturn: 192000,
       sortOrder: 6,
     },
     {
-      name: "Carburant ELF Premium",
-      price: 50000,
-      dailyEarnings: 5700,
-      cycleDays: 80,
+      name: "VIP 7",
+      price: 100000,
+      dailyEarnings: 10800,
+      cycleDays: 100,
       totalReturn: 240000,
       sortOrder: 7,
     },
-    {
-      name: "Lubrifiant ELF HTX Racing",
-      price: 100000,
-      dailyEarnings: 11500,
-      cycleDays: 80,
-      totalReturn: 288000,
-      sortOrder: 8,
-    },
-    {
-      name: "Huile ELF HTX 976+",
-      price: 150000,
-      dailyEarnings: 19000,
-      cycleDays: 80,
-      totalReturn: 1520000,
-      sortOrder: 9,
-    },
   ];
 
+  // Update existing products by matching price, or insert new ones
+  // Hide old products that don't match any new product by setting them inactive
+  const usedIds = new Set<number>();
+
   for (const productData of requiredProducts) {
-    const existing = existingProducts.find(p => p.name === productData.name);
+    let existing = existingProducts.find(p => p.name === productData.name);
     if (!existing) {
+      existing = existingProducts.find(p => p.price === productData.price && !usedIds.has(p.id));
+    }
+    if (existing) {
+      usedIds.add(existing.id);
+      await db.update(products).set({
+        name: productData.name,
+        price: productData.price,
+        dailyEarnings: productData.dailyEarnings,
+        cycleDays: productData.cycleDays,
+        totalReturn: productData.totalReturn,
+        sortOrder: productData.sortOrder,
+        isFree: productData.isFree || false,
+        isActive: true,
+      }).where(eq(products.id, existing.id));
+      console.log(`Product updated: ${productData.name}`);
+    } else {
       await db.insert(products).values(productData);
       console.log(`Product added: ${productData.name}`);
     }
   }
-  console.log("Products check complete (existing values preserved)");
+
+  // Deactivate old products not in the new list
+  for (const existing of existingProducts) {
+    if (!usedIds.has(existing.id)) {
+      await db.update(products).set({ isActive: false, sortOrder: 99 }).where(eq(products.id, existing.id));
+      console.log(`Product deactivated: ${existing.name}`);
+    }
+  }
+  console.log("Products updated to VIP structure");
 
   // Check if tasks exist
   const existingTasks = await db.select().from(tasks);
