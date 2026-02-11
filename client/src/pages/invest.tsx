@@ -11,6 +11,8 @@ import { Loader2, AlertTriangle, Settings, DollarSign } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 import elfLogoCard from "@/assets/images/elf-logo-card.png";
+import productsIcon from "@/assets/images/products-icon.png";
+import revenueIcon from "@/assets/images/revenue-icon.png";
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -83,8 +85,8 @@ export default function InvestPage() {
       <div className="bg-[#2196F3] px-4 pt-4 pb-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white rounded-xl p-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
-              <Settings className="w-5 h-5 text-[#2196F3]" />
+            <div className="w-9 h-9 flex-shrink-0">
+              <img src={productsIcon} alt="" className="w-full h-full object-contain" />
             </div>
             <div>
               <p className="text-xl font-bold text-gray-800" data-testid="text-active-products">
@@ -94,8 +96,8 @@ export default function InvestPage() {
             </div>
           </div>
           <div className="bg-white rounded-xl p-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-[#2196F3]" />
+            <div className="w-9 h-9 flex-shrink-0">
+              <img src={revenueIcon} alt="" className="w-full h-full object-contain" />
             </div>
             <div>
               <p className="text-lg font-bold text-gray-800" data-testid="text-product-revenue">
