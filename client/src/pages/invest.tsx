@@ -126,7 +126,7 @@ export default function InvestPage() {
                   <h3 className="text-white font-bold text-base" data-testid={`text-product-name-${product.id}`}>
                     {product.name}
                   </h3>
-                  <span className="bg-white text-[#2196F3] text-[10px] font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-sm">NEW</span>
+                  <span className="bg-black/80 text-white text-[10px] font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-sm">NEW</span>
                 </div>
 
                 <div className="px-4 py-2 flex gap-3">
