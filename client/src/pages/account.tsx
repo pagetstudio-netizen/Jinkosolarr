@@ -4,23 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
-import { 
-  Zap,
-  TrendingUp,
-  Users,
-  DollarSign,
-  CalendarCheck,
-  FileText,
-  ChevronRight,
-  Copy,
-  Loader2,
-  Shield,
-  LogOut,
-  Lock,
-  BookOpen,
-  Gift,
-  ClipboardList
-} from "lucide-react";
+import { Loader2, Shield } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -29,6 +13,15 @@ import { useToast } from "@/hooks/use-toast";
 import elfLogo from "@assets/elf-logo-1-jpg_1770372668472.webp";
 import globeImg from "@/assets/images/elf-station-2.jpeg";
 
+import iconDeposit from "@assets/téléchargement_(18)_1770814706072.png";
+import iconWithdraw from "@assets/téléchargement_(17)_1770814706099.png";
+import iconCoupon from "@assets/téléchargement_(20)_1770814705977.png";
+import iconHistory from "@assets/téléchargement_(19)_1770814706043.png";
+import iconTeam from "@assets/téléchargement_(15)_1770814706160.png";
+import iconBank from "@assets/téléchargement_(14)_1770814706189.png";
+import iconPassword from "@assets/téléchargement_(16)_1770814706129.png";
+import iconSignout from "@assets/téléchargement_(17)_1770814706099.png";
+
 export default function AccountPage() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
@@ -36,8 +29,12 @@ export default function AccountPage() {
   const [showPinModal, setShowPinModal] = useState(false);
   const [adminPin, setAdminPin] = useState("");
 
-  const { data: userProducts } = useQuery<any[]>({
-    queryKey: ["/api/user-products"],
+  const { data: teamStats } = useQuery<any>({
+    queryKey: ["/api/team/stats"],
+  });
+
+  const { data: withdrawals } = useQuery<any[]>({
+    queryKey: ["/api/user/withdrawals"],
   });
 
   const verifyPinMutation = useMutation({
@@ -87,22 +84,19 @@ export default function AccountPage() {
 
   const balance = parseFloat(user.balance || "0");
   const totalEarnings = parseFloat(user.totalEarnings || "0");
+  const todayEarnings = parseFloat(user.todayEarnings || "0");
+  const totalWithdrawals = withdrawals?.filter((w: any) => w.status === "completed").reduce((sum: number, w: any) => sum + parseFloat(w.amount || "0"), 0) || 0;
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
   const phonePrefix = country?.phonePrefix || "";
-  const activeProducts = userProducts?.length || 0;
+
+  const level1Count = teamStats?.level1Count || 0;
+  const level2Count = teamStats?.level2Count || 0;
+  const level3Count = teamStats?.level3Count || 0;
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
-  };
-
-  const handleCopyId = () => {
-    navigator.clipboard.writeText(user.referralCode || "");
-    toast({
-      title: "Copie",
-      description: "ID copie dans le presse-papiers",
-    });
   };
 
   return (
@@ -111,166 +105,137 @@ export default function AccountPage() {
 
         <div className="relative" style={{ background: "linear-gradient(135deg, #0d47a1 0%, #1565c0 40%, #1976d2 70%, #1e88e5 100%)" }}>
           <div className="absolute inset-0 overflow-hidden">
-            <img src={globeImg} alt="" className="absolute right-0 top-0 w-40 h-full object-cover opacity-30" />
+            <img src={globeImg} alt="" className="absolute right-0 top-0 w-full h-full object-cover opacity-20" />
           </div>
-          <div className="relative z-10 flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="text-white font-black text-xl tracking-tight">elf</span>
-              <span className="text-lg">🇨🇲</span>
-              <span className="text-[#64B5F6] font-bold text-sm" data-testid="text-user-id">
-                id: {user.referralCode}
-              </span>
-              <button onClick={handleCopyId} data-testid="button-copy-id">
-                <Copy className="w-3.5 h-3.5 text-[#64B5F6]" />
-              </button>
+          <div className="relative z-10 px-5 pt-5 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-full overflow-hidden bg-white/20 flex items-center justify-center">
+                <img src={elfLogo} alt="ELF" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <p className="text-white text-lg font-bold" data-testid="text-phone">{phonePrefix}{user.phone}</p>
+                <p className="text-white/70 text-sm" data-testid="text-user-id">ID:{user.referralCode}</p>
+              </div>
             </div>
-            <span className="bg-[#2196F3] text-white text-xs font-bold px-3 py-1.5 rounded-md">
-              PV1
-            </span>
+          </div>
+
+          <div className="relative z-10 flex gap-3 px-5 pb-5">
+            <Link href="/deposit" className="flex-1">
+              <button className="w-full bg-white rounded-lg flex items-center justify-center gap-3 py-3.5" data-testid="button-account-deposit">
+                <img src={iconDeposit} alt="" className="w-6 h-6" />
+                <span className="text-gray-800 font-semibold text-sm">Recharger</span>
+              </button>
+            </Link>
+            <Link href="/withdrawal" className="flex-1">
+              <button className="w-full bg-white rounded-lg flex items-center justify-center gap-3 py-3.5" data-testid="button-account-withdraw">
+                <img src={iconWithdraw} alt="" className="w-6 h-6" />
+                <span className="text-gray-800 font-semibold text-sm">Retirer</span>
+              </button>
+            </Link>
           </div>
         </div>
 
         <div className="mx-4 -mt-1 bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-5">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex-1">
-              <p className="text-gray-500 text-sm text-center">Equilibre</p>
-              <p className="text-gray-900 text-3xl font-black text-center mt-1" data-testid="text-account-balance">
-                {balance.toFixed(2)} {currency}
-              </p>
+          <div className="grid grid-cols-2 gap-y-5">
+            <div className="text-center">
+              <p className="text-gray-500 text-xs">Portefeuille de recharge</p>
+              <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-recharge-wallet">0.00</p>
             </div>
-            <div className="w-14 h-14 rounded-full bg-[#e3f2fd] flex items-center justify-center ml-3">
-              <DollarSign className="w-7 h-7 text-[#2196F3]" />
+            <div className="text-center">
+              <p className="text-gray-500 text-xs">Portefeuille de solde</p>
+              <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-account-balance">{balance.toFixed(2)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-500 text-xs">Gains totaux</p>
+              <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-total-earnings">{totalEarnings.toFixed(2)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-500 text-xs">Total des retraits</p>
+              <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-total-withdrawals">{totalWithdrawals.toFixed(2)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-500 text-xs">Gains d'aujourd'hui</p>
+              <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-today-earnings">{todayEarnings.toFixed(2)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-500 text-xs">Gains d'hier</p>
+              <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-yesterday-earnings">0.00</p>
             </div>
           </div>
 
-          <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
-            <div className="flex-1 text-center">
-              <p className="text-gray-500 text-xs">Nombre d'appareils</p>
-              <p className="text-gray-900 text-xl font-bold mt-1">{activeProducts}</p>
+          <div className="flex justify-between mt-5 gap-3">
+            <div className="flex-1 bg-gray-900 rounded-lg py-3 text-center">
+              <p className="text-white text-lg font-bold">{level1Count}</p>
+              <p className="text-gray-400 text-xs mt-0.5">B-27%</p>
             </div>
-            <div className="w-px bg-gray-200" />
-            <div className="flex-1 text-center">
-              <p className="text-gray-500 text-xs">Maitre d'ouvrage</p>
-              <p className="text-gray-900 text-xl font-bold mt-1" data-testid="text-total-earnings">{totalEarnings.toFixed(2)}</p>
+            <div className="flex-1 bg-gray-900 rounded-lg py-3 text-center">
+              <p className="text-white text-lg font-bold">{level2Count}</p>
+              <p className="text-gray-400 text-xs mt-0.5">C-2%</p>
+            </div>
+            <div className="flex-1 bg-gray-900 rounded-lg py-3 text-center">
+              <p className="text-white text-lg font-bold">{level3Count}</p>
+              <p className="text-gray-400 text-xs mt-0.5">D-1%</p>
             </div>
           </div>
+
+          <Link href="/team">
+            <button className="w-full mt-4 py-3.5 rounded-full text-white font-semibold text-sm" style={{ backgroundColor: "#2196F3" }} data-testid="button-view-commissions">
+              Voir les commissions d'equipe
+            </button>
+          </Link>
         </div>
 
-        <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-5">
-          <div className="flex justify-between">
-            <Link href="/deposit" className="flex-1">
-              <button className="w-full flex flex-col items-center gap-2" data-testid="button-account-deposit">
-                <div className="w-14 h-14 rounded-full bg-[#2196F3] flex items-center justify-center">
-                  <Zap className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-gray-700 text-xs font-medium">Recharger</span>
-              </button>
-            </Link>
-            <Link href="/withdrawal" className="flex-1">
-              <button className="w-full flex flex-col items-center gap-2" data-testid="button-account-withdraw">
-                <div className="w-14 h-14 rounded-full bg-[#1976D2] flex items-center justify-center">
-                  <TrendingUp className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-gray-700 text-xs font-medium">Retirer</span>
-              </button>
-            </Link>
-            <Link href="/my-products" className="flex-1">
+        <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-5">
+          <div className="grid grid-cols-3 gap-y-6">
+            <Link href="/my-products">
               <button className="w-full flex flex-col items-center gap-2" data-testid="button-my-products">
-                <div className="w-14 h-14 rounded-full bg-[#42A5F5] flex items-center justify-center">
-                  <Users className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-gray-700 text-xs font-medium">Mes produits</span>
+                <img src={iconCoupon} alt="" className="w-9 h-9" />
+                <span className="text-gray-700 text-xs">Mes produits</span>
               </button>
             </Link>
-            <Link href="/wallet" className="flex-1">
+            <Link href="/history">
+              <button className="w-full flex flex-col items-center gap-2" data-testid="button-history">
+                <img src={iconHistory} alt="" className="w-9 h-9" />
+                <span className="text-gray-700 text-xs">Historique</span>
+              </button>
+            </Link>
+            <Link href="/team">
+              <button className="w-full flex flex-col items-center gap-2" data-testid="button-team">
+                <img src={iconTeam} alt="" className="w-9 h-9" />
+                <span className="text-gray-700 text-xs">Mon equipe</span>
+              </button>
+            </Link>
+            <Link href="/wallet">
               <button className="w-full flex flex-col items-center gap-2" data-testid="button-wallet">
-                <div className="w-14 h-14 rounded-full bg-[#0D47A1] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">PV</span>
-                </div>
-                <span className="text-gray-700 text-xs font-medium">PV fonds</span>
+                <img src={iconBank} alt="" className="w-9 h-9" />
+                <span className="text-gray-700 text-xs">Compte bancaire</span>
               </button>
             </Link>
+            <button onClick={() => navigate("/change-password")} className="w-full flex flex-col items-center gap-2" data-testid="button-change-password">
+              <img src={iconPassword} alt="" className="w-9 h-9" />
+              <span className="text-gray-700 text-xs">Mot de passe</span>
+            </button>
+            <button onClick={handleLogout} className="w-full flex flex-col items-center gap-2" data-testid="button-logout">
+              <img src={iconSignout} alt="" className="w-9 h-9" />
+              <span className="text-gray-700 text-xs">Deconnexion</span>
+            </button>
           </div>
         </div>
 
-        <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100">
-          <Link href="/history">
-            <div className="flex items-center gap-4 px-5 py-4 border-b border-gray-100" data-testid="button-history">
-              <div className="w-11 h-11 rounded-xl bg-[#e3f2fd] flex items-center justify-center">
-                <CalendarCheck className="w-5 h-5 text-[#2196F3]" />
-              </div>
-              <span className="text-gray-800 text-sm font-medium flex-1">Enregistrement du solde</span>
-            </div>
-          </Link>
-
-          <Link href="/orders">
-            <div className="flex items-center gap-4 px-5 py-4 border-b border-gray-100" data-testid="button-transactions">
-              <div className="w-11 h-11 rounded-xl bg-[#e3f2fd] flex items-center justify-center">
-                <FileText className="w-5 h-5 text-[#2196F3]" />
-              </div>
-              <span className="text-gray-800 text-sm font-medium flex-1">Recharger l'enregistrement</span>
-              <ChevronRight className="w-5 h-5 text-[#2196F3]" />
-            </div>
-          </Link>
-
-          <Link href="/gift-code">
-            <div className="flex items-center gap-4 px-5 py-4 border-b border-gray-100" data-testid="button-gift-code">
-              <div className="w-11 h-11 rounded-xl bg-[#e3f2fd] flex items-center justify-center">
-                <Gift className="w-5 h-5 text-[#2196F3]" />
-              </div>
-              <span className="text-gray-800 text-sm font-medium flex-1">Echanger la recompense</span>
-              <ChevronRight className="w-5 h-5 text-[#2196F3]" />
-            </div>
-          </Link>
-
-          <button
-            onClick={() => navigate("/change-password")}
-            className="w-full flex items-center gap-4 px-5 py-4 border-b border-gray-100"
-            data-testid="button-change-password"
-          >
-            <div className="w-11 h-11 rounded-xl bg-[#e3f2fd] flex items-center justify-center">
-              <Lock className="w-5 h-5 text-[#2196F3]" />
-            </div>
-            <span className="text-gray-800 text-sm font-medium flex-1 text-left">Changer le mot de passe</span>
-            <ChevronRight className="w-5 h-5 text-[#2196F3]" />
-          </button>
-
-          <Link href="/rules">
-            <div className="flex items-center gap-4 px-5 py-4 border-b border-gray-100" data-testid="button-rules">
-              <div className="w-11 h-11 rounded-xl bg-[#e3f2fd] flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-[#2196F3]" />
-              </div>
-              <span className="text-gray-800 text-sm font-medium flex-1">Guide utilisateur</span>
-              <ChevronRight className="w-5 h-5 text-[#2196F3]" />
-            </div>
-          </Link>
-
-          {user.isAdmin && (
+        {user.isAdmin && (
+          <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-4">
             <button
               onClick={handleAdminClick}
-              className="w-full flex items-center gap-4 px-5 py-4 border-b border-gray-100"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl"
+              style={{ backgroundColor: "#2196F3" }}
               data-testid="button-admin"
             >
-              <div className="w-11 h-11 rounded-xl bg-[#e3f2fd] flex items-center justify-center">
-                <Shield className="w-5 h-5 text-[#2196F3]" />
-              </div>
-              <span className="text-gray-800 text-sm font-medium flex-1 text-left">Panel Admin</span>
-              <ChevronRight className="w-5 h-5 text-[#2196F3]" />
+              <Shield className="w-5 h-5 text-white" />
+              <span className="text-white font-semibold text-sm">Panel Admin</span>
             </button>
-          )}
+          </div>
+        )}
 
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-4 px-5 py-4"
-            data-testid="button-logout"
-          >
-            <div className="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center">
-              <LogOut className="w-5 h-5 text-red-500" />
-            </div>
-            <span className="text-red-500 text-sm font-medium flex-1 text-left">Deconnexion</span>
-            <ChevronRight className="w-5 h-5 text-red-400" />
-          </button>
-        </div>
       </div>
       
       <Dialog open={showPinModal} onOpenChange={setShowPinModal}>
