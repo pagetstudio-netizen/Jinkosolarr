@@ -406,7 +406,7 @@ export default function DepositPage() {
           </button>
         </Link>
         <h1 className="text-lg font-semibold text-gray-800">Economiser</h1>
-        <Link href="/deposits-history">
+        <Link href="/history">
           <button className="p-2" data-testid="button-history">
             <Clock className="w-5 h-5 text-[#2196F3]" />
           </button>
