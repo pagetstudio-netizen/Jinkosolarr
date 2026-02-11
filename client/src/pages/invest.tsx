@@ -122,17 +122,11 @@ export default function InvestPage() {
                 className="bg-white rounded-2xl overflow-visible shadow-sm relative"
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="relative pt-2 px-3">
-                  <div className="inline-block bg-[#2196F3] rounded-lg px-4 py-1.5">
-                    <h3 className="text-white font-bold text-sm" data-testid={`text-product-name-${product.id}`}>
-                      {product.name}
-                    </h3>
-                  </div>
-                  <div className="absolute top-0 right-0 w-12 h-12 overflow-hidden rounded-tr-2xl">
-                    <div className="absolute top-1 right-1 w-7 h-7 bg-[#1976D2] rounded-full flex items-center justify-center shadow-md z-10">
-                      <span className="text-white text-[8px] font-bold">HOT</span>
-                    </div>
-                  </div>
+                <div className="bg-[#2196F3] rounded-t-2xl px-4 py-3 flex items-center justify-between">
+                  <h3 className="text-white font-bold text-base" data-testid={`text-product-name-${product.id}`}>
+                    {product.name}
+                  </h3>
+                  <span className="bg-white text-[#2196F3] text-xs font-bold px-3 py-1 rounded-md">NEW</span>
                 </div>
 
                 <div className="px-4 py-2 flex gap-3">
