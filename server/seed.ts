@@ -124,12 +124,12 @@ export async function seed() {
   // Check if tasks exist
   const existingTasks = await db.select().from(tasks);
   const requiredTasks = [
-    { name: "Parrain Bronze", description: "Invitez 3 personnes a recharger leur compte", requiredInvites: 3, reward: 150, sortOrder: 1 },
-    { name: "Parrain Argent", description: "Invitez 5 personnes a recharger leur compte", requiredInvites: 5, reward: 500, sortOrder: 2 },
-    { name: "Parrain Or", description: "Invitez 10 personnes a recharger leur compte", requiredInvites: 10, reward: 800, sortOrder: 3 },
-    { name: "Parrain Platine", description: "Invitez 25 personnes a recharger leur compte", requiredInvites: 25, reward: 2500, sortOrder: 4 },
-    { name: "Parrain Diamant", description: "Invitez 50 personnes a recharger leur compte", requiredInvites: 50, reward: 4000, sortOrder: 5 },
-    { name: "Parrain Elite", description: "Invitez 100 personnes a recharger leur compte", requiredInvites: 100, reward: 10000, sortOrder: 6 },
+    { name: "Parrain Bronze", description: "Inviter 3 personnes a investir", requiredInvites: 3, reward: 350, sortOrder: 1 },
+    { name: "Parrain Argent", description: "Inviter 5 personnes a investir", requiredInvites: 5, reward: 750, sortOrder: 2 },
+    { name: "Parrain Or", description: "Inviter 10 personnes a investir", requiredInvites: 10, reward: 2500, sortOrder: 3 },
+    { name: "Parrain Platine", description: "Inviter 30 personnes a investir", requiredInvites: 30, reward: 6500, sortOrder: 4 },
+    { name: "Parrain Diamant", description: "Inviter 100 personnes a investir", requiredInvites: 100, reward: 15000, sortOrder: 5 },
+    { name: "Parrain Elite", description: "Inviter 300 personnes a investir", requiredInvites: 300, reward: 50000, sortOrder: 6 },
   ];
 
   for (const taskData of requiredTasks) {
@@ -137,6 +137,16 @@ export async function seed() {
     if (!existing) {
       await db.insert(tasks).values(taskData);
       console.log(`Task added: ${taskData.name}`);
+    } else {
+      if (existing.reward !== taskData.reward || existing.requiredInvites !== taskData.requiredInvites || existing.description !== taskData.description) {
+        await db.update(tasks).set({
+          reward: taskData.reward,
+          requiredInvites: taskData.requiredInvites,
+          description: taskData.description,
+          sortOrder: taskData.sortOrder,
+        }).where(eq(tasks.id, existing.id));
+        console.log(`Task updated: ${taskData.name}`);
+      }
     }
   }
   console.log("Tasks check complete (existing values preserved)");

@@ -29,6 +29,7 @@ import GiftCodePage from "@/pages/gift-code";
 import TeamDetailsPage from "@/pages/team-details";
 import MyProductsPage from "@/pages/my-products";
 import CheckinPage from "@/pages/checkin";
+import RewardsPage from "@/pages/rewards";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -239,6 +240,13 @@ function Router() {
       <Route path="/team-details">
         <ProtectedRoute>
           <TeamDetailsPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/daily-bonus">
+        <ProtectedRoute>
+          <AppLayout>
+            <RewardsPage />
+          </AppLayout>
         </ProtectedRoute>
       </Route>
       <Route path="/admin">
