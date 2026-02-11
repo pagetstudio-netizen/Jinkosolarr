@@ -31,7 +31,7 @@ export default function BottomNav() {
               <img
                 src={item.icon}
                 alt={item.label}
-                className="w-6 h-6 mb-0.5"
+                className="w-8 h-8 mb-0.5"
                 style={{ opacity: isActive ? 1 : 0.45 }}
               />
               <span
