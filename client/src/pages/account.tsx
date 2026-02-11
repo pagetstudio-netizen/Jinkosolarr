@@ -80,7 +80,6 @@ export default function AccountPage() {
 
   const balance = parseFloat(user.balance || "0");
   const totalEarnings = parseFloat(user.totalEarnings || "0");
-  const todayEarnings = parseFloat(user.todayEarnings || "0");
   const totalWithdrawals = withdrawals?.filter((w: any) => w.status === "completed").reduce((sum: number, w: any) => sum + parseFloat(w.amount || "0"), 0) || 0;
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
@@ -145,16 +144,13 @@ export default function AccountPage() {
               <p className="text-gray-500 text-xs">Total des retraits</p>
               <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-total-withdrawals">{totalWithdrawals.toFixed(2)}</p>
             </div>
-            <div className="text-center">
-              <p className="text-gray-500 text-xs">Gains d'aujourd'hui</p>
-              <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-today-earnings">{todayEarnings.toFixed(2)}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-gray-500 text-xs">Gains d'hier</p>
-              <p className="text-gray-900 text-lg font-bold mt-1" data-testid="text-yesterday-earnings">0.00</p>
-            </div>
           </div>
 
+          <Link href="/daily-bonus">
+            <button className="w-full mt-5 py-3.5 rounded-full text-white font-semibold text-sm" style={{ backgroundColor: "#2196F3" }} data-testid="button-free-reward">
+              Recompense gratuite
+            </button>
+          </Link>
         </div>
 
         <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-5">
