@@ -10,12 +10,7 @@ import { formatCurrency, getCountryByCode } from "@/lib/countries";
 import { Loader2, AlertTriangle, Settings, DollarSign } from "lucide-react";
 import type { Product } from "@shared/schema";
 
-import elfExpert1 from "@/assets/images/elf-expert-1.jpeg";
-import elfExpert2 from "@/assets/images/elf-expert-2.webp";
-import elfStation1 from "@/assets/images/elf-station-1.jpg";
-import elfStation2 from "@/assets/images/elf-station-2.jpeg";
-
-const productImages = [elfExpert1, elfExpert2, elfStation1, elfStation2];
+import elfLogoCard from "@/assets/images/elf-logo-card.png";
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -27,7 +22,6 @@ export default function InvestPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
-  const [activeTab, setActiveTab] = useState<"sale" | "presale">("sale");
 
   const { data: products, isLoading } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
@@ -72,10 +66,6 @@ export default function InvestPage() {
     return sum + (daysCompleted * (p.product?.dailyEarnings || 0));
   }, 0) || 0;
 
-  const getProductImage = (index: number) => {
-    return productImages[index % productImages.length];
-  };
-
   const handleBuyClick = (product: ProductWithOwnership) => {
     setConfirmProduct(product);
   };
@@ -89,12 +79,12 @@ export default function InvestPage() {
   const paidProducts = products?.filter(p => !p.isFree) || [];
 
   return (
-    <div className="flex flex-col min-h-full bg-gray-50">
-      <div className="bg-gradient-to-b from-blue-100 to-gray-50 px-4 pt-4 pb-2">
+    <div className="flex flex-col min-h-full bg-gray-100">
+      <div className="bg-[#2196F3] px-4 pt-4 pb-4">
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-              <Settings className="w-5 h-5 text-blue-500" />
+          <div className="bg-white rounded-xl p-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
+              <Settings className="w-5 h-5 text-[#2196F3]" />
             </div>
             <div>
               <p className="text-xl font-bold text-gray-800" data-testid="text-active-products">
@@ -103,12 +93,12 @@ export default function InvestPage() {
               <p className="text-xs text-gray-500">Mes Produits</p>
             </div>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-blue-500" />
+          <div className="bg-white rounded-xl p-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-[#2196F3]" />
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-800" data-testid="text-product-revenue">
+              <p className="text-lg font-bold text-gray-800" data-testid="text-product-revenue">
                 {currency} {totalProductRevenue.toLocaleString()}
               </p>
               <p className="text-xs text-gray-500">Mes revenus</p>
@@ -117,85 +107,71 @@ export default function InvestPage() {
         </div>
       </div>
 
-      <div className="flex px-4 pt-3 bg-gray-50">
-        <button
-          onClick={() => setActiveTab("sale")}
-          className={`flex-1 pb-2 text-sm font-medium text-center border-b-2 transition-colors ${
-            activeTab === "sale" 
-              ? "border-blue-500 text-blue-600" 
-              : "border-transparent text-gray-400"
-          }`}
-          data-testid="tab-products-sale"
-        >
-          Produits en vente
-        </button>
-        <button
-          onClick={() => setActiveTab("presale")}
-          className={`flex-1 pb-2 text-sm font-medium text-center border-b-2 transition-colors ${
-            activeTab === "presale" 
-              ? "border-blue-500 text-blue-600" 
-              : "border-transparent text-gray-400"
-          }`}
-          data-testid="tab-products-presale"
-        >
-          Produits en pre-vente
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto pb-20 px-4 pt-3">
-        {activeTab === "presale" ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-sm">Aucun produit en pre-vente pour le moment</p>
-          </div>
-        ) : isLoading ? (
-          <div className="space-y-3">
+      <div className="flex-1 overflow-y-auto pb-20 px-4 pt-4">
+        {isLoading ? (
+          <div className="space-y-4">
             {Array(4).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full rounded-xl" />
+              <Skeleton key={i} className="h-48 w-full rounded-xl" />
             ))}
           </div>
         ) : paidProducts.length > 0 ? (
-          <div className="space-y-3">
-            {paidProducts.map((product, index) => (
-              <div 
-                key={product.id} 
-                className="bg-white rounded-xl p-4 shadow-sm"
+          <div className="space-y-4">
+            {paidProducts.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white rounded-2xl overflow-visible shadow-sm"
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-20 h-20 flex-shrink-0">
-                    <img 
-                      src={getProductImage(index)} 
-                      alt={product.name}
-                      className="w-full h-full object-cover rounded-lg"
+                <div className="relative">
+                  <div className="bg-[#2196F3] rounded-t-2xl px-4 py-3">
+                    <h3 className="text-white font-bold text-base" data-testid={`text-product-name-${product.id}`}>
+                      {product.name}
+                    </h3>
+                  </div>
+                  <div className="absolute top-2 right-3">
+                    <div className="w-8 h-8 bg-[#1976D2] rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-white text-xs font-bold">NEW</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-4 py-3 flex gap-3">
+                  <div className="w-20 h-16 flex-shrink-0 flex items-center">
+                    <img
+                      src={elfLogoCard}
+                      alt="ELF"
+                      className="w-full h-full object-contain"
                     />
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-800 text-sm mb-1" data-testid={`text-product-name-${product.id}`}>
-                      {product.name}
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      Prix: <span className="text-red-500 font-semibold">{product.price.toLocaleString()} {currency}</span>
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Revenu quotidien: <span className="text-[#2196F3] font-semibold">{product.dailyEarnings.toLocaleString()} {currency}</span>
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Revenu total: <span className="text-[#2196F3] font-semibold">{product.totalReturn.toLocaleString()} {currency}</span>
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Periode de revenu: <span className="text-gray-700 font-semibold">{product.cycleDays} jours</span>
-                    </p>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">prix</span>
+                      <span className="text-sm font-bold text-gray-800">{product.price.toLocaleString()} {currency}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">Benefice quotidien</span>
+                      <span className="text-sm font-bold text-gray-800">{product.dailyEarnings.toLocaleString()} {currency}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">Revenu total</span>
+                      <span className="text-sm font-bold text-gray-800">{product.totalReturn.toLocaleString()} {currency}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">Nombre de jours</span>
+                      <span className="text-sm font-bold text-gray-800">{product.cycleDays} jours</span>
+                    </div>
                   </div>
+                </div>
 
-                  <Button
+                <div className="px-6 pb-4">
+                  <button
                     onClick={() => handleBuyClick(product)}
-                    size="sm"
-                    className="rounded-full shrink-0"
+                    className="w-full bg-[#2196F3] text-white font-bold py-3 rounded-full text-base shadow-md active:opacity-90 transition-opacity"
                     data-testid={`button-purchase-${product.id}`}
                   >
-                    Acheter
-                  </Button>
+                    investir
+                  </button>
                 </div>
               </div>
             ))}
@@ -220,7 +196,7 @@ export default function InvestPage() {
           {confirmProduct && (
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-bold text-blue-600 text-lg">{confirmProduct.name}</h4>
+                <h4 className="font-bold text-[#2196F3] text-lg">{confirmProduct.name}</h4>
                 <div className="mt-2 space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Prix:</span>
@@ -259,7 +235,7 @@ export default function InvestPage() {
             <Button variant="outline" onClick={() => setConfirmProduct(null)} data-testid="button-cancel-purchase">
               Annuler
             </Button>
-            <Button 
+            <Button
               onClick={confirmPurchase}
               disabled={purchaseMutation.isPending || !!(confirmProduct && balance < confirmProduct.price)}
               data-testid="button-confirm-purchase"
