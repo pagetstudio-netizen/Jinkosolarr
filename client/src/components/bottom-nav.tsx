@@ -1,20 +1,15 @@
 import { useLocation } from "wouter";
-import { Home, Users, User } from "lucide-react";
 
-const ProduitIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="8" cy="8" r="2.5" />
-    <circle cx="16" cy="8" r="2.5" />
-    <circle cx="8" cy="16" r="2.5" />
-    <circle cx="16" cy="16" r="2.5" />
-  </svg>
-);
+import iconHome from "@assets/téléchargement_(10)_1770815896968.png";
+import iconProduit from "@assets/téléchargement_(11)_1770815896895.png";
+import iconEquipe from "@assets/téléchargement_(15)_1770815897189.png";
+import iconCompte from "@assets/téléchargement_(12)_1770815897017.png";
 
 const navItems = [
-  { path: "/", label: "Accueil", icon: "home" },
-  { path: "/invest", label: "Produit", icon: "produit" },
-  { path: "/team", label: "Equipe", icon: "equipe" },
-  { path: "/account", label: "Compte", icon: "compte" },
+  { path: "/", label: "Accueil", icon: iconHome },
+  { path: "/invest", label: "Produit", icon: iconProduit },
+  { path: "/team", label: "Equipe", icon: iconEquipe },
+  { path: "/account", label: "Compte", icon: iconCompte },
 ];
 
 export default function BottomNav() {
@@ -25,7 +20,6 @@ export default function BottomNav() {
       <div className="flex items-center justify-around h-16 pb-1">
         {navItems.map((item) => {
           const isActive = location === item.path;
-          const color = isActive ? "#4a6cf7" : "#6b7280";
 
           return (
             <button
@@ -34,13 +28,18 @@ export default function BottomNav() {
               className="flex flex-col items-center justify-center flex-1 h-full"
               data-testid={`nav-${item.label.toLowerCase()}`}
             >
-              <div className="mb-0.5" style={{ color }}>
-                {item.icon === "home" && <Home className="w-6 h-6" />}
-                {item.icon === "produit" && <ProduitIcon />}
-                {item.icon === "equipe" && <Users className="w-6 h-6" />}
-                {item.icon === "compte" && <User className="w-6 h-6" />}
-              </div>
-              <span className="text-[10px]" style={{ color }}>{item.label}</span>
+              <img
+                src={item.icon}
+                alt={item.label}
+                className="w-6 h-6 mb-0.5"
+                style={{ opacity: isActive ? 1 : 0.45 }}
+              />
+              <span
+                className="text-[10px] font-medium"
+                style={{ color: isActive ? "#2196F3" : "#6b7280" }}
+              >
+                {item.label}
+              </span>
             </button>
           );
         })}
