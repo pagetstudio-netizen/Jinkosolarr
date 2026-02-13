@@ -104,6 +104,25 @@ export function isSoleaspaySupported(country: string, paymentMethod: string): bo
   return getServiceId(country, paymentMethod) !== null;
 }
 
+const PHONE_PREFIX_MAP: Record<string, string> = {
+  CM: "237",
+  BF: "226",
+  TG: "228",
+  BJ: "229",
+  CI: "225",
+  CG: "242",
+  CD: "243",
+};
+
+export function formatWallet(phone: string, country: string): string {
+  const cleaned = phone.replace(/[\s\-\+]/g, "");
+  const prefix = PHONE_PREFIX_MAP[country];
+  if (!prefix) return cleaned;
+  if (cleaned.startsWith(prefix)) return cleaned;
+  if (cleaned.startsWith("0")) return prefix + cleaned.substring(1);
+  return prefix + cleaned;
+}
+
 export async function initiatePayment(
   wallet: string,
   amount: number,
@@ -124,7 +143,7 @@ export async function initiatePayment(
     : "https://elf.replit.app";
 
   const requestBody: SoleaspayPaymentRequest = {
-    wallet: wallet.replace(/\s/g, ""),
+    wallet: formatWallet(wallet, country),
     amount,
     currency,
     order_id: orderId,
