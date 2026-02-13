@@ -187,30 +187,30 @@ export default function HistoryPage() {
               deposits.map((deposit) => (
                 <div
                   key={deposit.id}
-                  className="bg-white rounded-xl border border-gray-100 shadow-sm p-4"
+                  className="bg-[#f8f9fa] rounded-xl border border-gray-200 shadow-sm p-4"
                   data-testid={`deposit-item-${deposit.id}`}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <p className="text-sm font-bold text-gray-800">{getReference(deposit)}</p>
+                    <p className="text-sm font-bold metallic-text">{getReference(deposit)}</p>
                     <span className={`text-sm font-bold ${getStatusColor(deposit.status)}`}>
                       {getStatusText(deposit.status)}
                     </span>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Montant</span>
-                      <span className="text-sm text-gray-800">: {currency} {parseFloat(deposit.amount).toLocaleString()}</span>
+                    <div className="flex items-center">
+                      <span className="text-sm metallic-text w-20">Montant</span>
+                      <span className="text-sm metallic-text font-semibold">: {currency} {parseFloat(deposit.amount).toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Recu</span>
-                      <span className="text-sm text-gray-800">
+                    <div className="flex items-center">
+                      <span className="text-sm metallic-text w-20">Recu</span>
+                      <span className="text-sm metallic-text font-semibold">
                         : {currency} {deposit.status === "approved" ? parseFloat(deposit.amount).toLocaleString() : "0"}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Date</span>
-                      <span className="text-sm text-gray-800">: {formatDate(deposit.createdAt)}</span>
+                    <div className="flex items-center">
+                      <span className="text-sm metallic-text w-20">Date</span>
+                      <span className="text-sm metallic-text font-semibold">: {formatDate(deposit.createdAt)}</span>
                     </div>
                   </div>
 
@@ -252,30 +252,30 @@ export default function HistoryPage() {
               withdrawals.map((withdrawal) => (
                 <div
                   key={withdrawal.id}
-                  className="bg-white rounded-xl border border-gray-100 shadow-sm p-4"
+                  className="bg-[#f8f9fa] rounded-xl border border-gray-200 shadow-sm p-4"
                   data-testid={`withdrawal-item-${withdrawal.id}`}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <p className="text-sm font-bold text-gray-800">RET{withdrawal.id.toString().padStart(10, "0")}</p>
+                    <p className="text-sm font-bold metallic-text">RET{withdrawal.id.toString().padStart(10, "0")}</p>
                     <span className={`text-sm font-bold ${getStatusColor(withdrawal.status)}`}>
                       {getStatusText(withdrawal.status)}
                     </span>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Montant</span>
-                      <span className="text-sm text-gray-800">: {currency} {parseFloat(withdrawal.amount).toLocaleString()}</span>
+                    <div className="flex items-center">
+                      <span className="text-sm metallic-text w-20">Montant</span>
+                      <span className="text-sm metallic-text font-semibold">: {currency} {parseFloat(withdrawal.amount).toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Recu</span>
-                      <span className="text-sm text-gray-800">
+                    <div className="flex items-center">
+                      <span className="text-sm metallic-text w-20">Recu</span>
+                      <span className="text-sm metallic-text font-semibold">
                         : {currency} {withdrawal.status === "approved" ? parseFloat(withdrawal.netAmount).toLocaleString() : "0"}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Date</span>
-                      <span className="text-sm text-gray-800">: {formatDate(withdrawal.createdAt)}</span>
+                    <div className="flex items-center">
+                      <span className="text-sm metallic-text w-20">Date</span>
+                      <span className="text-sm metallic-text font-semibold">: {formatDate(withdrawal.createdAt)}</span>
                     </div>
                   </div>
                 </div>
