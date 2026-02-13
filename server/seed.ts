@@ -185,7 +185,8 @@ export async function seed() {
     { key: "level1Commission", value: "27" },
     { key: "level2Commission", value: "2" },
     { key: "level3Commission", value: "1" },
-    { key: "soleaspayEnabled", value: "true" },
+    { key: "soleaspayEnabled", value: "false" },
+    { key: "soleaspayCountries", value: "" },
     { key: "inpayEnabled", value: "true" },
   ];
 

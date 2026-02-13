@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,10 +8,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Save, Link, Clock, Users, CreditCard } from "lucide-react";
+
+const SOLEASPAY_COUNTRIES = [
+  { code: "CM", name: "Cameroun" },
+  { code: "BF", name: "Burkina Faso" },
+  { code: "TG", name: "Togo" },
+  { code: "BJ", name: "Benin" },
+  { code: "CI", name: "Cote d'Ivoire" },
+  { code: "CG", name: "Congo Brazzaville" },
+  { code: "CD", name: "RDC" },
+];
 
 const settingsSchema = z.object({
   supportLink: z.string().min(5, "Lien requis"),
@@ -24,6 +35,7 @@ const settingsSchema = z.object({
   level2Commission: z.string().min(1, "Commission requise"),
   level3Commission: z.string().min(1, "Commission requise"),
   soleaspayEnabled: z.string(),
+  soleaspayCountries: z.string(),
   congoPaymentLink: z.string().min(5, "Lien requis"),
 });
 
@@ -52,7 +64,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       level1Commission: "27",
       level2Commission: "2",
       level3Commission: "1",
-      soleaspayEnabled: "true",
+      soleaspayEnabled: "false",
+      soleaspayCountries: "",
       congoPaymentLink: "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
     },
   });
@@ -69,7 +82,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         level1Commission: settings.level1Commission || "27",
         level2Commission: settings.level2Commission || "2",
         level3Commission: settings.level3Commission || "1",
-        soleaspayEnabled: settings.soleaspayEnabled || "true",
+        soleaspayEnabled: settings.soleaspayEnabled || "false",
+        soleaspayCountries: settings.soleaspayCountries || "",
         congoPaymentLink: settings.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
       });
     }
@@ -87,12 +101,27 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/settings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-      toast({ title: "Paramètres enregistrés!" });
+      queryClient.invalidateQueries({ queryKey: ["/api/soleaspay/services"] });
+      toast({ title: "Parametres enregistres!" });
     },
     onError: (error: any) => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     },
   });
+
+  const soleaspayEnabled = form.watch("soleaspayEnabled") === "true";
+  const soleaspayCountriesValue = form.watch("soleaspayCountries") || "";
+  const selectedCountries = soleaspayCountriesValue ? soleaspayCountriesValue.split(",").filter(Boolean) : [];
+
+  const toggleCountry = (code: string) => {
+    let updated: string[];
+    if (selectedCountries.includes(code)) {
+      updated = selectedCountries.filter(c => c !== code);
+    } else {
+      updated = [...selectedCountries, code];
+    }
+    form.setValue("soleaspayCountries", updated.join(","), { shouldDirty: true });
+  };
 
   if (isLoading) {
     return <Skeleton className="h-96" />;
@@ -128,7 +157,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               name="channelLink"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Chaîne officielle</FormLabel>
+                  <FormLabel>Chaine officielle</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="https://t.me/..." />
                   </FormControl>
@@ -198,7 +227,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                 name="withdrawalStartHour"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Heure début</FormLabel>
+                    <FormLabel>Heure debut</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" min="0" max="23" />
                     </FormControl>
@@ -253,9 +282,32 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                 </FormItem>
               )}
             />
-            <p className="text-xs text-muted-foreground">
-              Pays supportes: Cameroun, Burkina Faso, Togo, Benin, Cote d'Ivoire, Congo, RDC
-            </p>
+
+            {soleaspayEnabled && (
+              <div className="rounded-lg border p-4 space-y-3">
+                <p className="text-sm font-medium text-foreground">
+                  Pays actives pour Soleaspay
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Les utilisateurs de ces pays utiliseront le paiement automatique. Les autres verront les canaux de recharge manuels.
+                </p>
+                <div className="space-y-2">
+                  {SOLEASPAY_COUNTRIES.map((country) => (
+                    <label
+                      key={country.code}
+                      className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover-elevate"
+                      data-testid={`checkbox-soleaspay-${country.code}`}
+                    >
+                      <Checkbox
+                        checked={selectedCountries.includes(country.code)}
+                        onCheckedChange={() => toggleCountry(country.code)}
+                      />
+                      <span className="text-sm">{country.name} ({country.code})</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

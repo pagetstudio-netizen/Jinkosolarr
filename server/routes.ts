@@ -408,9 +408,11 @@ export async function registerRoutes(
     try {
       const settings = await storage.getSettings();
       const soleaspayEnabled = settings.soleaspayEnabled !== "false";
+      const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
       res.json({ 
         enabled: soleaspayEnabled,
-        services: SOLEASPAY_SERVICE_MAP 
+        services: SOLEASPAY_SERVICE_MAP,
+        enabledCountries: soleaspayCountries,
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -437,6 +439,7 @@ export async function registerRoutes(
 
       const settings = await storage.getSettings();
       const soleaspayEnabled = settings.soleaspayEnabled !== "false";
+      const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
       const inpayEnabled = settings.inpayEnabled !== "false";
 
       const orderId = `ELF-${Date.now()}-${user.id}`;
@@ -499,7 +502,8 @@ export async function registerRoutes(
         }
       }
       
-      if (useSoleaspay && soleaspayEnabled && isSoleaspaySupported(country, paymentMethod)) {
+      const forceSoleaspay = soleaspayEnabled && soleaspayCountries.includes(country) && isSoleaspaySupported(country, paymentMethod);
+      if ((useSoleaspay || forceSoleaspay) && forceSoleaspay) {
         try {
           const paymentResult = await initiatePayment(
             accountNumber,

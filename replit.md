@@ -88,19 +88,15 @@ Preferred communication style: Simple, everyday language.
 - `SESSION_SECRET`: Secret for session encryption (optional, has fallback)
 
 ## Recent Changes (February 2026)
-- Integrated InPay Africa payment gateway for automated deposits and withdrawals
-- InPay supports: payin (deposits), payout (withdrawals), webhooks, balance check
-- InPay replaces/supplements Soleaspay for mobile money payments across all supported countries
-- Added webhook endpoints: POST /api/webhooks/inpay/payin and /api/webhooks/inpay/payout
-- Admin can approve withdrawals via InPay automatic payout or manual approval
-- Admin can check InPay merchant balance via GET /api/admin/inpay/balance
-- InPay uses per-country credentials (each country has its own merchant account)
-- Togo credentials: INPAY_MERCHANT_ID, INPAY_API_KEY, INPAY_BASE_URL
-- Burkina Faso credentials: INPAY_BF_MERCHANT_ID, INPAY_BF_API_KEY, INPAY_BF_BASE_URL
-- Cote d'Ivoire credentials: INPAY_CI_MERCHANT_ID, INPAY_CI_API_KEY, INPAY_CI_BASE_URL
-- To add a new country: add INPAY_{CC}_MERCHANT_ID, INPAY_{CC}_API_KEY, INPAY_{CC}_BASE_URL secrets and add entry to INPAY_COUNTRY_CREDENTIALS in server/inpay.ts
-- Platform setting `inpayEnabled` controls InPay availability (default: true)
-- /api/inpay/services returns configuredCountries list so frontend only shows InPay for countries with credentials
+- Deposit system now uses dual approach: Soleaspay (automatic) per-country OR manual recharge channels
+- Admin can enable Soleaspay globally and select specific countries for automatic payment
+- Users from Soleaspay-enabled countries get automatic mobile money flow (no channel selection)
+- Users from non-Soleaspay countries see manual recharge channels managed by admin
+- Platform setting `soleaspayEnabled` controls global Soleaspay on/off
+- Platform setting `soleaspayCountries` stores comma-separated country codes (e.g. "TG,BF,CI")
+- Backend enforces Soleaspay for enabled countries (cannot bypass to manual)
+- InPay Africa integration still exists in backend but removed from deposit frontend
+- InPay webhooks and admin balance check still functional for withdrawals
 
 ## Recent Changes (January 2026)
 - Completed full frontend implementation with all pages and modals
