@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Check, X, Ban, Search, Loader2 } from "lucide-react";
+import { Check, X, Ban, Search, Loader2, CreditCard } from "lucide-react";
 import type { Deposit } from "@shared/schema";
 
 interface DepositWithUser extends Deposit {
@@ -18,6 +18,15 @@ interface DepositWithUser extends Deposit {
     country: string;
     isPromoter: boolean;
   };
+}
+
+interface SoleaspayStats {
+  totalAll: number;
+  countAll: number;
+  totalToday: number;
+  countToday: number;
+  totalPending: number;
+  countPending: number;
 }
 
 export default function AdminDeposits() {
@@ -57,6 +66,10 @@ export default function AdminDeposits() {
     },
   });
 
+  const { data: soleaspayStats } = useQuery<SoleaspayStats>({
+    queryKey: ["/api/admin/deposits/soleaspay-stats"],
+  });
+
   const filteredDeposits = deposits?.filter(d => 
     d.accountNumber.includes(filter) || 
     d.user.phone.includes(filter) ||
@@ -65,6 +78,34 @@ export default function AdminDeposits() {
 
   return (
     <div className="space-y-4">
+      {soleaspayStats && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <CreditCard className="w-4 h-4 text-primary" />
+              <p className="font-semibold text-sm text-foreground">Soleaspay</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-3 text-center">
+                <p className="text-xs text-muted-foreground">Aujourd'hui</p>
+                <p className="text-lg font-bold text-foreground">{soleaspayStats.totalToday.toLocaleString()} F</p>
+                <p className="text-xs text-muted-foreground">{soleaspayStats.countToday} depot(s)</p>
+              </div>
+              <div className="bg-green-50 dark:bg-green-950 rounded-lg p-3 text-center">
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-lg font-bold text-foreground">{soleaspayStats.totalAll.toLocaleString()} F</p>
+                <p className="text-xs text-muted-foreground">{soleaspayStats.countAll} depot(s)</p>
+              </div>
+              <div className="bg-orange-50 dark:bg-orange-950 rounded-lg p-3 text-center">
+                <p className="text-xs text-muted-foreground">En attente</p>
+                <p className="text-lg font-bold text-foreground">{soleaspayStats.totalPending.toLocaleString()} F</p>
+                <p className="text-xs text-muted-foreground">{soleaspayStats.countPending} depot(s)</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex gap-2">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

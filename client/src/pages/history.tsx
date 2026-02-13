@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
-import { formatCurrency, getCountryByCode } from "@/lib/countries";
-import { ArrowLeft, ArrowDownToLine, ArrowUpFromLine, Clock, CheckCircle, XCircle, Loader2, Shield } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { getCountryByCode } from "@/lib/countries";
+import { ArrowLeft, ArrowDownToLine, ArrowUpFromLine, Loader2, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 
 interface Deposit {
   id: number;
@@ -12,6 +14,10 @@ interface Deposit {
   status: string;
   paymentMethod: string;
   createdAt: string;
+  soleaspayReference?: string;
+  soleaspayOrderId?: string;
+  inpayOutTradeNo?: string;
+  inpayOrderNumber?: string;
 }
 
 interface Withdrawal {
@@ -24,8 +30,11 @@ interface Withdrawal {
 }
 
 export default function HistoryPage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"deposits" | "withdrawals">("deposits");
+  const [verifyingId, setVerifyingId] = useState<number | null>(null);
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
@@ -45,6 +54,8 @@ export default function HistoryPage() {
         return "Reussi";
       case "rejected":
         return "Rejete";
+      case "processing":
+        return "En traitement";
       case "pending":
         return "En attente";
       default:
@@ -52,27 +63,15 @@ export default function HistoryPage() {
     }
   };
 
-  const getStatusStyle = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
       case "approved":
-        return "text-green-600 bg-green-50 border-green-200";
+        return "text-green-500";
       case "rejected":
-        return "text-red-600 bg-red-50 border-red-200";
+        return "text-red-500";
       default:
-        return "text-[#2196F3] bg-blue-50 border-blue-200";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-      case "approved":
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case "rejected":
-        return <XCircle className="w-4 h-4 text-red-500" />;
-      default:
-        return <Clock className="w-4 h-4 text-[#2196F3]" />;
+        return "text-[#FF9800]";
     }
   };
 
@@ -82,9 +81,47 @@ export default function HistoryPage() {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
+    }) + " " + date.toLocaleTimeString("fr-FR", {
       hour: "2-digit",
       minute: "2-digit",
+      second: "2-digit",
     });
+  };
+
+  const getReference = (deposit: Deposit) => {
+    if (deposit.soleaspayReference) return deposit.soleaspayReference;
+    if (deposit.inpayOrderNumber) return deposit.inpayOrderNumber;
+    if (deposit.soleaspayOrderId) return deposit.soleaspayOrderId;
+    if (deposit.inpayOutTradeNo) return deposit.inpayOutTradeNo;
+    return `DEP${deposit.id.toString().padStart(10, "0")}`;
+  };
+
+  const isPendingDeposit = (deposit: Deposit) => {
+    return (deposit.status === "pending" || deposit.status === "processing") &&
+      (deposit.soleaspayReference || deposit.soleaspayOrderId || deposit.inpayOutTradeNo);
+  };
+
+  const handleVerify = async (depositId: number) => {
+    setVerifyingId(depositId);
+    try {
+      const res = await fetch(`/api/deposits/${depositId}/verify`, { credentials: "include" });
+      const data = await res.json();
+
+      if (data.status === "approved") {
+        toast({ title: "Paiement confirme", description: "Votre compte a ete credite" });
+        refreshUser();
+        queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
+      } else if (data.status === "rejected") {
+        toast({ title: "Paiement echoue", description: "Le paiement a ete refuse", variant: "destructive" });
+        queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
+      } else {
+        toast({ title: "En cours", description: "Le paiement est toujours en attente de confirmation" });
+      }
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de verifier le paiement", variant: "destructive" });
+    } finally {
+      setVerifyingId(null);
+    }
   };
 
   if (!user) return null;
@@ -150,32 +187,48 @@ export default function HistoryPage() {
               deposits.map((deposit) => (
                 <div
                   key={deposit.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                  className="bg-white rounded-xl border border-gray-100 shadow-sm p-4"
                   data-testid={`deposit-item-${deposit.id}`}
                 >
-                  <div className="px-4 py-3 bg-gray-50 flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{formatDate(deposit.createdAt)}</span>
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border flex items-center gap-1 ${getStatusStyle(deposit.status)}`}>
-                      {getStatusIcon(deposit.status)}
+                  <div className="flex items-start justify-between mb-3">
+                    <p className="text-sm font-bold text-gray-800">{getReference(deposit)}</p>
+                    <span className={`text-sm font-bold ${getStatusColor(deposit.status)}`}>
                       {getStatusText(deposit.status)}
                     </span>
                   </div>
-                  <div className="p-4 space-y-3">
+
+                  <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">Montant</span>
-                      <span className="font-bold text-gray-800 text-base">
-                        {parseFloat(deposit.amount).toLocaleString()} {currency}
+                      <span className="text-sm text-gray-800">: {currency} {parseFloat(deposit.amount).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Recu</span>
+                      <span className="text-sm text-gray-800">
+                        : {currency} {deposit.status === "approved" ? parseFloat(deposit.amount).toLocaleString() : "0"}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Methode</span>
-                      <span className="text-sm font-medium text-gray-700">{deposit.paymentMethod}</span>
+                      <span className="text-sm text-gray-500">Date</span>
+                      <span className="text-sm text-gray-800">: {formatDate(deposit.createdAt)}</span>
                     </div>
                   </div>
-                  <div className="px-4 py-2.5 bg-[#e3f2fd] flex items-center justify-center gap-2">
-                    <Shield className="w-3.5 h-3.5 text-[#2196F3]" />
-                    <span className="text-xs font-medium text-[#2196F3]">Transaction securisee</span>
-                  </div>
+
+                  {isPendingDeposit(deposit) && (
+                    <button
+                      onClick={() => handleVerify(deposit.id)}
+                      disabled={verifyingId === deposit.id}
+                      className="mt-3 w-full py-2 bg-[#2196F3] text-white text-xs font-semibold rounded-full flex items-center justify-center gap-2 disabled:opacity-50"
+                      data-testid={`button-verify-${deposit.id}`}
+                    >
+                      {verifyingId === deposit.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      )}
+                      Verifier la transaction
+                    </button>
+                  )}
                 </div>
               ))
             )}
@@ -199,39 +252,31 @@ export default function HistoryPage() {
               withdrawals.map((withdrawal) => (
                 <div
                   key={withdrawal.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                  className="bg-white rounded-xl border border-gray-100 shadow-sm p-4"
                   data-testid={`withdrawal-item-${withdrawal.id}`}
                 >
-                  <div className="px-4 py-3 bg-gray-50 flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{formatDate(withdrawal.createdAt)}</span>
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border flex items-center gap-1 ${getStatusStyle(withdrawal.status)}`}>
-                      {getStatusIcon(withdrawal.status)}
+                  <div className="flex items-start justify-between mb-3">
+                    <p className="text-sm font-bold text-gray-800">RET{withdrawal.id.toString().padStart(10, "0")}</p>
+                    <span className={`text-sm font-bold ${getStatusColor(withdrawal.status)}`}>
                       {getStatusText(withdrawal.status)}
                     </span>
                   </div>
-                  <div className="p-4 space-y-3">
+
+                  <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">Montant</span>
-                      <span className="font-bold text-gray-800 text-base">
-                        {parseFloat(withdrawal.amount).toLocaleString()} {currency}
+                      <span className="text-sm text-gray-800">: {currency} {parseFloat(withdrawal.amount).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Recu</span>
+                      <span className="text-sm text-gray-800">
+                        : {currency} {withdrawal.status === "approved" ? parseFloat(withdrawal.netAmount).toLocaleString() : "0"}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Taxe (15%)</span>
-                      <span className="text-sm font-medium text-red-500">
-                        -{(parseFloat(withdrawal.amount) * 0.15).toLocaleString()} {currency}
-                      </span>
+                      <span className="text-sm text-gray-500">Date</span>
+                      <span className="text-sm text-gray-800">: {formatDate(withdrawal.createdAt)}</span>
                     </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                      <span className="text-sm font-semibold text-gray-700">Montant net</span>
-                      <span className="font-bold text-green-600 text-base">
-                        {(parseFloat(withdrawal.amount) * 0.85).toLocaleString()} {currency}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="px-4 py-2.5 bg-[#e3f2fd] flex items-center justify-center gap-2">
-                    <Shield className="w-3.5 h-3.5 text-[#2196F3]" />
-                    <span className="text-xs font-medium text-[#2196F3]">Transaction securisee</span>
                   </div>
                 </div>
               ))
