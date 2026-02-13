@@ -12,7 +12,8 @@ import iconRecharger from "@assets/20260208_191924_1770580677527.png";
 import iconRetraits from "@assets/20260208_191333_1770580677612.png";
 import iconAider from "@assets/20260208_105040_1770548435850.png";
 import iconEnregistrer from "@assets/images_(6)_1770548411064.png";
-import elfPopupBanner from "@assets/20260126_073237_1769413159534.jpg";
+import notifyBanner from "@/assets/images/notify-banner.png";
+import elfLogoPopup from "@/assets/images/elf-logo-card.png";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -44,61 +45,44 @@ export default function HomePage() {
     <div className="flex flex-col min-h-full bg-white">
       {showPopup && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 animate-in fade-in duration-300"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-300"
           onClick={() => setShowPopup(false)}
         >
           <div
-            className="bg-[#1a1a1a] w-full max-w-sm rounded-2xl overflow-hidden relative animate-in zoom-in-95 duration-300"
+            className="bg-white w-full max-w-[320px] rounded-2xl overflow-hidden relative animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setShowPopup(false)}
-              className="absolute top-2 right-2 text-white/70 hover:text-white z-10"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <img src={elfPopupBanner} alt="ELF Banner" className="w-full h-auto object-cover" />
-            <div className="p-4 text-white">
-              <h2 className="text-[#2196F3] font-bold text-center text-lg mb-3 tracking-wider">
-                NOTIFIE
-              </h2>
+            <div className="relative">
+              <img src={notifyBanner} alt="Notify" className="w-full h-28 object-cover" />
+              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                <img src={elfLogoPopup} alt="ELF" className="w-12 h-12 object-contain" />
+              </div>
+            </div>
+
+            <div className="pt-10 px-5 pb-5 text-gray-700">
               <div className="space-y-3 text-[13px] leading-relaxed">
-                <p className="font-semibold text-center text-base">Bienvenue sur ELF</p>
-                <p className="text-center">Investissez dans le secteur p{"\u00e9"}trolier et {"\u00e9"}nerg{"\u00e9"}tique et g{"\u00e9"}n{"\u00e9"}rez des revenus quotidiens.</p>
-                <ul className="space-y-2">
-                  <li className="flex gap-2">
-                    <span className="font-bold">1.</span>
-                    <span>Les nouveaux utilisateurs re{"\u00e7"}oivent 500 FCFA {"\u00e0"} l'inscription.</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold">2.</span>
-                    <span>Retrait minimum : 1 200 FCFA.</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold">3.</span>
-                    <span>Gagnez 30 % de commission gr{"\u00e2"}ce {"\u00e0"} notre programme de parrainage {"\u00e0"} trois niveaux.</span>
-                  </li>
-                </ul>
-                <p className="text-center pt-1 italic text-[12px] text-gray-300">
-                  Cliquez ci-dessous pour rejoindre notre cha{"\u00ee"}ne Telegram officielle.
-                </p>
-                <div className="space-y-3 pt-2">
-                  <button
-                    onClick={() => setShowPopup(false)}
-                    className="w-full py-3 bg-[#333] hover:bg-[#444] rounded-xl font-bold transition-colors"
-                  >
-                    D'ACCORD
-                  </button>
-                  <a
-                    href="https://t.me/elfgroup"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#0088cc] hover:bg-[#0099ee] rounded-xl font-bold transition-colors"
-                  >
-                    <Send className="w-5 h-5 fill-current" />
-                    Rejoindre la cha{"\u00ee"}ne Telegram
-                  </a>
-                </div>
+                <p>Fond{"\u00e9"}e en 1967, ELF s'engage {"\u00e0"} cr{"\u00e9"}er des produits et services plus s{"\u00fb"}rs, plus confortables et plus pratiques pour les familles. Rejoignez-nous, profitez des dividendes des actionnaires et faites fructifier rapidement votre patrimoine !</p>
+                <p>1. Bonus d'inscription : 500 FCFA</p>
+                <p>2. Bonus de connexion quotidienne : 50 FCFA</p>
+                <p>3. Invitez vos filleuls {"\u00e0"} investir et recevez imm{"\u00e9"}diatement une prime de 30 % du montant de leur investissement.</p>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <a
+                  href="https://t.me/+DOnUcJs7idVmN2E0"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-[#2196F3] hover:bg-[#1E88E5] rounded-full text-white font-semibold text-sm transition-colors"
+                >
+                  <Send className="w-4 h-4 fill-current" />
+                  Cliquez pour acc{"\u00e9"}der au canal Telegram officiel &gt;
+                </a>
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="mx-auto block px-10 py-2.5 bg-black text-white rounded-full font-bold text-sm transition-opacity active:opacity-80"
+                >
+                  D'accord
+                </button>
               </div>
             </div>
           </div>
