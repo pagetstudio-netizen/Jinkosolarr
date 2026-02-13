@@ -1137,6 +1137,38 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/admin/deposits/soleaspay-stats", requireAdmin, async (req, res) => {
+    try {
+      const allDeposits = await storage.getDeposits();
+      const soleaspayDeposits = allDeposits.filter((d: any) => d.soleaspayReference || d.soleaspayOrderId);
+
+      const approvedSoleaspay = soleaspayDeposits.filter((d: any) => d.status === "approved");
+      const totalAll = approvedSoleaspay.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
+      const countAll = approvedSoleaspay.length;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const approvedToday = approvedSoleaspay.filter((d: any) => new Date(d.createdAt) >= today);
+      const totalToday = approvedToday.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
+      const countToday = approvedToday.length;
+
+      const pendingSoleaspay = soleaspayDeposits.filter((d: any) => d.status === "pending" || d.status === "processing");
+      const totalPending = pendingSoleaspay.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
+      const countPending = pendingSoleaspay.length;
+
+      res.json({
+        totalAll,
+        countAll,
+        totalToday,
+        countToday,
+        totalPending,
+        countPending,
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/admin/deposits/:id/approve", requireAdmin, async (req, res) => {
     try {
       const deposit = await storage.updateDeposit(parseInt(req.params.id), {
