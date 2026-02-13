@@ -510,7 +510,7 @@ export default function DepositPage() {
         {isSoleaspayForCountry && selectedCountry && (
           <div className="bg-[#e3f2fd] rounded-xl p-3">
             <p className="text-xs text-[#1565C0] font-medium text-center">
-              Paiement automatique active pour votre pays
+              Votre depot sera credite instantanement apres le paiement
             </p>
           </div>
         )}
