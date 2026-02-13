@@ -274,19 +274,3 @@
 .animate-marquee {
   animation: marquee 12s linear infinite;
 }
-
-.metallic-text {
-  background: linear-gradient(
-    180deg,
-    #8e8e8e 0%,
-    #b8b8b8 20%,
-    #d4d4d4 40%,
-    #a0a0a0 60%,
-    #c0c0c0 80%,
-    #9a9a9a 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: none;
-}
