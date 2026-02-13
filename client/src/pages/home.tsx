@@ -59,27 +59,26 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="pt-10 px-5 pb-5 text-gray-700">
-              <div className="space-y-3 text-[13px] leading-relaxed">
-                <p>Fond{"\u00e9"}e en 1967, ELF s'engage {"\u00e0"} cr{"\u00e9"}er des produits et services plus s{"\u00fb"}rs, plus confortables et plus pratiques pour les familles. Rejoignez-nous, profitez des dividendes des actionnaires et faites fructifier rapidement votre patrimoine !</p>
+            <div className="pt-10 px-4 pb-4 text-gray-700">
+              <div className="space-y-1.5 text-[12px] leading-snug">
+                <p>Rejoignez ELF, profitez des dividendes et faites fructifier votre patrimoine !</p>
                 <p>1. Bonus d'inscription : 500 FCFA</p>
-                <p>2. Bonus de connexion quotidienne : 50 FCFA</p>
-                <p>3. Invitez vos filleuls {"\u00e0"} investir et recevez imm{"\u00e9"}diatement une prime de 30 % du montant de leur investissement.</p>
+                <p>2. Bonus quotidien : 50 FCFA</p>
+                <p>3. Invitez vos filleuls et recevez 30 % de prime.</p>
               </div>
-
-              <div className="mt-4 space-y-3">
+              <div className="mt-3 space-y-2">
                 <a
                   href="https://t.me/+DOnUcJs7idVmN2E0"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-3 bg-[#2196F3] hover:bg-[#1E88E5] rounded-full text-white font-semibold text-sm transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#2196F3] rounded-full text-white font-semibold text-xs transition-colors"
                 >
                   <Send className="w-4 h-4 fill-current" />
-                  Cliquez pour acc{"\u00e9"}der au canal Telegram officiel &gt;
+                  Canal Telegram officiel &gt;
                 </a>
                 <button
                   onClick={() => setShowPopup(false)}
-                  className="mx-auto block px-10 py-2.5 bg-black text-white rounded-full font-bold text-sm transition-opacity active:opacity-80"
+                  className="mx-auto block px-8 py-2 bg-black text-white rounded-full font-bold text-xs"
                 >
                   D'accord
                 </button>
