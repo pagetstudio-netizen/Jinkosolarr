@@ -1,4 +1,14 @@
 import crypto from "crypto";
+import { HttpsProxyAgent } from "https-proxy-agent";
+
+const PROXY_URL = process.env.QUOTAGUARD_STATIC_URL || process.env.STATIC_PROXY_URL || "";
+
+function getProxyAgent(): HttpsProxyAgent<string> | undefined {
+  if (PROXY_URL) {
+    return new HttpsProxyAgent(PROXY_URL);
+  }
+  return undefined;
+}
 
 interface InpayCredentials {
   merchantId: string;
@@ -230,11 +240,16 @@ export async function initiatePayin(params: {
   const url = `${creds.baseUrl}/inpays/payin/unifiedorder`;
   console.log(`[inpay] Payin request to ${url} for country ${params.countryCode}, merchantId: ${creds.merchantId}, bank_code: ${params.bankCode}, mobile: ${mobile}`);
 
-  const response = await fetch(url, {
+  const agent = getProxyAgent();
+  const fetchOptions: any = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-  });
+  };
+  if (agent) fetchOptions.agent = agent;
+
+  console.log(`[inpay] Using proxy: ${PROXY_URL ? "YES" : "NO"}`);
+  const response = await fetch(url, fetchOptions);
 
   const text = await response.text();
   try {
@@ -259,11 +274,15 @@ export async function queryPayin(outTradeNo: string, countryCode: string): Promi
 
   data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${creds.baseUrl}/inpays/payin/query`, {
+  const agent = getProxyAgent();
+  const fetchOptions: any = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-  });
+  };
+  if (agent) fetchOptions.agent = agent;
+
+  const response = await fetch(`${creds.baseUrl}/inpays/payin/query`, fetchOptions);
 
   const text = await response.text();
   try {
@@ -326,11 +345,16 @@ export async function initiatePayout(params: {
   const url = `${creds.baseUrl}/inpays/payout/unifiedorder`;
   console.log(`[inpay] Payout request to ${url} for country ${params.countryCode}, merchantId: ${creds.merchantId}, bank_code: ${params.bankCode}, account: ${accountNum}`);
 
-  const response = await fetch(url, {
+  const agent = getProxyAgent();
+  const fetchOptions: any = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-  });
+  };
+  if (agent) fetchOptions.agent = agent;
+
+  console.log(`[inpay] Using proxy: ${PROXY_URL ? "YES" : "NO"}`);
+  const response = await fetch(url, fetchOptions);
 
   const text = await response.text();
   try {
@@ -355,11 +379,15 @@ export async function queryPayout(outTradeNo: string, countryCode: string): Prom
 
   data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${creds.baseUrl}/inpays/payout/query`, {
+  const agent = getProxyAgent();
+  const fetchOptions: any = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-  });
+  };
+  if (agent) fetchOptions.agent = agent;
+
+  const response = await fetch(`${creds.baseUrl}/inpays/payout/query`, fetchOptions);
 
   const text = await response.text();
   try {
@@ -383,11 +411,15 @@ export async function getPayoutBalance(countryCode?: string): Promise<InpayBalan
 
   data.sign = generateSign(data, creds.apiKey);
 
-  const response = await fetch(`${creds.baseUrl}/inpays/payout/balance`, {
+  const agent = getProxyAgent();
+  const fetchOptions: any = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-  });
+  };
+  if (agent) fetchOptions.agent = agent;
+
+  const response = await fetch(`${creds.baseUrl}/inpays/payout/balance`, fetchOptions);
 
   const text = await response.text();
   try {
