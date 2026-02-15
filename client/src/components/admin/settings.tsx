@@ -63,9 +63,9 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      supportLink: "https://t.me/+DOnUcJs7idVmN2E0",
-      channelLink: "https://t.me/+DOnUcJs7idVmN2E0",
-      groupLink: "https://t.me/+DOnUcJs7idVmN2E0",
+      supportLink: "https://t.me/+M229bmWp-AkyZWEx",
+      channelLink: "https://t.me/+M229bmWp-AkyZWEx",
+      groupLink: "https://t.me/+M229bmWp-AkyZWEx",
       withdrawalFees: "15",
       withdrawalStartHour: "8",
       withdrawalEndHour: "17",
@@ -83,9 +83,9 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   useEffect(() => {
     if (settings) {
       form.reset({
-        supportLink: settings.supportLink || "https://t.me/+DOnUcJs7idVmN2E0",
-        channelLink: settings.channelLink || "https://t.me/+DOnUcJs7idVmN2E0",
-        groupLink: settings.groupLink || "https://t.me/+DOnUcJs7idVmN2E0",
+        supportLink: settings.supportLink || "https://t.me/+M229bmWp-AkyZWEx",
+        channelLink: settings.channelLink || "https://t.me/+M229bmWp-AkyZWEx",
+        groupLink: settings.groupLink || "https://t.me/+M229bmWp-AkyZWEx",
         withdrawalFees: settings.withdrawalFees || "15",
         withdrawalStartHour: settings.withdrawalStartHour || "8",
         withdrawalEndHour: settings.withdrawalEndHour || "17",

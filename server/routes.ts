@@ -1094,9 +1094,9 @@ export async function registerRoutes(
     try {
       const settings = await storage.getSettings();
       res.json({
-        supportLink: settings.supportLink || "https://t.me/+DOnUcJs7idVmN2E0",
-        channelLink: settings.channelLink || "https://t.me/+DOnUcJs7idVmN2E0",
-        groupLink: settings.groupLink || "https://t.me/+DOnUcJs7idVmN2E0",
+        supportLink: settings.supportLink || "https://t.me/+M229bmWp-AkyZWEx",
+        channelLink: settings.channelLink || "https://t.me/+M229bmWp-AkyZWEx",
+        groupLink: settings.groupLink || "https://t.me/+M229bmWp-AkyZWEx",
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

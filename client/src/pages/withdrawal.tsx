@@ -302,7 +302,7 @@ export default function WithdrawalPage() {
           <h3 className="font-bold text-gray-800 text-sm mb-3">Instructions pour retraits</h3>
           <div className="space-y-2 text-sm text-gray-500 leading-relaxed">
             <p>1. L'heure de retrait est de {withdrawalStartHour}h00 a {withdrawalEndHour}h00 tous les jours et les retraits sont disponibles tous les jours.</p>
-            <p>2. Vous pouvez retirer de l'argent une fois par jour.</p>
+            <p>2. Vous pouvez effectuer 2 retraits par jour.</p>
             <p>3. Le montant minimum de retrait est de {minWithdrawal} {currency}.</p>
             <p>4. Des frais de traitement de {withdrawalFee}% seront factures pour les retraits.</p>
             <p>5. Les retraits sont traites dans un delai de 1h a 24h maximum.</p>

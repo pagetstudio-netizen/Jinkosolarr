@@ -68,7 +68,7 @@ export default function HomePage() {
               </div>
               <div className="mt-3 space-y-2">
                 <a
-                  href="https://t.me/+DOnUcJs7idVmN2E0"
+                  href="https://t.me/+M229bmWp-AkyZWEx"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#2196F3] rounded-full text-white font-semibold text-xs transition-colors"

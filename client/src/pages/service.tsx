@@ -36,7 +36,7 @@ export default function ServicePage() {
 
         <div className="px-5 py-4 space-y-0">
           <button
-            onClick={() => openLink(settings?.supportLink || "https://t.me/+DOnUcJs7idVmN2E0")}
+            onClick={() => openLink(settings?.supportLink || "https://t.me/+M229bmWp-AkyZWEx")}
             className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
             data-testid="button-support-link"
           >
@@ -46,7 +46,7 @@ export default function ServicePage() {
           </button>
 
           <button
-            onClick={() => openLink(settings?.channelLink || "https://t.me/+DOnUcJs7idVmN2E0")}
+            onClick={() => openLink(settings?.channelLink || "https://t.me/+M229bmWp-AkyZWEx")}
             className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
             data-testid="button-channel-link"
           >
@@ -56,7 +56,7 @@ export default function ServicePage() {
           </button>
 
           <button
-            onClick={() => openLink(settings?.groupLink || "https://t.me/+DOnUcJs7idVmN2E0")}
+            onClick={() => openLink(settings?.groupLink || "https://t.me/+M229bmWp-AkyZWEx")}
             className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
             data-testid="button-group-link"
           >

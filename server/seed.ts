@@ -176,9 +176,9 @@ export async function seed() {
   // Check if settings exist
   const existingSettings = await db.select().from(platformSettings);
   const requiredSettings = [
-    { key: "supportLink", value: "https://t.me/+DOnUcJs7idVmN2E0" },
-    { key: "channelLink", value: "https://t.me/+DOnUcJs7idVmN2E0" },
-    { key: "groupLink", value: "https://t.me/+DOnUcJs7idVmN2E0" },
+    { key: "supportLink", value: "https://t.me/+M229bmWp-AkyZWEx" },
+    { key: "channelLink", value: "https://t.me/+M229bmWp-AkyZWEx" },
+    { key: "groupLink", value: "https://t.me/+M229bmWp-AkyZWEx" },
     { key: "withdrawalFees", value: "15" },
     { key: "withdrawalStartHour", value: "8" },
     { key: "withdrawalEndHour", value: "17" },
