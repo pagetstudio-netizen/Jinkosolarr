@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Check, X, Search, Loader2 } from "lucide-react";
+import { Check, X, Search, Loader2, Zap, Wallet } from "lucide-react";
 import type { Withdrawal } from "@shared/schema";
 
 interface WithdrawalWithUser extends Withdrawal {
@@ -20,10 +20,19 @@ interface WithdrawalWithUser extends Withdrawal {
   };
 }
 
+interface InpayBalance {
+  balance: string;
+  country: string;
+}
+
+const INPAY_COUNTRIES = ["TG", "BF", "CI"];
+
 export default function AdminWithdrawals() {
   const { toast } = useToast();
   const [filter, setFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected" | "processing">("pending");
+  const [balanceCountry, setBalanceCountry] = useState("TG");
+  const [showBalance, setShowBalance] = useState(false);
 
   const { data: allWithdrawals, isLoading } = useQuery<WithdrawalWithUser[]>({
     queryKey: ["/api/admin/withdrawals"],
@@ -39,21 +48,40 @@ export default function AdminWithdrawals() {
   );
 
   const processMutation = useMutation({
-    mutationFn: async ({ id, action }: { id: number; action: "approve" | "reject" }) => {
-      const response = await apiRequest("POST", `/api/admin/withdrawals/${id}/${action}`, {});
+    mutationFn: async ({ id, action, useInpayPayout }: { id: number; action: "approve" | "reject"; useInpayPayout?: boolean }) => {
+      const body = useInpayPayout ? { useInpayPayout: true } : {};
+      const response = await apiRequest("POST", `/api/admin/withdrawals/${id}/${action}`, body);
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || "Erreur");
       }
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/withdrawals"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
-      toast({ title: "Retrait traité!" });
+      if (data?.inpayPayout) {
+        toast({ title: "Retrait envoye via InPay", description: "Le paiement est en cours de traitement" });
+      } else {
+        toast({ title: "Retrait traite!" });
+      }
     },
     onError: (error: any) => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const balanceMutation = useMutation({
+    mutationFn: async (country: string) => {
+      const res = await fetch(`/api/admin/inpay/balance?country=${country}`, { credentials: "include" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Erreur");
+      }
+      return res.json() as Promise<InpayBalance>;
+    },
+    onError: (error: any) => {
+      toast({ title: "Erreur InPay", description: error.message, variant: "destructive" });
     },
   });
 
@@ -63,13 +91,58 @@ export default function AdminWithdrawals() {
     w.user.fullName.toLowerCase().includes(filter.toLowerCase())
   ) || [];
 
+  const isInpayCountry = (country: string) => INPAY_COUNTRIES.includes(country);
+
   return (
     <div className="space-y-4">
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Wallet className="w-4 h-4 text-primary" />
+            <p className="font-semibold text-sm text-foreground">Solde InPay</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {INPAY_COUNTRIES.map((c) => (
+              <Button
+                key={c}
+                size="sm"
+                variant={balanceCountry === c ? "default" : "outline"}
+                onClick={() => {
+                  setBalanceCountry(c);
+                  balanceMutation.mutate(c);
+                  setShowBalance(true);
+                }}
+                disabled={balanceMutation.isPending}
+              >
+                {c}
+              </Button>
+            ))}
+          </div>
+          {showBalance && (
+            <div className="mt-3 p-3 bg-muted rounded-md">
+              {balanceMutation.isPending ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Chargement...
+                </div>
+              ) : balanceMutation.data ? (
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Solde {balanceMutation.data.country}: </span>
+                  <span className="font-bold text-foreground">{parseFloat(balanceMutation.data.balance).toLocaleString()} F</span>
+                </div>
+              ) : balanceMutation.error ? (
+                <p className="text-sm text-destructive">Erreur: {balanceMutation.error.message}</p>
+              ) : null}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="flex gap-2">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher par numéro ou nom..."
+            placeholder="Rechercher par numero ou nom..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="pl-10"
@@ -78,14 +151,14 @@ export default function AdminWithdrawals() {
       </div>
 
       <div className="flex gap-2 overflow-x-auto">
-        {(["all", "pending", "approved", "rejected"] as const).map((status) => (
+        {(["all", "pending", "processing", "approved", "rejected"] as const).map((status) => (
           <Button
             key={status}
             size="sm"
             variant={statusFilter === status ? "default" : "outline"}
             onClick={() => setStatusFilter(status)}
           >
-            {status === "all" ? "Tous" : status === "pending" ? "En attente" : status === "approved" ? "Approuvés" : "Rejetés"}
+            {status === "all" ? "Tous" : status === "pending" ? "En attente" : status === "processing" ? "En cours" : status === "approved" ? "Approuves" : "Rejetes"}
           </Button>
         ))}
       </div>
@@ -99,15 +172,22 @@ export default function AdminWithdrawals() {
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium text-foreground">{withdrawal.user.fullName}</p>
                       {withdrawal.user.isPromoter && <Badge className="text-xs">Promoteur</Badge>}
+                      {isInpayCountry(withdrawal.user.country) && (
+                        <Badge variant="outline" className="text-xs">InPay</Badge>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground">{withdrawal.user.phone}</p>
                     <p className="text-sm text-muted-foreground">Pays: {withdrawal.user.country}</p>
                   </div>
-                  <Badge variant={withdrawal.status === "pending" ? "secondary" : withdrawal.status === "approved" ? "default" : "destructive"}>
-                    {withdrawal.status}
+                  <Badge variant={
+                    withdrawal.status === "pending" ? "secondary" : 
+                    withdrawal.status === "processing" ? "secondary" :
+                    withdrawal.status === "approved" ? "default" : "destructive"
+                  }>
+                    {withdrawal.status === "processing" ? "En cours" : withdrawal.status}
                   </Badge>
                 </div>
 
@@ -148,23 +228,52 @@ export default function AdminWithdrawals() {
                 </div>
 
                 {withdrawal.status === "pending" && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => processMutation.mutate({ id: withdrawal.id, action: "approve" })}
-                      disabled={processMutation.isPending}
-                    >
-                      {processMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4 mr-1" /> Valider</>}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => processMutation.mutate({ id: withdrawal.id, action: "reject" })}
-                      disabled={processMutation.isPending}
-                    >
-                      <X className="w-4 h-4 mr-1" /> Rejeter
-                    </Button>
+                  <div className="flex flex-col gap-2">
+                    {isInpayCountry(withdrawal.user.country) && (
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => processMutation.mutate({ id: withdrawal.id, action: "approve", useInpayPayout: true })}
+                        disabled={processMutation.isPending}
+                        data-testid={`button-inpay-approve-${withdrawal.id}`}
+                      >
+                        {processMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Zap className="w-4 h-4 mr-1" />
+                            Envoyer via InPay
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => processMutation.mutate({ id: withdrawal.id, action: "approve" })}
+                        disabled={processMutation.isPending}
+                        data-testid={`button-manual-approve-${withdrawal.id}`}
+                      >
+                        {processMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4 mr-1" /> Valider manuellement</>}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => processMutation.mutate({ id: withdrawal.id, action: "reject" })}
+                        disabled={processMutation.isPending}
+                        data-testid={`button-reject-${withdrawal.id}`}
+                      >
+                        <X className="w-4 h-4 mr-1" /> Rejeter
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {withdrawal.status === "processing" && (
+                  <div className="p-2 bg-muted rounded-md text-sm text-muted-foreground text-center">
+                    Paiement InPay en cours de traitement...
                   </div>
                 )}
               </CardContent>
@@ -172,7 +281,7 @@ export default function AdminWithdrawals() {
           ))
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            Aucun retrait trouvé
+            Aucun retrait trouve
           </div>
         )}
       </div>
