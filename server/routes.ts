@@ -441,10 +441,11 @@ export async function registerRoutes(
       const soleaspayEnabled = settings.soleaspayEnabled !== "false";
       const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
       const inpayEnabled = settings.inpayEnabled !== "false";
+      const inpayCountries = settings.inpayCountries ? settings.inpayCountries.split(",").filter(Boolean) : ["TG", "BF", "CI"];
 
       const orderId = `ELF-${Date.now()}-${user.id}`;
 
-      if (useInpay && inpayEnabled && isInpaySupported(country)) {
+      if (useInpay && inpayEnabled && inpayCountries.includes(country) && isInpaySupported(country)) {
         try {
           const bankCode = getBankCode(country, paymentMethod);
           if (!bankCode) {
@@ -814,8 +815,10 @@ export async function registerRoutes(
     try {
       const settings = await storage.getSettings();
       const inpayEnabled = settings.inpayEnabled !== "false";
+      const inpayCountries = settings.inpayCountries ? settings.inpayCountries.split(",").filter(Boolean) : ["TG", "BF", "CI"];
       res.json({
         enabled: inpayEnabled,
+        enabledCountries: inpayCountries,
         bankCodes: INPAY_BANK_CODES,
         configuredCountries: getConfiguredCountries(),
       });
@@ -1273,8 +1276,9 @@ export async function registerRoutes(
 
       const settings = await storage.getSettings();
       const inpayEnabled = settings.inpayEnabled !== "false";
+      const inpayCountries = settings.inpayCountries ? settings.inpayCountries.split(",").filter(Boolean) : ["TG", "BF", "CI"];
 
-      if (useInpayPayout && inpayEnabled && isInpaySupported(withdrawalData.country)) {
+      if (useInpayPayout && inpayEnabled && inpayCountries.includes(withdrawalData.country) && isInpaySupported(withdrawalData.country)) {
         const bankCode = getBankCode(withdrawalData.country, withdrawalData.paymentMethod);
         if (!bankCode) {
           return res.status(400).json({ message: `Methode de paiement non supportee par InPay: ${withdrawalData.paymentMethod}` });

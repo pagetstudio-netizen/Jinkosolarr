@@ -25,7 +25,10 @@ interface InpayBalance {
   country: string;
 }
 
-const INPAY_COUNTRIES = ["TG", "BF", "CI"];
+interface InpayServices {
+  enabled: boolean;
+  enabledCountries: string[];
+}
 
 export default function AdminWithdrawals() {
   const { toast } = useToast();
@@ -33,6 +36,13 @@ export default function AdminWithdrawals() {
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected" | "processing">("pending");
   const [balanceCountry, setBalanceCountry] = useState("TG");
   const [showBalance, setShowBalance] = useState(false);
+
+  const { data: inpayServices } = useQuery<InpayServices>({
+    queryKey: ["/api/inpay/services"],
+  });
+
+  const inpayEnabled = inpayServices?.enabled ?? false;
+  const inpayCountries = inpayServices?.enabledCountries ?? [];
 
   const { data: allWithdrawals, isLoading } = useQuery<WithdrawalWithUser[]>({
     queryKey: ["/api/admin/withdrawals"],
@@ -91,10 +101,11 @@ export default function AdminWithdrawals() {
     w.user.fullName.toLowerCase().includes(filter.toLowerCase())
   ) || [];
 
-  const isInpayCountry = (country: string) => INPAY_COUNTRIES.includes(country);
+  const isInpayCountry = (country: string) => inpayEnabled && inpayCountries.includes(country);
 
   return (
     <div className="space-y-4">
+      {inpayEnabled && inpayCountries.length > 0 && (
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-3">
@@ -102,7 +113,7 @@ export default function AdminWithdrawals() {
             <p className="font-semibold text-sm text-foreground">Solde InPay</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {INPAY_COUNTRIES.map((c) => (
+            {inpayCountries.map((c) => (
               <Button
                 key={c}
                 size="sm"
@@ -137,6 +148,7 @@ export default function AdminWithdrawals() {
           )}
         </CardContent>
       </Card>
+      )}
 
       <div className="flex gap-2">
         <div className="flex-1 relative">
