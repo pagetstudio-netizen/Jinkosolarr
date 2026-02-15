@@ -60,10 +60,7 @@ export const INPAY_BANK_CODES: Record<string, Record<string, string>> = {
     "Telecel": "12",
   },
   TG: {
-    "Moov Money": "3",
     "Tmoney": "7",
-    "T-Money": "7",
-    "Mixx by Yas": "7",
   },
   BJ: {
     "Moov Money": "3",
