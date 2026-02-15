@@ -32,6 +32,12 @@ interface SoleaspayServices {
   enabledCountries: string[];
 }
 
+interface InpayServices {
+  enabled: boolean;
+  enabledCountries: string[];
+  bankCodes: Record<string, Record<string, string>>;
+}
+
 interface DepositResponse {
   deposit: {
     id: number;
@@ -40,6 +46,8 @@ interface DepositResponse {
     soleaspayOrderId?: string;
   };
   soleaspay?: boolean;
+  inpay?: boolean;
+  paymentUrl?: string;
   reference?: string;
   status?: string;
   message?: string;
@@ -71,6 +79,10 @@ export default function DepositPage() {
     queryKey: ["/api/soleaspay/services"],
   });
 
+  const { data: inpayData } = useQuery<InpayServices>({
+    queryKey: ["/api/inpay/services"],
+  });
+
   const { data: paymentChannels = [] } = useQuery<PaymentChannel[]>({
     queryKey: ["/api/payment-channels"],
   });
@@ -81,6 +93,10 @@ export default function DepositPage() {
   const soleaspayServices = soleaspayData?.services ?? {};
   const soleaspayEnabledCountries = soleaspayData?.enabledCountries ?? [];
 
+  const inpayEnabled = inpayData?.enabled ?? false;
+  const inpayEnabledCountries = inpayData?.enabledCountries ?? [];
+  const inpayBankCodes = inpayData?.bankCodes ?? {};
+
   const isSoleaspayForCountry = Boolean(
     soleaspayEnabled &&
     selectedCountry &&
@@ -88,15 +104,34 @@ export default function DepositPage() {
     soleaspayServices[selectedCountry]
   );
 
+  const isInpayForCountry = Boolean(
+    inpayEnabled &&
+    selectedCountry &&
+    inpayEnabledCountries.includes(selectedCountry) &&
+    inpayBankCodes[selectedCountry]
+  );
+
+  const isAutoPaymentCountry = isSoleaspayForCountry || isInpayForCountry;
+
   const isSoleaspayAvailable = Boolean(
     isSoleaspayForCountry &&
     selectedPaymentMethod &&
     soleaspayServices[selectedCountry]?.[selectedPaymentMethod] !== undefined
   );
 
+  const isInpayAvailable = Boolean(
+    isInpayForCountry &&
+    !isSoleaspayForCountry &&
+    selectedPaymentMethod &&
+    inpayBankCodes[selectedCountry]?.[selectedPaymentMethod] !== undefined
+  );
+
   const getPaymentMethodsForCountry = (countryCode: string): string[] => {
     if (isSoleaspayForCountry && soleaspayServices[countryCode]) {
       return Object.keys(soleaspayServices[countryCode]);
+    }
+    if (isInpayForCountry && inpayBankCodes[countryCode]) {
+      return Object.keys(inpayBankCodes[countryCode]);
     }
     const countryMethods: Record<string, string[]> = {
       CM: ["Orange Money", "MTN"],
@@ -181,6 +216,17 @@ export default function DepositPage() {
           title: "Paiement initie",
           description: "Validez le paiement sur votre telephone",
         });
+      } else if (data.inpay) {
+        setCurrentDepositId(data.deposit.id);
+        setPaymentStatus("pending");
+        startPolling(data.deposit.id);
+        if (data.paymentUrl) {
+          window.open(data.paymentUrl, "_blank");
+        }
+        toast({
+          title: "Paiement initie",
+          description: "Validez le paiement sur votre telephone",
+        });
       } else {
         toast({
           title: "Demande envoyee",
@@ -258,7 +304,7 @@ export default function DepositPage() {
       });
       return;
     }
-    if (!isSoleaspayForCountry && !selectedChannel) {
+    if (!isAutoPaymentCountry && !selectedChannel) {
       toast({
         title: "Canal requis",
         description: "Veuillez selectionner un canal de recharge",
@@ -278,7 +324,7 @@ export default function DepositPage() {
       country: selectedCountry,
       paymentChannelId: channelId,
       useSoleaspay: isSoleaspayAvailable,
-      useInpay: false,
+      useInpay: isInpayAvailable,
     });
   };
 
@@ -482,7 +528,7 @@ export default function DepositPage() {
           />
         </div>
 
-        {!isSoleaspayForCountry && activeChannels.length > 0 && (
+        {!isAutoPaymentCountry && activeChannels.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
@@ -507,10 +553,10 @@ export default function DepositPage() {
           </div>
         )}
 
-        {isSoleaspayForCountry && selectedCountry && (
+        {isAutoPaymentCountry && selectedCountry && (
           <div className="bg-[#e3f2fd] rounded-xl p-3">
             <p className="text-xs text-[#1565C0] font-medium text-center">
-              Votre depot sera credite instantanement apres le paiement
+              Votre depot sera credite automatiquement apres le paiement
             </p>
           </div>
         )}
@@ -524,7 +570,7 @@ export default function DepositPage() {
             !selectedPaymentMethod ||
             !accountName ||
             !accountNumber ||
-            (!isSoleaspayForCountry && !selectedChannel)
+            (!isAutoPaymentCountry && !selectedChannel)
           }
           className="w-full py-3.5 bg-[#2196F3] text-white font-bold rounded-full disabled:opacity-40 text-base shadow-md shadow-blue-200"
           data-testid="button-submit-deposit"
