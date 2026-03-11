@@ -1,18 +1,23 @@
 import { useAuth } from "@/lib/auth";
-import { Bell, X, Send } from "lucide-react";
+import { Bell, Send, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 
 import wendysLogo from "@assets/wendys_logo.png";
-import heroImg from "@assets/images_(12)_1770548411196.jpeg";
-import stationImg from "@assets/images_(10)_1770548411220.jpeg";
+import heroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
 import iconRecharger from "@assets/20260208_191924_1770580677527.png";
 import iconRetraits from "@assets/20260208_191333_1770580677612.png";
 import iconAider from "@assets/20260208_105040_1770548435850.png";
 import iconEnregistrer from "@assets/images_(6)_1770548411064.png";
+import iconConnexion from "@assets/20260311_204241_1773262537486.png";
+import iconBonus from "@assets/20260311_204319_1773262537445.png";
+import iconEquipe from "@assets/20260311_204705_1773262537367.png";
+import iconProduits from "@assets/20260311_201005_1773262537523.png";
 import notifyBanner from "@/assets/images/notify-banner.png";
+
+const TELEGRAM_LINK = "https://t.me/+M229bmWp-AkyZWEx";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -41,7 +46,7 @@ export default function HomePage() {
   const activeProductCount = userProducts?.length || 0;
 
   return (
-    <div className="flex flex-col min-h-full bg-white">
+    <div className="flex flex-col min-h-full bg-gray-100">
       {showPopup && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-300"
@@ -57,7 +62,6 @@ export default function HomePage() {
                 <img src={wendysLogo} alt="Wendy's" className="w-12 h-12 object-contain" />
               </div>
             </div>
-
             <div className="pt-10 px-4 pb-4 text-gray-700">
               <div className="space-y-1.5 text-[12px] leading-snug">
                 <p>Rejoignez Wendy's, profitez des dividendes et faites fructifier votre patrimoine !</p>
@@ -67,10 +71,10 @@ export default function HomePage() {
               </div>
               <div className="mt-3 space-y-2">
                 <a
-                  href="https://t.me/+M229bmWp-AkyZWEx"
+                  href={TELEGRAM_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#2196F3] rounded-full text-white font-semibold text-xs transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#c8102e] rounded-full text-white font-semibold text-xs"
                 >
                   <Send className="w-4 h-4 fill-current" />
                   Canal Telegram officiel &gt;
@@ -87,112 +91,182 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between px-4 py-3 bg-white">
-        <img src={wendysLogo} alt="Wendy's" className="h-12 w-auto object-contain" data-testid="text-brand-name" />
+      <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
+        <img src={wendysLogo} alt="Wendy's" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
+        <Bell className="w-6 h-6 text-gray-500" />
       </div>
 
-      <div className="px-4">
-        <div className="rounded-2xl overflow-hidden">
+      <div className="px-3 pt-3">
+        <div className="rounded-2xl overflow-hidden shadow-sm">
           <img
             src={heroImg}
-            alt="Wendy's"
-            className="w-full h-48 object-cover"
+            alt="Wendy's Restaurant"
+            className="w-full h-44 object-cover"
             data-testid="img-hero"
           />
         </div>
       </div>
 
-      <div className="flex justify-around items-start px-4 py-4">
-        <button
-          onClick={() => navigate("/deposit")}
-          className="flex flex-col items-center gap-1"
-          data-testid="button-recharge"
-        >
-          <div className="w-12 h-12 flex items-center justify-center">
-            <img src={iconRecharger} alt="Recharger" className="w-10 h-10 object-contain" />
-          </div>
-          <span className="text-gray-700 text-xs">Recharger</span>
-        </button>
+      <div className="px-3 mt-3">
+        <div className="rounded-2xl px-4 py-4 shadow-sm" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
+          <div className="flex justify-around items-center">
+            <button
+              onClick={() => navigate("/deposit")}
+              className="flex flex-col items-center gap-1.5"
+              data-testid="button-depot"
+            >
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <img src={iconRecharger} alt="Dépôt" className="w-8 h-8 object-contain" />
+              </div>
+              <span className="text-white text-xs font-medium">Dépôt</span>
+            </button>
 
-        <button
-          onClick={() => navigate("/withdrawal")}
-          className="flex flex-col items-center gap-1"
-          data-testid="button-retirer"
-        >
-          <div className="w-12 h-12 flex items-center justify-center">
-            <img src={iconRetraits} alt="Les retraits" className="w-10 h-10 object-contain" />
-          </div>
-          <span className="text-gray-700 text-xs">Les retraits</span>
-        </button>
+            <button
+              onClick={() => navigate("/withdrawal")}
+              className="flex flex-col items-center gap-1.5"
+              data-testid="button-retrait"
+            >
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <img src={iconRetraits} alt="Retrait" className="w-8 h-8 object-contain" />
+              </div>
+              <span className="text-white text-xs font-medium">Retrait</span>
+            </button>
 
-        <button
-          onClick={() => navigate("/service")}
-          className="flex flex-col items-center gap-1"
-          data-testid="button-aide"
-        >
-          <div className="w-12 h-12 flex items-center justify-center">
-            <img src={iconAider} alt="Aider les" className="w-10 h-10 object-contain" />
-          </div>
-          <span className="text-gray-700 text-xs">Aider les</span>
-        </button>
+            <a
+              href={TELEGRAM_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5"
+              data-testid="button-telegram"
+            >
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <img src={iconAider} alt="Telegram" className="w-8 h-8 object-contain" />
+              </div>
+              <span className="text-white text-xs font-medium">Telegram</span>
+            </a>
 
-        <button
-          onClick={() => navigate("/checkin")}
-          className="flex flex-col items-center gap-1"
-          data-testid="button-enregistrer"
-        >
-          <div className="w-12 h-12 flex items-center justify-center">
-            <img src={iconEnregistrer} alt="S'enregistrer" className="w-10 h-10 object-contain" />
+            <a
+              href={TELEGRAM_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5"
+              data-testid="button-app"
+            >
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <img src={iconEnregistrer} alt="App" className="w-8 h-8 object-contain" />
+              </div>
+              <span className="text-white text-xs font-medium">App</span>
+            </a>
           </div>
-          <span className="text-gray-700 text-xs">S'enregistrer</span>
+        </div>
+      </div>
+
+      <div className="px-3 mt-3">
+        <div className="flex gap-2">
+          <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm flex flex-col gap-2">
+            <img src={iconConnexion} alt="Connexion" className="w-10 h-10 object-contain" />
+            <div>
+              <p className="font-bold text-gray-800 text-sm">Connexion</p>
+              <p className="text-gray-500 text-xs">Tâche de référence</p>
+            </div>
+            <button
+              onClick={() => navigate("/checkin")}
+              className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
+              style={{ background: "#c8102e" }}
+              data-testid="button-checkin"
+            >
+              Réclamer maintenant
+            </button>
+          </div>
+
+          <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm flex flex-col gap-2">
+            <img src={iconBonus} alt="Bonus" className="w-10 h-10 object-contain" />
+            <div>
+              <p className="font-bold text-gray-800 text-sm">Bonus</p>
+              <p className="text-gray-500 text-xs">Rédemption</p>
+            </div>
+            <button
+              onClick={() => navigate("/gift-code")}
+              className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
+              style={{ background: "#c8102e" }}
+              data-testid="button-bonus"
+            >
+              Réclamer les récompenses
+            </button>
+          </div>
+
+          <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm flex flex-col gap-2">
+            <img src={iconEquipe} alt="Mon équipe" className="w-10 h-10 object-contain" />
+            <div>
+              <p className="font-bold text-gray-800 text-sm">Mon équipe</p>
+              <p className="text-gray-500 text-xs">Parrainage</p>
+            </div>
+            <button
+              onClick={() => navigate("/team")}
+              className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
+              style={{ background: "#c8102e" }}
+              data-testid="button-team"
+            >
+              Voir les détails
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-3 mt-3">
+        <button
+          onClick={() => navigate("/my-products")}
+          className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3"
+          data-testid="button-my-products"
+        >
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#fff0f0" }}>
+            <img src={iconProduits} alt="Mes produits" className="w-9 h-9 object-contain" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-bold text-gray-800 text-sm">Mes produits</p>
+            <p className="text-gray-500 text-xs">{activeProductCount} produit(s) actif(s)</p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-gray-400" />
         </button>
       </div>
 
-      <div className="px-4">
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg" style={{ backgroundColor: "#e8f0fe" }}>
-          <Bell className="w-5 h-5 text-gray-600 flex-shrink-0" />
+      <div className="px-3 mt-3">
+        <div className="flex items-center gap-2 px-3 py-2.5 bg-white rounded-xl shadow-sm">
+          <Bell className="w-4 h-4 text-[#c8102e] flex-shrink-0" />
           <div className="overflow-hidden flex-1">
-            <p className="text-gray-700 text-sm whitespace-nowrap animate-marquee">
+            <p className="text-gray-600 text-xs whitespace-nowrap animate-marquee">
               Wendy's - Plus de 6 000 restaurants dans le monde, des hamburgers au bœuf frais jamais congelé 🍔
             </p>
           </div>
         </div>
       </div>
 
-      <div className="px-4 mt-4 pb-24">
-        <div className="flex gap-3" style={{ height: "280px" }}>
-          <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-balance">
-            <img src={stationImg} alt="Wendy's" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/20"></div>
-            <div className="relative z-10 flex flex-col justify-between h-full p-4">
-              <h3 className="text-white text-3xl font-black mt-8">Balance</h3>
-              <p className="text-white text-xl font-bold mb-4" data-testid="text-balance">
+      <div className="px-3 mt-3 pb-24">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <p className="font-bold text-gray-800 text-sm">Commission de promotion</p>
+            <button onClick={() => navigate("/team")} className="text-xs text-[#c8102e] font-medium flex items-center gap-0.5">
+              Voir plus <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="flex divide-x divide-gray-100">
+            <div className="flex-1 p-4 text-center" data-testid="card-balance">
+              <p className="text-xs text-gray-500 mb-1">Balance</p>
+              <p className="font-bold text-gray-800 text-sm" data-testid="text-balance">
                 {balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} {currency}
               </p>
             </div>
-          </div>
-
-          <div className="flex-1 flex flex-col gap-3">
-            <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-cumulatif">
-              <img src={stationImg} alt="Wendy's" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative z-10 flex flex-col justify-center h-full p-3">
-                <h3 className="text-white text-lg font-black">Cumulatif</h3>
-                <p className="text-white text-base font-bold" data-testid="text-cumulative">
-                  {cumulativeEarnings.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} {currency}
-                </p>
-              </div>
+            <div className="flex-1 p-4 text-center" data-testid="card-cumulatif">
+              <p className="text-xs text-gray-500 mb-1">Cumulatif</p>
+              <p className="font-bold text-gray-800 text-sm" data-testid="text-cumulative">
+                {cumulativeEarnings.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} {currency}
+              </p>
             </div>
-
-            <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-active-products">
-              <img src={stationImg} alt="Wendy's" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative z-10 flex flex-col justify-center h-full p-3">
-                <h3 className="text-white text-lg font-black">Active product</h3>
-                <p className="text-blue-400 text-2xl font-bold" data-testid="text-active-products">
-                  {activeProductCount}
-                </p>
-              </div>
+            <div className="flex-1 p-4 text-center" data-testid="card-active-products">
+              <p className="text-xs text-gray-500 mb-1">Produits</p>
+              <p className="font-bold text-[#c8102e] text-sm" data-testid="text-active-products">
+                {activeProductCount}
+              </p>
             </div>
           </div>
         </div>
@@ -204,7 +278,7 @@ export default function HomePage() {
           100% { transform: translateX(-100%); }
         }
         .animate-marquee {
-          animation: marquee 12s linear infinite;
+          animation: marquee 14s linear infinite;
         }
       `}</style>
     </div>
