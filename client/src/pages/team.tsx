@@ -35,12 +35,12 @@ export default function TeamPage() {
 
   const copyLink = () => {
     navigator.clipboard.writeText(referralLink);
-    toast({ title: "Lien copié!", description: "Partagez ce lien avec vos amis." });
+    toast({ title: "Lien copié !" });
   };
 
   const copyCode = () => {
     navigator.clipboard.writeText(user.referralCode);
-    toast({ title: "Code copié!", description: "Partagez ce code avec vos amis." });
+    toast({ title: "Code copié !" });
   };
 
   const totalPeople = (stats?.level1Count || 0) + (stats?.level2Count || 0) + (stats?.level3Count || 0);
