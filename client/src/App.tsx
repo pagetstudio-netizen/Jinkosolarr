@@ -126,6 +126,11 @@ function Router() {
           <RegisterPage />
         </PublicRoute>
       </Route>
+      <Route path="/rejoindre">
+        <PublicRoute>
+          <RegisterPage />
+        </PublicRoute>
+      </Route>
       <Route path="/">
         <ProtectedRoute>
           <AppLayout>
