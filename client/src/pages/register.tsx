@@ -6,12 +6,13 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
-import { Loader2, Eye, EyeOff, Smartphone, Lock, CheckSquare, ChevronDown } from "lucide-react";
-import authBanner from "@assets/file_000000008af071f5ba7601c65d2d6fc9_1770651769766.png";
+import { Loader2, Eye, EyeOff, Smartphone, Lock, Users, ChevronDown } from "lucide-react";
+import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
 
 const registerSchema = z.object({
   phone: z.string().min(8, "Numero de telephone invalide"),
@@ -35,6 +36,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const params = new URLSearchParams(searchString);
   const refCode = params.get("reg") || "";
@@ -63,8 +65,8 @@ export default function RegisterPage() {
         password: data.password,
         invitationCode: data.invitationCode,
       });
-      toast({ 
-        title: "Inscription reussie!", 
+      toast({
+        title: "Inscription reussie!",
         description: "Bienvenue sur Wendy's! Vous avez recu 500 FCFA de bonus.",
       });
       navigate("/");
@@ -80,40 +82,48 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col overflow-hidden bg-white">
-      <div className="relative z-10 flex-1 flex flex-col">
-        <div className="w-full relative">
-          <img src={authBanner} alt="Wendy's" className="w-full object-cover" />
-          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
+    <div className="min-h-screen flex flex-col bg-white overflow-hidden">
+      <div className="relative flex flex-col flex-1">
+        <div
+          className="absolute inset-x-0 top-0 h-[42%]"
+          style={{ background: "linear-gradient(180deg, #c8102e 0%, #e8394e 60%, #f8d0d5 100%)" }}
+        />
+
+        <div className="relative z-10 flex flex-col items-center pt-12 pb-2 px-6">
+          <div className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
+            <img src={wendysLogo} alt="Wendy's" className="w-16 h-16 object-contain" />
+          </div>
+          <h1 className="mt-3 text-2xl font-extrabold text-white tracking-tight">Wendy's</h1>
+          <p className="text-white/80 text-xs mt-0.5">Fast Food, Smart Investment</p>
         </div>
 
-        <div className="relative z-10 bg-white dark:bg-gray-900 rounded-t-3xl px-6 pt-8 pb-10 -mt-6">
+        <div className="relative z-10 flex-1 bg-white rounded-t-3xl mx-0 mt-5 px-6 pt-6 pb-10">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <FormField
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 overflow-visible">
+                      <div className="flex items-center border border-gray-200 rounded-full bg-gray-50 overflow-visible">
                         <button
                           type="button"
                           onClick={() => setCountryModalOpen(true)}
-                          className="flex items-center gap-1.5 pl-4 pr-2 py-3.5 text-gray-600 dark:text-gray-300 shrink-0"
+                          className="flex items-center gap-1.5 pl-4 pr-2 py-3.5 text-gray-500 shrink-0"
                           data-testid="button-select-country"
                         >
-                          <Smartphone className="w-5 h-5 text-blue-500" />
-                          <span className="text-base font-medium">
+                          <Smartphone className="w-5 h-5 text-gray-400" />
+                          <span className="text-base font-medium text-gray-600">
                             {countryData ? `+${countryData.phonePrefix}` : ""}
                           </span>
-                          <ChevronDown className="w-4 h-4" />
+                          <ChevronDown className="w-4 h-4 text-gray-400" />
                         </button>
                         <Input
                           {...field}
                           type="tel"
-                          placeholder="Veuillez entrer le numero de compte"
-                          className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2"
+                          placeholder="Entrez votre numéro"
+                          className="border-0 bg-transparent h-13 text-base focus-visible:ring-0 shadow-none px-2 text-gray-700 placeholder:text-gray-400"
                           data-testid="input-phone"
                         />
                       </div>
@@ -129,21 +139,21 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 overflow-visible">
+                      <div className="flex items-center border border-gray-200 rounded-full bg-gray-50">
                         <div className="pl-4 pr-2">
                           <Lock className="w-5 h-5 text-gray-400" />
                         </div>
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
-                          placeholder="Veuillez saisir votre mot de passe"
-                          className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2"
+                          placeholder="Entrez votre mot de passe"
+                          className="border-0 bg-transparent h-13 text-base focus-visible:ring-0 shadow-none px-2 text-gray-700 placeholder:text-gray-400"
                           data-testid="input-password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="pr-4 pl-2 text-blue-500"
+                          className="pr-4 pl-2 text-gray-400"
                           data-testid="button-toggle-password"
                         >
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -161,21 +171,21 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 overflow-visible">
+                      <div className="flex items-center border border-gray-200 rounded-full bg-gray-50">
                         <div className="pl-4 pr-2">
                           <Lock className="w-5 h-5 text-gray-400" />
                         </div>
                         <Input
                           {...field}
                           type={showConfirmPassword ? "text" : "password"}
-                          placeholder="Entrez le mot de passe en double"
-                          className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2"
+                          placeholder="Confirmez le mot de passe"
+                          className="border-0 bg-transparent h-13 text-base focus-visible:ring-0 shadow-none px-2 text-gray-700 placeholder:text-gray-400"
                           data-testid="input-confirm-password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="pr-4 pl-2 text-blue-500"
+                          className="pr-4 pl-2 text-gray-400"
                           data-testid="button-toggle-confirm-password"
                         >
                           {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -193,14 +203,14 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 overflow-visible">
+                      <div className="flex items-center border border-gray-200 rounded-full bg-gray-50">
                         <div className="pl-4 pr-2">
-                          <CheckSquare className="w-5 h-5 text-blue-500" />
+                          <Users className="w-5 h-5 text-gray-400" />
                         </div>
                         <Input
                           {...field}
-                          placeholder="Code d'invitation"
-                          className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2"
+                          placeholder="Code d'invitation (optionnel)"
+                          className="border-0 bg-transparent h-13 text-base focus-visible:ring-0 shadow-none px-2 text-gray-700 placeholder:text-gray-400"
                           data-testid="input-invitation-code"
                         />
                       </div>
@@ -212,21 +222,11 @@ export default function RegisterPage() {
 
               <input type="hidden" {...form.register("country")} />
 
-              <div className="text-right pt-1">
-                <button
-                  type="button"
-                  onClick={() => navigate("/login")}
-                  className="text-blue-500 text-base font-medium"
-                  data-testid="link-login"
-                >
-                  Se connecter &gt;
-                </button>
-              </div>
-
               <div className="pt-2">
                 <Button
                   type="submit"
-                  className="w-full h-14 rounded-full text-lg font-semibold bg-gradient-to-r from-blue-400 to-blue-500 border-0"
+                  className="w-full h-14 rounded-full text-lg font-bold border-0 text-white"
+                  style={{ background: "linear-gradient(90deg, #c8102e, #e8394e)" }}
                   disabled={isLoading}
                   data-testid="button-register"
                 >
@@ -240,8 +240,34 @@ export default function RegisterPage() {
                   )}
                 </Button>
               </div>
+
+              <div className="flex items-start gap-2 pt-1">
+                <Checkbox
+                  id="agree"
+                  checked={agreed}
+                  onCheckedChange={(checked) => setAgreed(checked as boolean)}
+                  className="mt-0.5"
+                  data-testid="checkbox-agree"
+                />
+                <label htmlFor="agree" className="text-sm text-gray-500 leading-snug cursor-pointer">
+                  Lire et accepter{" "}
+                  <span className="text-[#c8102e] font-medium">Accord d'utilisation</span>{" "}
+                  et{" "}
+                  <span className="text-[#c8102e] font-medium">Politique de confidentialité</span>
+                </label>
+              </div>
             </form>
           </Form>
+
+          <div className="mt-5 text-center">
+            <button
+              onClick={() => navigate("/login")}
+              className="text-[#c8102e] text-base font-semibold"
+              data-testid="link-login"
+            >
+              Déjà inscrit ? Se connecter &gt;
+            </button>
+          </div>
         </div>
       </div>
 

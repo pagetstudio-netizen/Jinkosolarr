@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 
-import elfLogo from "@assets/elf-logo-1-jpg_1770372668472.webp";
+import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
 import heroImg from "@assets/images_(12)_1770548411196.jpeg";
 import stationImg from "@assets/images_(10)_1770548411220.jpeg";
 import iconRecharger from "@assets/20260208_191924_1770580677527.png";
@@ -13,7 +13,6 @@ import iconRetraits from "@assets/20260208_191333_1770580677612.png";
 import iconAider from "@assets/20260208_105040_1770548435850.png";
 import iconEnregistrer from "@assets/images_(6)_1770548411064.png";
 import notifyBanner from "@/assets/images/notify-banner.png";
-import elfLogoPopup from "@/assets/images/elf-logo-card.png";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -55,7 +54,7 @@ export default function HomePage() {
             <div className="relative">
               <img src={notifyBanner} alt="Notify" className="w-full h-28 object-cover" />
               <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                <img src={elfLogoPopup} alt="Wendy's" className="w-12 h-12 object-contain" />
+                <img src={wendysLogo} alt="Wendy's" className="w-12 h-12 object-contain" />
               </div>
             </div>
 
@@ -89,8 +88,7 @@ export default function HomePage() {
       )}
 
       <div className="flex items-center justify-between px-4 py-3 bg-white">
-        <img src={elfLogo} alt="Wendy's" className="h-10 w-auto object-contain" />
-        <span className="text-blue-600 font-bold text-lg" data-testid="text-brand-name">Wendy's</span>
+        <img src={wendysLogo} alt="Wendy's" className="h-12 w-auto object-contain" data-testid="text-brand-name" />
       </div>
 
       <div className="px-4">

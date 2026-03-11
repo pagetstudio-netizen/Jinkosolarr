@@ -10,7 +10,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-import elfLogo from "@assets/elf-logo-1-jpg_1770372668472.webp";
+import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
 import globeImg from "@/assets/images/elf-station-2.jpeg";
 
 import iconDeposit from "@assets/téléchargement_(18)_1770814706072.png";
@@ -101,7 +101,7 @@ export default function AccountPage() {
           <div className="relative z-10 px-5 pt-5 pb-6">
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-full overflow-hidden bg-white/20 flex items-center justify-center">
-                <img src={elfLogo} alt="Wendy's" className="w-full h-full object-cover" />
+                <img src={wendysLogo} alt="Wendy's" className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="text-white text-lg font-bold" data-testid="text-phone">{phonePrefix}{user.phone}</p>

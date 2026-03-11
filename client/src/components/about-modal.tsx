@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
 
 interface AboutModalProps {
   open: boolean;
@@ -11,8 +12,8 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-xl font-bold text-primary-foreground">W</span>
+            <div className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
+              <img src={wendysLogo} alt="Wendy's" className="w-10 h-10 object-contain" />
             </div>
             À propos de Wendy's
           </DialogTitle>

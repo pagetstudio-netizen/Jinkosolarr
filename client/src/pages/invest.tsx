@@ -10,7 +10,7 @@ import { formatCurrency, getCountryByCode } from "@/lib/countries";
 import { Loader2, AlertTriangle, Settings, DollarSign } from "lucide-react";
 import type { Product } from "@shared/schema";
 
-import elfLogoCard from "@/assets/images/elf-logo-card.png";
+import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
 import productsIcon from "@/assets/images/products-icon.png";
 import revenueIcon from "@/assets/images/revenue-icon.png";
 
@@ -134,7 +134,7 @@ export default function InvestPage() {
                 <div className="px-4 py-2 flex gap-3">
                   <div className="w-20 flex-shrink-0 flex items-center justify-center">
                     <img
-                      src={elfLogoCard}
+                      src={wendysLogo}
                       alt="Wendy's"
                       className="w-full object-contain"
                     />
