@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 
-import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
+import wendysLogo from "@assets/wendys_logo.png";
 import heroImg from "@assets/images_(12)_1770548411196.jpeg";
 import stationImg from "@assets/images_(10)_1770548411220.jpeg";
 import iconRecharger from "@assets/20260208_191924_1770580677527.png";

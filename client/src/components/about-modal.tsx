@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
+import wendysLogo from "@assets/wendys_logo.png";
 
 interface AboutModalProps {
   open: boolean;

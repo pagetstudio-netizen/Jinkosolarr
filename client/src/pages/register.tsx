@@ -12,7 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import { Loader2, Eye, EyeOff, Smartphone, Lock, Users, ChevronDown } from "lucide-react";
-import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
+import wendysLogo from "@assets/wendys_logo.png";
 
 const registerSchema = z.object({
   phone: z.string().min(8, "Numero de telephone invalide"),

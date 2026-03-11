@@ -10,7 +10,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
+import wendysLogo from "@assets/wendys_logo.png";
 import globeImg from "@/assets/images/elf-station-2.jpeg";
 
 import iconDeposit from "@assets/téléchargement_(18)_1770814706072.png";

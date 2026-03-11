@@ -10,7 +10,7 @@ import { formatCurrency, getCountryByCode } from "@/lib/countries";
 import { Loader2, AlertTriangle, Settings, DollarSign } from "lucide-react";
 import type { Product } from "@shared/schema";
 
-import wendysLogo from "@assets/Wendy's_full_logo_2012.svg_1773248029392.png";
+import wendysLogo from "@assets/wendys_logo.png";
 import productsIcon from "@/assets/images/products-icon.png";
 import revenueIcon from "@/assets/images/revenue-icon.png";
 
