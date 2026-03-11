@@ -99,16 +99,16 @@ export default function InvestPage() {
                 className="bg-white rounded-2xl shadow-sm overflow-hidden"
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="px-4 pt-3 pb-1">
+                <div className="px-4 pt-3 pb-5">
                   <h3 className="font-bold text-gray-900 text-base" data-testid={`text-product-name-${product.id}`}>
                     {product.name}
                   </h3>
                 </div>
 
-                <div className="mx-8 rounded-2xl relative" style={{ background: "#E28075", paddingTop: "118px", marginBottom: "0" }}>
+                <div className="mx-3 rounded-2xl relative" style={{ background: "#E28075", paddingTop: "126px", marginBottom: "0" }}>
                   <div
                     className="absolute overflow-hidden rounded-xl"
-                    style={{ top: "-14px", height: "132px", left: "0px", right: "0px" }}
+                    style={{ top: "-14px", height: "132px", left: "8px", right: "8px" }}
                   >
                     <img
                       src={productHeroImg}
