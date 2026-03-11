@@ -55,7 +55,7 @@ export default function MyProductsPage() {
       <div className="flex-1 overflow-y-auto pb-24">
 
         <div className="relative h-40 overflow-hidden">
-          <img src={elfBanner} alt="ELF" className="w-full h-full object-cover" />
+          <img src={elfBanner} alt="Wendy's" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30" />
           <div className="absolute top-3 left-3">
             <Link href="/account">

@@ -65,7 +65,7 @@ export default function RegisterPage() {
       });
       toast({ 
         title: "Inscription reussie!", 
-        description: "Bienvenue sur ELF! Vous avez recu 500 FCFA de bonus.",
+        description: "Bienvenue sur Wendy's! Vous avez recu 500 FCFA de bonus.",
       });
       navigate("/");
     } catch (error: any) {
@@ -83,7 +83,7 @@ export default function RegisterPage() {
     <div className="min-h-screen relative flex flex-col overflow-hidden bg-white">
       <div className="relative z-10 flex-1 flex flex-col">
         <div className="w-full relative">
-          <img src={authBanner} alt="ELF" className="w-full object-cover" />
+          <img src={authBanner} alt="Wendy's" className="w-full object-cover" />
           <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
         </div>
 

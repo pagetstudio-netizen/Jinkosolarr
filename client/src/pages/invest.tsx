@@ -135,7 +135,7 @@ export default function InvestPage() {
                   <div className="w-20 flex-shrink-0 flex items-center justify-center">
                     <img
                       src={elfLogoCard}
-                      alt="ELF"
+                      alt="Wendy's"
                       className="w-full object-contain"
                     />
                   </div>

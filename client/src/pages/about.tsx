@@ -17,24 +17,24 @@ export default function AboutPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-[#2196F3]">Qui sommes-nous ?</h2>
           <p className="text-gray-600 leading-relaxed">
-            Fondee en 1966 sous le nom d'Elf Aquitaine, ELF est l'une des marques les plus emblematiques du secteur petrochimique francais, specialisee dans la formulation de lubrifiants moteurs de haute technicite et de carburants de performance. Issue de la fusion de societes petrolieres regionales, ELF s'est rapidement imposee comme un acteur majeur de l'exploitation et de la valorisation des hydrocarbures.
+            Fondée en 1969 à Columbus, dans l'État de l'Ohio aux États-Unis, Wendy's est l'une des plus grandes chaînes de restauration rapide au monde, reconnue pour ses hamburgers au bœuf frais jamais congelé et ses burgers carrés emblématiques. Créée par Dave Thomas, l'enseigne s'est rapidement imposée comme un acteur majeur du secteur du fast-food grâce à la qualité de ses produits et à son image de marque distinctive.
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Grace a notre expertise et a notre technologie de pointe, nous offrons a nos utilisateurs des opportunites uniques de generer des revenus quotidiens en participant au financement et a l'exploitation d'equipements petroliers et energetiques reels.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-[#2196F3]">Notre heritage</h2>
-          <p className="text-gray-600 leading-relaxed">
-            ELF a consolide sa reputation via des programmes ambitieux dans le sport mecanique, notamment la Formule 1, le rallye automobile et les championnats de motocyclisme. Son partenariat historique avec Renault F1 et Yamaha MotoGP a permis le developpement de lubrifiants optimises pour des conditions extremes.
+            Grâce à notre expertise et à notre réseau mondial, nous offrons à nos utilisateurs des opportunités uniques de générer des revenus quotidiens en participant au financement et à l'expansion de la marque Wendy's à l'échelle internationale.
           </p>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-[#2196F3]">Securite et Fiabilite</h2>
+          <h2 className="text-xl font-bold text-[#2196F3]">Notre héritage</h2>
           <p className="text-gray-600 leading-relaxed">
-            La securite de vos fonds et la transparence de nos operations sont nos priorites absolues. L'empreinte d'ELF dans le domaine energetique et technologique illustre parfaitement la capacite d'une entreprise a conjuguer ingenierie avancee, innovation scientifique et strategie de marque perenne.
+            Aujourd'hui, Wendy's est présente dans de nombreux pays avec plus de 6 000 restaurants et propose un large choix de burgers, frites, nuggets et desserts populaires comme le Frosty, devenant ainsi une marque reconnue à l'échelle internationale.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-[#2196F3]">Sécurité et Fiabilité</h2>
+          <p className="text-gray-600 leading-relaxed">
+            La sécurité de vos fonds et la transparence de nos opérations sont nos priorités absolues. L'empreinte de Wendy's dans le domaine de la restauration rapide illustre parfaitement la capacité d'une entreprise à conjuguer qualité, innovation et stratégie de marque pérenne.
           </p>
         </div>
       </div>

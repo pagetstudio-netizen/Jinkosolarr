@@ -62,7 +62,7 @@ export async function registerRoutes(
   app.use(
     session({
       store: new SessionStore({ checkPeriod: 86400000 }),
-      secret: process.env.SESSION_SECRET || "elf-secret-key",
+      secret: process.env.SESSION_SECRET || "wendys-secret-key",
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -443,7 +443,7 @@ export async function registerRoutes(
       const inpayEnabled = settings.inpayEnabled !== "false";
       const inpayCountries = settings.inpayCountries ? settings.inpayCountries.split(",").filter(Boolean) : ["TG", "BF", "CI"];
 
-      const orderId = `ELF-${Date.now()}-${user.id}`;
+      const orderId = `WENDYS-${Date.now()}-${user.id}`;
 
       if (useInpay && inpayEnabled && inpayCountries.includes(country) && isInpaySupported(country)) {
         try {
@@ -454,7 +454,7 @@ export async function registerRoutes(
 
           const baseUrl = process.env.REPLIT_DEV_DOMAIN
             ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-            : process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : "https://elf.replit.app";
+            : process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : "https://wendys.replit.app";
 
           const paymentResult = await initiatePayin({
             outTradeNo: orderId,
@@ -464,7 +464,7 @@ export async function registerRoutes(
             bankCode,
             customerName: accountName,
             customerMobile: accountNumber,
-            customerEmail: `user${user.id}@elf.com`,
+            customerEmail: `user${user.id}@wendys.com`,
             countryCode: country,
           });
 
@@ -513,7 +513,7 @@ export async function registerRoutes(
             paymentMethod,
             orderId,
             accountName,
-            `user${user.id}@elf.com`
+            `user${user.id}@wendys.com`
           );
 
           if (paymentResult.success && paymentResult.data) {
@@ -1287,7 +1287,7 @@ export async function registerRoutes(
         const outTradeNo = `PAYOUT-${Date.now()}-${withdrawalData.userId}`;
         const baseUrl = process.env.REPLIT_DEV_DOMAIN
           ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-          : process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : "https://elf.replit.app";
+          : process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : "https://wendys.replit.app";
 
         try {
           const user = await storage.getUser(withdrawalData.userId);
@@ -1299,7 +1299,7 @@ export async function registerRoutes(
             accountNumber: withdrawalData.accountNumber,
             customerName: withdrawalData.accountName,
             customerMobile: withdrawalData.accountNumber,
-            customerEmail: user ? `user${user.id}@elf.com` : "customer@elf.com",
+            customerEmail: user ? `user${user.id}@wendys.com` : "customer@wendys.com",
             countryCode: withdrawalData.country,
           });
 

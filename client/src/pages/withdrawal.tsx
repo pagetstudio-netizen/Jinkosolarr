@@ -307,7 +307,7 @@ export default function WithdrawalPage() {
             <p>4. Des frais de traitement de {withdrawalFee}% seront factures pour les retraits.</p>
             <p>5. Les retraits sont traites dans un delai de 1h a 24h maximum.</p>
             <p>6. Si le retrait echoue, veuillez verifier si les informations bancaires sont correctes, puis soumettez a nouveau la demande.</p>
-            <p>7. Effectuez la premiere recharge et achetez des produits ELF pour activer la fonction de retrait.</p>
+            <p>7. Effectuez la premiere recharge et achetez des produits Wendy's pour activer la fonction de retrait.</p>
           </div>
         </div>
 

@@ -55,13 +55,13 @@ export default function HomePage() {
             <div className="relative">
               <img src={notifyBanner} alt="Notify" className="w-full h-28 object-cover" />
               <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                <img src={elfLogoPopup} alt="ELF" className="w-12 h-12 object-contain" />
+                <img src={elfLogoPopup} alt="Wendy's" className="w-12 h-12 object-contain" />
               </div>
             </div>
 
             <div className="pt-10 px-4 pb-4 text-gray-700">
               <div className="space-y-1.5 text-[12px] leading-snug">
-                <p>Rejoignez ELF, profitez des dividendes et faites fructifier votre patrimoine !</p>
+                <p>Rejoignez Wendy's, profitez des dividendes et faites fructifier votre patrimoine !</p>
                 <p>1. Bonus d'inscription : 500 FCFA</p>
                 <p>2. Bonus quotidien : 50 FCFA</p>
                 <p>3. Invitez vos filleuls et recevez 30 % de prime.</p>
@@ -89,15 +89,15 @@ export default function HomePage() {
       )}
 
       <div className="flex items-center justify-between px-4 py-3 bg-white">
-        <img src={elfLogo} alt="ELF" className="h-10 w-auto object-contain" />
-        <span className="text-blue-600 font-bold text-lg" data-testid="text-brand-name">EIF petrol</span>
+        <img src={elfLogo} alt="Wendy's" className="h-10 w-auto object-contain" />
+        <span className="text-blue-600 font-bold text-lg" data-testid="text-brand-name">Wendy's</span>
       </div>
 
       <div className="px-4">
         <div className="rounded-2xl overflow-hidden">
           <img
             src={heroImg}
-            alt="ELF Expert"
+            alt="Wendy's"
             className="w-full h-48 object-cover"
             data-testid="img-hero"
           />
@@ -155,7 +155,7 @@ export default function HomePage() {
           <Bell className="w-5 h-5 text-gray-600 flex-shrink-0" />
           <div className="overflow-hidden flex-1">
             <p className="text-gray-700 text-sm whitespace-nowrap animate-marquee">
-              Lubrifiants et carburants de performance - ELF, partenaire officiel de la F1 et du MotoGP
+              Wendy's - Plus de 6 000 restaurants dans le monde, des hamburgers au bœuf frais jamais congelé 🍔
             </p>
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function HomePage() {
       <div className="px-4 mt-4 pb-24">
         <div className="flex gap-3" style={{ height: "280px" }}>
           <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-balance">
-            <img src={stationImg} alt="ELF Station" className="absolute inset-0 w-full h-full object-cover" />
+            <img src={stationImg} alt="Wendy's" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/20"></div>
             <div className="relative z-10 flex flex-col justify-between h-full p-4">
               <h3 className="text-white text-3xl font-black mt-8">Balance</h3>
@@ -176,7 +176,7 @@ export default function HomePage() {
 
           <div className="flex-1 flex flex-col gap-3">
             <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-cumulatif">
-              <img src={stationImg} alt="ELF Station" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={stationImg} alt="Wendy's" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative z-10 flex flex-col justify-center h-full p-3">
                 <h3 className="text-white text-lg font-black">Cumulatif</h3>
@@ -187,7 +187,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex-1 rounded-2xl overflow-hidden relative" data-testid="card-active-products">
-              <img src={stationImg} alt="ELF Station" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={stationImg} alt="Wendy's" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative z-10 flex flex-col justify-center h-full p-3">
                 <h3 className="text-white text-lg font-black">Active product</h3>

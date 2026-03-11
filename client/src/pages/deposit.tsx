@@ -587,7 +587,7 @@ export default function DepositPage() {
             <p className="font-medium text-gray-700">*Instructions de depot:</p>
             <p>1. Le montant minimum de depot est de {minDeposit.toLocaleString()} {currency}. Les virements inferieurs a {minDeposit.toLocaleString()} {currency} ne pourront pas etre credites sur le compte.</p>
             <p>2. Apres un depot reussi, le montant sera credite sur votre compte dans un delai de 1 minute a 30 minutes maximum.</p>
-            <p>3. Effectuez votre premiere recharge et achetez des produits ELF pour activer la fonction de retrait.</p>
+            <p>3. Effectuez votre premiere recharge et achetez des produits Wendy's pour activer la fonction de retrait.</p>
           </div>
         </div>
       </div>

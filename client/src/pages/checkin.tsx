@@ -66,7 +66,7 @@ export default function CheckinPage() {
         <div className="relative">
           <img
             src={elfStation}
-            alt="ELF"
+            alt="Wendy's"
             className="w-full h-72 object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/30 to-white" />

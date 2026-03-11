@@ -130,7 +130,7 @@ export async function initiatePayment(
   paymentMethod: string,
   orderId: string,
   payerName: string,
-  payerEmail: string = "customer@elf.com"
+  payerEmail: string = "customer@wendys.com"
 ): Promise<SoleaspayPaymentResponse> {
   const serviceId = getServiceId(country, paymentMethod);
   if (!serviceId) {
@@ -140,14 +140,14 @@ export async function initiatePayment(
   const currency = getCurrency(country);
   const baseUrl = process.env.REPLIT_DEV_DOMAIN 
     ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-    : "https://elf.replit.app";
+    : "https://wendys.replit.app";
 
   const requestBody: SoleaspayPaymentRequest = {
     wallet: formatWallet(wallet, country),
     amount,
     currency,
     order_id: orderId,
-    description: `Depot ELF #${orderId}`,
+    description: `Depot Wendy's #${orderId}`,
     payer: payerName,
     payerEmail,
     successUrl: `${baseUrl}/deposit-success`,

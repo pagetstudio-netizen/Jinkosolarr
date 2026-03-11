@@ -101,7 +101,7 @@ export default function AccountPage() {
           <div className="relative z-10 px-5 pt-5 pb-6">
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-full overflow-hidden bg-white/20 flex items-center justify-center">
-                <img src={elfLogo} alt="ELF" className="w-full h-full object-cover" />
+                <img src={elfLogo} alt="Wendy's" className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="text-white text-lg font-bold" data-testid="text-phone">{phonePrefix}{user.phone}</p>

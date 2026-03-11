@@ -30,7 +30,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
   
-  const savedCredentials = typeof window !== 'undefined' ? localStorage.getItem('elf_credentials') : null;
+  const savedCredentials = typeof window !== 'undefined' ? localStorage.getItem('wendys_credentials') : null;
   const parsedCredentials = savedCredentials ? JSON.parse(savedCredentials) : null;
   
   const [rememberMe, setRememberMe] = useState(!!parsedCredentials);
@@ -53,16 +53,16 @@ export default function LoginPage() {
       await login(data.phone, data.country, data.password);
       
       if (rememberMe) {
-        localStorage.setItem('elf_credentials', JSON.stringify({
+        localStorage.setItem('wendys_credentials', JSON.stringify({
           phone: data.phone,
           country: data.country,
           password: data.password
         }));
       } else {
-        localStorage.removeItem('elf_credentials');
+        localStorage.removeItem('wendys_credentials');
       }
       
-      toast({ title: "Connexion reussie", description: "Bienvenue sur ELF!" });
+      toast({ title: "Connexion reussie", description: "Bienvenue sur Wendy's!" });
       navigate("/");
     } catch (error: any) {
       toast({
@@ -79,7 +79,7 @@ export default function LoginPage() {
     <div className="min-h-screen relative flex flex-col overflow-hidden bg-white">
       <div className="relative z-10 flex-1 flex flex-col">
         <div className="w-full relative">
-          <img src={authBanner} alt="ELF" className="w-full object-cover" />
+          <img src={authBanner} alt="Wendy's" className="w-full object-cover" />
           <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
         </div>
 
