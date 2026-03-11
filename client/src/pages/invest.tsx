@@ -8,12 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { formatCurrency, getCountryByCode } from "@/lib/countries";
 import { Loader2, AlertTriangle, Settings } from "lucide-react";
+import { useLocation } from "wouter";
 import type { Product } from "@shared/schema";
 
-import wendysLogo from "@assets/wendys_logo.png";
+import wendysLogoFull from "@assets/20260311_215217_1773265974092.png";
+import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import productHeroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
-import productsIcon from "@/assets/images/products-icon.png";
-import revenueIcon from "@/assets/images/revenue-icon.png";
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -24,14 +24,11 @@ interface ProductWithOwnership extends Product {
 export default function InvestPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
 
   const { data: products, isLoading } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
-  });
-
-  const { data: userProducts } = useQuery<any[]>({
-    queryKey: ["/api/user/products"],
   });
 
   const purchaseMutation = useMutation({
@@ -62,13 +59,6 @@ export default function InvestPage() {
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
 
-  const activeProducts = userProducts?.filter((p: any) => p.status === "active") || [];
-  const activeProductsCount = activeProducts.length;
-  const totalProductRevenue = userProducts?.reduce((sum: number, p: any) => {
-    const daysCompleted = (p.product?.cycleDays || 0) - (p.daysRemaining || 0);
-    return sum + (daysCompleted * (p.product?.dailyEarnings || 0));
-  }, 0) || 0;
-
   const handleBuyClick = (product: ProductWithOwnership) => {
     setConfirmProduct(product);
   };
@@ -83,31 +73,15 @@ export default function InvestPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-gray-100">
-      <div className="px-4 pt-4 pb-4" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-xl p-3 flex items-center gap-3">
-            <div className="w-9 h-9 flex-shrink-0">
-              <img src={productsIcon} alt="" className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-gray-800" data-testid="text-active-products">
-                {activeProductsCount}
-              </p>
-              <p className="text-xs text-gray-500">Mes Produits</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl p-3 flex items-center gap-3">
-            <div className="w-9 h-9 flex-shrink-0">
-              <img src={revenueIcon} alt="" className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-gray-800" data-testid="text-product-revenue">
-                {currency} {totalProductRevenue.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-500">Mes revenus</p>
-            </div>
-          </div>
-        </div>
+      <div className="flex items-center justify-between px-4 py-3 shadow-sm" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
+        <img src={wendysLogoFull} alt="Wendy's" className="h-9 w-auto object-contain" data-testid="img-wendys-logo" />
+        <button
+          onClick={() => navigate("/service")}
+          className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center"
+          data-testid="button-service"
+        >
+          <img src={serviceIcon} alt="Service client" className="w-6 h-6 object-contain" />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto pb-20 px-3 pt-4">
