@@ -1,7 +1,6 @@
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
-import { CheckCircle2, XCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -14,7 +13,7 @@ const ToastViewport = React.forwardRef<
   <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
-      "fixed top-14 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center gap-2 p-2 w-auto",
+      "fixed top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[200] flex flex-col items-center gap-2 p-2 w-auto",
       className
     )}
     {...props}
@@ -23,7 +22,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex items-center gap-2 overflow-hidden rounded-full px-4 py-2.5 shadow-lg transition-all data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-top-2 data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-top-4",
+  "group pointer-events-auto relative flex items-center overflow-hidden rounded-lg px-5 py-2.5 shadow-md transition-all data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-80 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
   {
     variants: {
       variant: {
@@ -118,6 +117,4 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
-  CheckCircle2,
-  XCircle,
 }
