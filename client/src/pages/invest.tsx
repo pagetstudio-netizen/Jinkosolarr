@@ -92,53 +92,58 @@ export default function InvestPage() {
             ))}
           </div>
         ) : paidProducts.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {paidProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm"
+                className="bg-white rounded-2xl shadow-sm overflow-hidden"
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="px-4 pt-3 pb-2">
+                <div className="px-4 pt-3 pb-1">
                   <h3 className="font-bold text-gray-900 text-base" data-testid={`text-product-name-${product.id}`}>
                     {product.name}
                   </h3>
                 </div>
 
-                <div className="mx-3 rounded-xl overflow-hidden" style={{ height: "130px" }}>
-                  <img
-                    src={productHeroImg}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="mx-3 rounded-2xl relative" style={{ background: "#E28075", paddingTop: "118px", marginBottom: "0" }}>
+                  <div
+                    className="absolute left-0 right-0 mx-0 overflow-hidden rounded-2xl"
+                    style={{ top: "-14px", height: "132px" }}
+                  >
+                    <img
+                      src={productHeroImg}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  <div className="px-4 pb-4 pt-2 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/90">Cycle(Jours)</span>
+                      <span className="text-sm font-bold text-white">{product.cycleDays}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/90">Revenu quotidien({currency})</span>
+                      <span className="text-sm font-bold text-white">{product.dailyEarnings.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/90">Revenu total({currency})</span>
+                      <span className="text-sm font-bold text-white">
+                        {product.price.toLocaleString()}+{product.totalReturn.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="px-4 pt-3 pb-1 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Cycle(Jours)</span>
-                    <span className="text-sm font-semibold text-orange-500">{product.cycleDays}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Revenu quotidien({currency})</span>
-                    <span className="text-sm font-semibold text-orange-500">{product.dailyEarnings.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Revenu total({currency})</span>
-                    <span className="text-sm font-semibold text-orange-500">
-                      {product.price.toLocaleString()}+{product.totalReturn.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between px-4 py-3 mt-1 border-t border-gray-100">
+                <div className="flex items-center justify-between px-4 py-3">
                   <div>
                     <span className="text-xs text-gray-400">Prix({currency})</span>
                     <p className="text-base font-bold text-orange-500">{product.price.toLocaleString()}</p>
                   </div>
                   <button
                     onClick={() => handleBuyClick(product)}
-                    className="px-6 py-2.5 rounded-full text-sm font-bold text-white shadow-md"
-                    style={{ background: "linear-gradient(90deg, #c8102e, #e8394e)" }}
+                    className="px-7 py-2.5 rounded-full text-sm font-bold text-white shadow-md"
+                    style={{ background: "#c8102e" }}
                     data-testid={`button-purchase-${product.id}`}
                   >
                     Investir
