@@ -1,11 +1,9 @@
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { getCountryByCode } from "@/lib/countries";
-import { Copy, Users, Gift } from "lucide-react";
-import { Link } from "wouter";
-import elfTeam from "@/assets/images/elf-expert-2.webp";
+import { ChevronLeft, Copy } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface TeamStats {
   level1Count: number;
@@ -23,6 +21,7 @@ interface TeamStats {
 export default function TeamPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
 
   const { data: stats } = useQuery<TeamStats>({
     queryKey: ["/api/team/stats"],
@@ -36,143 +35,137 @@ export default function TeamPage() {
 
   const copyLink = () => {
     navigator.clipboard.writeText(referralLink);
-    toast({ title: "Lien copie!", description: "Partagez ce lien avec vos amis." });
+    toast({ title: "Lien copié!", description: "Partagez ce lien avec vos amis." });
   };
 
   const copyCode = () => {
     navigator.clipboard.writeText(user.referralCode);
-    toast({ title: "Code copie!", description: "Partagez ce code avec vos amis." });
+    toast({ title: "Code copié!", description: "Partagez ce code avec vos amis." });
   };
 
   const totalPeople = (stats?.level1Count || 0) + (stats?.level2Count || 0) + (stats?.level3Count || 0);
-  const totalRevenue = (stats?.totalCommission || 0);
+  const totalCommission = stats?.totalCommission || 0;
 
   const levels = [
-    { num: 1, rate: "27%", count: stats?.level1Count || 0, bonus: stats?.level1Commission || 0 },
-    { num: 2, rate: "2%", count: stats?.level2Count || 0, bonus: stats?.level2Commission || 0 },
-    { num: 3, rate: "1%", count: stats?.level3Count || 0, bonus: stats?.level3Commission || 0 },
+    { num: 1, label: "LV1", rate: "27%", count: stats?.level1Count || 0, commission: stats?.level1Commission || 0 },
+    { num: 2, label: "LV2", rate: "2%",  count: stats?.level2Count || 0, commission: stats?.level2Commission || 0 },
+    { num: 3, label: "LV3", rate: "1%",  count: stats?.level3Count || 0, commission: stats?.level3Commission || 0 },
   ];
 
   return (
-    <div className="flex flex-col min-h-full bg-gray-50">
-      <div className="flex-1 overflow-y-auto pb-20">
-        <div className="bg-gradient-to-b from-blue-400 to-blue-300 px-4 pt-4 pb-0 relative">
-          <h1 className="text-white font-bold text-lg mb-3">L'equipe</h1>
-          <div className="rounded-t-2xl overflow-hidden">
-            <img src={elfTeam} alt="Team" className="w-full h-32 object-cover" />
+    <div className="flex flex-col min-h-full bg-gray-100">
+      <div className="flex items-center px-4 py-3 bg-white shadow-sm">
+        <button onClick={() => navigate("/")} className="mr-3 text-gray-600" data-testid="button-back">
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-base font-semibold text-gray-800 flex-1 text-center pr-6">
+          Invitations &amp; Récompenses
+        </h1>
+      </div>
+
+      <div className="flex-1 overflow-y-auto pb-24 px-4 pt-4 space-y-4">
+        <div className="bg-white rounded-2xl shadow-sm px-4 py-4 flex justify-around">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-800" data-testid="text-total-invited">{totalPeople}</p>
+            <p className="text-xs text-gray-500 mt-1">Nombre d'invités</p>
+          </div>
+          <div className="w-px bg-gray-200" />
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-800" data-testid="text-total-commission">{totalCommission.toFixed(0)}</p>
+            <p className="text-xs text-gray-500 mt-1">Commission gagner</p>
           </div>
         </div>
 
-        <div className="bg-white mx-0 px-4 pt-3 pb-4">
-          <div className="bg-blue-50/80 rounded-xl p-4 mb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-gray-800 text-base" data-testid="text-referral-code">{user.referralCode}</p>
-                <p className="text-xs text-gray-500">Code d'invitation</p>
+        <div className="rounded-2xl shadow-sm p-4" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
+          <h2 className="text-white font-bold text-base mb-1">Inviter des amis</h2>
+          <p className="text-white/80 text-xs mb-4 leading-relaxed">
+            Invitez plus d'utilisateurs et vous pourrez profiter de récompenses d'invitation plus généreuses et d'autres récompenses
+          </p>
+
+          <div className="bg-white/15 rounded-xl px-4 py-3 mb-3 flex items-center justify-between">
+            <div className="flex-1 min-w-0 mr-3">
+              <div className="flex items-center gap-2 mb-0.5">
+                <Copy className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
+                <span className="text-white/70 text-xs">Code d'invitation</span>
               </div>
-              <Button 
-                onClick={copyCode} 
-                size="sm"
-                className="rounded-full"
-                data-testid="button-copy-code"
-              >
-                Copier
-              </Button>
+              <p className="text-white font-semibold text-sm" data-testid="text-referral-code">{user.referralCode}</p>
             </div>
+            <button
+              onClick={copyCode}
+              className="bg-white rounded-full px-4 py-1.5 text-xs font-semibold shrink-0"
+              style={{ color: "#c8102e" }}
+              data-testid="button-copy-code"
+            >
+              Copier
+            </button>
           </div>
 
-          <div className="bg-blue-50/80 rounded-xl p-4 mb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-700 text-sm truncate pr-3" data-testid="text-referral-link">
-                  {referralLink}
-                </p>
-                <p className="text-xs text-gray-500">Liens d'invitation</p>
+          <div className="bg-white/15 rounded-xl px-4 py-3 flex items-center justify-between">
+            <div className="flex-1 min-w-0 mr-3">
+              <div className="flex items-center gap-2 mb-0.5">
+                <Copy className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
+                <span className="text-white/70 text-xs">Lien d'invitation</span>
               </div>
-              <Button 
-                onClick={copyLink} 
-                size="sm"
-                className="rounded-full shrink-0"
-                data-testid="button-copy-link"
-              >
-                Copier
-              </Button>
+              <p className="text-white/90 text-xs truncate" data-testid="text-referral-link">{referralLink}</p>
             </div>
+            <button
+              onClick={copyLink}
+              className="bg-white rounded-full px-4 py-1.5 text-xs font-semibold shrink-0"
+              style={{ color: "#c8102e" }}
+              data-testid="button-copy-link"
+            >
+              Copier
+            </button>
           </div>
+        </div>
 
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
-              <h2 className="font-semibold text-gray-800 text-sm">Mon equipe</h2>
-            </div>
-            <Link href="/team-details">
-              <span className="text-xs text-blue-500 font-medium" data-testid="link-team-details">
-                Details de l'equipe &gt;
-              </span>
-            </Link>
-          </div>
-
-          <div className="space-y-0">
-            {levels.map((level) => (
-              <div key={level.num} className="flex items-center py-3 border-b border-gray-100 last:border-0">
-                <div className="w-10 text-center">
-                  <span className="text-2xl font-bold text-gray-800">{level.num}</span>
+        <div className="space-y-3">
+          {levels.map((level) => (
+            <div key={level.num} className="bg-white rounded-2xl shadow-sm overflow-hidden" data-testid={`card-level-${level.num}`}>
+              <div className="flex justify-center py-2">
+                <span
+                  className="px-5 py-1 rounded-full text-white text-sm font-bold"
+                  style={{ background: "#c8102e" }}
+                >
+                  {level.label}
+                </span>
+              </div>
+              <div className="flex justify-around pb-4 pt-1">
+                <div className="text-center">
+                  <p className="text-xl font-bold text-gray-800">{level.rate}</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">Taux de commission</p>
                 </div>
-                <div className="flex-1 text-center">
-                  <p className="text-xs text-gray-800 font-semibold">{level.rate}</p>
-                  <p className="text-[10px] text-gray-400">Taux de commission</p>
+                <div className="text-center">
+                  <p className="text-xl font-bold text-gray-800" data-testid={`text-level${level.num}-count`}>{level.count}</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">Utilisateur valide</p>
                 </div>
-                <div className="flex-1 text-center">
-                  <p className="text-base font-bold text-gray-800" data-testid={`text-level${level.num}-count`}>
-                    {level.count}
-                  </p>
-                  <p className="text-[10px] text-gray-400">Quantite valide</p>
-                </div>
-                <div className="flex-1 text-center">
-                  <p className="text-base font-bold text-gray-800" data-testid={`text-level${level.num}-bonus`}>
-                    {level.bonus.toFixed(0)}
-                  </p>
-                  <p className="text-[10px] text-gray-400">Bonus</p>
+                <div className="text-center">
+                  <p className="text-xl font-bold text-gray-800" data-testid={`text-level${level.num}-commission`}>{level.commission.toFixed(0)}</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">Commission</p>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <div className="bg-gray-50 rounded-xl p-4 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                <Users className="w-4 h-4 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-lg font-bold text-gray-800" data-testid="text-total-people">{totalPeople}</p>
-                <p className="text-[10px] text-gray-400 leading-tight">Nombre total de personnes</p>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                <Gift className="w-4 h-4 text-[#2196F3]" />
-              </div>
-              <div>
-                <p className="text-lg font-bold text-gray-800" data-testid="text-total-revenue">{currency}{totalRevenue.toFixed(0)}</p>
-                <p className="text-[10px] text-gray-400 leading-tight">Revenu total</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
-              <h2 className="font-semibold text-gray-800 text-sm">Prix invitation</h2>
-            </div>
-            
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Invitez vos amis a s'inscrire et gagner des commissions.
-                Niveau 1: <span className="font-bold text-blue-500">27%</span> de commission, 
-                Niveau 2: <span className="font-bold text-blue-500">2%</span>, 
-                Niveau 3: <span className="font-bold text-blue-500">1%</span>.
-              </p>
-            </div>
+        <div className="bg-white rounded-2xl shadow-sm p-4">
+          <h2 className="font-bold text-gray-800 text-base mb-3">Cadeau de parrainage</h2>
+          <div className="text-sm text-gray-600 leading-relaxed space-y-2">
+            <p>
+              Lorsque vos amis invités s'inscrivent et finalisent leur investissement, vous recevez immédiatement <span className="font-semibold text-[#c8102e]">27%</span> de remise en argent.
+            </p>
+            <p>
+              Lorsque les membres de votre équipe de niveau 2 investissent, vous recevez <span className="font-semibold text-[#c8102e]">2%</span> de remise en argent.
+            </p>
+            <p>
+              Lorsque les membres de votre équipe de niveau 3 investissent, vous recevez <span className="font-semibold text-[#c8102e]">1%</span> de remise en argent.
+            </p>
+            <p>
+              Une fois que les membres de votre équipe investissent, la récompense en espèces est immédiatement versée sur votre compte.
+            </p>
+            <p>
+              Par exemple : si votre ami invité investit 3 000 {currency} pour la première fois, vous recevez immédiatement une récompense en espèces de 810 {currency}. La récompense est directement retirable !
+            </p>
           </div>
         </div>
       </div>
