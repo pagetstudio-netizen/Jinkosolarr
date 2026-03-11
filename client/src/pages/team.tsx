@@ -78,14 +78,14 @@ export default function TeamPage() {
 
         <div className="rounded-2xl shadow-sm p-4" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
           <h2 className="text-white font-bold text-base mb-1">Inviter des amis</h2>
-          <p className="text-white/80 text-xs mb-4 leading-relaxed">
+          <p className="text-white/80 text-xs mb-3 leading-relaxed">
             Invitez plus d'utilisateurs et vous pourrez profiter de récompenses d'invitation plus généreuses et d'autres récompenses
           </p>
 
-          <div className="bg-white/15 rounded-xl px-4 py-3 mb-3 flex items-center justify-between">
+          <div className="border-t border-white/25 pt-3 pb-3 flex items-center justify-between">
             <div className="flex-1 min-w-0 mr-3">
-              <div className="flex items-center gap-2 mb-0.5">
-                <Copy className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <Copy className="w-3 h-3 text-white/60 flex-shrink-0" />
                 <span className="text-white/70 text-xs">Code d'invitation</span>
               </div>
               <p className="text-white font-semibold text-sm" data-testid="text-referral-code">{user.referralCode}</p>
@@ -100,10 +100,10 @@ export default function TeamPage() {
             </button>
           </div>
 
-          <div className="bg-white/15 rounded-xl px-4 py-3 flex items-center justify-between">
+          <div className="border-t border-white/25 pt-3 flex items-center justify-between">
             <div className="flex-1 min-w-0 mr-3">
-              <div className="flex items-center gap-2 mb-0.5">
-                <Copy className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <Copy className="w-3 h-3 text-white/60 flex-shrink-0" />
                 <span className="text-white/70 text-xs">Lien d'invitation</span>
               </div>
               <p className="text-white/90 text-xs truncate" data-testid="text-referral-link">{referralLink}</p>
