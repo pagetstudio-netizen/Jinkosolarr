@@ -107,8 +107,8 @@ export default function InvestPage() {
 
                 <div className="mx-3 rounded-2xl relative" style={{ background: "#E28075", paddingTop: "118px", marginBottom: "0" }}>
                   <div
-                    className="absolute left-0 right-0 mx-0 overflow-hidden rounded-2xl"
-                    style={{ top: "-14px", height: "132px" }}
+                    className="absolute overflow-hidden rounded-xl"
+                    style={{ top: "-14px", height: "132px", left: "12px", right: "12px" }}
                   >
                     <img
                       src={productHeroImg}
