@@ -11,7 +11,7 @@ import { Loader2, AlertTriangle, Settings } from "lucide-react";
 import { useLocation } from "wouter";
 import type { Product } from "@shared/schema";
 
-import wendysLogoFull from "@assets/20260311_215217_1773265974092.png";
+import wendysLogoFull from "@assets/20260311_220915_1773268242686.png";
 import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import productHeroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
 
@@ -77,10 +77,10 @@ export default function InvestPage() {
         <img src={wendysLogoFull} alt="Wendy's" className="h-9 w-auto object-contain" data-testid="img-wendys-logo" />
         <button
           onClick={() => navigate("/service")}
-          className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center"
+          className="flex items-center justify-center"
           data-testid="button-service"
         >
-          <img src={serviceIcon} alt="Service client" className="w-6 h-6 object-contain" />
+          <img src={serviceIcon} alt="Service client" className="w-8 h-8 object-contain" />
         </button>
       </div>
 
