@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { formatCurrency, getCountryByCode } from "@/lib/countries";
-import { Loader2, AlertTriangle, Settings, DollarSign } from "lucide-react";
+import { Loader2, AlertTriangle, Settings } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 import wendysLogo from "@assets/wendys_logo.png";
+import productHeroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
 import productsIcon from "@/assets/images/products-icon.png";
 import revenueIcon from "@/assets/images/revenue-icon.png";
 
@@ -82,7 +83,7 @@ export default function InvestPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-gray-100">
-      <div className="bg-[#2196F3] px-4 pt-4 pb-4">
+      <div className="px-4 pt-4 pb-4" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white rounded-xl p-3 flex items-center gap-3">
             <div className="w-9 h-9 flex-shrink-0">
@@ -100,7 +101,7 @@ export default function InvestPage() {
               <img src={revenueIcon} alt="" className="w-full h-full object-contain" />
             </div>
             <div>
-              <p className="text-lg font-bold text-gray-800" data-testid="text-product-revenue">
+              <p className="text-sm font-bold text-gray-800" data-testid="text-product-revenue">
                 {currency} {totalProductRevenue.toLocaleString()}
               </p>
               <p className="text-xs text-gray-500">Mes revenus</p>
@@ -109,11 +110,11 @@ export default function InvestPage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-20 px-4 pt-4">
+      <div className="flex-1 overflow-y-auto pb-20 px-3 pt-4">
         {isLoading ? (
           <div className="space-y-4">
             {Array(4).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-48 w-full rounded-xl" />
+              <Skeleton key={i} className="h-64 w-full rounded-2xl" />
             ))}
           </div>
         ) : paidProducts.length > 0 ? (
@@ -121,52 +122,52 @@ export default function InvestPage() {
             {paidProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl overflow-visible shadow-sm relative"
+                className="bg-white rounded-2xl overflow-hidden shadow-sm"
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="bg-[#2196F3] rounded-t-2xl px-4 py-3 flex items-center justify-between">
-                  <h3 className="text-white font-bold text-base" data-testid={`text-product-name-${product.id}`}>
+                <div className="px-4 pt-3 pb-2">
+                  <h3 className="font-bold text-gray-900 text-base" data-testid={`text-product-name-${product.id}`}>
                     {product.name}
                   </h3>
-                  <span className="bg-black/80 text-white text-[10px] font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-sm">NEW</span>
                 </div>
 
-                <div className="px-4 py-2 flex gap-3">
-                  <div className="w-20 flex-shrink-0 flex items-center justify-center">
-                    <img
-                      src={wendysLogo}
-                      alt="Wendy's"
-                      className="w-full object-contain"
-                    />
-                  </div>
+                <div className="mx-3 rounded-xl overflow-hidden" style={{ height: "130px" }}>
+                  <img
+                    src={productHeroImg}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
 
-                  <div className="flex-1 space-y-0.5">
-                    <div className="flex justify-between items-center flex-wrap gap-1">
-                      <span className="text-xs text-gray-400">prix</span>
-                      <span className="text-sm font-bold text-gray-800">{product.price.toLocaleString()} {currency}</span>
-                    </div>
-                    <div className="flex justify-between items-center flex-wrap gap-1">
-                      <span className="text-xs text-gray-400">Benefice quotidien</span>
-                      <span className="text-sm font-bold text-gray-800">{product.dailyEarnings.toLocaleString()} {currency}</span>
-                    </div>
-                    <div className="flex justify-between items-center flex-wrap gap-1">
-                      <span className="text-xs text-gray-400">Revenu total</span>
-                      <span className="text-sm font-bold text-gray-800">{product.totalReturn.toLocaleString()} {currency}</span>
-                    </div>
-                    <div className="flex justify-between items-center flex-wrap gap-1">
-                      <span className="text-xs text-gray-400">Nombre de jours</span>
-                      <span className="text-sm font-bold text-gray-800">{product.cycleDays} jours</span>
-                    </div>
+                <div className="px-4 pt-3 pb-1 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Cycle(Jours)</span>
+                    <span className="text-sm font-semibold text-orange-500">{product.cycleDays}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Revenu quotidien({currency})</span>
+                    <span className="text-sm font-semibold text-orange-500">{product.dailyEarnings.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Revenu total({currency})</span>
+                    <span className="text-sm font-semibold text-orange-500">
+                      {product.price.toLocaleString()}+{product.totalReturn.toLocaleString()}
+                    </span>
                   </div>
                 </div>
 
-                <div className="px-6 pb-4 pt-1">
+                <div className="flex items-center justify-between px-4 py-3 mt-1 border-t border-gray-100">
+                  <div>
+                    <span className="text-xs text-gray-400">Prix({currency})</span>
+                    <p className="text-base font-bold text-orange-500">{product.price.toLocaleString()}</p>
+                  </div>
                   <button
                     onClick={() => handleBuyClick(product)}
-                    className="w-full bg-[#2196F3] text-white font-bold py-3 rounded-full text-base shadow-md active:opacity-90 transition-opacity"
+                    className="px-6 py-2.5 rounded-full text-sm font-bold text-white shadow-md"
+                    style={{ background: "linear-gradient(90deg, #c8102e, #e8394e)" }}
                     data-testid={`button-purchase-${product.id}`}
                   >
-                    investir
+                    Investir
                   </button>
                 </div>
               </div>
@@ -185,14 +186,14 @@ export default function InvestPage() {
           <DialogHeader>
             <DialogTitle>Confirmer l'achat</DialogTitle>
             <DialogDescription>
-              Voulez-vous vraiment acheter ce produit?
+              Voulez-vous vraiment acheter ce produit ?
             </DialogDescription>
           </DialogHeader>
 
           {confirmProduct && (
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-bold text-[#2196F3] text-lg">{confirmProduct.name}</h4>
+                <h4 className="font-bold text-[#c8102e] text-lg">{confirmProduct.name}</h4>
                 <div className="mt-2 space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Prix:</span>
@@ -200,11 +201,15 @@ export default function InvestPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Gains quotidiens:</span>
-                    <span className="font-medium text-green-500">{confirmProduct.dailyEarnings.toLocaleString()} {currency}</span>
+                    <span className="font-medium text-orange-500">{confirmProduct.dailyEarnings.toLocaleString()} {currency}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Revenu total:</span>
-                    <span className="font-medium text-green-500">{confirmProduct.totalReturn.toLocaleString()} {currency}</span>
+                    <span className="font-medium text-orange-500">{confirmProduct.totalReturn.toLocaleString()} {currency}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Durée:</span>
+                    <span className="font-medium">{confirmProduct.cycleDays} jours</span>
                   </div>
                 </div>
               </div>
@@ -234,6 +239,7 @@ export default function InvestPage() {
             <Button
               onClick={confirmPurchase}
               disabled={purchaseMutation.isPending || !!(confirmProduct && balance < confirmProduct.price)}
+              className="bg-[#c8102e] hover:bg-[#a00d25]"
               data-testid="button-confirm-purchase"
             >
               {purchaseMutation.isPending ? (
