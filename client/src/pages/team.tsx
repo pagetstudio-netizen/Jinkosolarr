@@ -82,7 +82,7 @@ export default function TeamPage() {
             Invitez plus d'utilisateurs et vous pourrez profiter de récompenses d'invitation plus généreuses et d'autres récompenses
           </p>
 
-          <div className="border-t border-white/25 pt-3 pb-3 flex items-center justify-between">
+          <div className="border-t border-white/60 pt-3 pb-3 flex items-center justify-between">
             <div className="flex-1 min-w-0 mr-3">
               <div className="flex items-center gap-1.5 mb-0.5">
                 <Copy className="w-3 h-3 text-white/60 flex-shrink-0" />
@@ -100,7 +100,7 @@ export default function TeamPage() {
             </button>
           </div>
 
-          <div className="border-t border-white/25 pt-3 flex items-center justify-between">
+          <div className="border-t border-white/60 pt-3 flex items-center justify-between">
             <div className="flex-1 min-w-0 mr-3">
               <div className="flex items-center gap-1.5 mb-0.5">
                 <Copy className="w-3 h-3 text-white/60 flex-shrink-0" />
