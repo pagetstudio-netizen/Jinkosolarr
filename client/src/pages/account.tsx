@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
-import { Loader2, Shield, Bell, ChevronRight } from "lucide-react";
+import { Loader2, Shield, LogOut, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -100,8 +100,8 @@ export default function AccountPage() {
               {phonePrefix}{user.phone}
             </p>
           </div>
-          <button className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center" data-testid="button-notifications">
-            <Bell className="w-5 h-5 text-gray-600" />
+          <button onClick={handleLogout} className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center" data-testid="button-logout-header">
+            <LogOut className="w-5 h-5" style={{ color: "#c8102e" }} />
           </button>
         </div>
 
@@ -214,17 +214,6 @@ export default function AccountPage() {
               <img src={giftBox} alt="" className="w-28 h-28 object-contain ml-2 shrink-0" />
             </div>
           </div>
-        </div>
-
-        {/* Bottom actions */}
-        <div className="mx-3 mt-1 space-y-3 pb-2">
-          <button
-            onClick={handleLogout}
-            className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3.5 flex items-center justify-center"
-            data-testid="button-logout"
-          >
-            <span className="text-gray-500 font-medium text-sm">Déconnexion</span>
-          </button>
         </div>
 
         {user.isAdmin && (
