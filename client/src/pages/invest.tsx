@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { formatCurrency, getCountryByCode } from "@/lib/countries";
@@ -160,75 +158,82 @@ export default function InvestPage() {
         )}
       </div>
 
-      <Dialog open={!!confirmProduct} onOpenChange={() => setConfirmProduct(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Confirmer l'achat</DialogTitle>
-            <DialogDescription>
-              Voulez-vous vraiment acheter ce produit ?
-            </DialogDescription>
-          </DialogHeader>
+      {/* Custom purchase popup */}
+      {confirmProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6 bg-black/50" onClick={() => setConfirmProduct(null)}>
+          <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
 
-          {confirmProduct && (
-            <div className="space-y-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-bold text-[#c8102e] text-lg">{confirmProduct.name}</h4>
-                <div className="mt-2 space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Prix:</span>
-                    <span className="font-medium">{confirmProduct.price.toLocaleString()} {currency}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Gains quotidiens:</span>
-                    <span className="font-medium text-orange-500">{confirmProduct.dailyEarnings.toLocaleString()} {currency}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Revenu total:</span>
-                    <span className="font-medium text-orange-500">{confirmProduct.totalReturn.toLocaleString()} {currency}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Durée:</span>
-                    <span className="font-medium">{confirmProduct.cycleDays} jours</span>
-                  </div>
-                </div>
+            {/* Product name title */}
+            <div className="pt-6 pb-2 text-center">
+              <h3 className="text-xl font-bold text-gray-900">{confirmProduct.name}</h3>
+            </div>
+
+            {/* Product image */}
+            <div className="flex justify-center px-6 py-3">
+              <img
+                src={productHeroImg}
+                alt={confirmProduct.name}
+                className="w-36 h-28 object-cover rounded-2xl"
+              />
+            </div>
+
+            {/* Subtitle */}
+            <p className="text-center text-sm text-gray-500 px-6 pb-3">
+              Settlement income every 24 hours
+            </p>
+
+            {/* Details */}
+            <div className="px-6 pb-2 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 text-sm">Prix :</span>
+                <span className="text-[#c8102e] font-bold text-sm">{currency} {confirmProduct.price.toLocaleString()}</span>
               </div>
-
-              <div className="flex justify-between items-center p-3 bg-white border rounded-lg">
-                <span className="text-gray-500">Votre solde:</span>
-                <span className={`font-bold ${balance >= confirmProduct.price ? "text-green-500" : "text-red-500"}`}>
-                  {formatCurrency(balance, user.country)}
-                </span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 text-sm">Revenu quotidien :</span>
+                <span className="text-[#c8102e] font-bold text-sm">{currency} {confirmProduct.dailyEarnings.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 text-sm">Revenu total :</span>
+                <span className="text-[#c8102e] font-bold text-sm">{currency} {confirmProduct.totalReturn.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 text-sm">Période de validité :</span>
+                <span className="text-gray-900 font-bold text-sm">{confirmProduct.cycleDays} jour</span>
               </div>
 
               {balance < confirmProduct.price && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                  <p className="text-sm text-red-500">
+                <div className="flex items-center gap-2 p-2.5 bg-red-50 border border-red-200 rounded-xl mt-1">
+                  <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                  <p className="text-xs text-red-500">
                     Solde insuffisant. Il vous manque {formatCurrency(confirmProduct.price - balance, user.country)}.
                   </p>
                 </div>
               )}
             </div>
-          )}
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setConfirmProduct(null)} data-testid="button-cancel-purchase">
-              Annuler
-            </Button>
-            <Button
-              onClick={confirmPurchase}
-              disabled={purchaseMutation.isPending || !!(confirmProduct && balance < confirmProduct.price)}
-              className="bg-[#c8102e] hover:bg-[#a00d25]"
-              data-testid="button-confirm-purchase"
-            >
-              {purchaseMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              Confirmer l'achat
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            {/* Buttons */}
+            <div className="flex gap-3 px-6 py-5">
+              <button
+                onClick={() => setConfirmProduct(null)}
+                className="flex-1 py-3 rounded-full bg-gray-100 text-gray-600 font-semibold text-sm"
+                data-testid="button-cancel-purchase"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={confirmPurchase}
+                disabled={purchaseMutation.isPending || balance < confirmProduct.price}
+                className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1 disabled:opacity-50"
+                style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+                data-testid="button-confirm-purchase"
+              >
+                {purchaseMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
