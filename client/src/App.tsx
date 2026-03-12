@@ -30,6 +30,8 @@ import TeamDetailsPage from "@/pages/team-details";
 import MyProductsPage from "@/pages/my-products";
 import CheckinPage from "@/pages/checkin";
 import RewardsPage from "@/pages/rewards";
+import WithdrawalHistoryPage from "@/pages/withdrawal-history";
+import DepositOrdersPage from "@/pages/deposit-orders";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -210,6 +212,16 @@ function Router() {
       <Route path="/history">
         <ProtectedRoute>
           <HistoryPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/withdrawal-history">
+        <ProtectedRoute>
+          <WithdrawalHistoryPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/deposit-orders">
+        <ProtectedRoute>
+          <DepositOrdersPage />
         </ProtectedRoute>
       </Route>
       <Route path="/service">
