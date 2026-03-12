@@ -47,10 +47,10 @@ export default function DepositPage() {
   // Reset operator when country changes
   useEffect(() => { setSelectedOperator(""); }, [selectedCountry]);
 
-  const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; isActive: boolean }[]>({
+  const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; isActive: boolean; gateway: string | null }[]>({
     queryKey: ["/api/payment-channels"],
   });
-  const defaultChannelId = paymentChannels.filter(c => c.isActive)[0]?.id || 1;
+  const defaultChannelId = paymentChannels[0]?.id || 1;
 
   useEffect(() => {
     return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
@@ -149,8 +149,7 @@ export default function DepositPage() {
     }
 
     setPaymentStatus("processing");
-    const activeChannels = paymentChannels.filter(c => c.isActive);
-    const channelIndex = activeChannels.findIndex(c => c.id === selectedChannel);
+    const chosenChannel = paymentChannels.find(c => c.id === selectedChannel);
     depositMutation.mutate({
       amount: amount as number,
       paymentMethod: selectedOperator,
@@ -158,8 +157,8 @@ export default function DepositPage() {
       accountNumber,
       country: selectedCountry,
       paymentChannelId: selectedChannel || defaultChannelId,
-      useSoleaspay: channelIndex === 0,
-      useInpay: channelIndex === 1,
+      useSoleaspay: chosenChannel?.gateway === "soleaspay",
+      useInpay: chosenChannel?.gateway === "inpay",
     });
   };
 
@@ -276,7 +275,7 @@ export default function DepositPage() {
           </div>
 
           <div className="space-y-2">
-            {paymentChannels.filter(c => c.isActive).map((channel, idx) => (
+            {paymentChannels.map((channel, idx) => (
               <button
                 key={channel.id}
                 onClick={() => setSelectedChannel(channel.id)}
@@ -292,7 +291,7 @@ export default function DepositPage() {
                 Canaux {channel.name}
               </button>
             ))}
-            {paymentChannels.filter(c => c.isActive).length === 0 && (
+            {paymentChannels.length === 0 && (
               <p className="text-center text-gray-400 text-sm py-2">Aucun canal disponible</p>
             )}
           </div>

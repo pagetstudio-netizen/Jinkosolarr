@@ -396,8 +396,28 @@ export async function registerRoutes(
   // Payment Channels
   app.get("/api/payment-channels", requireAuth, async (req, res) => {
     try {
-      const channels = await storage.getActivePaymentChannels();
-      res.json(channels);
+      const [channels, settings] = await Promise.all([
+        storage.getActivePaymentChannels(),
+        storage.getSettings(),
+      ]);
+
+      const soleaspayEnabled = settings.soleaspayEnabled !== "false";
+      const inpayEnabled = settings.inpayEnabled !== "false";
+
+      // Tag each channel with its gateway type (position 0 = soleaspay, 1 = inpay)
+      // then filter out disabled ones
+      const tagged = channels.map((ch, idx) => ({
+        ...ch,
+        gateway: idx === 0 ? "soleaspay" : idx === 1 ? "inpay" : null,
+      }));
+
+      const filtered = tagged.filter((ch) => {
+        if (ch.gateway === "soleaspay" && !soleaspayEnabled) return false;
+        if (ch.gateway === "inpay" && !inpayEnabled) return false;
+        return true;
+      });
+
+      res.json(filtered);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
