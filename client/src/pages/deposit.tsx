@@ -14,7 +14,6 @@ const COUNTRY_FLAGS: Record<string, string> = {
   CM: "🇨🇲", BF: "🇧🇫", TG: "🇹🇬", BJ: "🇧🇯", CI: "🇨🇮", CG: "🇨🇬",
 };
 
-type PaymentChannel = "robotpay" | "westpay";
 type PaymentStatus = "idle" | "processing" | "pending" | "approved" | "rejected";
 
 interface DepositResponse {
@@ -30,7 +29,7 @@ export default function DepositPage() {
   const queryClient = useQueryClient();
 
   const [amount, setAmount] = useState<number | "">("");
-  const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<number | null>(null);
   const [selectedCountry, setSelectedCountry] = useState(user?.country || "");
   const [selectedOperator, setSelectedOperator] = useState("");
   const [accountName, setAccountName] = useState("");
@@ -150,15 +149,17 @@ export default function DepositPage() {
     }
 
     setPaymentStatus("processing");
+    const activeChannels = paymentChannels.filter(c => c.isActive);
+    const channelIndex = activeChannels.findIndex(c => c.id === selectedChannel);
     depositMutation.mutate({
       amount: amount as number,
       paymentMethod: selectedOperator,
       accountName,
       accountNumber,
       country: selectedCountry,
-      paymentChannelId: defaultChannelId,
-      useSoleaspay: selectedChannel === "robotpay",
-      useInpay: selectedChannel === "westpay",
+      paymentChannelId: selectedChannel || defaultChannelId,
+      useSoleaspay: channelIndex === 0,
+      useInpay: channelIndex === 1,
     });
   };
 
@@ -275,29 +276,25 @@ export default function DepositPage() {
           </div>
 
           <div className="space-y-2">
-            <button
-              onClick={() => setSelectedChannel("robotpay")}
-              className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${
-                selectedChannel === "robotpay"
-                  ? "bg-[#c8102e] text-white shadow-md"
-                  : "bg-white border-2 border-[#c8102e] text-[#c8102e]"
-              }`}
-              data-testid="button-channel-robotpay"
-            >
-              Canaux RobotPay
-            </button>
-
-            <button
-              onClick={() => setSelectedChannel("westpay")}
-              className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${
-                selectedChannel === "westpay"
-                  ? "bg-[#c8102e] text-white shadow-md"
-                  : "bg-white border-2 border-gray-200 text-gray-700"
-              }`}
-              data-testid="button-channel-westpay"
-            >
-              Canaux WestPay
-            </button>
+            {paymentChannels.filter(c => c.isActive).map((channel, idx) => (
+              <button
+                key={channel.id}
+                onClick={() => setSelectedChannel(channel.id)}
+                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${
+                  selectedChannel === channel.id
+                    ? "bg-[#c8102e] text-white shadow-md"
+                    : idx === 0
+                      ? "bg-white border-2 border-[#c8102e] text-[#c8102e]"
+                      : "bg-white border-2 border-gray-200 text-gray-700"
+                }`}
+                data-testid={`button-channel-${channel.id}`}
+              >
+                Canaux {channel.name}
+              </button>
+            ))}
+            {paymentChannels.filter(c => c.isActive).length === 0 && (
+              <p className="text-center text-gray-400 text-sm py-2">Aucun canal disponible</p>
+            )}
           </div>
         </div>
 
