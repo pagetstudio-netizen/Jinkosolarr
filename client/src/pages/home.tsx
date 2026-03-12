@@ -1,5 +1,6 @@
 import { useAuth } from "@/lib/auth";
-import { Bell, Send, ChevronRight } from "lucide-react";
+import { Send, ChevronRight } from "lucide-react";
+import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -93,7 +94,9 @@ export default function HomePage() {
 
       <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
         <img src={wendysLogo} alt="Wendy's" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
-        <Bell className="w-6 h-6 text-gray-500" />
+        <button onClick={() => navigate("/service")} data-testid="button-service-header">
+          <img src={serviceIcon} alt="Service client" className="w-8 h-8 object-contain" />
+        </button>
       </div>
 
       <div className="px-3 pt-3">
