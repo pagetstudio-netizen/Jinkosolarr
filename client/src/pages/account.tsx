@@ -21,7 +21,6 @@ import iconDeposit from "@assets/téléchargement_(18)_1770814706072.png";
 import iconWithdraw from "@assets/téléchargement_(17)_1770814706099.png";
 import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import iconTeam from "@assets/téléchargement_(15)_1770814706160.png";
-import iconPassword from "@assets/téléchargement_(16)_1770814706129.png";
 
 export default function AccountPage() {
   const { user, logout } = useAuth();
@@ -219,28 +218,6 @@ export default function AccountPage() {
 
         {/* Bottom actions */}
         <div className="mx-3 mt-1 space-y-3 pb-2">
-          <button
-            onClick={() => navigate("/change-password")}
-            className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3.5 flex items-center justify-between"
-            data-testid="button-change-password"
-          >
-            <div className="flex items-center gap-3">
-              <img src={iconPassword} alt="" className="w-7 h-7" />
-              <span className="text-gray-800 font-medium text-sm">Mot de passe</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-          </button>
-
-          <Link href="/my-products">
-            <button
-              className="w-full rounded-2xl px-4 py-4 text-white font-bold text-base shadow-sm"
-              style={{ background: "linear-gradient(135deg, #1565c0, #1976d2)" }}
-              data-testid="button-tasks"
-            >
-              Tâches
-            </button>
-          </Link>
-
           <button
             onClick={handleLogout}
             className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3.5 flex items-center justify-center"
