@@ -177,12 +177,12 @@ export default function AccountPage() {
                 <img src={robotCoins} alt="" className="w-28 h-28 object-contain" />
                 <Link href="/withdrawal-history">
                   <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-withdrawal-history">
-                    Retraits <ChevronRight className="w-3 h-3" />
+                    Relevé des retraits <ChevronRight className="w-3 h-3" />
                   </button>
                 </Link>
                 <Link href="/deposit-orders">
                   <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-deposit-orders">
-                    Dépôts <ChevronRight className="w-3 h-3" />
+                    Ordre du dépôt <ChevronRight className="w-3 h-3" />
                   </button>
                 </Link>
               </div>

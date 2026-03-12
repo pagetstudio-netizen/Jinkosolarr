@@ -62,8 +62,8 @@ export default function DepositOrdersPage() {
             const cfg = STATUS_CONFIG[d.status] || { label: d.status, bg: "bg-gray-500", text: "text-white" };
             return (
               <div key={d.id} className="bg-white rounded-2xl overflow-hidden shadow-sm">
-                {/* Dark top bar */}
-                <div className="h-3 bg-gray-900 rounded-t-2xl" />
+                {/* Red top bar */}
+                <div className="h-3 rounded-t-2xl" style={{ backgroundColor: "#c8102e" }} />
 
                 <div className="px-5 py-4 space-y-3">
                   <div className="flex items-center justify-between">
