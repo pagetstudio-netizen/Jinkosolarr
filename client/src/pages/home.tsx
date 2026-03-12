@@ -1,5 +1,5 @@
 import { useAuth } from "@/lib/auth";
-import { Send, ChevronRight } from "lucide-react";
+import { Send, ChevronRight, Megaphone } from "lucide-react";
 import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
@@ -235,7 +235,7 @@ export default function HomePage() {
 
       <div className="px-3 mt-3">
         <div className="flex items-center gap-2 px-3 py-2.5 bg-white rounded-xl shadow-sm">
-          <Bell className="w-4 h-4 text-[#c8102e] flex-shrink-0" />
+          <Megaphone className="w-4 h-4 text-[#c8102e] flex-shrink-0" />
           <div className="overflow-hidden flex-1">
             <p className="text-gray-600 text-xs whitespace-nowrap animate-marquee">
               Wendy's - Plus de 6 000 restaurants dans le monde, des hamburgers au bœuf frais jamais congelé 🍔
