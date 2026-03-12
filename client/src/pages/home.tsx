@@ -26,7 +26,7 @@ export default function HomePage() {
   const [showPopup, setShowPopup] = useState(false);
 
   const { data: userProducts } = useQuery<any[]>({
-    queryKey: ["/api/user-products"],
+    queryKey: ["/api/user/products"],
     enabled: !!user,
   });
 
@@ -44,7 +44,7 @@ export default function HomePage() {
   const cumulativeEarnings = parseFloat(user.totalEarnings || "0");
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
-  const activeProductCount = userProducts?.length || 0;
+  const activeProductCount = userProducts?.filter((p: any) => p.status === "active").length || 0;
 
   return (
     <div className="flex flex-col min-h-full bg-gray-100">
