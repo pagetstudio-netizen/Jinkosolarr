@@ -155,28 +155,28 @@ export default function AccountPage() {
         </div>
 
         {/* INVESTISSEMENTS CHAUDS */}
-        <div className="mx-3 mt-4">
+        <div className="mx-6 mt-4">
           <p className="text-gray-900 font-bold text-sm mb-3">INVESTISSEMENTS CHAUDS</p>
 
           {/* État du fonds */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-lg">🪙</span>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-base">🪙</span>
               <span className="text-gray-800 font-semibold text-sm">État du fonds</span>
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-xs mb-1">Revenu du jour</p>
-                <p className="font-bold text-base" style={{ color: "#c8102e" }} data-testid="text-today-earnings">
+                <p className="font-bold text-sm" style={{ color: "#c8102e" }} data-testid="text-today-earnings">
                   {todayEarnings.toFixed(2)} {currency}
                 </p>
                 <p className="text-gray-500 text-xs mt-2 mb-1">Solde</p>
-                <p className="font-bold text-base" style={{ color: "#c8102e" }} data-testid="text-balance">
+                <p className="font-bold text-sm" style={{ color: "#c8102e" }} data-testid="text-balance">
                   {balance.toFixed(2)} {currency}
                 </p>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <img src={robotCoins} alt="" className="w-44 h-44 object-contain" />
+                <img src={robotCoins} alt="" className="w-28 h-28 object-contain" />
                 <Link href="/history">
                   <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-history">
                     Historique <ChevronRight className="w-3 h-3" />
@@ -187,7 +187,7 @@ export default function AccountPage() {
           </div>
 
           {/* Carte bancaire */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="text-gray-800 font-semibold text-sm mb-1">Carte bancaire</p>
@@ -198,12 +198,12 @@ export default function AccountPage() {
                   </button>
                 </Link>
               </div>
-              <img src={robotWallet} alt="" className="w-44 h-44 object-contain ml-2 shrink-0" />
+              <img src={robotWallet} alt="" className="w-28 h-28 object-contain ml-2 shrink-0" />
             </div>
           </div>
 
           {/* Échanger des récompenses */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="text-gray-800 font-semibold text-sm mb-1">Échanger des récompenses</p>
@@ -214,7 +214,7 @@ export default function AccountPage() {
                   </button>
                 </Link>
               </div>
-              <img src={giftBox} alt="" className="w-44 h-44 object-contain ml-2 shrink-0" />
+              <img src={giftBox} alt="" className="w-28 h-28 object-contain ml-2 shrink-0" />
             </div>
           </div>
         </div>
