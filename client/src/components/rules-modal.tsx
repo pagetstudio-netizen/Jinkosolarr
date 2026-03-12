@@ -60,7 +60,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
 
             <section>
               <h4 className="font-medium text-foreground mb-2">5. Bonus d'inscription</h4>
-              <p>Chaque nouveau membre reçoit 500 FCFA de bonus à l'inscription.</p>
+              <p>Chaque nouveau membre reçoit 700 FCFA de bonus à l'inscription.</p>
             </section>
 
             <section>

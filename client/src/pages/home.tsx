@@ -65,7 +65,7 @@ export default function HomePage() {
             <div className="pt-10 px-4 pb-4 text-gray-700">
               <div className="space-y-1.5 text-[12px] leading-snug">
                 <p>Rejoignez Wendy's, profitez des dividendes et faites fructifier votre patrimoine !</p>
-                <p>1. Bonus d'inscription : 500 FCFA</p>
+                <p>1. Bonus d'inscription : 700 FCFA</p>
                 <p>2. Bonus quotidien : 50 FCFA</p>
                 <p>3. Invitez vos filleuls et recevez 30 % de prime.</p>
               </div>

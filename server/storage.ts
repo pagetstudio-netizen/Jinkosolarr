@@ -122,13 +122,13 @@ export class DatabaseStorage implements IStorage {
       ...data,
       password: hashedPassword,
       referralCode,
-      balance: "500",
+      balance: "700",
     } as any).returning();
     
     await this.createTransaction({
       userId: user.id,
       type: "bonus",
-      amount: "500",
+      amount: "700",
       description: "Bonus d'inscription",
     });
     
