@@ -3,193 +3,68 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock, ChevronRight, ChevronDown, X, Check, MapPin, CreditCard } from "lucide-react";
+import { ChevronLeft, Loader2, CheckCircle, XCircle, Clock, Wallet } from "lucide-react";
 import { Link } from "wouter";
-import { getCountryByCode, COUNTRIES } from "@/lib/countries";
+import { getCountryByCode } from "@/lib/countries";
 
-const PRESET_AMOUNTS = [3000, 5000, 10000, 20000, 50000, 100000, 200000, 300000, 800000];
+const MIN_DEPOSIT = 3500;
+const PRESET_AMOUNTS = [3500, 5000, 10000, 20000, 50000, 100000, 250000, 500000];
 
-const COUNTRY_FLAGS: Record<string, string> = {
-  CM: "\u{1F1E8}\u{1F1F2}",
-  BF: "\u{1F1E7}\u{1F1EB}",
-  TG: "\u{1F1F9}\u{1F1EC}",
-  BJ: "\u{1F1E7}\u{1F1EF}",
-  CI: "\u{1F1E8}\u{1F1EE}",
-  CG: "\u{1F1E8}\u{1F1EC}",
-  CD: "\u{1F1E8}\u{1F1E9}",
-};
-
-interface PaymentChannel {
-  id: number;
-  name: string;
-  redirectUrl: string;
-  isActive: boolean;
-}
-
-interface SoleaspayServices {
-  enabled: boolean;
-  services: Record<string, Record<string, number>>;
-  enabledCountries: string[];
-}
-
-interface InpayServices {
-  enabled: boolean;
-  enabledCountries: string[];
-  bankCodes: Record<string, Record<string, string>>;
-}
+type PaymentChannel = "robotpay" | "westpay";
+type PaymentStatus = "idle" | "processing" | "pending" | "approved" | "rejected";
 
 interface DepositResponse {
-  deposit: {
-    id: number;
-    status: string;
-    soleaspayReference?: string;
-    soleaspayOrderId?: string;
-  };
+  deposit: { id: number; status: string };
   soleaspay?: boolean;
   inpay?: boolean;
   paymentUrl?: string;
-  reference?: string;
-  status?: string;
-  message?: string;
 }
-
-type PaymentStatus = "idle" | "processing" | "pending" | "approved" | "rejected";
 
 export default function DepositPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
   const [amount, setAmount] = useState<number | "">("");
-  const [selectedCountry, setSelectedCountry] = useState(user?.country || "");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
   const [accountName, setAccountName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
   const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
-  const [showCountrySheet, setShowCountrySheet] = useState(false);
-  const [showPaymentSheet, setShowPaymentSheet] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
-  const minDeposit = 3000;
+  const balance = parseFloat(user?.balance || "0");
 
-  const { data: soleaspayData } = useQuery<SoleaspayServices>({
-    queryKey: ["/api/soleaspay/services"],
-  });
-
-  const { data: inpayData } = useQuery<InpayServices>({
-    queryKey: ["/api/inpay/services"],
-  });
-
-  const { data: paymentChannels = [] } = useQuery<PaymentChannel[]>({
+  const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; isActive: boolean }[]>({
     queryKey: ["/api/payment-channels"],
   });
-
   const activeChannels = paymentChannels.filter(c => c.isActive);
-
-  const soleaspayEnabled = soleaspayData?.enabled ?? false;
-  const soleaspayServices = soleaspayData?.services ?? {};
-  const soleaspayEnabledCountries = soleaspayData?.enabledCountries ?? [];
-
-  const inpayEnabled = inpayData?.enabled ?? false;
-  const inpayEnabledCountries = inpayData?.enabledCountries ?? [];
-  const inpayBankCodes = inpayData?.bankCodes ?? {};
-
-  const isSoleaspayForCountry = Boolean(
-    soleaspayEnabled &&
-    selectedCountry &&
-    soleaspayEnabledCountries.includes(selectedCountry) &&
-    soleaspayServices[selectedCountry]
-  );
-
-  const isInpayForCountry = Boolean(
-    inpayEnabled &&
-    selectedCountry &&
-    inpayEnabledCountries.includes(selectedCountry) &&
-    inpayBankCodes[selectedCountry]
-  );
-
-  const isAutoPaymentCountry = isSoleaspayForCountry || isInpayForCountry;
-
-  const isSoleaspayAvailable = Boolean(
-    isSoleaspayForCountry &&
-    selectedPaymentMethod &&
-    soleaspayServices[selectedCountry]?.[selectedPaymentMethod] !== undefined
-  );
-
-  const isInpayAvailable = Boolean(
-    isInpayForCountry &&
-    !isSoleaspayForCountry &&
-    selectedPaymentMethod &&
-    inpayBankCodes[selectedCountry]?.[selectedPaymentMethod] !== undefined
-  );
-
-  const getPaymentMethodsForCountry = (countryCode: string): string[] => {
-    if (isSoleaspayForCountry && soleaspayServices[countryCode]) {
-      return Object.keys(soleaspayServices[countryCode]);
-    }
-    if (isInpayForCountry && inpayBankCodes[countryCode]) {
-      return Object.keys(inpayBankCodes[countryCode]);
-    }
-    const countryMethods: Record<string, string[]> = {
-      CM: ["Orange Money", "MTN"],
-      BF: ["Orange Money", "Moov Money"],
-      TG: ["Moov Money", "T-Money"],
-      BJ: ["MTN", "Moov Money"],
-      CI: ["Wave", "MTN", "Orange Money", "Moov Money"],
-      CG: ["MTN"],
-      CD: ["Vodacom", "Airtel Money", "Orange Money"],
-    };
-    return countryMethods[countryCode] || [];
-  };
-
-  const paymentMethods = selectedCountry ? getPaymentMethodsForCountry(selectedCountry) : [];
+  const defaultChannelId = activeChannels[0]?.id || 1;
 
   useEffect(() => {
-    return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-      }
-    };
+    return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
   }, []);
 
   const startPolling = (depositId: number) => {
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-    }
-
+    if (pollingRef.current) clearInterval(pollingRef.current);
     pollingRef.current = setInterval(async () => {
       try {
-        const res = await fetch(`/api/deposits/${depositId}/verify`, {
-          credentials: "include",
-        });
+        const res = await fetch(`/api/deposits/${depositId}/verify`, { credentials: "include" });
         const data = await res.json();
-
         if (data.status === "approved") {
           setPaymentStatus("approved");
           clearInterval(pollingRef.current!);
           pollingRef.current = null;
           refreshUser();
           queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
-          toast({
-            title: "Paiement reussi",
-            description: "Votre compte a ete credite",
-          });
         } else if (data.status === "rejected") {
           setPaymentStatus("rejected");
           clearInterval(pollingRef.current!);
           pollingRef.current = null;
-          toast({
-            title: "Paiement echoue",
-            description: "Le paiement a ete refuse",
-            variant: "destructive",
-          });
         }
-      } catch (error) {
-        console.error("Polling error:", error);
-      }
+      } catch {}
     }, 3000);
   };
 
@@ -208,50 +83,26 @@ export default function DepositPage() {
       return res.json() as Promise<DepositResponse>;
     },
     onSuccess: (data) => {
-      if (data.soleaspay) {
+      if (data.soleaspay || data.inpay) {
         setCurrentDepositId(data.deposit.id);
         setPaymentStatus("pending");
         startPolling(data.deposit.id);
-        toast({
-          title: "Paiement initie",
-          description: "Validez le paiement sur votre telephone",
-        });
-      } else if (data.inpay) {
-        setCurrentDepositId(data.deposit.id);
-        setPaymentStatus("pending");
-        startPolling(data.deposit.id);
-        if (data.paymentUrl) {
-          window.open(data.paymentUrl, "_blank");
-        }
-        toast({
-          title: "Paiement initie",
-          description: "Validez le paiement sur votre telephone",
-        });
+        if (data.paymentUrl) window.open(data.paymentUrl, "_blank");
+        toast({ title: "Paiement initié", description: "Validez le paiement sur votre téléphone" });
       } else {
-        toast({
-          title: "Demande envoyee",
-          description: "Votre demande de depot est en attente de validation",
-        });
-        if (selectedChannel?.redirectUrl) {
-          window.open(selectedChannel.redirectUrl, "_blank");
-        }
+        toast({ title: "Demande envoyée", description: "Votre dépôt est en attente de validation" });
         resetForm();
       }
       queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
     },
     onError: (error: Error) => {
       setPaymentStatus("idle");
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
     },
   });
 
   const resetForm = () => {
     setAmount("");
-    setSelectedPaymentMethod("");
     setSelectedChannel(null);
     setAccountName("");
     setAccountNumber("");
@@ -259,254 +110,155 @@ export default function DepositPage() {
     setCurrentDepositId(null);
   };
 
-  const handlePresetClick = (presetAmount: number) => {
-    setAmount(presetAmount);
-  };
-
   const handleSubmit = () => {
-    if (!amount || amount < minDeposit) {
-      toast({
-        title: "Montant invalide",
-        description: `Le montant minimum est de ${minDeposit} ${currency}`,
-        variant: "destructive",
-      });
+    if (!amount || amount < MIN_DEPOSIT) {
+      toast({ title: "Montant invalide", description: `Le minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`, variant: "destructive" });
       return;
     }
-    if (!selectedCountry) {
-      toast({
-        title: "Pays requis",
-        description: "Veuillez selectionner votre pays",
-        variant: "destructive",
-      });
+    if (!selectedChannel) {
+      toast({ title: "Canal requis", description: "Veuillez sélectionner un canal de recharge", variant: "destructive" });
       return;
     }
-    if (!selectedPaymentMethod) {
-      toast({
-        title: "Moyen de paiement requis",
-        description: "Veuillez selectionner votre moyen de paiement",
-        variant: "destructive",
-      });
+    if (!accountName.trim()) {
+      toast({ title: "Nom requis", description: "Veuillez entrer le nom du titulaire", variant: "destructive" });
       return;
     }
-    if (!accountName) {
-      toast({
-        title: "Nom requis",
-        description: "Veuillez entrer le nom du titulaire du compte",
-        variant: "destructive",
-      });
+    if (!accountNumber.trim()) {
+      toast({ title: "Numéro requis", description: "Veuillez entrer votre numéro de téléphone", variant: "destructive" });
       return;
     }
-    if (!accountNumber) {
-      toast({
-        title: "Numero requis",
-        description: "Veuillez entrer votre numero de telephone",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!isAutoPaymentCountry && !selectedChannel) {
-      toast({
-        title: "Canal requis",
-        description: "Veuillez selectionner un canal de recharge",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const channelId = selectedChannel?.id || activeChannels[0]?.id || 0;
 
     setPaymentStatus("processing");
     depositMutation.mutate({
       amount: amount as number,
-      paymentMethod: selectedPaymentMethod,
+      paymentMethod: "Mobile Money",
       accountName,
       accountNumber,
-      country: selectedCountry,
-      paymentChannelId: channelId,
-      useSoleaspay: isSoleaspayAvailable,
-      useInpay: isInpayAvailable,
+      country: user!.country,
+      paymentChannelId: defaultChannelId,
+      useSoleaspay: selectedChannel === "robotpay",
+      useInpay: selectedChannel === "westpay",
     });
   };
 
-  const renderPaymentStatus = () => {
-    if (paymentStatus === "idle") return null;
-
-    return (
-      <div className="fixed inset-0 z-50">
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl animate-in slide-in-from-bottom duration-300 flex flex-col items-center px-6 pt-3 pb-8">
-          <div className="w-10 h-1 bg-gray-300 rounded-full mb-6" />
-
-          {paymentStatus === "processing" && (
-            <>
-              <div className="w-20 h-20 rounded-full bg-[#e3f2fd] flex items-center justify-center mb-5">
-                <Loader2 className="w-10 h-10 text-[#2196F3] animate-spin" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Traitement en cours</h3>
-              <p className="text-gray-500 text-sm">Veuillez patienter...</p>
-            </>
-          )}
-
-          {paymentStatus === "pending" && (
-            <>
-              <div className="w-20 h-20 rounded-full bg-[#e3f2fd] flex items-center justify-center mb-5">
-                <Clock className="w-10 h-10 text-[#2196F3]" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Validation requise</h3>
-              <p className="text-gray-500 text-sm mb-5">Confirmez le paiement depuis votre telephone</p>
-              <div className="w-full bg-[#e3f2fd] rounded-xl p-4 mb-5">
-                <div className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#2196F3] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-xs font-bold">i</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">En attente de confirmation</p>
-                    <p className="text-sm text-gray-600 mt-1">Un message a ete envoye sur votre numero. Composez votre code PIN pour valider.</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-[#2196F3]">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm font-medium">Verification en cours...</span>
-              </div>
-            </>
-          )}
-
-          {paymentStatus === "approved" && (
-            <>
-              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-5">
-                <CheckCircle className="w-10 h-10 text-green-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement reussi</h3>
-              <p className="text-gray-500 text-sm mb-5">
-                Votre compte a ete credite de {amount?.toLocaleString()} {currency}
-              </p>
-              <button
-                onClick={resetForm}
-                className="w-full py-3.5 bg-green-500 text-white font-bold rounded-full text-base"
-                data-testid="button-close-success"
-              >
-                Fermer
-              </button>
-            </>
-          )}
-
-          {paymentStatus === "rejected" && (
-            <>
-              <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-5">
-                <XCircle className="w-10 h-10 text-red-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement echoue</h3>
-              <p className="text-gray-500 text-sm mb-5">
-                Le paiement a ete refuse ou annule
-              </p>
-              <button
-                onClick={resetForm}
-                className="w-full py-3.5 bg-red-500 text-white font-bold rounded-full text-base"
-                data-testid="button-close-error"
-              >
-                Reessayer
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    );
-  };
+  if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#64B5F6] to-white">
+    <div className="min-h-screen bg-gray-50">
+
+      {/* Header */}
+      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
-          <button className="p-2" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
+          <button className="p-1" data-testid="button-back">
+            <ChevronLeft className="w-6 h-6 text-[#c8102e]" />
           </button>
         </Link>
-        <h1 className="text-lg font-semibold text-gray-800">Economiser</h1>
+        <h1 className="text-base font-bold text-[#c8102e]">Recharger</h1>
         <Link href="/history">
-          <button className="p-2" data-testid="button-history">
-            <Clock className="w-5 h-5 text-[#2196F3]" />
+          <button className="p-1" data-testid="button-history">
+            <ChevronLeft className="w-6 h-6 text-[#c8102e] rotate-180" />
           </button>
         </Link>
       </header>
 
-      <div className="p-4 space-y-5">
+      {/* Balance Banner */}
+      <div className="bg-[#c8102e] px-5 py-4 flex items-center gap-4">
+        <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
+          <Wallet className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <p className="text-white text-2xl font-bold">{currency} {balance.toFixed(2)}</p>
+          <p className="text-white/75 text-xs mt-0.5">Solde du compte</p>
+        </div>
+      </div>
+
+      <div className="p-4 space-y-4">
+
+        {/* Amount section */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
+            <div className="w-1 h-5 bg-[#c8102e] rounded-full" />
             <h2 className="font-bold text-gray-800 text-sm">
-              Montant du depot le plus bas ( {currency} {minDeposit.toLocaleString()} )
+              Montant de la recharge{" "}
+              <span className="text-gray-400 font-normal text-xs">(Minimum {currency} {MIN_DEPOSIT.toLocaleString()})</span>
             </h2>
           </div>
-          <div className="border border-gray-200 rounded-lg p-3">
-            <div className="grid grid-cols-3 gap-2">
-              {PRESET_AMOUNTS.map((presetAmount) => (
-                <button
-                  key={presetAmount}
-                  onClick={() => handlePresetClick(presetAmount)}
-                  className={`py-2.5 px-2 rounded-full border text-center text-sm font-medium transition-colors ${
-                    amount === presetAmount
-                      ? "border-[#2196F3] bg-[#e3f2fd] text-[#2196F3]"
-                      : "border-gray-300 bg-white text-gray-700"
-                  }`}
-                  data-testid={`button-preset-${presetAmount}`}
-                >
-                  {presetAmount.toLocaleString()}
-                </button>
-              ))}
-            </div>
+
+          {/* Info box */}
+          <div className="bg-gray-100 rounded-xl p-3 mb-3">
+            <p className="text-gray-500 text-xs text-center leading-relaxed">
+              Si votre commande de recharge n'a pas pu être finalisée depuis un certain temps, veuillez cliquer sur ce bouton pour soumettre vos informations de recharge
+            </p>
+          </div>
+
+          {/* Preset amounts */}
+          <div className="grid grid-cols-4 gap-2">
+            {PRESET_AMOUNTS.map((preset) => (
+              <button
+                key={preset}
+                onClick={() => setAmount(preset)}
+                className={`py-2.5 rounded-lg border text-center text-sm font-medium transition-colors ${
+                  amount === preset
+                    ? "border-[#c8102e] bg-red-50 text-[#c8102e]"
+                    : "border-gray-200 bg-white text-gray-700"
+                }`}
+                data-testid={`button-preset-${preset}`}
+              >
+                {preset.toLocaleString()}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
-          <span className="font-bold text-gray-800 text-sm">{currency}</span>
+        {/* Channel selection */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-5 bg-[#c8102e] rounded-full" />
+            <h2 className="font-bold text-gray-800 text-sm">Canaux de recharge</h2>
+          </div>
+
+          <div className="space-y-2">
+            <button
+              onClick={() => setSelectedChannel("robotpay")}
+              className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${
+                selectedChannel === "robotpay"
+                  ? "bg-[#c8102e] text-white shadow-md"
+                  : "bg-white border-2 border-[#c8102e] text-[#c8102e]"
+              }`}
+              data-testid="button-channel-robotpay"
+            >
+              Canaux RobotPay
+            </button>
+
+            <button
+              onClick={() => setSelectedChannel("westpay")}
+              className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${
+                selectedChannel === "westpay"
+                  ? "bg-[#c8102e] text-white shadow-md"
+                  : "bg-white border-2 border-gray-200 text-gray-700"
+              }`}
+              data-testid="button-channel-westpay"
+            >
+              Canaux WestPay
+            </button>
+          </div>
+        </div>
+
+        {/* Amount input */}
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
+          <span className="font-bold text-[#c8102e] text-sm">{currency}</span>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-            placeholder="Veuillez entrer le montant de la recharge"
+            placeholder="Veuillez saisir le montant de la recharge"
             className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
             data-testid="input-deposit-amount"
           />
         </div>
 
-        <button
-          onClick={() => setShowCountrySheet(true)}
-          className="w-full border border-gray-200 rounded-full px-4 py-3 flex items-center justify-between"
-          data-testid="button-open-country"
-        >
-          <div className="flex items-center gap-3">
-            {selectedCountry ? (
-              <span className="text-xl">{COUNTRY_FLAGS[selectedCountry] || ""}</span>
-            ) : (
-              <MapPin className="w-4 h-4 text-[#2196F3]" />
-            )}
-            <span className={`text-sm ${selectedCountry ? "text-gray-800 font-medium" : "text-gray-500"}`}>
-              {selectedCountry
-                ? COUNTRIES.find((c: { code: string }) => c.code === selectedCountry)?.name || "Pays"
-                : "Selectionnez votre pays"}
-            </span>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </button>
-
-        {selectedCountry && paymentMethods.length > 0 && (
-          <button
-            onClick={() => setShowPaymentSheet(true)}
-            className="w-full border border-gray-200 rounded-full px-4 py-3 flex items-center justify-between"
-            data-testid="button-open-payment"
-          >
-            <div className="flex items-center gap-3">
-              <CreditCard className="w-4 h-4 text-[#2196F3]" />
-              <span className={`text-sm ${selectedPaymentMethod ? "text-gray-800 font-medium" : "text-gray-500"}`}>
-                {selectedPaymentMethod || "Selectionnez le mode de paiement"}
-              </span>
-            </div>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
-          </button>
-        )}
-
-        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
+        {/* Account name */}
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
           <input
             type="text"
             value={accountName}
@@ -517,172 +269,125 @@ export default function DepositPage() {
           />
         </div>
 
-        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3">
+        {/* Phone number */}
+        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
           <input
             type="tel"
             value={accountNumber}
             onChange={(e) => setAccountNumber(e.target.value)}
-            placeholder={`Numero ${selectedPaymentMethod || "Mobile Money"}`}
+            placeholder="Numéro de téléphone Mobile Money"
             className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
             data-testid="input-account-number"
           />
         </div>
 
-        {!isAutoPaymentCountry && activeChannels.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
-              <h2 className="font-bold text-gray-800 text-sm">Canal de recharge</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {activeChannels.map((channel) => (
-                <button
-                  key={channel.id}
-                  onClick={() => setSelectedChannel(channel)}
-                  className={`px-4 py-2.5 rounded-full border-2 text-sm font-semibold transition-colors ${
-                    selectedChannel?.id === channel.id
-                      ? "border-[#2196F3] bg-[#2196F3] text-white shadow-sm"
-                      : "border-gray-300 bg-white text-gray-800"
-                  }`}
-                  data-testid={`button-channel-${channel.id}`}
-                >
-                  {channel.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {isAutoPaymentCountry && selectedCountry && (
-          <div className="bg-[#e3f2fd] rounded-xl p-3">
-            <p className="text-xs text-[#1565C0] font-medium text-center">
-              Votre depot sera credite automatiquement apres le paiement
-            </p>
-          </div>
-        )}
-
+        {/* Submit button */}
         <button
           onClick={handleSubmit}
-          disabled={
-            depositMutation.isPending ||
-            paymentStatus !== "idle" ||
-            !amount ||
-            !selectedPaymentMethod ||
-            !accountName ||
-            !accountNumber ||
-            (!isAutoPaymentCountry && !selectedChannel)
-          }
-          className="w-full py-3.5 bg-[#2196F3] text-white font-bold rounded-full disabled:opacity-40 text-base shadow-md shadow-blue-200"
+          disabled={depositMutation.isPending || paymentStatus !== "idle"}
+          className="w-full py-4 rounded-full text-white font-bold text-base disabled:opacity-40 shadow-md"
+          style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
           data-testid="button-submit-deposit"
         >
-          {depositMutation.isPending ? "Envoi en cours..." : "Depot immediat"}
+          {depositMutation.isPending ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Envoi en cours...
+            </span>
+          ) : (
+            "Rechargez maintenant"
+          )}
         </button>
 
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-5 bg-[#2196F3] rounded-full" />
-            <h2 className="font-bold text-gray-800 text-sm">Description du depot</h2>
-          </div>
-          <div className="space-y-2 text-sm text-gray-600 leading-relaxed">
-            <p className="font-medium text-gray-700">*Instructions de depot:</p>
-            <p>1. Le montant minimum de depot est de {minDeposit.toLocaleString()} {currency}. Les virements inferieurs a {minDeposit.toLocaleString()} {currency} ne pourront pas etre credites sur le compte.</p>
-            <p>2. Apres un depot reussi, le montant sera credite sur votre compte dans un delai de 1 minute a 30 minutes maximum.</p>
-            <p>3. Effectuez votre premiere recharge et achetez des produits Wendy's pour activer la fonction de retrait.</p>
+        {/* Instructions */}
+        <div className="pt-2">
+          <p className="font-bold text-[#c8102e] text-sm mb-3">Instructions de recharge</p>
+          <div className="space-y-2.5 text-sm text-[#c8102e] leading-relaxed">
+            <p>1. Le dépôt minimum est de {MIN_DEPOSIT.toLocaleString()} {currency}.</p>
+            <p>2. Veuillez vérifier attentivement vos informations de compte avant d'effectuer un virement afin d'éviter toute erreur de paiement.</p>
+            <p>3. Après un virement réussi, veuillez saisir le code d'identification SMS sur la page de recharge pour un crédit rapide.</p>
+            <p>4. Si vous n'avez pas reçu vos fonds après un délai anormalement long, veuillez contacter le service client en ligne.</p>
+            <p>5. Pour votre sécurité financière, ne transférez jamais de fonds à des inconnus.</p>
+            <p>6. Le personnel officiel ne vous demandera jamais de votre propre initiative votre compte et votre mot de passe !</p>
           </div>
         </div>
       </div>
 
-      {showCountrySheet && (
+      {/* Payment Status Overlay */}
+      {paymentStatus !== "idle" && (
         <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setShowCountrySheet(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300 flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h3 className="text-base font-bold text-gray-800">Selectionnez votre pays</h3>
-              <button
-                onClick={() => setShowCountrySheet(false)}
-                className="p-1"
-                data-testid="button-close-country-sheet"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-            <div className="p-4 space-y-2">
-              {COUNTRIES.map((country: { code: string; name: string }) => (
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl animate-in slide-in-from-bottom duration-300 flex flex-col items-center px-6 pt-3 pb-10">
+            <div className="w-10 h-1 bg-gray-300 rounded-full mb-6" />
+
+            {(paymentStatus === "processing") && (
+              <>
+                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-5">
+                  <Loader2 className="w-10 h-10 text-[#c8102e] animate-spin" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Traitement en cours</h3>
+                <p className="text-gray-500 text-sm">Veuillez patienter...</p>
+              </>
+            )}
+
+            {paymentStatus === "pending" && (
+              <>
+                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-5">
+                  <Clock className="w-10 h-10 text-[#c8102e]" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Validation requise</h3>
+                <p className="text-gray-500 text-sm mb-5">Confirmez le paiement depuis votre téléphone</p>
+                <div className="w-full bg-red-50 rounded-xl p-4 mb-5">
+                  <p className="text-sm text-[#c8102e] text-center">
+                    Un message a été envoyé sur votre numéro. Composez votre code PIN pour valider.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-[#c8102e]">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm font-medium">Vérification en cours...</span>
+                </div>
+              </>
+            )}
+
+            {paymentStatus === "approved" && (
+              <>
+                <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-5">
+                  <CheckCircle className="w-10 h-10 text-green-500" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement réussi</h3>
+                <p className="text-gray-500 text-sm mb-5">
+                  Votre compte a été crédité de {typeof amount === "number" ? amount.toLocaleString() : ""} {currency}
+                </p>
                 <button
-                  key={country.code}
-                  onClick={() => {
-                    setSelectedCountry(country.code);
-                    setSelectedPaymentMethod("");
-                    setSelectedChannel(null);
-                    setShowCountrySheet(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-colors ${
-                    selectedCountry === country.code
-                      ? "bg-[#2196F3] text-white"
-                      : "bg-gray-50 text-gray-700"
-                  }`}
-                  data-testid={`button-country-${country.code}`}
+                  onClick={resetForm}
+                  className="w-full py-3.5 bg-green-500 text-white font-bold rounded-full"
+                  data-testid="button-close-success"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{COUNTRY_FLAGS[country.code] || ""}</span>
-                    <span className="text-sm font-medium">{country.name}</span>
-                  </div>
-                  {selectedCountry === country.code && <Check className="w-5 h-5" />}
+                  Fermer
                 </button>
-              ))}
-            </div>
+              </>
+            )}
+
+            {paymentStatus === "rejected" && (
+              <>
+                <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-5">
+                  <XCircle className="w-10 h-10 text-[#c8102e]" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement échoué</h3>
+                <p className="text-gray-500 text-sm mb-5">Le paiement a été refusé ou annulé</p>
+                <button
+                  onClick={resetForm}
+                  className="w-full py-3.5 text-white font-bold rounded-full"
+                  style={{ background: "#c8102e" }}
+                  data-testid="button-close-error"
+                >
+                  Réessayer
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
-
-      {showPaymentSheet && (
-        <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setShowPaymentSheet(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300 flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h3 className="text-base font-bold text-gray-800">Mode de paiement</h3>
-              <button
-                onClick={() => setShowPaymentSheet(false)}
-                className="p-1"
-                data-testid="button-close-payment-sheet"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-            <div className="p-4 space-y-2">
-              {paymentMethods.map((method) => (
-                <button
-                  key={method}
-                  onClick={() => {
-                    setSelectedPaymentMethod(method);
-                    setShowPaymentSheet(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-colors ${
-                    selectedPaymentMethod === method
-                      ? "bg-[#2196F3] text-white"
-                      : "bg-gray-50 text-gray-700"
-                  }`}
-                  data-testid={`button-method-${method}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="w-4 h-4" />
-                    <span className="text-sm font-medium">{method}</span>
-                  </div>
-                  {selectedPaymentMethod === method && <Check className="w-5 h-5" />}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {renderPaymentStatus()}
     </div>
   );
 }
