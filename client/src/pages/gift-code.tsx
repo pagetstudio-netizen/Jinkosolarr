@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useMutation } from "@tanstack/react-query";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2, Gift, Tag } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import giftBanner from "@assets/436d1e2_upload-1-mvvsrwhr5qqo-elf2cuneaffairede28099etat-2_1770737042194.jpg";
-import telegramIcon from "@/assets/images/telegram-icon.png";
+
+import wendysNight from "@assets/batu-gezer-AGGhkGuVs2w-unsplash_1773332229247.jpg";
 
 export default function GiftCodePage() {
   const { refreshUser } = useAuth();
@@ -28,7 +26,7 @@ export default function GiftCodePage() {
       refreshUser();
       setCode("");
       toast({
-        title: "Felicitations!",
+        title: "Félicitations !",
         description: data.message,
       });
     },
@@ -53,77 +51,117 @@ export default function GiftCodePage() {
     claimMutation.mutate(code.trim());
   };
 
-  const openTelegramGroup = () => {
-    window.open("https://t.me/elfgroup", "_blank");
-  };
-
   return (
-    <div className="flex flex-col min-h-full bg-white">
-      <header className="flex items-center px-4 py-3 border-b bg-white">
-        <Link href="/account">
-          <Button variant="ghost" size="icon" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-blue-500" />
-          </Button>
-        </Link>
-        <h1 className="flex-1 text-center text-lg font-semibold text-gray-800 pr-6" data-testid="text-page-title">Echanger des cadeaux</h1>
-      </header>
+    <div className="flex flex-col min-h-full bg-gray-100">
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="w-full">
-          <img 
-            src={giftBanner} 
-            alt="Gift Banner" 
-            className="w-full h-72 object-cover"
-            data-testid="img-gift-banner"
-          />
+      {/* Hero image with red overlay + header */}
+      <div className="relative">
+        <img
+          src={wendysNight}
+          alt="Wendy's"
+          className="w-full h-52 object-cover"
+          data-testid="img-gift-banner"
+        />
+        {/* Red gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to bottom, rgba(200,16,46,0.65) 0%, rgba(160,13,37,0.85) 100%)" }}
+        />
+
+        {/* Header over image */}
+        <div className="absolute top-0 left-0 right-0 flex items-center px-4 py-3">
+          <Link href="/account">
+            <button className="p-1.5 rounded-full bg-white/20" data-testid="button-back">
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+          </Link>
+          <h1 className="flex-1 text-center text-base font-bold text-white pr-8">
+            Code Bonus
+          </h1>
         </div>
 
-        <div className="px-6 py-6 space-y-6">
-          <p className="text-center text-gray-600" data-testid="text-instruction">
-            Vous pouvez obtenir des codes cadeaux dans le groupe
+        {/* Icon badge */}
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-white"
+          style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}>
+          <Gift className="w-6 h-6 text-white" />
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-4 pt-10 pb-24 space-y-4">
+
+        {/* Info card */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 text-center">
+          <p className="text-gray-700 text-sm font-medium">
+            Entrez votre code bonus pour recevoir votre récompense instantanément
           </p>
+          <p className="text-xs text-gray-400 mt-1">
+            Les codes sont disponibles chaque soir à 17h GMT
+          </p>
+        </div>
 
-          <Button
-            variant="outline"
-            onClick={openTelegramGroup}
-            className="w-full flex items-center justify-between rounded-full px-4 py-6"
-            data-testid="button-telegram-group"
-          >
-            <div className="flex items-center gap-3">
-              <img src={telegramIcon} alt="Telegram" className="w-10 h-10 rounded-full" data-testid="img-telegram-icon" />
-              <span className="text-gray-800 font-medium" data-testid="text-telegram-label">Groupes Telegram</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 text-gray-400 rotate-180" />
-          </Button>
-
-          <div className="space-y-4">
-            <Input
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Veuillez saisir le code d'echange de cadeau"
-              className="w-full text-center rounded-xl"
-              data-testid="input-gift-code"
-            />
-
-            <Button
-              onClick={handleSubmit}
-              disabled={claimMutation.isPending}
-              className="w-full bg-[#2196F3] text-white rounded-xl"
-              data-testid="button-submit-code"
-            >
-              {claimMutation.isPending ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                "Recevoir"
-              )}
-            </Button>
+        {/* Input card */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Tag className="w-4 h-4" style={{ color: "#c8102e" }} />
+            <span className="text-gray-800 font-semibold text-sm">Code cadeau</span>
           </div>
 
-          <p className="text-center text-sm text-gray-500" data-testid="text-availability-info">
-            Les codes sont disponibles chaque soir a 17h GMT
-          </p>
+          <div className="relative">
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="Saisir le code ici"
+              className="w-full px-4 py-3 rounded-xl border-2 text-center text-sm font-mono tracking-widest outline-none transition-colors"
+              style={{
+                borderColor: code ? "#c8102e" : "#e5e7eb",
+                color: "#1f2937",
+              }}
+              data-testid="input-gift-code"
+            />
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={claimMutation.isPending}
+            className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-opacity active:opacity-80"
+            style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+            data-testid="button-submit-code"
+          >
+            {claimMutation.isPending ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <Gift className="w-4 h-4" />
+                Recevoir ma récompense
+              </>
+            )}
+          </button>
         </div>
+
+        {/* How to get codes */}
+        <div className="bg-white rounded-2xl shadow-sm p-4">
+          <p className="text-gray-800 font-semibold text-sm mb-2">Comment obtenir des codes ?</p>
+          <div className="space-y-2">
+            <div className="flex items-start gap-2">
+              <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-bold"
+                style={{ backgroundColor: "#c8102e" }}>1</div>
+              <p className="text-gray-500 text-xs">Rejoignez notre canal Telegram officiel</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-bold"
+                style={{ backgroundColor: "#c8102e" }}>2</div>
+              <p className="text-gray-500 text-xs">Suivez les annonces chaque soir à 17h GMT</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-bold"
+                style={{ backgroundColor: "#c8102e" }}>3</div>
+              <p className="text-gray-500 text-xs">Copiez le code et collez-le ici avant expiration</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
