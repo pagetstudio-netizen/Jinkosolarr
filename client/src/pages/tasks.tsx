@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { getCountryByCode } from "@/lib/countries";
-import { ChevronLeft, Loader2, Gift, Trophy, CheckCircle2, Clock } from "lucide-react";
+import { ChevronLeft, Loader2, Trophy, CheckCircle2 } from "lucide-react";
 import { Link } from "wouter";
 import type { Task } from "@shared/schema";
 import wendysImg from "@assets/PWeaver-FF-240519-10jpg-JS903570773_1773317315694.webp";
@@ -14,13 +14,6 @@ import iconArgent from "@assets/817729_1773318022328.png";
 import iconOr from "@assets/sac-argent-gros-tas-illustration-icone-argent-comptant-icone-p_1773318022388.jpg";
 import iconPlatine from "@assets/1751761_1773318022264.png";
 import iconDiamant from "@assets/3275655_1773318022415.png";
-import iconElite from "@assets/344464_1773318022355.png";
-
-interface DailyBonusStatus {
-  canClaim: boolean;
-  nextClaimTime: string | null;
-  bonusAmount: number;
-}
 
 interface TaskWithStatus extends Task {
   isCompleted: boolean;
@@ -46,7 +39,7 @@ const TIER_COLORS = [
   { bg: "from-purple-700 to-purple-500" },
 ];
 
-const TIER_ICONS = [iconBronze, iconArgent, iconOr, iconPlatine, iconDiamant, iconElite];
+const TIER_ICONS = [iconBronze, iconArgent, iconOr, iconPlatine, iconDiamant, iconBronze];
 
 export default function TasksPage() {
   const { user, refreshUser } = useAuth();
@@ -54,29 +47,6 @@ export default function TasksPage() {
 
   const { data: tasks, isLoading } = useQuery<TaskWithStatus[]>({
     queryKey: ["/api/tasks"],
-  });
-
-  const { data: dailyBonusStatus } = useQuery<DailyBonusStatus>({
-    queryKey: ["/api/daily-bonus-status"],
-  });
-
-  const claimDailyBonusMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/claim-daily-bonus", {});
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Erreur");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/daily-bonus-status"] });
-      refreshUser();
-      toast({ title: "Bonus quotidien!", description: "50 FCFA ont été ajoutés à votre compte." });
-    },
-    onError: (error: any) => {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    },
   });
 
   const claimMutation = useMutation({
@@ -109,20 +79,26 @@ export default function TasksPage() {
   return (
     <div className="flex flex-col min-h-full bg-gray-50">
 
-      {/* Hero Section */}
-      <div className="relative overflow-hidden" style={{ height: "220px" }}>
+      {/* Hero Section — tall enough so bottom text clears the stats card overlap */}
+      <div className="relative overflow-hidden" style={{ height: "260px" }}>
         <img
           src={wendysImg}
           alt="Wendy's"
           className="w-full h-full object-cover object-center"
         />
-        {/* Strong gradient overlay */}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(200,16,46,0.75) 0%, rgba(160,13,37,0.65) 50%, rgba(100,5,20,0.88) 100%)" }} />
+        {/* Dark gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to bottom, rgba(200,16,46,0.80) 0%, rgba(160,13,37,0.70) 45%, rgba(80,3,15,0.95) 100%)" }}
+        />
 
         {/* Header nav */}
         <div className="absolute top-0 left-0 right-0 flex items-center px-4 pt-4">
           <Link href="/">
-            <button className="w-9 h-9 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center" data-testid="button-back">
+            <button
+              className="w-9 h-9 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center"
+              data-testid="button-back"
+            >
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
           </Link>
@@ -132,19 +108,19 @@ export default function TasksPage() {
           <div className="w-9" />
         </div>
 
-        {/* Hero text - pushed lower */}
-        <div className="absolute left-4 right-4" style={{ bottom: "16px" }}>
-          <h1 className="text-white text-xl font-bold leading-tight drop-shadow-md">
+        {/* Hero text — positioned above the stats card overlap zone (bottom 60px) */}
+        <div className="absolute left-4 right-4" style={{ bottom: "60px" }}>
+          <h1 className="text-white font-bold text-xl leading-tight" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
             Programme de Parrainage
           </h1>
-          <p className="text-white text-xs mt-1 drop-shadow-sm" style={{ opacity: 0.9 }}>
+          <p className="text-white text-xs mt-1" style={{ opacity: 0.92, textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>
             Invitez des amis et gagnez des récompenses
           </p>
         </div>
       </div>
 
-      {/* Stats Row */}
-      <div className="mx-4 -mt-5 z-10 relative">
+      {/* Stats Row — overlaps bottom of hero */}
+      <div className="mx-4 -mt-10 z-10 relative">
         <div className="bg-white rounded-2xl shadow-lg p-4 flex items-center justify-between">
           <div className="flex-1 text-center border-r border-gray-100">
             <p className="text-[#c8102e] text-xl font-bold" data-testid="text-total-rewards">
@@ -160,36 +136,6 @@ export default function TasksPage() {
             <p className="text-[#c8102e] text-xl font-bold">{claimableCount}</p>
             <p className="text-gray-500 text-[11px] mt-0.5">À réclamer</p>
           </div>
-        </div>
-      </div>
-
-      {/* Daily Bonus Card */}
-      <div className="mx-4 mt-3">
-        <div className="bg-gradient-to-r from-[#c8102e] to-[#a00d25] rounded-2xl p-4 flex items-center justify-between shadow-md">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
-              <Gift className="w-6 h-6 text-white" />
-            </div>
-            <p className="text-white font-semibold text-sm">Bonus quotidien — 50 FCFA</p>
-          </div>
-          <button
-            onClick={() => dailyBonusStatus?.canClaim && claimDailyBonusMutation.mutate()}
-            disabled={!dailyBonusStatus?.canClaim || claimDailyBonusMutation.isPending}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-              dailyBonusStatus?.canClaim
-                ? "bg-white text-[#c8102e] shadow-sm active:scale-95"
-                : "bg-white/20 text-white/60 cursor-not-allowed"
-            }`}
-            data-testid="button-daily-bonus"
-          >
-            {claimDailyBonusMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : dailyBonusStatus?.canClaim ? (
-              "+ 50 F"
-            ) : (
-              <Clock className="w-4 h-4" />
-            )}
-          </button>
         </div>
       </div>
 
@@ -220,7 +166,7 @@ export default function TasksPage() {
         {isLoading ? (
           <div className="space-y-3">
             {Array(6).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+              <Skeleton key={i} className="h-28 w-full rounded-2xl" />
             ))}
           </div>
         ) : tasks && tasks.length > 0 ? (
@@ -235,7 +181,11 @@ export default function TasksPage() {
                 <div
                   key={task.id}
                   className={`bg-white rounded-2xl overflow-hidden shadow-sm border ${
-                    task.isCompleted ? "border-green-200" : task.canClaim ? "border-[#c8102e]/40" : "border-gray-100"
+                    task.isCompleted
+                      ? "border-green-200"
+                      : task.canClaim
+                      ? "border-[#c8102e]/40"
+                      : "border-gray-100"
                   }`}
                   data-testid={`task-item-${task.id}`}
                 >
@@ -254,17 +204,21 @@ export default function TasksPage() {
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-700 text-xs leading-snug mb-1">
-                        Inviter <span className="font-bold text-gray-900">{task.requiredInvites}</span> personnes à recharger
+                      <p className="text-gray-700 text-xs leading-snug mb-0.5">
+                        Inviter{" "}
+                        <span className="font-bold text-gray-900">{task.requiredInvites}</span>{" "}
+                        personnes à recharger
                       </p>
                       <p className="text-[#c8102e] font-bold text-base">
                         {task.reward.toLocaleString()} {currency}
                       </p>
 
-                      {/* Progress Bar */}
-                      <div className="mt-2">
+                      {/* Progress */}
+                      <div className="mt-1.5">
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-gray-400 text-[10px]">{task.currentInvites} / {task.requiredInvites}</span>
+                          <span className="text-gray-400 text-[10px]">
+                            {task.currentInvites} / {task.requiredInvites} invitations
+                          </span>
                           <span className="text-gray-400 text-[10px]">{Math.round(progress)}%</span>
                         </div>
                         <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -278,7 +232,7 @@ export default function TasksPage() {
                       </div>
                     </div>
 
-                    {/* Action Button */}
+                    {/* Action */}
                     <div className="flex-shrink-0">
                       {task.isCompleted ? (
                         <span className="bg-green-100 text-green-700 text-[10px] font-semibold px-2.5 py-1.5 rounded-full block text-center">
@@ -291,7 +245,11 @@ export default function TasksPage() {
                           className="bg-[#c8102e] text-white text-[11px] font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-transform shadow-sm"
                           data-testid={`button-claim-${task.id}`}
                         >
-                          {claimMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Réclamer"}
+                          {claimMutation.isPending ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            "Réclamer"
+                          )}
                         </button>
                       ) : (
                         <span className="bg-gray-100 text-gray-400 text-[10px] font-semibold px-2.5 py-1.5 rounded-full block text-center">
