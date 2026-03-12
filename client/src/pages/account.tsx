@@ -12,9 +12,10 @@ import { useToast } from "@/hooks/use-toast";
 
 import wendysLogo from "@assets/wendys_logo.png";
 import inviteBanner from "@assets/20260311_235212_1773273730144.png";
-import robotCoins from "@assets/file_000000009bac7246a4894815bc4434b9_1773273850316.png";
-import robotGift from "@assets/file_00000000168c7246a166e7a2da1eb7ba_1773273784524.png";
-import robotWallet from "@assets/file_0000000019347246aded4cdd8c47fb2a_1773274259254.png";
+import robotCoins from "@assets/20260312_072729_1773301338434.png";
+import robotWallet from "@assets/20260312_072644_1773301338541.png";
+import robotGift from "@assets/20260312_072622_1773301338571.png";
+import giftBox from "@assets/20260312_072546_1773301338613.png";
 
 import iconDeposit from "@assets/téléchargement_(18)_1770814706072.png";
 import iconWithdraw from "@assets/téléchargement_(17)_1770814706099.png";
@@ -213,7 +214,7 @@ export default function AccountPage() {
                   </button>
                 </Link>
               </div>
-              <img src={robotGift} alt="" className="w-44 h-44 object-contain ml-2 shrink-0" />
+              <img src={giftBox} alt="" className="w-44 h-44 object-contain ml-2 shrink-0" />
             </div>
           </div>
         </div>
