@@ -108,10 +108,6 @@ export default function ChangePasswordPage() {
       <div className="flex-1 px-4 -mt-6 pb-24">
         <div className="bg-white rounded-2xl shadow-md p-5 space-y-4">
 
-          <p className="text-center text-xs text-gray-400 mb-1">
-            Protégez votre compte avec un mot de passe sécurisé
-          </p>
-
           {/* Current password */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
