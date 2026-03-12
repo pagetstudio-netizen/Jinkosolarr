@@ -194,7 +194,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm flex flex-col gap-2">
-            <button onClick={() => navigate("/tasks")} className="w-full flex flex-col gap-2">
+            <button onClick={() => navigate("/team")} className="w-full flex flex-col gap-2">
               <img src={iconEquipe} alt="Mon équipe" className="w-10 h-10 object-contain" />
               <div>
                 <p className="font-bold text-gray-800 text-sm">Mon équipe</p>
@@ -202,7 +202,7 @@ export default function HomePage() {
               </div>
             </button>
             <button
-              onClick={() => navigate("/tasks")}
+              onClick={() => navigate("/team")}
               className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
               style={{ background: "#c8102e" }}
               data-testid="button-team"

@@ -145,7 +145,7 @@ export default function AccountPage() {
 
         {/* Invitation Banner */}
         <div className="mx-3 mt-3">
-          <Link href="/team">
+          <Link href="/tasks">
             <button className="w-full rounded-2xl overflow-hidden shadow-sm" data-testid="button-invite-banner">
               <img src={inviteBanner} alt="Invitez des amis" className="w-full object-cover" />
             </button>
