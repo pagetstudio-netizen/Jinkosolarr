@@ -244,7 +244,7 @@ export default function HomePage() {
       <div className="px-3 mt-3 pb-24">
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <p className="font-bold text-gray-800 text-sm">Commission de promotion</p>
+            <p className="font-bold text-gray-800 text-sm">My statistics and balance</p>
             <button onClick={() => navigate("/team")} className="text-xs text-[#c8102e] font-medium flex items-center gap-0.5">
               Voir plus <ChevronRight className="w-3 h-3" />
             </button>
