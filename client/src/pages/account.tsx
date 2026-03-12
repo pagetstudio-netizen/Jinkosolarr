@@ -14,7 +14,7 @@ import wendysLogo from "@assets/wendys_logo.png";
 import inviteBanner from "@assets/20260311_235212_1773273730144.png";
 import robotCoins from "@assets/file_000000009bac7246a4894815bc4434b9_1773273850316.png";
 import robotGift from "@assets/file_00000000168c7246a166e7a2da1eb7ba_1773273784524.png";
-import giftBox from "@assets/file_00000000ab1872469c80037fc71afc9d_1773273784602.png";
+import robotWallet from "@assets/file_0000000019347246aded4cdd8c47fb2a_1773274259254.png";
 
 import iconDeposit from "@assets/téléchargement_(18)_1770814706072.png";
 import iconWithdraw from "@assets/téléchargement_(17)_1770814706099.png";
@@ -175,7 +175,7 @@ export default function AccountPage() {
                 </p>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <img src={robotCoins} alt="" className="w-20 h-20 object-contain" />
+                <img src={robotCoins} alt="" className="w-32 h-32 object-contain" />
                 <Link href="/history">
                   <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-history">
                     Historique <ChevronRight className="w-3 h-3" />
@@ -197,7 +197,7 @@ export default function AccountPage() {
                   </button>
                 </Link>
               </div>
-              <img src={robotGift} alt="" className="w-20 h-20 object-contain ml-2 shrink-0" />
+              <img src={robotWallet} alt="" className="w-32 h-32 object-contain ml-2 shrink-0" />
             </div>
           </div>
 
@@ -213,7 +213,7 @@ export default function AccountPage() {
                   </button>
                 </Link>
               </div>
-              <img src={giftBox} alt="" className="w-20 h-20 object-contain ml-2 shrink-0" />
+              <img src={robotGift} alt="" className="w-32 h-32 object-contain ml-2 shrink-0" />
             </div>
           </div>
         </div>
