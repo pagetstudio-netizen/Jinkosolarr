@@ -3,20 +3,17 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
-import { Loader2, Eye, EyeOff, Smartphone, Lock, ChevronDown } from "lucide-react";
+import { Loader2, Eye, EyeOff, Lock, ChevronDown } from "lucide-react";
 import wendysLogo from "@assets/wendys_logo.png";
+import bgImage from "@assets/20260312_184552_1773341347211.jpg";
 
 const loginSchema = z.object({
-  phone: z.string().min(8, "Numero de telephone invalide"),
-  country: z.string().min(2, "Selectionnez un pays"),
+  phone: z.string().min(8, "Numéro de téléphone invalide"),
+  country: z.string().min(2, "Sélectionnez un pays"),
   password: z.string().min(1, "Le mot de passe est requis"),
 });
 
@@ -29,11 +26,9 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
-  const [agreed, setAgreed] = useState(false);
 
-  const savedCredentials = typeof window !== 'undefined' ? localStorage.getItem('wendys_credentials') : null;
+  const savedCredentials = typeof window !== "undefined" ? localStorage.getItem("wendys_credentials") : null;
   const parsedCredentials = savedCredentials ? JSON.parse(savedCredentials) : null;
-
   const [rememberMe, setRememberMe] = useState(!!parsedCredentials);
 
   const form = useForm<LoginForm>({
@@ -52,186 +47,144 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(data.phone, data.country, data.password);
-
       if (rememberMe) {
-        localStorage.setItem('wendys_credentials', JSON.stringify({
-          phone: data.phone,
-          country: data.country,
-          password: data.password
-        }));
+        localStorage.setItem("wendys_credentials", JSON.stringify({ phone: data.phone, country: data.country, password: data.password }));
       } else {
-        localStorage.removeItem('wendys_credentials');
+        localStorage.removeItem("wendys_credentials");
       }
-
-      toast({ title: "Connexion reussie", description: "Bienvenue sur Wendy's!" });
       navigate("/");
     } catch (error: any) {
-      toast({
-        title: "Erreur de connexion",
-        description: error.message || "Verifiez vos informations",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur de connexion", description: error.message || "Vérifiez vos informations", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white overflow-hidden">
-      <div className="relative flex flex-col flex-1">
-        <div
-          className="absolute inset-x-0 top-0 h-[52%]"
-          style={{ background: "linear-gradient(180deg, #c8102e 0%, #e8394e 60%, #f8d0d5 100%)" }}
-        />
+    <div
+      className="min-h-screen flex flex-col overflow-hidden"
+      style={{ backgroundImage: `url(${bgImage})`, backgroundSize: "cover", backgroundPosition: "center" }}
+    >
+      {/* Soft overlay for readability */}
+      <div className="absolute inset-0 bg-white/30" />
 
-        <div className="relative z-10 flex flex-col items-center pt-16 pb-2 px-6">
-          <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
-            <img src={wendysLogo} alt="Wendy's" className="w-20 h-20 object-contain" />
+      <div className="relative z-10 flex flex-col flex-1 px-6 pt-14 pb-8">
+
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center overflow-hidden mb-3">
+            <img src={wendysLogo} alt="Wendy's" className="w-16 h-16 object-contain" />
           </div>
-          <h1 className="mt-4 text-3xl font-extrabold text-white tracking-tight">Wendy's</h1>
-          <p className="text-white/80 text-sm mt-1">Fast Food, Smart Investment</p>
+          <h1 className="text-2xl font-extrabold text-white drop-shadow-md">Wendy's</h1>
+          <p className="text-white/90 text-xs mt-0.5 drop-shadow">Fast Food, Smart Investment</p>
         </div>
 
-        <div className="relative z-10 flex-1 bg-white rounded-t-3xl mx-0 mt-6 px-6 pt-8 pb-10 shadow-none">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1.5">Numéro de téléphone</p>
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="flex items-center border border-gray-200 rounded-full bg-gray-50 overflow-visible">
-                          <button
-                            type="button"
-                            onClick={() => setCountryModalOpen(true)}
-                            className="flex items-center gap-1.5 pl-4 pr-2 py-3.5 text-gray-500 shrink-0"
-                            data-testid="button-select-country"
-                          >
-                            <Smartphone className="w-5 h-5 text-gray-400" />
-                            <span className="text-base font-medium text-gray-600">
-                              {countryData ? `+${countryData.phonePrefix}` : ""}
-                            </span>
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
-                          </button>
-                          <Input
-                            {...field}
-                            type="tel"
-                            placeholder="Entrez votre numéro"
-                            className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2 text-gray-700 placeholder:text-gray-400"
-                            data-testid="input-phone"
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        {/* Form */}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col gap-5">
+
+          {/* Mobile field */}
+          <div>
+            <p className="text-white font-semibold text-sm mb-2 drop-shadow">Mobile</p>
+            <div className="flex items-center bg-white/25 backdrop-blur-sm border border-white/40 rounded-2xl overflow-hidden h-14">
+              <button
+                type="button"
+                onClick={() => setCountryModalOpen(true)}
+                className="flex items-center gap-1 pl-4 pr-3 h-full border-r border-white/30 shrink-0"
+                data-testid="button-select-country"
+              >
+                <span className="text-white font-bold text-base">
+                  {countryData ? `+${countryData.phonePrefix}` : "+"}
+                </span>
+                <ChevronDown className="w-4 h-4 text-white/80" />
+              </button>
+              <input
+                {...form.register("phone")}
+                type="tel"
+                placeholder="Mobile"
+                className="flex-1 bg-transparent px-4 text-white placeholder:text-white/60 text-base outline-none"
+                data-testid="input-phone"
+              />
+            </div>
+            {form.formState.errors.phone && (
+              <p className="text-white text-xs mt-1 drop-shadow">{form.formState.errors.phone.message}</p>
+            )}
+          </div>
+
+          {/* Password field */}
+          <div>
+            <p className="text-white font-semibold text-sm mb-2 drop-shadow">Mot de passe</p>
+            <div className="flex items-center bg-white/25 backdrop-blur-sm border border-white/40 rounded-2xl h-14">
+              <div className="pl-4 pr-3">
+                <Lock className="w-5 h-5 text-white/80" />
               </div>
+              <input
+                {...form.register("password")}
+                type={showPassword ? "text" : "password"}
+                placeholder="Mot de passe"
+                className="flex-1 bg-transparent text-white placeholder:text-white/60 text-base outline-none"
+                data-testid="input-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="pr-4 pl-2"
+                data-testid="button-toggle-password"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5 text-white/80" /> : <Eye className="w-5 h-5 text-white/80" />}
+              </button>
+            </div>
+            {form.formState.errors.password && (
+              <p className="text-white text-xs mt-1 drop-shadow">{form.formState.errors.password.message}</p>
+            )}
+          </div>
 
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1.5">Mot de passe</p>
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="flex items-center border border-gray-200 rounded-full bg-gray-50">
-                          <div className="pl-4 pr-2">
-                            <Lock className="w-5 h-5 text-gray-400" />
-                          </div>
-                          <Input
-                            {...field}
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Entrez votre mot de passe"
-                            className="border-0 bg-transparent h-14 text-base focus-visible:ring-0 shadow-none px-2 text-gray-700 placeholder:text-gray-400"
-                            data-testid="input-password"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="pr-4 pl-2 text-gray-400"
-                            data-testid="button-toggle-password"
-                          >
-                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+          <input type="hidden" {...form.register("country")} />
 
-              <input type="hidden" {...form.register("country")} />
-
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                    data-testid="checkbox-remember"
-                  />
-                  <label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
-                    Se souvenir du mot de passe
-                  </label>
-                </div>
-                <button type="button" className="text-sm text-[#c8102e] font-medium">
-                  Mot de passe oublié?
-                </button>
-              </div>
-
-              <div className="pt-2">
-                <Button
-                  type="submit"
-                  className="w-full h-14 rounded-full text-lg font-bold border-0 text-white"
-                  style={{ background: "linear-gradient(90deg, #c8102e, #e8394e)" }}
-                  disabled={isLoading}
-                  data-testid="button-login"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Connexion...
-                    </>
-                  ) : (
-                    "Se connecter"
-                  )}
-                </Button>
-              </div>
-
-              <div className="flex items-start gap-2 pt-1">
-                <Checkbox
-                  id="agree"
-                  checked={agreed}
-                  onCheckedChange={(checked) => setAgreed(checked as boolean)}
-                  className="mt-0.5"
-                  data-testid="checkbox-agree"
-                />
-                <label htmlFor="agree" className="text-sm text-gray-500 leading-snug cursor-pointer">
-                  Lire et accepter{" "}
-                  <span className="text-[#c8102e] font-medium">Accord d'utilisation</span>{" "}
-                  et{" "}
-                  <span className="text-[#c8102e] font-medium">Politique de confidentialité</span>
-                </label>
-              </div>
-            </form>
-          </Form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate("/register")}
-              className="text-[#c8102e] text-base font-semibold"
-              data-testid="link-register"
-            >
-              Pas encore inscrit ? S'inscrire &gt;
+          {/* Remember me */}
+          <div className="flex items-center justify-between -mt-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 accent-[#c8102e]"
+                data-testid="checkbox-remember"
+              />
+              <span className="text-white text-sm drop-shadow">Se souvenir</span>
+            </label>
+            <button type="button" className="text-white text-sm font-medium drop-shadow">
+              Mot de passe oublié ?
             </button>
           </div>
-        </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-14 rounded-full text-white font-bold text-lg shadow-lg disabled:opacity-50 mt-1"
+            style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+            data-testid="button-login"
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Connexion...
+              </span>
+            ) : "Connexion"}
+          </button>
+
+          {/* Link to register */}
+          <div className="text-center mt-auto pt-4">
+            <button
+              type="button"
+              onClick={() => navigate("/register")}
+              className="text-white font-semibold text-base drop-shadow"
+              data-testid="link-register"
+            >
+              S'inscrire
+            </button>
+          </div>
+        </form>
       </div>
 
       <CountrySelector
