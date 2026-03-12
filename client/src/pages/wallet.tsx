@@ -4,19 +4,16 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPaymentMethodsForCountry } from "@/lib/countries";
-import { Loader2, Plus, Trash2, CreditCard, Check, ArrowLeft, ChevronRight, Wallet, User, Phone, Shield } from "lucide-react";
+import { Loader2, Plus, Trash2, CreditCard, ChevronLeft, ChevronRight, Shield, Check } from "lucide-react";
 import { Link, useLocation, useSearch } from "wouter";
 import type { WithdrawalWallet } from "@shared/schema";
 
 const walletSchema = z.object({
-  accountName: z.string().min(2, "Nom du compte requis"),
-  accountNumber: z.string().min(8, "Numero requis"),
+  accountName: z.string().min(2, "Nom du titulaire requis"),
+  accountNumber: z.string().min(8, "Numéro requis"),
   paymentMethod: z.string().min(2, "Moyen de paiement requis"),
 });
 
@@ -30,6 +27,8 @@ export default function WalletPage() {
   const params = new URLSearchParams(searchString);
   const selectMode = params.get("from") === "withdrawal";
   const [showForm, setShowForm] = useState(false);
+  const [showBankSheet, setShowBankSheet] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState("");
 
   const { data: wallets, isLoading } = useQuery<WithdrawalWallet[]>({
     queryKey: ["/api/wallets"],
@@ -37,11 +36,7 @@ export default function WalletPage() {
 
   const form = useForm<WalletForm>({
     resolver: zodResolver(walletSchema),
-    defaultValues: {
-      accountName: "",
-      accountNumber: "",
-      paymentMethod: "",
-    },
+    defaultValues: { accountName: "", accountNumber: "", paymentMethod: "" },
   });
 
   const addMutation = useMutation({
@@ -58,8 +53,9 @@ export default function WalletPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/wallets"] });
-      toast({ title: "Portefeuille ajoute!" });
+      toast({ title: "Portefeuille ajouté !" });
       form.reset();
+      setSelectedMethod("");
       setShowForm(false);
     },
     onError: (error: any) => {
@@ -78,7 +74,7 @@ export default function WalletPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/wallets"] });
-      toast({ title: "Portefeuille supprime!" });
+      toast({ title: "Portefeuille supprimé !" });
     },
     onError: (error: any) => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -96,7 +92,6 @@ export default function WalletPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/wallets"] });
-      toast({ title: "Portefeuille par defaut mis a jour!" });
     },
     onError: (error: any) => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -110,236 +105,262 @@ export default function WalletPage() {
     }
   };
 
+  const handleChooseMethod = (method: string) => {
+    setSelectedMethod(method);
+    form.setValue("paymentMethod", method);
+    setShowBankSheet(false);
+  };
+
+  const handleSubmit = () => {
+    form.handleSubmit((data) => addMutation.mutate(data))();
+  };
+
   if (!user) return null;
 
   const paymentMethods = getPaymentMethodsForCountry(user.country);
   const backLink = selectMode ? "/withdrawal" : "/account";
 
-  return (
-    <div className="flex flex-col min-h-full bg-white">
-      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#64B5F6] to-white">
-        <Link href={backLink}>
-          <button className="p-2" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
-          </button>
-        </Link>
-        <h1 className="text-lg font-semibold text-gray-800">
-          {selectMode ? "Selectionner" : "Compte de retrait"}
-        </h1>
-        <div className="w-9" />
-      </header>
+  /* ─── ADD FORM VIEW ─── */
+  if (showForm) {
+    return (
+      <div className="flex flex-col min-h-full bg-gray-50">
 
-      <div className="flex-1 overflow-y-auto px-5 py-6 pb-24">
-        {!selectMode && !showForm && (
-          <div className="flex justify-center mb-5">
-            <div className="w-20 h-20 rounded-full bg-[#e3f2fd] flex items-center justify-center">
-              <Wallet className="w-10 h-10 text-[#2196F3]" />
+        {/* Header */}
+        <div
+          className="flex items-center px-4 py-4"
+          style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+        >
+          <button
+            onClick={() => { setShowForm(false); form.reset(); setSelectedMethod(""); }}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-white/20"
+            data-testid="button-back-form"
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+          <h1 className="flex-1 text-center text-white font-bold text-base mr-9">
+            Ajouter un compte bancaire
+          </h1>
+        </div>
+
+        {/* Form sections */}
+        <div className="flex-1 bg-white mt-3 mx-4 rounded-2xl shadow-sm overflow-hidden">
+
+          {/* Bank selector */}
+          <button
+            type="button"
+            onClick={() => setShowBankSheet(true)}
+            className="w-full px-5 py-4 flex items-center justify-between border-b border-gray-100"
+            data-testid="button-select-bank"
+          >
+            <div className="text-left">
+              <p className="text-xs text-gray-400 mb-0.5">Banque</p>
+              <p className={`text-sm font-medium ${selectedMethod ? "text-gray-800" : "text-gray-400"}`}>
+                {selectedMethod || "Sélectionner une banque"}
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </button>
+
+          {/* Account name */}
+          <div className="px-5 py-4 border-b border-gray-100">
+            <p className="text-xs text-gray-400 mb-1">Titulaire</p>
+            <input
+              {...form.register("accountName")}
+              placeholder="Nom du titulaire"
+              className="w-full text-sm text-gray-800 bg-transparent outline-none placeholder:text-gray-300"
+              data-testid="input-wallet-name"
+            />
+            {form.formState.errors.accountName && (
+              <p className="text-xs text-[#c8102e] mt-1">{form.formState.errors.accountName.message}</p>
+            )}
+          </div>
+
+          {/* Account number */}
+          <div className="px-5 py-4">
+            <p className="text-xs text-gray-400 mb-1">Numéro de compte</p>
+            <input
+              {...form.register("accountNumber")}
+              type="tel"
+              placeholder="Numéro de compte"
+              className="w-full text-sm text-gray-800 bg-transparent outline-none placeholder:text-gray-300"
+              data-testid="input-wallet-number"
+            />
+            {form.formState.errors.accountNumber && (
+              <p className="text-xs text-[#c8102e] mt-1">{form.formState.errors.accountNumber.message}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Confirm button */}
+        <div className="px-4 py-6 mt-auto">
+          <button
+            onClick={handleSubmit}
+            disabled={addMutation.isPending}
+            className="w-full py-4 rounded-full text-white font-bold text-base disabled:opacity-40 shadow-md"
+            style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+            data-testid="button-confirm-wallet"
+          >
+            {addMutation.isPending ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Enregistrement...
+              </span>
+            ) : (
+              "Confirmer"
+            )}
+          </button>
+        </div>
+
+        {/* Bank bottom sheet */}
+        {showBankSheet && (
+          <div className="fixed inset-0 z-50" onClick={() => setShowBankSheet(false)}>
+            <div className="absolute inset-0 bg-black/40" />
+            <div
+              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 bg-gray-200 rounded-full" />
+              </div>
+              <h2 className="text-center font-bold text-gray-800 text-base pt-3 pb-4 border-b border-gray-100">
+                Choisir une banque
+              </h2>
+              <div className="pb-8">
+                {paymentMethods.map((method) => (
+                  <button
+                    key={method}
+                    onClick={() => handleChooseMethod(method)}
+                    className="w-full py-4 px-5 flex items-center justify-between border-b border-gray-50 last:border-0"
+                    data-testid={`button-bank-${method}`}
+                  >
+                    <span className="text-gray-700 font-medium text-sm">{method}</span>
+                    {selectedMethod === method && (
+                      <Check className="w-4 h-4 text-[#c8102e]" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
+      </div>
+    );
+  }
 
-        {selectMode && (
-          <p className="text-sm text-gray-500 text-center mb-4">
-            Appuyez sur un portefeuille pour le selectionner
-          </p>
+  /* ─── LIST VIEW ─── */
+  return (
+    <div className="flex flex-col min-h-full bg-gray-50">
+
+      {/* Header */}
+      <div
+        className="flex items-center px-4 py-4"
+        style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+      >
+        <Link href={backLink}>
+          <button className="w-9 h-9 flex items-center justify-center rounded-full bg-white/20" data-testid="button-back">
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+        </Link>
+        <h1 className="flex-1 text-center text-white font-bold text-base">
+          {selectMode ? "Sélectionner un compte" : "Liste des comptes bancaires"}
+        </h1>
+        {!selectMode ? (
+          <button
+            onClick={() => setShowForm(true)}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-white/20"
+            data-testid="button-add-wallet-icon"
+          >
+            <Plus className="w-5 h-5 text-white" />
+          </button>
+        ) : (
+          <div className="w-9" />
         )}
+      </div>
 
-        {!showForm && (
-          <h2 className="text-center text-lg font-bold text-gray-800 mb-1">
-            {selectMode ? "Vos portefeuilles" : "Gestion des portefeuilles"}
-          </h2>
-        )}
-        {!showForm && !selectMode && (
-          <p className="text-center text-sm text-gray-500 mb-6">Gerez vos comptes de retrait</p>
-        )}
-
-        <div className="space-y-3">
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-[#2196F3]" />
-            </div>
-          ) : wallets && wallets.length > 0 && !showForm ? (
-            wallets.map((wallet) => (
-              <div
-                key={wallet.id}
-                className={`rounded-2xl border overflow-hidden ${
-                  wallet.isDefault ? "border-[#2196F3] bg-[#f8fbff]" : "border-gray-100 bg-white"
-                } ${selectMode ? "cursor-pointer" : ""} shadow-sm`}
-                onClick={() => selectMode && handleSelectWallet(wallet)}
-                data-testid={`wallet-card-${wallet.id}`}
-              >
-                <div className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        wallet.isDefault ? "bg-[#2196F3]" : "bg-[#e3f2fd]"
-                      }`}>
-                        <CreditCard className={`w-5 h-5 ${wallet.isDefault ? "text-white" : "text-[#2196F3]"}`} />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800">{wallet.accountName}</p>
-                        <p className="text-sm text-gray-500 mt-0.5">{wallet.accountNumber}</p>
-                        <span className="inline-block text-xs text-[#2196F3] bg-[#e3f2fd] px-2 py-0.5 rounded-full mt-1.5 font-medium">
-                          {wallet.paymentMethod}
-                        </span>
-                      </div>
-                    </div>
-                    {!selectMode && (
-                      <div className="flex items-center gap-1">
-                        {!wallet.isDefault && (
-                          <button
-                            onClick={() => setDefaultMutation.mutate(wallet.id)}
-                            disabled={setDefaultMutation.isPending}
-                            className="p-2 rounded-full"
-                            data-testid={`button-set-default-${wallet.id}`}
-                          >
-                            <Check className="w-4 h-4 text-green-500" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => deleteMutation.mutate(wallet.id)}
-                          disabled={deleteMutation.isPending}
-                          className="p-2 rounded-full"
-                          data-testid={`button-delete-wallet-${wallet.id}`}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-400" />
-                        </button>
-                      </div>
-                    )}
-                    {selectMode && (
-                      <ChevronRight className="w-5 h-5 text-gray-300" />
-                    )}
-                  </div>
-                  {wallet.isDefault && (
-                    <div className="mt-3 pt-3 border-t border-blue-100 flex items-center gap-2">
-                      <Shield className="w-3.5 h-3.5 text-[#2196F3]" />
-                      <span className="text-xs font-medium text-[#2196F3]">Portefeuille par defaut</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : !showForm ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 rounded-full bg-[#e3f2fd] flex items-center justify-center mx-auto mb-4">
-                <CreditCard className="w-8 h-8 text-[#2196F3]" />
-              </div>
-              <p className="text-gray-500 text-sm mb-1">Aucun portefeuille enregistre</p>
-              <p className="text-gray-400 text-xs">Ajoutez un portefeuille pour effectuer des retraits</p>
-            </div>
-          ) : null}
-
-          {showForm ? (
-            <div>
-              <h2 className="text-center text-lg font-bold text-gray-800 mb-1">Nouveau portefeuille</h2>
-              <p className="text-center text-sm text-gray-500 mb-6">Ajoutez un compte de retrait</p>
-
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit((data) => addMutation.mutate(data))} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="accountName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom du compte</label>
-                        <FormControl>
-                          <div className="relative">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                              <User className="w-4 h-4 text-[#2196F3]" />
-                            </div>
-                            <input
-                              {...field}
-                              placeholder="Votre nom complet"
-                              className="w-full border border-gray-200 rounded-full pl-10 pr-4 py-3 text-sm outline-none focus:border-[#2196F3] bg-white"
-                              data-testid="input-wallet-name"
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="accountNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Numero</label>
-                        <FormControl>
-                          <div className="relative">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                              <Phone className="w-4 h-4 text-[#2196F3]" />
-                            </div>
-                            <input
-                              {...field}
-                              type="tel"
-                              placeholder="Votre numero"
-                              className="w-full border border-gray-200 rounded-full pl-10 pr-4 py-3 text-sm outline-none focus:border-[#2196F3] bg-white"
-                              data-testid="input-wallet-number"
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="paymentMethod"
-                    render={({ field }) => (
-                      <FormItem>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Moyen de paiement</label>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-full border-gray-200 h-12" data-testid="select-wallet-method">
-                              <SelectValue placeholder="Choisir le moyen de paiement" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {paymentMethods.map((method) => (
-                              <SelectItem key={method} value={method}>
-                                {method}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowForm(false)}
-                      className="flex-1 py-3 border border-gray-200 rounded-full text-sm font-medium text-gray-700"
-                    >
-                      Annuler
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={addMutation.isPending}
-                      className="flex-1 py-3 bg-[#2196F3] text-white rounded-full text-sm font-bold disabled:opacity-40 shadow-md shadow-blue-200"
-                    >
-                      {addMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Ajouter"}
-                    </button>
-                  </div>
-                </form>
-              </Form>
-            </div>
-          ) : (
-            <button
-              className="w-full py-3.5 bg-[#2196F3] text-white font-bold rounded-full text-base shadow-md shadow-blue-200 flex items-center justify-center gap-2"
-              onClick={() => setShowForm(true)}
-              data-testid="button-add-wallet"
+      {/* Wallet list */}
+      <div className="flex-1 px-4 pt-4 pb-28 space-y-3">
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-[#c8102e]" />
+          </div>
+        ) : wallets && wallets.length > 0 ? (
+          wallets.map((wallet) => (
+            <div
+              key={wallet.id}
+              onClick={() => selectMode && handleSelectWallet(wallet)}
+              className={`bg-white rounded-2xl shadow-sm p-4 flex items-center gap-3 ${
+                selectMode ? "cursor-pointer active:opacity-80" : ""
+              } ${wallet.isDefault ? "border-l-4 border-[#c8102e]" : ""}`}
+              data-testid={`wallet-card-${wallet.id}`}
             >
-              <Plus className="w-4 h-4" />
-              Ajouter un portefeuille
-            </button>
-          )}
-        </div>
+              {/* Icon */}
+              <div className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <CreditCard className="w-5 h-5 text-gray-500" />
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-gray-800 text-sm">{wallet.paymentMethod}</p>
+                <p className="text-xs text-gray-500 mt-0.5 truncate">{wallet.accountName}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{wallet.accountNumber}</p>
+                {wallet.isDefault && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <Shield className="w-3 h-3 text-[#c8102e]" />
+                    <span className="text-xs text-[#c8102e] font-medium">Par défaut</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              {!selectMode && (
+                <div className="flex items-center gap-1">
+                  {!wallet.isDefault && (
+                    <button
+                      onClick={() => setDefaultMutation.mutate(wallet.id)}
+                      disabled={setDefaultMutation.isPending}
+                      className="p-2"
+                      data-testid={`button-set-default-${wallet.id}`}
+                    >
+                      <Check className="w-4 h-4 text-green-500" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteMutation.mutate(wallet.id)}
+                    disabled={deleteMutation.isPending}
+                    className="p-2"
+                    data-testid={`button-delete-wallet-${wallet.id}`}
+                  >
+                    <Trash2 className="w-4 h-4 text-[#c8102e]" />
+                  </button>
+                </div>
+              )}
+
+              {selectMode && (
+                <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+              <CreditCard className="w-8 h-8 text-[#c8102e]" />
+            </div>
+            <p className="text-gray-500 text-sm">Aucun compte bancaire enregistré</p>
+            <p className="text-gray-400 text-xs mt-1">Ajoutez un compte pour effectuer des retraits</p>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom add button */}
+      <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-gray-50">
+        <button
+          onClick={() => setShowForm(true)}
+          className="w-full py-4 rounded-full text-white font-bold text-base shadow-md"
+          style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+          data-testid="button-add-wallet"
+        >
+          Ajouter une carte
+        </button>
       </div>
     </div>
   );
