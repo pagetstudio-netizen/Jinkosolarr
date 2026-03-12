@@ -4,7 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
-import { Loader2, Shield, LogOut, ChevronRight } from "lucide-react";
+import { Loader2, Shield, ChevronRight } from "lucide-react";
+import iconLogout from "@assets/3240728_1773313613605.png";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -101,7 +102,7 @@ export default function AccountPage() {
             </p>
           </div>
           <button onClick={handleLogout} className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center" data-testid="button-logout-header">
-            <LogOut className="w-5 h-5" style={{ color: "#c8102e" }} />
+            <img src={iconLogout} alt="Déconnexion" className="w-6 h-6" />
           </button>
         </div>
 
