@@ -175,7 +175,7 @@ export default function AccountPage() {
                 </p>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <img src={robotCoins} alt="" className="w-32 h-32 object-contain" />
+                <img src={robotCoins} alt="" className="w-44 h-44 object-contain" />
                 <Link href="/history">
                   <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-history">
                     Historique <ChevronRight className="w-3 h-3" />
@@ -197,7 +197,7 @@ export default function AccountPage() {
                   </button>
                 </Link>
               </div>
-              <img src={robotWallet} alt="" className="w-32 h-32 object-contain ml-2 shrink-0" />
+              <img src={robotWallet} alt="" className="w-44 h-44 object-contain ml-2 shrink-0" />
             </div>
           </div>
 
@@ -213,7 +213,7 @@ export default function AccountPage() {
                   </button>
                 </Link>
               </div>
-              <img src={robotGift} alt="" className="w-32 h-32 object-contain ml-2 shrink-0" />
+              <img src={robotGift} alt="" className="w-44 h-44 object-contain ml-2 shrink-0" />
             </div>
           </div>
         </div>
