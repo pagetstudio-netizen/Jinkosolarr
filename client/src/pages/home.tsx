@@ -9,7 +9,7 @@ import wendysLogo from "@assets/wendys_logo.png";
 import heroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
 import iconRecharger from "@assets/20260312_105135_1773313898669.png";
 import iconRetraits from "@assets/20260312_105153_1773313898582.png";
-import iconAider from "@assets/20260208_105040_1770548435850.png";
+import iconService from "@assets/20260312_105210_1773313898694.png";
 import iconPlayStore from "@assets/d8f_GooglePlay_mediumklein_1773313882717.jpg";
 import iconConnexion from "@assets/20260311_204241_1773262537486.png";
 import iconBonus from "@assets/20260311_204319_1773262537445.png";
@@ -132,18 +132,16 @@ export default function HomePage() {
               <span className="text-white text-xs font-medium">Retrait</span>
             </button>
 
-            <a
-              href={TELEGRAM_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => navigate("/service")}
               className="flex flex-col items-center gap-1.5"
               data-testid="button-telegram"
             >
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconAider} alt="Telegram" className="w-8 h-8 object-contain" style={{ filter: "grayscale(1) brightness(100)", mixBlendMode: "screen" }} />
+                <img src={iconService} alt="Service" className="w-8 h-8 object-contain" style={{ filter: "grayscale(1) brightness(100)", mixBlendMode: "screen" }} />
               </div>
               <span className="text-white text-xs font-medium">Telegram</span>
-            </a>
+            </button>
 
             <a
               href={TELEGRAM_LINK}
