@@ -17,10 +17,10 @@ import robotWallet from "@assets/20260312_072644_1773301338541.png";
 import robotGift from "@assets/20260312_072622_1773301338571.png";
 import giftBox from "@assets/20260312_072546_1773301338613.png";
 
-import iconDeposit from "@assets/téléchargement_(18)_1770814706072.png";
-import iconWithdraw from "@assets/téléchargement_(17)_1770814706099.png";
-import serviceIcon from "@assets/20260311_214852_1773265973964.png";
-import iconTeam from "@assets/téléchargement_(15)_1770814706160.png";
+import iconDeposit from "@assets/20260312_105135_1773312869115.png";
+import iconWithdraw from "@assets/20260312_105153_1773312869170.png";
+import serviceIcon from "@assets/20260312_105210_1773312869198.png";
+import iconSecurite from "@assets/20260312_105239_1773312869222.png";
 
 export default function AccountPage() {
   const { user, logout } = useAuth();
@@ -135,7 +135,7 @@ export default function AccountPage() {
             </Link>
             <button onClick={() => navigate("/change-password")} className="flex flex-col items-center gap-1.5" data-testid="button-securite">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0)" }}>
-                <img src={iconTeam} alt="" className="w-8 h-8" />
+                <img src={iconSecurite} alt="" className="w-8 h-8" />
               </div>
               <span className="text-gray-700 text-xs font-medium">Sécurité</span>
             </button>
