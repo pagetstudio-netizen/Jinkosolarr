@@ -274,3 +274,16 @@
 .animate-marquee {
   animation: marquee 12s linear infinite;
 }
+
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+a img, button img {
+  pointer-events: none;
+}
