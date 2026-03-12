@@ -3,12 +3,16 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, Loader2, CheckCircle, XCircle, Clock, Wallet } from "lucide-react";
+import { ChevronLeft, ChevronDown, Loader2, CheckCircle, XCircle, Clock, Wallet } from "lucide-react";
 import { Link } from "wouter";
-import { getCountryByCode } from "@/lib/countries";
+import { COUNTRIES, getCountryByCode } from "@/lib/countries";
 
 const MIN_DEPOSIT = 3500;
 const PRESET_AMOUNTS = [3500, 5000, 10000, 20000, 50000, 100000, 250000, 500000];
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  CM: "🇨🇲", BF: "🇧🇫", TG: "🇹🇬", BJ: "🇧🇯", CI: "🇨🇮", CG: "🇨🇬",
+};
 
 type PaymentChannel = "robotpay" | "westpay";
 type PaymentStatus = "idle" | "processing" | "pending" | "approved" | "rejected";
@@ -27,21 +31,27 @@ export default function DepositPage() {
 
   const [amount, setAmount] = useState<number | "">("");
   const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState(user?.country || "");
+  const [selectedOperator, setSelectedOperator] = useState("");
   const [accountName, setAccountName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
-  const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [showOperatorPicker, setShowOperatorPicker] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  const countryInfo = user ? getCountryByCode(user.country) : null;
+  const countryInfo = getCountryByCode(selectedCountry || user?.country || "");
   const currency = countryInfo?.currency || "FCFA";
   const balance = parseFloat(user?.balance || "0");
+  const operators = countryInfo?.paymentMethods || [];
+
+  // Reset operator when country changes
+  useEffect(() => { setSelectedOperator(""); }, [selectedCountry]);
 
   const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; isActive: boolean }[]>({
     queryKey: ["/api/payment-channels"],
   });
-  const activeChannels = paymentChannels.filter(c => c.isActive);
-  const defaultChannelId = activeChannels[0]?.id || 1;
+  const defaultChannelId = paymentChannels.filter(c => c.isActive)[0]?.id || 1;
 
   useEffect(() => {
     return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
@@ -101,9 +111,12 @@ export default function DepositPage() {
     },
   });
 
+  const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
+
   const resetForm = () => {
     setAmount("");
     setSelectedChannel(null);
+    setSelectedOperator("");
     setAccountName("");
     setAccountNumber("");
     setPaymentStatus("idle");
@@ -113,6 +126,14 @@ export default function DepositPage() {
   const handleSubmit = () => {
     if (!amount || amount < MIN_DEPOSIT) {
       toast({ title: "Montant invalide", description: `Le minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`, variant: "destructive" });
+      return;
+    }
+    if (!selectedCountry) {
+      toast({ title: "Pays requis", description: "Veuillez sélectionner votre pays", variant: "destructive" });
+      return;
+    }
+    if (!selectedOperator) {
+      toast({ title: "Opérateur requis", description: "Veuillez sélectionner votre opérateur", variant: "destructive" });
       return;
     }
     if (!selectedChannel) {
@@ -131,10 +152,10 @@ export default function DepositPage() {
     setPaymentStatus("processing");
     depositMutation.mutate({
       amount: amount as number,
-      paymentMethod: "Mobile Money",
+      paymentMethod: selectedOperator,
       accountName,
       accountNumber,
-      country: user!.country,
+      country: selectedCountry,
       paymentChannelId: defaultChannelId,
       useSoleaspay: selectedChannel === "robotpay",
       useInpay: selectedChannel === "westpay",
@@ -184,13 +205,6 @@ export default function DepositPage() {
             </h2>
           </div>
 
-          {/* Info box */}
-          <div className="bg-gray-100 rounded-xl p-3 mb-3">
-            <p className="text-gray-500 text-xs text-center leading-relaxed">
-              Si votre commande de recharge n'a pas pu être finalisée depuis un certain temps, veuillez cliquer sur ce bouton pour soumettre vos informations de recharge
-            </p>
-          </div>
-
           {/* Preset amounts */}
           <div className="grid grid-cols-4 gap-2">
             {PRESET_AMOUNTS.map((preset) => (
@@ -209,6 +223,49 @@ export default function DepositPage() {
             ))}
           </div>
         </div>
+
+        {/* Country picker */}
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1 h-5 bg-[#c8102e] rounded-full" />
+            <h2 className="font-bold text-gray-800 text-sm">Pays</h2>
+          </div>
+          <button
+            onClick={() => setShowCountryPicker(true)}
+            className="w-full border border-gray-200 rounded-full px-4 py-3 flex items-center justify-between bg-white"
+            data-testid="button-open-country"
+          >
+            <span className={`text-sm flex items-center gap-2 ${selectedCountry ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+              {selectedCountry ? (
+                <>
+                  <span>{COUNTRY_FLAGS[selectedCountry] || ""}</span>
+                  <span>{COUNTRIES.find(c => c.code === selectedCountry)?.name}</span>
+                </>
+              ) : "Sélectionnez votre pays"}
+            </span>
+            <ChevronDown className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
+
+        {/* Operator picker */}
+        {selectedCountry && operators.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-1 h-5 bg-[#c8102e] rounded-full" />
+              <h2 className="font-bold text-gray-800 text-sm">Opérateur</h2>
+            </div>
+            <button
+              onClick={() => setShowOperatorPicker(true)}
+              className="w-full border border-gray-200 rounded-full px-4 py-3 flex items-center justify-between bg-white"
+              data-testid="button-open-operator"
+            >
+              <span className={`text-sm ${selectedOperator ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+                {selectedOperator || "Sélectionnez votre opérateur"}
+              </span>
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+        )}
 
         {/* Channel selection */}
         <div>
@@ -275,7 +332,7 @@ export default function DepositPage() {
             type="tel"
             value={accountNumber}
             onChange={(e) => setAccountNumber(e.target.value)}
-            placeholder="Numéro de téléphone Mobile Money"
+            placeholder={`Numéro ${selectedOperator || "Mobile Money"}`}
             className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
             data-testid="input-account-number"
           />
@@ -300,18 +357,80 @@ export default function DepositPage() {
         </button>
 
         {/* Instructions */}
-        <div className="pt-2">
+        <div className="pt-2 pb-8">
           <p className="font-bold text-[#c8102e] text-sm mb-3">Instructions de recharge</p>
           <div className="space-y-2.5 text-sm text-[#c8102e] leading-relaxed">
             <p>1. Le dépôt minimum est de {MIN_DEPOSIT.toLocaleString()} {currency}.</p>
-            <p>2. Veuillez vérifier attentivement vos informations de compte avant d'effectuer un virement afin d'éviter toute erreur de paiement.</p>
-            <p>3. Après un virement réussi, veuillez saisir le code d'identification SMS sur la page de recharge pour un crédit rapide.</p>
+            <p>2. Assurez-vous que les informations saisies correspondent exactement à votre compte Mobile Money pour éviter tout rejet de paiement.</p>
+            <p>3. Une fois votre paiement effectué, le crédit sera automatiquement appliqué à votre compte dans un délai de 1 à 30 minutes.</p>
             <p>4. Si vous n'avez pas reçu vos fonds après un délai anormalement long, veuillez contacter le service client en ligne.</p>
             <p>5. Pour votre sécurité financière, ne transférez jamais de fonds à des inconnus.</p>
-            <p>6. Le personnel officiel ne vous demandera jamais de votre propre initiative votre compte et votre mot de passe !</p>
+            <p>6. Le personnel officiel ne vous demandera jamais votre mot de passe ou informations personnelles.</p>
           </div>
         </div>
       </div>
+
+      {/* Country Picker Sheet */}
+      {showCountryPicker && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowCountryPicker(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <h3 className="text-base font-bold text-gray-800">Sélectionnez votre pays</h3>
+              <button onClick={() => setShowCountryPicker(false)} className="text-gray-400 font-bold text-lg">✕</button>
+            </div>
+            <div className="overflow-y-auto max-h-64">
+              {COUNTRIES.map((c) => (
+                <button
+                  key={c.code}
+                  onClick={() => { setSelectedCountry(c.code); setShowCountryPicker(false); }}
+                  className={`w-full px-5 py-3.5 flex items-center gap-3 hover:bg-gray-50 transition-colors ${
+                    selectedCountry === c.code ? "bg-red-50" : ""
+                  }`}
+                  data-testid={`button-country-${c.code}`}
+                >
+                  <span className="text-2xl">{COUNTRY_FLAGS[c.code] || "🌍"}</span>
+                  <div className="flex-1 text-left">
+                    <p className={`text-sm font-medium ${selectedCountry === c.code ? "text-[#c8102e]" : "text-gray-800"}`}>{c.name}</p>
+                    <p className="text-xs text-gray-400">{c.currency}</p>
+                  </div>
+                  {selectedCountry === c.code && <span className="text-[#c8102e] font-bold">✓</span>}
+                </button>
+              ))}
+            </div>
+            <div className="h-6" />
+          </div>
+        </div>
+      )}
+
+      {/* Operator Picker Sheet */}
+      {showOperatorPicker && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowOperatorPicker(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <h3 className="text-base font-bold text-gray-800">Sélectionnez votre opérateur</h3>
+              <button onClick={() => setShowOperatorPicker(false)} className="text-gray-400 font-bold text-lg">✕</button>
+            </div>
+            <div className="overflow-y-auto max-h-64">
+              {operators.map((op) => (
+                <button
+                  key={op}
+                  onClick={() => { setSelectedOperator(op); setShowOperatorPicker(false); }}
+                  className={`w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${
+                    selectedOperator === op ? "bg-red-50" : ""
+                  }`}
+                  data-testid={`button-operator-${op}`}
+                >
+                  <span className={`text-sm font-medium ${selectedOperator === op ? "text-[#c8102e]" : "text-gray-800"}`}>{op}</span>
+                  {selectedOperator === op && <span className="text-[#c8102e] font-bold">✓</span>}
+                </button>
+              ))}
+            </div>
+            <div className="h-6" />
+          </div>
+        </div>
+      )}
 
       {/* Payment Status Overlay */}
       {paymentStatus !== "idle" && (
@@ -320,7 +439,7 @@ export default function DepositPage() {
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl animate-in slide-in-from-bottom duration-300 flex flex-col items-center px-6 pt-3 pb-10">
             <div className="w-10 h-1 bg-gray-300 rounded-full mb-6" />
 
-            {(paymentStatus === "processing") && (
+            {paymentStatus === "processing" && (
               <>
                 <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-5">
                   <Loader2 className="w-10 h-10 text-[#c8102e] animate-spin" />
@@ -354,7 +473,7 @@ export default function DepositPage() {
                 <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-5">
                   <CheckCircle className="w-10 h-10 text-green-500" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement réussi</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement réussi !</h3>
                 <p className="text-gray-500 text-sm mb-5">
                   Votre compte a été crédité de {typeof amount === "number" ? amount.toLocaleString() : ""} {currency}
                 </p>
