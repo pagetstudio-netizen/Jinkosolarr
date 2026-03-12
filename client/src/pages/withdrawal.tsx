@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, ChevronRight, Loader2, Plus, ShieldCheck, Headphones } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import iconCardWhite from "@assets/téléchargement_(18)_1773330337885.png";
@@ -131,48 +131,6 @@ export default function WithdrawalPage() {
   const balance = parseFloat(user?.balance || "0");
   const hasWallets = wallets.length > 0;
 
-  /* ── No wallet state ── */
-  if (!hasWallets) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col">
-        <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
-          <Link href="/account">
-            <button className="p-1" data-testid="button-back">
-              <ChevronLeft className="w-6 h-6 text-[#c8102e]" />
-            </button>
-          </Link>
-          <h1 className="text-base font-bold text-[#c8102e]">Retrait</h1>
-          <div className="w-8" />
-        </header>
-
-        <div className="flex-1 flex flex-col items-center justify-center px-8">
-          <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center mb-6">
-            <ShieldCheck className="w-12 h-12 text-[#c8102e]" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-800 text-center mb-3" data-testid="text-no-wallet-title">
-            Compte bancaire requis
-          </h2>
-          <p className="text-gray-500 text-center text-sm leading-relaxed mb-8 max-w-xs">
-            Veuillez créer un compte de retrait pour effectuer vos transactions en toute sérénité.
-          </p>
-          <button
-            onClick={() => navigate("/wallet")}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-bold text-sm shadow-md"
-            style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
-            data-testid="button-create-wallet"
-          >
-            <Plus className="w-4 h-4" />
-            Créer un compte
-          </button>
-          <div className="mt-10 flex items-center gap-2 text-gray-400 text-xs">
-            <Headphones className="w-4 h-4" />
-            <span>Besoin d'aide ? Contactez le service client</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   /* ── Main withdrawal page ── */
   return (
     <div className="min-h-screen bg-gray-50">
@@ -214,7 +172,13 @@ export default function WithdrawalPage() {
 
         {/* Select bank account */}
         <button
-          onClick={() => navigate("/wallet?from=withdrawal")}
+          onClick={() => {
+            if (!hasWallets) {
+              navigate("/wallet");
+            } else {
+              navigate("/wallet?from=withdrawal");
+            }
+          }}
           className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3.5 flex items-center gap-3 shadow-sm"
           data-testid="button-select-wallet"
         >
@@ -232,8 +196,13 @@ export default function WithdrawalPage() {
                 <p className="text-sm font-semibold text-gray-800">{selectedWallet.accountName}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{selectedWallet.accountNumber} · {selectedWallet.paymentMethod}</p>
               </>
-            ) : (
+            ) : hasWallets ? (
               <p className="text-sm text-[#c8102e] font-medium">Sélectionner un compte bancaire</p>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Plus className="w-4 h-4 text-[#c8102e]" />
+                <p className="text-sm text-[#c8102e] font-medium">Ajouter un portefeuille de retrait</p>
+              </div>
             )}
           </div>
           <ChevronRight className="w-4 h-4 text-gray-400" />

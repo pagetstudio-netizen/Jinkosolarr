@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Eye, EyeOff, ArrowLeft, Lock, KeyRound, ShieldCheck } from "lucide-react";
+import { Loader2, Eye, EyeOff, ChevronLeft, Lock, KeyRound, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 export default function ChangePasswordPage() {
@@ -26,8 +26,8 @@ export default function ChangePasswordPage() {
     },
     onSuccess: () => {
       toast({
-        title: "Succes",
-        description: "Votre mot de passe a ete modifie avec succes",
+        title: "Succès",
+        description: "Votre mot de passe a été modifié avec succès",
       });
       setCurrentPassword("");
       setNewPassword("");
@@ -52,68 +52,86 @@ export default function ChangePasswordPage() {
       });
       return;
     }
-
     if (newPassword.length < 6) {
       toast({
         title: "Mot de passe trop court",
-        description: "Le nouveau mot de passe doit contenir au moins 6 caracteres",
+        description: "Le nouveau mot de passe doit contenir au moins 6 caractères",
         variant: "destructive",
       });
       return;
     }
-
     if (newPassword !== confirmPassword) {
       toast({
-        title: "Mots de passe differents",
+        title: "Mots de passe différents",
         description: "Les nouveaux mots de passe ne correspondent pas",
         variant: "destructive",
       });
       return;
     }
-
     changePasswordMutation.mutate({ currentPassword, newPassword });
   };
 
+  const passwordStrength = newPassword.length === 0 ? 0
+    : newPassword.length < 6 ? 1
+    : newPassword.length < 10 ? 2
+    : 3;
+
+  const strengthLabel = ["", "Faible", "Moyen", "Fort"][passwordStrength];
+  const strengthColor = ["", "#ef4444", "#f97316", "#22c55e"][passwordStrength];
+
   return (
-    <div className="flex flex-col min-h-full bg-white">
-      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#64B5F6] to-white">
+    <div className="flex flex-col min-h-full bg-gray-50">
+
+      {/* Red gradient header */}
+      <div
+        className="relative px-4 pt-12 pb-16"
+        style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+      >
         <Link href="/account">
-          <button className="p-2" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
+          <button className="absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20" data-testid="button-back">
+            <ChevronLeft className="w-5 h-5 text-white" />
           </button>
         </Link>
-        <h1 className="text-lg font-semibold text-gray-800">Mot de passe</h1>
-        <div className="w-9" />
-      </header>
+        <h1 className="text-center text-white text-lg font-bold mt-1">Modifier le mot de passe</h1>
 
-      <div className="flex-1 overflow-y-auto px-5 py-6 pb-24">
-        <div className="flex justify-center mb-5">
-          <div className="w-20 h-20 rounded-full bg-[#e3f2fd] flex items-center justify-center">
-            <ShieldCheck className="w-10 h-10 text-[#2196F3]" />
+        {/* Shield icon floating */}
+        <div className="flex justify-center mt-5">
+          <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center shadow-lg">
+            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center">
+              <ShieldCheck className="w-8 h-8 text-[#c8102e]" />
+            </div>
           </div>
         </div>
+      </div>
 
-        <h2 className="text-center text-lg font-bold text-gray-800 mb-1">Modifier votre mot de passe</h2>
-        <p className="text-center text-sm text-gray-500 mb-6">Protegez votre compte avec un mot de passe securise</p>
+      {/* Card overlapping header */}
+      <div className="flex-1 px-4 -mt-6 pb-24">
+        <div className="bg-white rounded-2xl shadow-md p-5 space-y-4">
 
-        <div className="space-y-4 max-w-sm mx-auto">
+          <p className="text-center text-xs text-gray-400 mb-1">
+            Protégez votre compte avec un mot de passe sécurisé
+          </p>
+
+          {/* Current password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Mot de passe actuel</label>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+              Mot de passe actuel
+            </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <Lock className="w-4 h-4 text-[#2196F3]" />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+                <Lock className="w-3.5 h-3.5 text-[#c8102e]" />
               </div>
               <input
                 type={showCurrentPassword ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Entrez votre mot de passe actuel"
-                className="w-full border border-gray-200 rounded-full pl-10 pr-10 py-3 text-sm outline-none focus:border-[#2196F3] bg-white"
+                placeholder="Votre mot de passe actuel"
+                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#c8102e] bg-gray-50 text-gray-800 transition-colors"
                 data-testid="input-current-password"
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               >
                 {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -121,58 +139,105 @@ export default function ChangePasswordPage() {
             </div>
           </div>
 
+          {/* Divider */}
+          <div className="border-t border-dashed border-gray-100" />
+
+          {/* New password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nouveau mot de passe</label>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+              Nouveau mot de passe
+            </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <KeyRound className="w-4 h-4 text-[#2196F3]" />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+                <KeyRound className="w-3.5 h-3.5 text-[#c8102e]" />
               </div>
               <input
                 type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Minimum 6 caracteres"
-                className="w-full border border-gray-200 rounded-full pl-10 pr-10 py-3 text-sm outline-none focus:border-[#2196F3] bg-white"
+                placeholder="Minimum 6 caractères"
+                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#c8102e] bg-gray-50 text-gray-800 transition-colors"
                 data-testid="input-new-password"
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 onClick={() => setShowNewPassword(!showNewPassword)}
               >
                 {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+
+            {/* Strength bar */}
+            {newPassword.length > 0 && (
+              <div className="mt-2">
+                <div className="flex gap-1 mb-1">
+                  {[1, 2, 3].map((level) => (
+                    <div
+                      key={level}
+                      className="h-1 flex-1 rounded-full transition-all duration-300"
+                      style={{
+                        backgroundColor: passwordStrength >= level ? strengthColor : "#e5e7eb",
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs font-medium" style={{ color: strengthColor }}>
+                  Force : {strengthLabel}
+                </p>
+              </div>
+            )}
           </div>
 
+          {/* Confirm password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirmer le mot de passe</label>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+              Confirmer le mot de passe
+            </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <KeyRound className="w-4 h-4 text-[#2196F3]" />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+                <KeyRound className="w-3.5 h-3.5 text-[#c8102e]" />
               </div>
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repetez le nouveau mot de passe"
-                className="w-full border border-gray-200 rounded-full pl-10 pr-10 py-3 text-sm outline-none focus:border-[#2196F3] bg-white"
+                placeholder="Répétez le nouveau mot de passe"
+                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#c8102e] bg-gray-50 text-gray-800 transition-colors"
                 data-testid="input-confirm-password"
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+
+            {/* Match indicator */}
+            {confirmPassword.length > 0 && (
+              <div className="mt-2 flex items-center gap-1.5">
+                <CheckCircle2
+                  className="w-3.5 h-3.5"
+                  style={{ color: newPassword === confirmPassword ? "#22c55e" : "#ef4444" }}
+                />
+                <p
+                  className="text-xs font-medium"
+                  style={{ color: newPassword === confirmPassword ? "#22c55e" : "#ef4444" }}
+                >
+                  {newPassword === confirmPassword ? "Les mots de passe correspondent" : "Les mots de passe ne correspondent pas"}
+                </p>
+              </div>
+            )}
           </div>
 
+          {/* Submit button */}
           <button
             onClick={handleSubmit}
             disabled={changePasswordMutation.isPending}
-            className="w-full py-3.5 bg-[#2196F3] text-white font-bold rounded-full disabled:opacity-40 text-base shadow-md shadow-blue-200 mt-2"
+            className="w-full py-4 rounded-xl text-white font-bold text-base disabled:opacity-40 shadow-md mt-2"
+            style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
             data-testid="button-change-password-submit"
           >
             {changePasswordMutation.isPending ? (
@@ -184,18 +249,25 @@ export default function ChangePasswordPage() {
               "Modifier le mot de passe"
             )}
           </button>
+        </div>
 
-          <div className="bg-[#e3f2fd] rounded-xl p-4 mt-4">
-            <div className="flex items-start gap-3">
-              <div className="w-5 h-5 rounded-full bg-[#2196F3] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-white text-xs font-bold">i</span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-800">Conseils de securite</p>
-                <p className="text-xs text-gray-600 mt-1">Utilisez au moins 6 caracteres avec des lettres et des chiffres pour un mot de passe plus securise.</p>
-              </div>
-            </div>
-          </div>
+        {/* Security tips */}
+        <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm border-l-4 border-[#c8102e]">
+          <p className="text-sm font-bold text-[#c8102e] mb-2">Conseils de sécurité</p>
+          <ul className="space-y-1.5 text-xs text-gray-500">
+            <li className="flex items-start gap-2">
+              <span className="text-[#c8102e] font-bold mt-0.5">•</span>
+              Utilisez au moins 6 caractères avec des lettres et des chiffres.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[#c8102e] font-bold mt-0.5">•</span>
+              Évitez d'utiliser votre nom ou date de naissance.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[#c8102e] font-bold mt-0.5">•</span>
+              Ne partagez jamais votre mot de passe avec quelqu'un.
+            </li>
+          </ul>
         </div>
       </div>
     </div>
