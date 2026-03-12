@@ -4,7 +4,6 @@ export const COUNTRIES = [
   { code: "TG", name: "Togo", flag: "TG", currency: "XOF", paymentMethods: ["Moov Money", "Mixx by Yas"] },
   { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", paymentMethods: ["Moov Money", "MTN"] },
   { code: "CI", name: "Cote d'Ivoire", flag: "CI", currency: "XOF", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
-  { code: "CG", name: "Congo Brazzaville", flag: "CG", currency: "XAF", paymentMethods: ["MTN"] },
 ];
 
 export const ELIGIBLE_COUNTRIES = [
@@ -13,7 +12,6 @@ export const ELIGIBLE_COUNTRIES = [
   { code: "TG", name: "Togo", flag: "TG", currency: "XOF", phonePrefix: "228", paymentMethods: ["Moov Money", "Mixx by Yas"] },
   { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", phonePrefix: "229", paymentMethods: ["Moov Money", "MTN"] },
   { code: "CI", name: "Cote d'Ivoire", flag: "CI", currency: "XOF", phonePrefix: "225", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
-  { code: "CG", name: "Congo Brazzaville", flag: "CG", currency: "XAF", phonePrefix: "242", paymentMethods: ["MTN"] },
 ] as const;
 
 export function getCountryByCode(code: string) {
