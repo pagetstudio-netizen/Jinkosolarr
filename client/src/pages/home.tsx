@@ -194,13 +194,15 @@ export default function HomePage() {
           </div>
 
           <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm flex flex-col gap-2">
-            <img src={iconEquipe} alt="Mon équipe" className="w-10 h-10 object-contain" />
-            <div>
-              <p className="font-bold text-gray-800 text-sm">Mon équipe</p>
-              <p className="text-gray-500 text-xs">Parrainage</p>
-            </div>
+            <button onClick={() => navigate("/tasks")} className="w-full flex flex-col gap-2">
+              <img src={iconEquipe} alt="Mon équipe" className="w-10 h-10 object-contain" />
+              <div>
+                <p className="font-bold text-gray-800 text-sm">Mon équipe</p>
+                <p className="text-gray-500 text-xs">Parrainage</p>
+              </div>
+            </button>
             <button
-              onClick={() => navigate("/team")}
+              onClick={() => navigate("/tasks")}
               className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
               style={{ background: "#c8102e" }}
               data-testid="button-team"
