@@ -65,82 +65,73 @@ export default function LoginPage() {
       className="min-h-screen flex flex-col overflow-hidden"
       style={{ backgroundImage: `url(${bgImage})`, backgroundSize: "cover", backgroundPosition: "center" }}
     >
-      {/* Soft overlay for readability */}
-      <div className="absolute inset-0 bg-white/30" />
-
       <div className="relative z-10 flex flex-col flex-1 px-6 pt-14 pb-8">
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center overflow-hidden mb-3">
+          <div className="w-20 h-20 rounded-full bg-white shadow-xl flex items-center justify-center overflow-hidden mb-3">
             <img src={wendysLogo} alt="Wendy's" className="w-16 h-16 object-contain" />
           </div>
-          <h1 className="text-2xl font-extrabold text-white drop-shadow-md">Wendy's</h1>
-          <p className="text-white/90 text-xs mt-0.5 drop-shadow">Fast Food, Smart Investment</p>
+          <h1 className="text-2xl font-extrabold text-[#c8102e] drop-shadow-sm">Wendy's</h1>
         </div>
 
         {/* Form */}
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col gap-5">
 
-          {/* Mobile field */}
+          {/* Mobile */}
           <div>
-            <p className="text-white font-semibold text-sm mb-2 drop-shadow">Mobile</p>
-            <div className="flex items-center bg-white/25 backdrop-blur-sm border border-white/40 rounded-2xl overflow-hidden h-14">
+            <p className="text-gray-700 font-semibold text-sm mb-2">Mobile</p>
+            <div className="flex items-center bg-white border border-gray-200 rounded-2xl overflow-hidden h-14 shadow-sm">
               <button
                 type="button"
                 onClick={() => setCountryModalOpen(true)}
-                className="flex items-center gap-1 pl-4 pr-3 h-full border-r border-white/30 shrink-0"
+                className="flex items-center gap-1 pl-4 pr-3 h-full border-r border-gray-200 shrink-0"
                 data-testid="button-select-country"
               >
-                <span className="text-white font-bold text-base">
+                <span className="text-gray-700 font-bold text-base">
                   {countryData ? `+${countryData.phonePrefix}` : "+"}
                 </span>
-                <ChevronDown className="w-4 h-4 text-white/80" />
+                <ChevronDown className="w-4 h-4 text-gray-500" />
               </button>
               <input
                 {...form.register("phone")}
                 type="tel"
                 placeholder="Mobile"
-                className="flex-1 bg-transparent px-4 text-white placeholder:text-white/60 text-base outline-none"
+                className="flex-1 bg-transparent px-4 text-gray-800 placeholder:text-gray-400 text-base outline-none"
                 data-testid="input-phone"
               />
             </div>
             {form.formState.errors.phone && (
-              <p className="text-white text-xs mt-1 drop-shadow">{form.formState.errors.phone.message}</p>
+              <p className="text-[#c8102e] text-xs mt-1 font-medium">{form.formState.errors.phone.message}</p>
             )}
           </div>
 
-          {/* Password field */}
+          {/* Password */}
           <div>
-            <p className="text-white font-semibold text-sm mb-2 drop-shadow">Mot de passe</p>
-            <div className="flex items-center bg-white/25 backdrop-blur-sm border border-white/40 rounded-2xl h-14">
+            <p className="text-gray-700 font-semibold text-sm mb-2">Mot de passe</p>
+            <div className="flex items-center bg-white border border-gray-200 rounded-2xl h-14 shadow-sm">
               <div className="pl-4 pr-3">
-                <Lock className="w-5 h-5 text-white/80" />
+                <Lock className="w-5 h-5 text-gray-400" />
               </div>
               <input
                 {...form.register("password")}
                 type={showPassword ? "text" : "password"}
                 placeholder="Mot de passe"
-                className="flex-1 bg-transparent text-white placeholder:text-white/60 text-base outline-none"
+                className="flex-1 bg-transparent text-gray-800 placeholder:text-gray-400 text-base outline-none"
                 data-testid="input-password"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="pr-4 pl-2"
-                data-testid="button-toggle-password"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5 text-white/80" /> : <Eye className="w-5 h-5 text-white/80" />}
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="pr-4 pl-2" data-testid="button-toggle-password">
+                {showPassword ? <EyeOff className="w-5 h-5 text-gray-400" /> : <Eye className="w-5 h-5 text-gray-400" />}
               </button>
             </div>
             {form.formState.errors.password && (
-              <p className="text-white text-xs mt-1 drop-shadow">{form.formState.errors.password.message}</p>
+              <p className="text-[#c8102e] text-xs mt-1 font-medium">{form.formState.errors.password.message}</p>
             )}
           </div>
 
           <input type="hidden" {...form.register("country")} />
 
-          {/* Remember me */}
+          {/* Remember / forgot */}
           <div className="flex items-center justify-between -mt-1">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -150,9 +141,9 @@ export default function LoginPage() {
                 className="w-4 h-4 accent-[#c8102e]"
                 data-testid="checkbox-remember"
               />
-              <span className="text-white text-sm drop-shadow">Se souvenir</span>
+              <span className="text-gray-600 text-sm">Se souvenir</span>
             </label>
-            <button type="button" className="text-white text-sm font-medium drop-shadow">
+            <button type="button" className="text-[#c8102e] text-sm font-semibold">
               Mot de passe oublié ?
             </button>
           </div>
@@ -161,7 +152,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-14 rounded-full text-white font-bold text-lg shadow-lg disabled:opacity-50 mt-1"
+            className="w-full h-14 rounded-full text-white font-bold text-lg shadow-lg disabled:opacity-50"
             style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
             data-testid="button-login"
           >
@@ -174,11 +165,11 @@ export default function LoginPage() {
           </button>
 
           {/* Link to register */}
-          <div className="text-center mt-auto pt-4">
+          <div className="text-center mt-2">
             <button
               type="button"
               onClick={() => navigate("/register")}
-              className="text-white font-semibold text-base drop-shadow"
+              className="text-[#c8102e] font-semibold text-base"
               data-testid="link-register"
             >
               S'inscrire
