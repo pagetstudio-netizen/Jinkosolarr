@@ -74,7 +74,7 @@ export default function TeamDetailsPage() {
       {/* Red header */}
       <div className="relative px-4 pt-4 pb-8" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
         <div className="flex items-center mb-4">
-          <Link href="/home">
+          <Link href="/">
             <button className="p-1.5 bg-white/20 rounded-full" data-testid="button-back-team">
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
