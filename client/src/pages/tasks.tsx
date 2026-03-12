@@ -4,11 +4,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { getCountryByCode } from "@/lib/countries";
-import { ChevronLeft, Loader2, Gift, Users, Trophy, CheckCircle2, Clock } from "lucide-react";
+import { ChevronLeft, Loader2, Gift, Trophy, CheckCircle2, Clock } from "lucide-react";
 import { Link } from "wouter";
 import type { Task } from "@shared/schema";
 import wendysImg from "@assets/PWeaver-FF-240519-10jpg-JS903570773_1773317315694.webp";
 import wendysLogo from "@assets/wendys_logo.png";
+import iconBronze from "@assets/344464_1773318022355.png";
+import iconArgent from "@assets/817729_1773318022328.png";
+import iconOr from "@assets/sac-argent-gros-tas-illustration-icone-argent-comptant-icone-p_1773318022388.jpg";
+import iconPlatine from "@assets/1751761_1773318022264.png";
+import iconDiamant from "@assets/3275655_1773318022415.png";
+import iconElite from "@assets/344464_1773318022355.png";
 
 interface DailyBonusStatus {
   canClaim: boolean;
@@ -32,13 +38,15 @@ const TIER_LABELS = [
 ];
 
 const TIER_COLORS = [
-  { bg: "from-amber-700 to-amber-500", badge: "bg-amber-100 text-amber-800", dot: "bg-amber-500" },
-  { bg: "from-gray-400 to-gray-300", badge: "bg-gray-100 text-gray-700", dot: "bg-gray-400" },
-  { bg: "from-yellow-500 to-yellow-400", badge: "bg-yellow-100 text-yellow-800", dot: "bg-yellow-500" },
-  { bg: "from-cyan-500 to-cyan-400", badge: "bg-cyan-100 text-cyan-800", dot: "bg-cyan-500" },
-  { bg: "from-blue-600 to-blue-400", badge: "bg-blue-100 text-blue-800", dot: "bg-blue-600" },
-  { bg: "from-purple-600 to-purple-400", badge: "bg-purple-100 text-purple-800", dot: "bg-purple-600" },
+  { bg: "from-amber-700 to-amber-500" },
+  { bg: "from-gray-500 to-gray-400" },
+  { bg: "from-yellow-600 to-yellow-400" },
+  { bg: "from-cyan-600 to-cyan-400" },
+  { bg: "from-blue-700 to-blue-500" },
+  { bg: "from-purple-700 to-purple-500" },
 ];
+
+const TIER_ICONS = [iconBronze, iconArgent, iconOr, iconPlatine, iconDiamant, iconElite];
 
 export default function TasksPage() {
   const { user, refreshUser } = useAuth();
@@ -100,19 +108,21 @@ export default function TasksPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-gray-50">
+
       {/* Hero Section */}
-      <div className="relative h-52 overflow-hidden">
+      <div className="relative overflow-hidden" style={{ height: "220px" }}>
         <img
           src={wendysImg}
           alt="Wendy's"
           className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#c8102e]/70 via-[#c8102e]/50 to-[#a00d25]/80" />
+        {/* Strong gradient overlay */}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(200,16,46,0.75) 0%, rgba(160,13,37,0.65) 50%, rgba(100,5,20,0.88) 100%)" }} />
 
-        {/* Header */}
+        {/* Header nav */}
         <div className="absolute top-0 left-0 right-0 flex items-center px-4 pt-4">
           <Link href="/">
-            <button className="w-9 h-9 rounded-full bg-white/20 backdrop-blur flex items-center justify-center" data-testid="button-back">
+            <button className="w-9 h-9 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center" data-testid="button-back">
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
           </Link>
@@ -122,10 +132,14 @@ export default function TasksPage() {
           <div className="w-9" />
         </div>
 
-        {/* Hero Content */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <h1 className="text-white text-xl font-bold mb-1">Programme de Parrainage</h1>
-          <p className="text-white/80 text-xs">Invitez des amis et gagnez des récompenses</p>
+        {/* Hero text - pushed lower */}
+        <div className="absolute left-4 right-4" style={{ bottom: "16px" }}>
+          <h1 className="text-white text-xl font-bold leading-tight drop-shadow-md">
+            Programme de Parrainage
+          </h1>
+          <p className="text-white text-xs mt-1 drop-shadow-sm" style={{ opacity: 0.9 }}>
+            Invitez des amis et gagnez des récompenses
+          </p>
         </div>
       </div>
 
@@ -140,7 +154,7 @@ export default function TasksPage() {
           </div>
           <div className="flex-1 text-center border-r border-gray-100">
             <p className="text-[#c8102e] text-xl font-bold">{completedCount}</p>
-            <p className="text-gray-500 text-[11px] mt-0.5">Tâches terminées</p>
+            <p className="text-gray-500 text-[11px] mt-0.5">Terminées</p>
           </div>
           <div className="flex-1 text-center">
             <p className="text-[#c8102e] text-xl font-bold">{claimableCount}</p>
@@ -156,14 +170,7 @@ export default function TasksPage() {
             <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
               <Gift className="w-6 h-6 text-white" />
             </div>
-            <div>
-              <p className="text-white font-semibold text-sm">Bonus quotidien</p>
-              <p className="text-white/70 text-xs">
-                {dailyBonusStatus?.canClaim
-                  ? "Disponible maintenant !"
-                  : "Revient demain"}
-              </p>
-            </div>
+            <p className="text-white font-semibold text-sm">Bonus quotidien — 50 FCFA</p>
           </div>
           <button
             onClick={() => dailyBonusStatus?.canClaim && claimDailyBonusMutation.mutate()}
@@ -177,15 +184,17 @@ export default function TasksPage() {
           >
             {claimDailyBonusMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
+            ) : dailyBonusStatus?.canClaim ? (
+              "+ 50 F"
             ) : (
-              dailyBonusStatus?.canClaim ? "+ 50 F" : <Clock className="w-4 h-4" />
+              <Clock className="w-4 h-4" />
             )}
           </button>
         </div>
       </div>
 
       {/* Tasks Section */}
-      <div className="mx-4 mt-4 mb-6">
+      <div className="mx-4 mt-4 mb-24">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Trophy className="w-4 h-4 text-[#c8102e]" />
@@ -211,7 +220,7 @@ export default function TasksPage() {
         {isLoading ? (
           <div className="space-y-3">
             {Array(6).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-28 w-full rounded-2xl" />
+              <Skeleton key={i} className="h-32 w-full rounded-2xl" />
             ))}
           </div>
         ) : tasks && tasks.length > 0 ? (
@@ -219,74 +228,76 @@ export default function TasksPage() {
             {tasks.map((task, index) => {
               const tier = TIER_COLORS[index] || TIER_COLORS[0];
               const label = TIER_LABELS[index] || `Palier ${index + 1}`;
+              const icon = TIER_ICONS[index] || TIER_ICONS[0];
               const progress = Math.min((task.currentInvites / task.requiredInvites) * 100, 100);
 
               return (
                 <div
                   key={task.id}
                   className={`bg-white rounded-2xl overflow-hidden shadow-sm border ${
-                    task.isCompleted ? "border-green-200" : task.canClaim ? "border-[#c8102e]/30" : "border-gray-100"
+                    task.isCompleted ? "border-green-200" : task.canClaim ? "border-[#c8102e]/40" : "border-gray-100"
                   }`}
                   data-testid={`task-item-${task.id}`}
                 >
                   {/* Tier Header */}
-                  <div className={`bg-gradient-to-r ${tier.bg} px-4 py-2 flex items-center justify-between`}>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-white" />
-                      <span className="text-white font-bold text-sm">{label}</span>
-                    </div>
-                    {task.isCompleted && (
-                      <CheckCircle2 className="w-4 h-4 text-white" />
-                    )}
+                  <div className={`bg-gradient-to-r ${tier.bg} px-4 py-2.5 flex items-center justify-between`}>
+                    <span className="text-white font-bold text-sm">{label}</span>
+                    {task.isCompleted && <CheckCircle2 className="w-4 h-4 text-white" />}
                   </div>
 
                   {/* Task Body */}
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <p className="text-gray-700 text-sm">
-                          Inviter <span className="font-bold text-gray-900">{task.requiredInvites}</span> personnes à recharger
-                        </p>
-                        <p className="text-[#c8102e] font-bold text-lg mt-0.5">
-                          {task.reward.toLocaleString()} {currency}
-                        </p>
-                      </div>
+                  <div className="p-3 flex items-center gap-3">
+                    {/* Icon */}
+                    <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gray-50 flex items-center justify-center">
+                      <img src={icon} alt={label} className="w-12 h-12 object-contain" />
+                    </div>
 
-                      {/* Claim / Status Button */}
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-700 text-xs leading-snug mb-1">
+                        Inviter <span className="font-bold text-gray-900">{task.requiredInvites}</span> personnes à recharger
+                      </p>
+                      <p className="text-[#c8102e] font-bold text-base">
+                        {task.reward.toLocaleString()} {currency}
+                      </p>
+
+                      {/* Progress Bar */}
+                      <div className="mt-2">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-gray-400 text-[10px]">{task.currentInvites} / {task.requiredInvites}</span>
+                          <span className="text-gray-400 text-[10px]">{Math.round(progress)}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              task.isCompleted ? "bg-green-500" : "bg-[#c8102e]"
+                            }`}
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <div className="flex-shrink-0">
                       {task.isCompleted ? (
-                        <span className="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">
-                          Complété
+                        <span className="bg-green-100 text-green-700 text-[10px] font-semibold px-2.5 py-1.5 rounded-full block text-center">
+                          ✓ Fait
                         </span>
                       ) : task.canClaim ? (
                         <button
                           onClick={() => !claimMutation.isPending && claimMutation.mutate(task.id)}
                           disabled={claimMutation.isPending}
-                          className="bg-[#c8102e] text-white text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-transform shadow-sm"
+                          className="bg-[#c8102e] text-white text-[11px] font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-transform shadow-sm"
                           data-testid={`button-claim-${task.id}`}
                         >
                           {claimMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Réclamer"}
                         </button>
                       ) : (
-                        <span className="bg-gray-100 text-gray-500 text-xs font-semibold px-3 py-1.5 rounded-full">
+                        <span className="bg-gray-100 text-gray-400 text-[10px] font-semibold px-2.5 py-1.5 rounded-full block text-center">
                           En cours
                         </span>
                       )}
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-gray-500 text-xs">{task.currentInvites} / {task.requiredInvites} invitations</span>
-                        <span className="text-gray-500 text-xs font-medium">{Math.round(progress)}%</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            task.isCompleted ? "bg-green-500" : "bg-[#c8102e]"
-                          }`}
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>
