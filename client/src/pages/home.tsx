@@ -7,10 +7,10 @@ import { getCountryByCode } from "@/lib/countries";
 
 import wendysLogo from "@assets/wendys_logo.png";
 import heroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
-import iconRecharger from "@assets/20260208_191924_1770580677527.png";
-import iconRetraits from "@assets/20260208_191333_1770580677612.png";
+import iconRecharger from "@assets/20260312_105135_1773313898669.png";
+import iconRetraits from "@assets/20260312_105153_1773313898582.png";
 import iconAider from "@assets/20260208_105040_1770548435850.png";
-import iconEnregistrer from "@assets/images_(6)_1770548411064.png";
+import iconPlayStore from "@assets/d8f_GooglePlay_mediumklein_1773313882717.jpg";
 import iconConnexion from "@assets/20260311_204241_1773262537486.png";
 import iconBonus from "@assets/20260311_204319_1773262537445.png";
 import iconEquipe from "@assets/20260311_204705_1773262537367.png";
@@ -116,7 +116,7 @@ export default function HomePage() {
               data-testid="button-depot"
             >
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconRecharger} alt="Dépôt" className="w-8 h-8 object-contain" />
+                <img src={iconRecharger} alt="Dépôt" className="w-8 h-8 object-contain" style={{ filter: "grayscale(1) brightness(100)", mixBlendMode: "screen" }} />
               </div>
               <span className="text-white text-xs font-medium">Dépôt</span>
             </button>
@@ -127,7 +127,7 @@ export default function HomePage() {
               data-testid="button-retrait"
             >
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconRetraits} alt="Retrait" className="w-8 h-8 object-contain" />
+                <img src={iconRetraits} alt="Retrait" className="w-8 h-8 object-contain" style={{ filter: "grayscale(1) brightness(100)", mixBlendMode: "screen" }} />
               </div>
               <span className="text-white text-xs font-medium">Retrait</span>
             </button>
@@ -140,7 +140,7 @@ export default function HomePage() {
               data-testid="button-telegram"
             >
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconAider} alt="Telegram" className="w-8 h-8 object-contain" />
+                <img src={iconAider} alt="Telegram" className="w-8 h-8 object-contain" style={{ filter: "grayscale(1) brightness(100)", mixBlendMode: "screen" }} />
               </div>
               <span className="text-white text-xs font-medium">Telegram</span>
             </a>
@@ -153,7 +153,7 @@ export default function HomePage() {
               data-testid="button-app"
             >
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconEnregistrer} alt="App" className="w-8 h-8 object-contain" />
+                <img src={iconPlayStore} alt="App" className="w-8 h-8 object-contain rounded-lg" />
               </div>
               <span className="text-white text-xs font-medium">App</span>
             </a>
