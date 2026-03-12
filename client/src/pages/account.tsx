@@ -134,14 +134,12 @@ export default function AccountPage() {
                 <span className="text-gray-700 text-xs font-medium">Service</span>
               </button>
             </Link>
-            <Link href="/team">
-              <button className="flex flex-col items-center gap-1.5" data-testid="button-inviter">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0)" }}>
-                  <img src={iconTeam} alt="" className="w-8 h-8" />
-                </div>
-                <span className="text-gray-700 text-xs font-medium">Inviter</span>
-              </button>
-            </Link>
+            <button onClick={() => navigate("/change-password")} className="flex flex-col items-center gap-1.5" data-testid="button-securite">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0)" }}>
+                <img src={iconTeam} alt="" className="w-8 h-8" />
+              </div>
+              <span className="text-gray-700 text-xs font-medium">Sécurité</span>
+            </button>
           </div>
         </div>
 
