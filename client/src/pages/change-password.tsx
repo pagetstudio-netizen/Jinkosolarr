@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Eye, EyeOff, ChevronLeft, Lock, KeyRound, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Loader2, Eye, EyeOff, ChevronLeft, Lock, KeyRound, CheckCircle2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 export default function ChangePasswordPage() {
@@ -82,30 +82,17 @@ export default function ChangePasswordPage() {
   return (
     <div className="flex flex-col min-h-full bg-gray-50">
 
-      {/* Red gradient header */}
-      <div
-        className="relative px-4 pt-12 pb-16"
-        style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
-      >
+      {/* Simple header */}
+      <header className="flex items-center px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
-          <button className="absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20" data-testid="button-back">
-            <ChevronLeft className="w-5 h-5 text-white" />
+          <button className="w-9 h-9 flex items-center justify-center" data-testid="button-back">
+            <ChevronLeft className="w-6 h-6 text-gray-700" />
           </button>
         </Link>
-        <h1 className="text-center text-white text-lg font-bold mt-1">Modifier le mot de passe</h1>
+        <h1 className="flex-1 text-center text-base font-bold text-gray-800 mr-9">Modifier le mot de passe</h1>
+      </header>
 
-        {/* Shield icon floating */}
-        <div className="flex justify-center mt-5">
-          <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center shadow-lg">
-            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center">
-              <ShieldCheck className="w-8 h-8 text-[#c8102e]" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Card overlapping header */}
-      <div className="flex-1 px-4 -mt-6 pb-24">
+      <div className="flex-1 px-4 pt-4 pb-24">
         <div className="bg-white rounded-2xl shadow-md p-5 space-y-4">
 
           {/* Current password */}
