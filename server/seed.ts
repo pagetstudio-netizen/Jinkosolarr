@@ -1,10 +1,23 @@
 import { db } from "./db";
 import { users, products, tasks, paymentChannels, platformSettings } from "@shared/schema";
 import bcrypt from "bcrypt";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export async function seed() {
   console.log("Seeding database...");
+
+  // Create session table for connect-pg-simple (if not exists)
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS "session" (
+      "sid" varchar NOT NULL COLLATE "default",
+      "sess" json NOT NULL,
+      "expire" timestamp(6) NOT NULL,
+      CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
+    ) WITH (OIDS=FALSE)
+  `);
+  await db.execute(sql`
+    CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")
+  `);
 
   // Check if admin already exists
   const existingAdmin = await db.select().from(users).where(eq(users.phone, "99935673"));
