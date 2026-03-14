@@ -402,13 +402,36 @@ export async function registerRoutes(
         storage.getSettings(),
       ]);
 
-      // Tag each channel with gateway type for deposit processing logic only
-      const tagged = channels.map((ch, idx) => ({
-        ...ch,
-        gateway: idx === 0 ? "soleaspay" : idx === 1 ? "inpay" : null,
-      }));
+      const soleaspayEnabled = settings.soleaspayEnabled === "true";
+      const inpayEnabled = settings.inpayEnabled !== "false";
 
-      res.json(tagged);
+      // Build virtual gateway channels when enabled in settings
+      const virtualChannels: any[] = [];
+      if (soleaspayEnabled) {
+        virtualChannels.push({
+          id: -1,
+          name: "Soleaspay",
+          redirectUrl: "",
+          isApi: true,
+          isActive: true,
+          gateway: "soleaspay",
+        });
+      }
+      if (inpayEnabled) {
+        virtualChannels.push({
+          id: -2,
+          name: "InPay",
+          redirectUrl: "",
+          isApi: true,
+          isActive: true,
+          gateway: "inpay",
+        });
+      }
+
+      // Manual channels created by admin (no gateway auto-processing)
+      const manualChannels = channels.map((ch) => ({ ...ch, gateway: null }));
+
+      res.json([...virtualChannels, ...manualChannels]);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

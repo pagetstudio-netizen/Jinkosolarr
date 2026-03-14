@@ -50,7 +50,8 @@ export default function DepositPage() {
   const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; isActive: boolean; gateway: string | null }[]>({
     queryKey: ["/api/payment-channels"],
   });
-  const defaultChannelId = paymentChannels[0]?.id || 1;
+  // Only use real (positive-id) channels as fallback for DB record
+  const defaultChannelId = paymentChannels.find(c => c.id > 0)?.id ?? null;
 
   useEffect(() => {
     return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
@@ -150,13 +151,15 @@ export default function DepositPage() {
 
     setPaymentStatus("processing");
     const chosenChannel = paymentChannels.find(c => c.id === selectedChannel);
+    // For virtual gateway channels (id < 0), use first real channel for DB record (or null)
+    const channelIdForRecord = selectedChannel && selectedChannel > 0 ? selectedChannel : defaultChannelId;
     depositMutation.mutate({
       amount: amount as number,
       paymentMethod: selectedOperator,
       accountName,
       accountNumber,
       country: selectedCountry,
-      paymentChannelId: selectedChannel || defaultChannelId,
+      paymentChannelId: channelIdForRecord,
       useSoleaspay: chosenChannel?.gateway === "soleaspay",
       useInpay: chosenChannel?.gateway === "inpay",
     });
