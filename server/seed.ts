@@ -192,9 +192,10 @@ export async function seed() {
   // Check if settings exist
   const existingSettings = await db.select().from(platformSettings);
   const requiredSettings = [
-    { key: "supportLink", value: "https://t.me/+M229bmWp-AkyZWEx" },
-    { key: "channelLink", value: "https://t.me/+M229bmWp-AkyZWEx" },
-    { key: "groupLink", value: "https://t.me/+M229bmWp-AkyZWEx" },
+    { key: "supportLink", value: "https://t.me/wendysappgroup" },
+    { key: "support2Link", value: "https://t.me/wendysappgroup" },
+    { key: "channelLink", value: "https://t.me/wendysappgroup" },
+    { key: "groupLink", value: "https://t.me/wendysappgroup" },
     { key: "withdrawalFees", value: "15" },
     { key: "withdrawalStartHour", value: "8" },
     { key: "withdrawalEndHour", value: "17" },

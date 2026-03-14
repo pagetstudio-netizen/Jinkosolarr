@@ -1115,9 +1115,10 @@ export async function registerRoutes(
     try {
       const settings = await storage.getSettings();
       res.json({
-        supportLink: settings.supportLink || "https://t.me/+M229bmWp-AkyZWEx",
-        channelLink: settings.channelLink || "https://t.me/+M229bmWp-AkyZWEx",
-        groupLink: settings.groupLink || "https://t.me/+M229bmWp-AkyZWEx",
+        supportLink: settings.supportLink || "https://t.me/wendysappgroup",
+        support2Link: settings.support2Link || "https://t.me/wendysappgroup",
+        channelLink: settings.channelLink || "https://t.me/wendysappgroup",
+        groupLink: settings.groupLink || "https://t.me/wendysappgroup",
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

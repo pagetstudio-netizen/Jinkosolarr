@@ -2,10 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { SiTelegram } from "react-icons/si";
-import serviceAgentImg from "@/assets/images/elf-expert-1.jpeg";
+import serviceAgent1 from "@assets/images_(20)_1773474932054.jpeg";
+import serviceAgent2 from "@assets/images_(21)_1773474931992.jpeg";
 
 export default function ServicePage() {
-  const { data: settings } = useQuery<{ supportLink: string; channelLink: string; groupLink: string }>({
+  const { data: settings } = useQuery<{ supportLink: string; support2Link: string; channelLink: string; groupLink: string }>({
     queryKey: ["/api/settings/links"],
   });
 
@@ -37,17 +38,35 @@ export default function ServicePage() {
       {/* Cards */}
       <div className="flex-1 px-4 pt-4 pb-24 space-y-3">
 
-        {/* Service client en ligne */}
+        {/* Service client en ligne 1 */}
         <button
-          onClick={() => openLink(settings?.supportLink || "https://t.me/+M229bmWp-AkyZWEx")}
+          onClick={() => openLink(settings?.supportLink || "https://t.me/wendysappgroup")}
           className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
           data-testid="button-support-link"
         >
           <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 border-[#c8102e]/20">
-            <img src={serviceAgentImg} alt="Service client" className="w-full h-full object-cover" />
+            <img src={serviceAgent1} alt="Service client 1" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1 text-left">
-            <p className="font-bold text-gray-800 text-sm">Service client en ligne</p>
+            <p className="font-bold text-gray-800 text-sm">Service client en ligne 1</p>
+            <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+              Les heures du service client en ligne sont de 10h00 à 18h00.
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        </button>
+
+        {/* Service client en ligne 2 */}
+        <button
+          onClick={() => openLink(settings?.support2Link || "https://t.me/wendysappgroup")}
+          className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
+          data-testid="button-support2-link"
+        >
+          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 border-[#c8102e]/20">
+            <img src={serviceAgent2} alt="Service client 2" className="w-full h-full object-cover" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-bold text-gray-800 text-sm">Service client en ligne 2</p>
             <p className="text-gray-500 text-xs mt-1 leading-relaxed">
               Les heures du service client en ligne sont de 10h00 à 18h00.
             </p>
@@ -57,7 +76,7 @@ export default function ServicePage() {
 
         {/* Canal Telegram */}
         <button
-          onClick={() => openLink(settings?.channelLink || "https://t.me/+M229bmWp-AkyZWEx")}
+          onClick={() => openLink(settings?.channelLink || "https://t.me/wendysappgroup")}
           className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
           data-testid="button-channel-link"
         >
@@ -75,7 +94,7 @@ export default function ServicePage() {
 
         {/* Groupe Telegram */}
         <button
-          onClick={() => openLink(settings?.groupLink || "https://t.me/+M229bmWp-AkyZWEx")}
+          onClick={() => openLink(settings?.groupLink || "https://t.me/wendysappgroup")}
           className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
           data-testid="button-group-link"
         >

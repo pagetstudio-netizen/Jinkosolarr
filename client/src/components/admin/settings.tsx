@@ -32,6 +32,7 @@ const INPAY_COUNTRIES = [
 
 const settingsSchema = z.object({
   supportLink: z.string().min(5, "Lien requis"),
+  support2Link: z.string().min(5, "Lien requis"),
   channelLink: z.string().min(5, "Lien requis"),
   groupLink: z.string().min(5, "Lien requis"),
   withdrawalFees: z.string().min(1, "Frais requis"),
@@ -63,9 +64,10 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      supportLink: "https://t.me/+M229bmWp-AkyZWEx",
-      channelLink: "https://t.me/+M229bmWp-AkyZWEx",
-      groupLink: "https://t.me/+M229bmWp-AkyZWEx",
+      supportLink: "https://t.me/wendysappgroup",
+      support2Link: "https://t.me/wendysappgroup",
+      channelLink: "https://t.me/wendysappgroup",
+      groupLink: "https://t.me/wendysappgroup",
       withdrawalFees: "15",
       withdrawalStartHour: "8",
       withdrawalEndHour: "17",
@@ -83,9 +85,10 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   useEffect(() => {
     if (settings) {
       form.reset({
-        supportLink: settings.supportLink || "https://t.me/+M229bmWp-AkyZWEx",
-        channelLink: settings.channelLink || "https://t.me/+M229bmWp-AkyZWEx",
-        groupLink: settings.groupLink || "https://t.me/+M229bmWp-AkyZWEx",
+        supportLink: settings.supportLink || "https://t.me/wendysappgroup",
+        support2Link: settings.support2Link || "https://t.me/wendysappgroup",
+        channelLink: settings.channelLink || "https://t.me/wendysappgroup",
+        groupLink: settings.groupLink || "https://t.me/wendysappgroup",
         withdrawalFees: settings.withdrawalFees || "15",
         withdrawalStartHour: settings.withdrawalStartHour || "8",
         withdrawalEndHour: settings.withdrawalEndHour || "17",
@@ -169,7 +172,21 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               name="supportLink"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Service client</FormLabel>
+                  <FormLabel>Service client 1</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="https://t.me/..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="support2Link"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Service client 2</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="https://t.me/..." />
                   </FormControl>
