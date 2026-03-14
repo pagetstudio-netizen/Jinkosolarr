@@ -24,6 +24,8 @@ export default function HomePage() {
   const { user } = useAuth();
   const [location, navigate] = useLocation();
   const [showPopup, setShowPopup] = useState(true);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installed, setInstalled] = useState(false);
 
   const { data: userProducts } = useQuery<any[]>({
     queryKey: ["/api/user/products"],
@@ -34,6 +36,23 @@ export default function HomePage() {
   useEffect(() => {
     setShowPopup(true);
   }, [location]);
+
+  // Capture PWA install prompt
+  useEffect(() => {
+    const handler = (e: any) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => setInstalled(true));
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === "accepted") setInstalled(true);
+      setInstallPrompt(null);
+    }
+  };
 
   if (!user) return null;
 
@@ -154,18 +173,18 @@ export default function HomePage() {
               <span className="text-white text-xs font-medium">Telegram</span>
             </button>
 
-            <a
-              href={TELEGRAM_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleInstall}
               className="flex flex-col items-center gap-1.5"
               data-testid="button-app"
             >
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                 <img src={iconPlayStore} alt="App" className="w-8 h-8 object-contain rounded-lg" />
               </div>
-              <span className="text-white text-xs font-medium">App</span>
-            </a>
+              <span className="text-white text-xs font-medium">
+                {installed ? "Installée" : "App"}
+              </span>
+            </button>
           </div>
         </div>
       </div>
