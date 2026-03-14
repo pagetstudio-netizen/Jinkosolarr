@@ -16,8 +16,6 @@ interface Deposit {
   createdAt: string;
   soleaspayReference?: string;
   soleaspayOrderId?: string;
-  inpayOutTradeNo?: string;
-  inpayOrderNumber?: string;
 }
 
 interface Withdrawal {
@@ -90,15 +88,13 @@ export default function HistoryPage() {
 
   const getReference = (deposit: Deposit) => {
     if (deposit.soleaspayReference) return deposit.soleaspayReference;
-    if (deposit.inpayOrderNumber) return deposit.inpayOrderNumber;
     if (deposit.soleaspayOrderId) return deposit.soleaspayOrderId;
-    if (deposit.inpayOutTradeNo) return deposit.inpayOutTradeNo;
     return `DEP${deposit.id.toString().padStart(10, "0")}`;
   };
 
   const isPendingDeposit = (deposit: Deposit) => {
     return (deposit.status === "pending" || deposit.status === "processing") &&
-      (deposit.soleaspayReference || deposit.soleaspayOrderId || deposit.inpayOutTradeNo);
+      (deposit.soleaspayReference || deposit.soleaspayOrderId);
   };
 
   const handleVerify = async (depositId: number) => {

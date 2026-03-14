@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, Save, Link, Clock, Users, CreditCard, Zap } from "lucide-react";
+import { Loader2, Save, Link, Clock, Users, CreditCard } from "lucide-react";
 
 const SOLEASPAY_COUNTRIES = [
   { code: "CM", name: "Cameroun" },
@@ -22,12 +22,6 @@ const SOLEASPAY_COUNTRIES = [
   { code: "CI", name: "Cote d'Ivoire" },
   { code: "CG", name: "Congo Brazzaville" },
   { code: "CD", name: "RDC" },
-];
-
-const INPAY_COUNTRIES = [
-  { code: "TG", name: "Togo" },
-  { code: "BF", name: "Burkina Faso" },
-  { code: "CI", name: "Cote d'Ivoire" },
 ];
 
 const settingsSchema = z.object({
@@ -44,9 +38,6 @@ const settingsSchema = z.object({
   soleaspayEnabled: z.string(),
   soleaspayCountries: z.string(),
   soleaspayChannelName: z.string().min(1, "Nom requis"),
-  inpayEnabled: z.string(),
-  inpayCountries: z.string(),
-  inpayChannelName: z.string().min(1, "Nom requis"),
   congoPaymentLink: z.string().min(5, "Lien requis"),
 });
 
@@ -79,9 +70,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       soleaspayEnabled: "false",
       soleaspayCountries: "",
       soleaspayChannelName: "Westpay",
-      inpayEnabled: "true",
-      inpayCountries: "TG,BF,CI",
-      inpayChannelName: "Robotpay",
       congoPaymentLink: "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
     },
   });
@@ -102,9 +90,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         soleaspayEnabled: settings.soleaspayEnabled || "false",
         soleaspayCountries: settings.soleaspayCountries || "",
         soleaspayChannelName: settings.soleaspayChannelName || "Westpay",
-        inpayEnabled: settings.inpayEnabled || "true",
-        inpayCountries: settings.inpayCountries || "TG,BF,CI",
-        inpayChannelName: settings.inpayChannelName || "Robotpay",
         congoPaymentLink: settings.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
       });
     }
@@ -134,10 +119,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   const soleaspayCountriesValue = form.watch("soleaspayCountries") || "";
   const selectedCountries = soleaspayCountriesValue ? soleaspayCountriesValue.split(",").filter(Boolean) : [];
 
-  const inpayEnabled = form.watch("inpayEnabled") === "true";
-  const inpayCountriesValue = form.watch("inpayCountries") || "";
-  const selectedInpayCountries = inpayCountriesValue ? inpayCountriesValue.split(",").filter(Boolean) : [];
-
   const toggleCountry = (code: string) => {
     let updated: string[];
     if (selectedCountries.includes(code)) {
@@ -146,16 +127,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       updated = [...selectedCountries, code];
     }
     form.setValue("soleaspayCountries", updated.join(","), { shouldDirty: true });
-  };
-
-  const toggleInpayCountry = (code: string) => {
-    let updated: string[];
-    if (selectedInpayCountries.includes(code)) {
-      updated = selectedInpayCountries.filter(c => c !== code);
-    } else {
-      updated = [...selectedInpayCountries, code];
-    }
-    form.setValue("inpayCountries", updated.join(","), { shouldDirty: true });
   };
 
   if (isLoading) {
@@ -365,79 +336,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                       <Checkbox
                         checked={selectedCountries.includes(country.code)}
                         onCheckedChange={() => toggleCountry(country.code)}
-                      />
-                      <span className="text-sm">{country.name} ({country.code})</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Zap className="w-5 h-5 text-primary" />
-              Paiement automatique (InPay)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="inpayEnabled"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Activer InPay</FormLabel>
-                    <FormDescription>
-                      Permet les depots et retraits automatiques via InPay Africa
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value === "true"}
-                      onCheckedChange={(checked) => field.onChange(checked ? "true" : "false")}
-                      data-testid="switch-inpay"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="inpayChannelName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nom du canal (affiché aux utilisateurs)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Ex: Robotpay" />
-                  </FormControl>
-                  <FormDescription>Ce nom apparaît comme option de recharge sur la page dépôt.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {inpayEnabled && (
-              <div className="rounded-lg border p-4 space-y-3">
-                <p className="text-sm font-medium text-foreground">
-                  Pays actives pour InPay
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Seuls les pays selectionnes pourront utiliser InPay pour les depots et retraits.
-                </p>
-                <div className="space-y-2">
-                  {INPAY_COUNTRIES.map((country) => (
-                    <label
-                      key={country.code}
-                      className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover-elevate"
-                      data-testid={`checkbox-inpay-${country.code}`}
-                    >
-                      <Checkbox
-                        checked={selectedInpayCountries.includes(country.code)}
-                        onCheckedChange={() => toggleInpayCountry(country.code)}
                       />
                       <span className="text-sm">{country.name} ({country.code})</span>
                     </label>

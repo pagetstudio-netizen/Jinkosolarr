@@ -218,8 +218,6 @@ export async function seed() {
     { key: "soleaspayEnabled", value: "false" },
     { key: "soleaspayCountries", value: "" },
     { key: "soleaspayChannelName", value: "Westpay" },
-    { key: "inpayEnabled", value: "true" },
-    { key: "inpayChannelName", value: "Robotpay" },
   ];
 
   for (const settingData of requiredSettings) {

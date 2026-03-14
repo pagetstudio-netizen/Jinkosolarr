@@ -19,7 +19,6 @@ type PaymentStatus = "idle" | "processing" | "pending" | "approved" | "rejected"
 interface DepositResponse {
   deposit: { id: number; status: string };
   soleaspay?: boolean;
-  inpay?: boolean;
   paymentUrl?: string;
 }
 
@@ -87,13 +86,12 @@ export default function DepositPage() {
       country: string;
       paymentChannelId: number;
       useSoleaspay: boolean;
-      useInpay: boolean;
     }) => {
       const res = await apiRequest("POST", "/api/deposits", data);
       return res.json() as Promise<DepositResponse>;
     },
     onSuccess: (data) => {
-      if (data.soleaspay || data.inpay) {
+      if (data.soleaspay) {
         setCurrentDepositId(data.deposit.id);
         setPaymentStatus("pending");
         startPolling(data.deposit.id);
@@ -161,7 +159,6 @@ export default function DepositPage() {
       country: selectedCountry,
       paymentChannelId: channelIdForRecord,
       useSoleaspay: chosenChannel?.gateway === "soleaspay",
-      useInpay: chosenChannel?.gateway === "inpay",
     });
   };
 
