@@ -15,10 +15,17 @@ const COUNTRY_PREFIXES: Record<string, string> = {
 
 function formatMsisdn(phone: string, country: string): string {
   const prefix = COUNTRY_PREFIXES[country] || "";
-  const cleaned = phone.replace(/\D/g, "").replace(/^0+/, "");
+  // Remove everything except digits: strips +, spaces, dashes, parentheses, etc.
+  let cleaned = phone.replace(/\D/g, "");
+  // Remove leading double-zero international prefix (e.g. 0022899935673 → 22899935673)
+  cleaned = cleaned.replace(/^00/, "");
+  // Remove single leading zero only if NOT already starting with the country prefix
+  // (prevents stripping the first digit of numbers like 0559927374 in CI)
   if (prefix && !cleaned.startsWith(prefix)) {
+    cleaned = cleaned.replace(/^0+/, "");
     return prefix + cleaned;
   }
+  // Number already starts with the country code — return as-is (no + sign)
   return cleaned;
 }
 

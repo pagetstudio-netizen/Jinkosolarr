@@ -552,7 +552,7 @@ export async function registerRoutes(
           const paymentResult = await omnipayInitiatePayment({
             phone: accountNumber,
             country,
-            amount,
+            amount: Math.floor(Number(amount)),
             reference: orderId,
             firstName,
             lastName,
@@ -1243,7 +1243,7 @@ export async function registerRoutes(
           const payoutResult = await omnipayInitiateTransfer({
             phone: withdrawalData.accountNumber,
             country: withdrawalData.country,
-            amount: withdrawalData.netAmount,
+            amount: Math.floor(Number(withdrawalData.netAmount)),
             reference: outRef,
             firstName,
             lastName,
