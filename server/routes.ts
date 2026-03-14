@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import bcrypt from "bcrypt";
 import { registerSchema, loginSchema } from "@shared/schema";
 import { z } from "zod";
-import MemoryStore from "memorystore";
+import ConnectPgSimple from "connect-pg-simple";
 import { 
   initiatePayment, 
   verifyPayment, 
@@ -34,7 +34,7 @@ declare module "express-session" {
   }
 }
 
-const SessionStore = MemoryStore(session);
+const PgSession = ConnectPgSimple(session);
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) {
@@ -59,16 +59,25 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
+  // Trust proxy for production HTTPS (Replit deployment)
+  app.set("trust proxy", 1);
+
   app.use(
     session({
-      store: new SessionStore({ checkPeriod: 86400000 }),
-      secret: process.env.SESSION_SECRET || "wendys-secret-key",
+      store: new PgSession({
+        conString: process.env.DATABASE_URL,
+        tableName: "session",
+        createTableIfMissing: true,
+        pruneSessionInterval: 60 * 60, // prune expired sessions every hour
+      }),
+      secret: process.env.SESSION_SECRET || "wendys-secret-key-2024",
       resave: false,
       saveUninitialized: false,
       cookie: {
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
         httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       },
     })
   );
