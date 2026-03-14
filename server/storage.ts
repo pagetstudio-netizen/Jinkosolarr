@@ -1055,7 +1055,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getGiftCodeByCode(code: string): Promise<GiftCode | undefined> {
-    const [giftCode] = await db.select().from(giftCodes).where(eq(giftCodes.code, code));
+    const [giftCode] = await db.select().from(giftCodes).where(
+      sql`UPPER(${giftCodes.code}) = UPPER(${code})`
+    );
     return giftCode || undefined;
   }
 

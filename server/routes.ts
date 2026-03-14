@@ -1693,7 +1693,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: parseResult.error.errors[0]?.message || "Le code est requis" });
       }
 
-      const { code } = parseResult.data;
+      const code = parseResult.data.code.trim().toUpperCase();
       const userId = req.session.userId!;
 
       const giftCode = await storage.getGiftCodeByCode(code);
