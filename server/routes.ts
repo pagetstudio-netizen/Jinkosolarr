@@ -405,20 +405,14 @@ export async function registerRoutes(
       const soleaspayEnabled = settings.soleaspayEnabled !== "false";
       const inpayEnabled = settings.inpayEnabled !== "false";
 
-      // Tag each channel with its gateway type (position 0 = soleaspay, 1 = inpay)
-      // then filter out disabled ones
+      // Tag each channel with its gateway type for deposit processing logic
+      // Always show all active channels — gateway tag is only used during submission
       const tagged = channels.map((ch, idx) => ({
         ...ch,
         gateway: idx === 0 ? "soleaspay" : idx === 1 ? "inpay" : null,
       }));
 
-      const filtered = tagged.filter((ch) => {
-        if (ch.gateway === "soleaspay" && !soleaspayEnabled) return false;
-        if (ch.gateway === "inpay" && !inpayEnabled) return false;
-        return true;
-      });
-
-      res.json(filtered);
+      res.json(tagged);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
