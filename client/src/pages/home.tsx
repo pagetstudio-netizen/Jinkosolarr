@@ -63,16 +63,15 @@ export default function HomePage() {
 
               {/* Body text */}
               <p className="text-white/90 text-sm leading-relaxed mb-4">
-                Wendy's est une plateforme d'investissement sécurisée qui vous permet de faire fructifier
-                votre argent chaque jour, sans effort.
+                Wendy's est l'une des plus grandes chaînes de burgers au monde.
               </p>
 
               {/* Numbered list */}
-              <div className="space-y-2.5 text-white/90 text-sm mb-6">
-                <p>1. Chaque nouvel utilisateur reçoit <span className="font-bold text-white">700 FCFA</span> de bonus à l'inscription.</p>
-                <p>2. Gagnez <span className="font-bold text-white">50 FCFA</span> de bonus gratuit chaque jour.</p>
-                <p>3. Parrainez vos amis et touchez jusqu'à <span className="font-bold text-white">27 %</span> de commission.</p>
-                <p>4. Rejoignez notre groupe officiel pour les codes bonus et les annonces.</p>
+              <div className="space-y-2 text-white/90 text-sm mb-6">
+                <p>1. Bonus d'inscription : <span className="font-bold text-white">700 FCFA</span>.</p>
+                <p>2. Bonus quotidien : <span className="font-bold text-white">50 FCFA</span>.</p>
+                <p>3. Parrainage : jusqu'à <span className="font-bold text-white">27 %</span> de commission.</p>
+                <p>4. Rejoignez notre groupe pour les codes bonus.</p>
               </div>
 
               {/* D'ACCORD button */}
