@@ -462,7 +462,7 @@ export async function registerRoutes(
   // Deposits
   app.post("/api/deposits", requireAuth, async (req, res) => {
     try {
-      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId, useSoleaspay, useOmnipay } = req.body;
+      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId, useSoleaspay, useOmnipay, otpCode } = req.body;
       const user = await storage.getUser(req.session.userId!);
       
       if (!user) {
@@ -558,6 +558,7 @@ export async function registerRoutes(
             lastName,
             paymentMethod,
             returnUrl: `${baseUrl}/history`,
+            otpCode: otpCode || undefined,
           });
 
           if (paymentResult.success == 1) {

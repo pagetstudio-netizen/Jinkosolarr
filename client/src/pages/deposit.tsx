@@ -34,18 +34,27 @@ export default function DepositPage() {
   const [selectedOperator, setSelectedOperator] = useState("");
   const [accountName, setAccountName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [showOperatorPicker, setShowOperatorPicker] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+
+  // OTP rules per country + operator
+  const isOrangeOperator = selectedOperator.toLowerCase().includes("orange");
+  const needsOtp = isOrangeOperator && (selectedCountry === "CI" || selectedCountry === "BF");
+  const otpAutoFilled = isOrangeOperator && selectedCountry === "CM"; // Cameroun: no OTP from user
+  const showOtpField = needsOtp && !otpAutoFilled;
 
   const countryInfo = getCountryByCode(selectedCountry || user?.country || "");
   const currency = countryInfo?.currency || "FCFA";
   const balance = parseFloat(user?.balance || "0");
   const operators = countryInfo?.paymentMethods || [];
 
-  // Reset operator when country changes
-  useEffect(() => { setSelectedOperator(""); }, [selectedCountry]);
+  // Reset operator and OTP when country changes
+  useEffect(() => { setSelectedOperator(""); setOtpCode(""); }, [selectedCountry]);
+  // Reset OTP when operator changes
+  useEffect(() => { setOtpCode(""); }, [selectedOperator]);
 
   const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; isActive: boolean; gateway: string | null }[]>({
     queryKey: ["/api/payment-channels"],
@@ -88,6 +97,7 @@ export default function DepositPage() {
       paymentChannelId: number;
       useSoleaspay: boolean;
       useOmnipay: boolean;
+      otpCode?: string;
     }) => {
       const res = await apiRequest("POST", "/api/deposits", data);
       return res.json() as Promise<DepositResponse>;
@@ -148,6 +158,10 @@ export default function DepositPage() {
       toast({ title: "Numéro requis", description: "Veuillez entrer votre numéro de téléphone", variant: "destructive" });
       return;
     }
+    if (showOtpField && !otpCode.trim()) {
+      toast({ title: "Code OTP requis", description: "Veuillez saisir votre code OTP Orange", variant: "destructive" });
+      return;
+    }
 
     setPaymentStatus("processing");
     const chosenChannel = paymentChannels.find(c => c.id === selectedChannel);
@@ -162,6 +176,7 @@ export default function DepositPage() {
       paymentChannelId: channelIdForRecord,
       useSoleaspay: chosenChannel?.gateway === "soleaspay",
       useOmnipay: chosenChannel?.gateway === "omnipay",
+      otpCode: showOtpField ? otpCode.trim() : undefined,
     });
   };
 
@@ -336,6 +351,35 @@ export default function DepositPage() {
             data-testid="input-account-number"
           />
         </div>
+
+        {/* OTP field — visible only for Orange CI and Orange BF */}
+        {showOtpField && (
+          <div className="space-y-2">
+            {selectedCountry === "BF" && (
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3">
+                <p className="text-orange-700 text-xs font-semibold mb-1">Comment générer votre code OTP Orange Burkina :</p>
+                <p className="text-orange-600 text-xs">Composez <strong>*144*4*6*{amount || "montant"}#</strong> sur votre téléphone, puis entrez le code reçu ci-dessous.</p>
+              </div>
+            )}
+            {selectedCountry === "CI" && (
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3">
+                <p className="text-orange-700 text-xs font-semibold mb-1">Code OTP Orange Côte d'Ivoire</p>
+                <p className="text-orange-600 text-xs">Saisissez le code OTP généré par votre application Orange Money ou reçu par SMS.</p>
+              </div>
+            )}
+            <div className="border border-orange-300 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
+              <input
+                type="number"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value)}
+                placeholder="Code OTP Orange"
+                className="flex-1 text-sm outline-none text-gray-500 bg-transparent tracking-widest"
+                maxLength={8}
+                data-testid="input-otp-code"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Submit button */}
         <button

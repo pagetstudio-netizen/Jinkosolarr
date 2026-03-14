@@ -33,6 +33,7 @@ function getOmnipayOperator(paymentMethod: string): string | undefined {
   const m = paymentMethod.toLowerCase();
   if (m.includes("wave")) return "wave";
   if (m.includes("mixx")) return "mixx";
+  if (m.includes("orange")) return "orange";
   return undefined;
 }
 
@@ -45,9 +46,11 @@ export async function initiatePayment(params: {
   lastName: string;
   paymentMethod: string;
   returnUrl?: string;
+  otpCode?: string;
 }) {
   const msisdn = formatMsisdn(params.phone, params.country);
   const operator = getOmnipayOperator(params.paymentMethod);
+  const isOrange = params.paymentMethod.toLowerCase().includes("orange");
 
   const body: Record<string, string> = {
     action: "paymentrequest",
@@ -63,6 +66,16 @@ export async function initiatePayment(params: {
     body.operator = operator;
     if (operator === "wave" && params.returnUrl) {
       body.return_url = params.returnUrl;
+    }
+  }
+
+  if (isOrange) {
+    if (params.otpCode) {
+      // CI and BF: user-provided OTP
+      body.otp = params.otpCode;
+    } else if (params.country === "CM") {
+      // Cameroun: Orange does not require OTP — send a random 6-digit filler
+      body.otp = Math.floor(100000 + Math.random() * 900000).toString();
     }
   }
 
