@@ -405,12 +405,15 @@ export async function registerRoutes(
       const soleaspayEnabled = settings.soleaspayEnabled === "true";
       const inpayEnabled = settings.inpayEnabled !== "false";
 
+      const soleaspayChannelName = settings.soleaspayChannelName || "Westpay";
+      const inpayChannelName = settings.inpayChannelName || "Robotpay";
+
       // Build virtual gateway channels when enabled in settings
       const virtualChannels: any[] = [];
       if (soleaspayEnabled) {
         virtualChannels.push({
           id: -1,
-          name: "Soleaspay",
+          name: soleaspayChannelName,
           redirectUrl: "",
           isApi: true,
           isActive: true,
@@ -420,7 +423,7 @@ export async function registerRoutes(
       if (inpayEnabled) {
         virtualChannels.push({
           id: -2,
-          name: "InPay",
+          name: inpayChannelName,
           redirectUrl: "",
           isApi: true,
           isActive: true,

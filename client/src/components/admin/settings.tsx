@@ -43,8 +43,10 @@ const settingsSchema = z.object({
   level3Commission: z.string().min(1, "Commission requise"),
   soleaspayEnabled: z.string(),
   soleaspayCountries: z.string(),
+  soleaspayChannelName: z.string().min(1, "Nom requis"),
   inpayEnabled: z.string(),
   inpayCountries: z.string(),
+  inpayChannelName: z.string().min(1, "Nom requis"),
   congoPaymentLink: z.string().min(5, "Lien requis"),
 });
 
@@ -76,8 +78,10 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       level3Commission: "1",
       soleaspayEnabled: "false",
       soleaspayCountries: "",
+      soleaspayChannelName: "Westpay",
       inpayEnabled: "true",
       inpayCountries: "TG,BF,CI",
+      inpayChannelName: "Robotpay",
       congoPaymentLink: "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
     },
   });
@@ -97,8 +101,10 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         level3Commission: settings.level3Commission || "1",
         soleaspayEnabled: settings.soleaspayEnabled || "false",
         soleaspayCountries: settings.soleaspayCountries || "",
+        soleaspayChannelName: settings.soleaspayChannelName || "Westpay",
         inpayEnabled: settings.inpayEnabled || "true",
         inpayCountries: settings.inpayCountries || "TG,BF,CI",
+        inpayChannelName: settings.inpayChannelName || "Robotpay",
         congoPaymentLink: settings.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
       });
     }
@@ -326,6 +332,21 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="soleaspayChannelName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nom du canal (affiché aux utilisateurs)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Ex: Westpay" />
+                  </FormControl>
+                  <FormDescription>Ce nom apparaît comme option de recharge sur la page dépôt.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {soleaspayEnabled && (
               <div className="rounded-lg border p-4 space-y-3">
                 <p className="text-sm font-medium text-foreground">
@@ -380,6 +401,21 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                       data-testid="switch-inpay"
                     />
                   </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="inpayChannelName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nom du canal (affiché aux utilisateurs)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Ex: Robotpay" />
+                  </FormControl>
+                  <FormDescription>Ce nom apparaît comme option de recharge sur la page dépôt.</FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />
