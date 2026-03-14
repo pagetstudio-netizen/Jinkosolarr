@@ -84,12 +84,13 @@ export async function registerRoutes(
       }
 
       let referredBy: string | undefined;
-      if (data.invitationCode) {
-        const referrer = await storage.getUserByReferralCode(data.invitationCode);
+      if (data.invitationCode && data.invitationCode.trim()) {
+        const cleanCode = data.invitationCode.trim().toUpperCase();
+        const referrer = await storage.getUserByReferralCode(cleanCode);
         if (!referrer) {
           return res.status(400).json({ message: "Code d'invitation invalide" });
         }
-        referredBy = data.invitationCode;
+        referredBy = cleanCode;
       }
 
       const user = await storage.createUser({
