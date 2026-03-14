@@ -13,6 +13,7 @@ export const SOLEASPAY_SERVICE_MAP: Record<string, Record<string, number>> = {
   TG: {
     "Moov Money": 38,
     "T-Money": 37,
+    "Mixx by Yas": 37,
   },
   BJ: {
     "MTN": 35,

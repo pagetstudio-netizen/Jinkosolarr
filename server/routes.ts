@@ -522,7 +522,7 @@ export async function registerRoutes(
               accountNumber,
               country,
               paymentMethod,
-              paymentChannelId,
+              paymentChannelId: paymentChannelId > 0 ? paymentChannelId : null,
               status: "processing",
               inpayOrderNumber: paymentResult.data.order_number,
               inpayOutTradeNo: orderId,
@@ -549,8 +549,14 @@ export async function registerRoutes(
         }
       }
       
-      const forceSoleaspay = soleaspayEnabled && soleaspayCountries.includes(country) && isSoleaspaySupported(country, paymentMethod);
-      if ((useSoleaspay || forceSoleaspay) && forceSoleaspay) {
+      // Only use Soleaspay when user explicitly chose the Soleaspay channel (Westpay)
+      if (useSoleaspay && soleaspayEnabled) {
+        if (!isSoleaspaySupported(country, paymentMethod)) {
+          return res.status(400).json({
+            message: `L'opérateur "${paymentMethod}" n'est pas supporté par ce canal pour le pays "${country}". Veuillez choisir un autre canal.`,
+            soleaspay: true,
+          });
+        }
         try {
           const paymentResult = await initiatePayment(
             accountNumber,
@@ -570,7 +576,7 @@ export async function registerRoutes(
               accountNumber,
               country,
               paymentMethod,
-              paymentChannelId,
+              paymentChannelId: paymentChannelId > 0 ? paymentChannelId : null,
               status: "processing",
               soleaspayReference: paymentResult.data.reference,
               soleaspayOrderId: orderId,
@@ -605,7 +611,7 @@ export async function registerRoutes(
         accountNumber,
         country,
         paymentMethod,
-        paymentChannelId,
+        paymentChannelId: paymentChannelId > 0 ? paymentChannelId : null,
         status: "pending",
       });
 
