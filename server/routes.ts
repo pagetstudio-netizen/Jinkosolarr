@@ -398,15 +398,11 @@ export async function registerRoutes(
   app.get("/api/payment-channels", requireAuth, async (req, res) => {
     try {
       const [channels, settings] = await Promise.all([
-        storage.getActivePaymentChannels(),
+        storage.getPaymentChannels(),
         storage.getSettings(),
       ]);
 
-      const soleaspayEnabled = settings.soleaspayEnabled !== "false";
-      const inpayEnabled = settings.inpayEnabled !== "false";
-
-      // Tag each channel with its gateway type for deposit processing logic
-      // Always show all active channels — gateway tag is only used during submission
+      // Tag each channel with gateway type for deposit processing logic only
       const tagged = channels.map((ch, idx) => ({
         ...ch,
         gateway: idx === 0 ? "soleaspay" : idx === 1 ? "inpay" : null,
