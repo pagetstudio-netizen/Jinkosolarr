@@ -32,7 +32,7 @@ export default function DepositPage() {
   const [selectedChannel, setSelectedChannel] = useState<number | null>(null);
   const [selectedCountry, setSelectedCountry] = useState(user?.country || "");
   const [selectedOperator, setSelectedOperator] = useState("");
-  const [accountName, setAccountName] = useState("");
+  const [accountName, setAccountName] = useState(user?.fullName || "");
   const [accountNumber, setAccountNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
@@ -127,7 +127,7 @@ export default function DepositPage() {
     setAmount("");
     setSelectedChannel(null);
     setSelectedOperator("");
-    setAccountName("");
+    setAccountName(user?.fullName || "");
     setAccountNumber("");
     setPaymentStatus("idle");
     setCurrentDepositId(null);
@@ -148,10 +148,6 @@ export default function DepositPage() {
     }
     if (!selectedChannel) {
       toast({ title: "Canal requis", description: "Veuillez sélectionner un canal de recharge", variant: "destructive" });
-      return;
-    }
-    if (!accountName.trim()) {
-      toast({ title: "Nom requis", description: "Veuillez entrer le nom du titulaire", variant: "destructive" });
       return;
     }
     if (!accountNumber.trim()) {
@@ -325,18 +321,6 @@ export default function DepositPage() {
             placeholder="Veuillez saisir le montant de la recharge"
             className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
             data-testid="input-deposit-amount"
-          />
-        </div>
-
-        {/* Account name */}
-        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
-          <input
-            type="text"
-            value={accountName}
-            onChange={(e) => setAccountName(e.target.value)}
-            placeholder="Nom du titulaire du compte"
-            className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
-            data-testid="input-account-name"
           />
         </div>
 
