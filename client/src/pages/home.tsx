@@ -6,6 +6,7 @@ import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
+import { useToast } from "@/hooks/use-toast";
 
 import wendysLogo from "@assets/wendys_logo.png";
 import heroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
@@ -37,20 +38,42 @@ export default function HomePage() {
     setShowPopup(true);
   }, [location]);
 
-  // Capture PWA install prompt
+  // Capture PWA install prompt (including early-captured global)
   useEffect(() => {
+    // Pick up prompt captured before React mounted
+    const w = window as any;
+    if (w._installPrompt) {
+      setInstallPrompt(w._installPrompt);
+      w._installPrompt = null;
+    }
+    if (w._appInstalled) setInstalled(true);
+
     const handler = (e: any) => { e.preventDefault(); setInstallPrompt(e); };
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", () => setInstalled(true));
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+    };
   }, []);
 
+  const { toast } = useToast();
+
   const handleInstall = async () => {
+    if (installed) {
+      toast({ title: "Déjà installée", description: "L'application est déjà installée sur votre appareil." });
+      return;
+    }
     if (installPrompt) {
       installPrompt.prompt();
       const { outcome } = await installPrompt.userChoice;
       if (outcome === "accepted") setInstalled(true);
       setInstallPrompt(null);
+    } else {
+      // iOS or unsupported: show manual instructions
+      toast({
+        title: "Installer l'application",
+        description: "Sur iPhone : appuyez sur Partager puis 'Sur l'écran d'accueil'. Sur Android : menu du navigateur → 'Ajouter à l'écran d'accueil'.",
+      });
     }
   };
 

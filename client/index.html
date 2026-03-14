@@ -26,6 +26,15 @@
     <link rel="apple-touch-icon" href="/favicon.png" />
     <link rel="manifest" href="/manifest.json" />
     <script>
+      // Capture install prompt as early as possible before React mounts
+      window._installPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window._installPrompt = e;
+      });
+      window.addEventListener('appinstalled', function() {
+        window._appInstalled = true;
+      });
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js');
