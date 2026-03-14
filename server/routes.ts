@@ -13,6 +13,15 @@ import {
   mapSoleaspayStatus,
   SOLEASPAY_SERVICE_MAP 
 } from "./soleaspay";
+import {
+  initiatePayment as omnipayInitiatePayment,
+  initiateTransfer as omnipayInitiateTransfer,
+  getTransactionStatus as omnipayGetStatus,
+  getOmnipayBalance,
+  mapOmnipayStatus,
+  verifyOmnipaySignature,
+  isOmnipaySupported,
+} from "./omnipay";
 
 declare module "express-session" {
   interface SessionData {
@@ -399,6 +408,8 @@ export async function registerRoutes(
 
       const soleaspayEnabled = settings.soleaspayEnabled === "true";
       const soleaspayChannelName = settings.soleaspayChannelName || "Westpay";
+      const omnipayEnabled = settings.omnipayEnabled === "true";
+      const omnipayChannelName = settings.omnipayChannelName || "OmniPay";
 
       // Build virtual gateway channels when enabled in settings
       const virtualChannels: any[] = [];
@@ -410,6 +421,16 @@ export async function registerRoutes(
           isApi: true,
           isActive: true,
           gateway: "soleaspay",
+        });
+      }
+      if (omnipayEnabled) {
+        virtualChannels.push({
+          id: -2,
+          name: omnipayChannelName,
+          redirectUrl: "",
+          isApi: true,
+          isActive: true,
+          gateway: "omnipay",
         });
       }
 
@@ -441,7 +462,7 @@ export async function registerRoutes(
   // Deposits
   app.post("/api/deposits", requireAuth, async (req, res) => {
     try {
-      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId, useSoleaspay } = req.body;
+      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId, useSoleaspay, useOmnipay } = req.body;
       const user = await storage.getUser(req.session.userId!);
       
       if (!user) {
@@ -459,6 +480,7 @@ export async function registerRoutes(
       const settings = await storage.getSettings();
       const soleaspayEnabled = settings.soleaspayEnabled !== "false";
       const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
+      const omnipayEnabled = settings.omnipayEnabled === "true";
 
       const orderId = `WENDYS-${Date.now()}-${user.id}`;
       
@@ -517,6 +539,61 @@ export async function registerRoutes(
         }
       }
 
+      // OmniPay deposit when user chose OmniPay channel
+      if (useOmnipay && omnipayEnabled && isOmnipaySupported(country)) {
+        try {
+          const nameParts = accountName.trim().split(" ");
+          const firstName = nameParts[0] || accountName;
+          const lastName = nameParts.slice(1).join(" ") || accountName;
+          const baseUrl = process.env.REPLIT_DEV_DOMAIN
+            ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+            : "https://wendysapp.sbs";
+
+          const paymentResult = await omnipayInitiatePayment({
+            phone: accountNumber,
+            country,
+            amount,
+            reference: orderId,
+            firstName,
+            lastName,
+            paymentMethod,
+            returnUrl: `${baseUrl}/history`,
+          });
+
+          if (paymentResult.success == 1) {
+            const deposit = await storage.createDeposit({
+              userId: req.session.userId!,
+              amount,
+              accountName,
+              accountNumber,
+              country,
+              paymentMethod,
+              paymentChannelId: null,
+              status: "processing",
+              omnipayId: paymentResult.id?.toString() || "",
+              omnipayReference: orderId,
+            });
+            return res.json({
+              deposit,
+              omnipay: true,
+              paymentUrl: paymentResult.payment_url || null,
+              omnipayId: paymentResult.id,
+            });
+          } else {
+            return res.status(400).json({
+              message: paymentResult.message || "Erreur OmniPay",
+              omnipay: true,
+            });
+          }
+        } catch (omnipayError: any) {
+          console.error("[omnipay] Payment error:", omnipayError);
+          return res.status(400).json({
+            message: omnipayError.message || "Erreur de paiement OmniPay",
+            omnipay: true,
+          });
+        }
+      }
+
       const deposit = await storage.createDeposit({
         userId: req.session.userId!,
         amount,
@@ -550,6 +627,32 @@ export async function registerRoutes(
 
       if (deposit.status === "approved" || deposit.status === "rejected") {
         return res.json({ status: deposit.status });
+      }
+
+      if (deposit.omnipayReference) {
+        try {
+          const statusResult = await omnipayGetStatus(deposit.omnipayReference);
+          if (statusResult.success == 1) {
+            const newStatus = mapOmnipayStatus(statusResult.status);
+            if (newStatus !== deposit.status) {
+              await storage.updateDeposit(depositId, { status: newStatus, processedAt: new Date() });
+              if (newStatus === "approved") {
+                const user = await storage.getUser(deposit.userId);
+                if (user) {
+                  const newBalance = parseFloat(user.balance) + deposit.amount;
+                  await storage.updateUser(deposit.userId, { balance: newBalance.toFixed(2), hasDeposited: true });
+                  await storage.createTransaction({ userId: deposit.userId, type: "deposit", amount: deposit.amount.toString(), description: `Depot OmniPay #${deposit.id}` });
+                  await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
+                }
+              }
+            }
+            return res.json({ status: newStatus, omnipay: true });
+          }
+          return res.json({ status: deposit.status, omnipay: true });
+        } catch (err: any) {
+          console.error("[omnipay] Verify error:", err);
+          return res.json({ status: deposit.status, omnipay: true });
+        }
       }
 
       if (deposit.soleaspayReference && deposit.soleaspayOrderId) {
@@ -612,6 +715,73 @@ export async function registerRoutes(
       res.json(deposits);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // OmniPay Webhook (no auth - called by OmniPay server)
+  app.post("/api/webhooks/omnipay", async (req, res) => {
+    try {
+      const data = req.body;
+      console.log("[omnipay] Webhook received:", JSON.stringify(data));
+
+      const settings = await storage.getSettings();
+      const callbackKey = settings.omnipayCallbackKey || "";
+
+      if (callbackKey && !verifyOmnipaySignature(data, callbackKey)) {
+        console.error("[omnipay] Webhook: invalid signature");
+        return res.status(400).send("Sign error");
+      }
+
+      const reference = data.reference;
+      const type = data.type;
+      const newStatus = mapOmnipayStatus(data.status);
+
+      if (type === "PAYMENT") {
+        const allDeposits = await storage.getDeposits();
+        const deposit = allDeposits.find((d: any) => d.omnipayReference === reference);
+        if (!deposit) {
+          console.error("[omnipay] Webhook: deposit not found for", reference);
+          return res.status(200).send("ok");
+        }
+        if (deposit.status === "approved" || deposit.status === "rejected") {
+          return res.status(200).send("ok");
+        }
+        await storage.updateDeposit(deposit.id, { status: newStatus, processedAt: new Date() });
+        if (newStatus === "approved") {
+          const user = await storage.getUser(deposit.userId);
+          if (user) {
+            const newBalance = parseFloat(user.balance) + deposit.amount;
+            await storage.updateUser(deposit.userId, { balance: newBalance.toFixed(2), hasDeposited: true });
+            await storage.createTransaction({ userId: deposit.userId, type: "deposit", amount: deposit.amount.toString(), description: `Depot OmniPay #${deposit.id}` });
+            await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
+          }
+        }
+        console.log(`[omnipay] Deposit ${deposit.id} updated to ${newStatus}`);
+      } else if (type === "TRANSFER") {
+        const allWithdrawals = await storage.getWithdrawals();
+        const withdrawal = allWithdrawals.find((w: any) => w.omnipayReference === reference);
+        if (!withdrawal) {
+          console.error("[omnipay] Webhook: withdrawal not found for", reference);
+          return res.status(200).send("ok");
+        }
+        if (withdrawal.status === "approved" || withdrawal.status === "rejected") {
+          return res.status(200).send("ok");
+        }
+        await storage.updateWithdrawal(withdrawal.id, { status: newStatus, processedAt: new Date() });
+        if (newStatus === "rejected") {
+          const user = await storage.getUser(withdrawal.userId);
+          if (user) {
+            const refund = parseFloat(user.balance) + withdrawal.amount;
+            await storage.updateUser(withdrawal.userId, { balance: refund.toFixed(2) });
+          }
+        }
+        console.log(`[omnipay] Withdrawal ${withdrawal.id} updated to ${newStatus}`);
+      }
+
+      res.status(200).send("ok");
+    } catch (error: any) {
+      console.error("[omnipay] Webhook error:", error);
+      res.status(500).send("error");
     }
   });
 
@@ -1054,12 +1224,48 @@ export async function registerRoutes(
 
   app.post("/api/admin/withdrawals/:id/approve", requireAdmin, async (req, res) => {
     try {
+      const { useOmnipayPayout } = req.body || {};
       const withdrawalId = parseInt(req.params.id);
       const existingWithdrawal = await storage.getWithdrawals();
       const withdrawalData = existingWithdrawal.find(w => w.id === withdrawalId);
       
       if (!withdrawalData) {
         return res.status(404).json({ message: "Retrait non trouve" });
+      }
+
+      if (useOmnipayPayout && isOmnipaySupported(withdrawalData.country)) {
+        const outRef = `PAYOUT-${Date.now()}-${withdrawalData.userId}`;
+        try {
+          const nameParts = withdrawalData.accountName.trim().split(" ");
+          const firstName = nameParts[0] || withdrawalData.accountName;
+          const lastName = nameParts.slice(1).join(" ") || withdrawalData.accountName;
+
+          const payoutResult = await omnipayInitiateTransfer({
+            phone: withdrawalData.accountNumber,
+            country: withdrawalData.country,
+            amount: withdrawalData.netAmount,
+            reference: outRef,
+            firstName,
+            lastName,
+            paymentMethod: withdrawalData.paymentMethod,
+          });
+
+          if (payoutResult.success == 1) {
+            const withdrawal = await storage.updateWithdrawal(withdrawalId, {
+              status: "processing",
+              omnipayId: payoutResult.id?.toString() || "",
+              omnipayReference: outRef,
+              processedBy: req.session.userId,
+            });
+            await storage.logAdminAction(req.session.userId!, "approve_withdrawal_omnipay", withdrawalData.userId, `Retrait ${withdrawalId} envoyé via OmniPay: ${withdrawalData.netAmount}F`);
+            return res.json({ ...withdrawal, omnipayPayout: true });
+          } else {
+            return res.status(400).json({ message: payoutResult.message || "Erreur OmniPay payout" });
+          }
+        } catch (err: any) {
+          console.error("[omnipay] Payout error:", err);
+          return res.status(400).json({ message: err.message || "Erreur OmniPay" });
+        }
       }
 
       const withdrawal = await storage.updateWithdrawal(withdrawalId, {
@@ -1072,6 +1278,20 @@ export async function registerRoutes(
       res.json(withdrawal);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Admin OmniPay balance
+  app.get("/api/admin/omnipay/balance", requireAdmin, async (_req, res) => {
+    try {
+      const result = await getOmnipayBalance();
+      if (result.success == 1) {
+        res.json({ balance: result.balance });
+      } else {
+        res.status(400).json({ message: result.message || "Erreur OmniPay" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 

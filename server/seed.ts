@@ -218,6 +218,9 @@ export async function seed() {
     { key: "soleaspayEnabled", value: "false" },
     { key: "soleaspayCountries", value: "" },
     { key: "soleaspayChannelName", value: "Westpay" },
+    { key: "omnipayEnabled", value: "false" },
+    { key: "omnipayChannelName", value: "OmniPay" },
+    { key: "omnipayCallbackKey", value: "" },
   ];
 
   for (const settingData of requiredSettings) {

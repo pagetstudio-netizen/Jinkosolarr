@@ -16,6 +16,8 @@ interface Deposit {
   createdAt: string;
   soleaspayReference?: string;
   soleaspayOrderId?: string;
+  omnipayId?: string;
+  omnipayReference?: string;
 }
 
 interface Withdrawal {
@@ -87,6 +89,8 @@ export default function HistoryPage() {
   };
 
   const getReference = (deposit: Deposit) => {
+    if (deposit.omnipayReference) return deposit.omnipayReference;
+    if (deposit.omnipayId) return deposit.omnipayId;
     if (deposit.soleaspayReference) return deposit.soleaspayReference;
     if (deposit.soleaspayOrderId) return deposit.soleaspayOrderId;
     return `DEP${deposit.id.toString().padStart(10, "0")}`;
@@ -94,7 +98,7 @@ export default function HistoryPage() {
 
   const isPendingDeposit = (deposit: Deposit) => {
     return (deposit.status === "pending" || deposit.status === "processing") &&
-      (deposit.soleaspayReference || deposit.soleaspayOrderId);
+      (deposit.soleaspayReference || deposit.soleaspayOrderId || deposit.omnipayId || deposit.omnipayReference);
   };
 
   const handleVerify = async (depositId: number) => {

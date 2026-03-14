@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, Save, Link, Clock, Users, CreditCard } from "lucide-react";
+import { Loader2, Save, Link, Clock, Users, CreditCard, Zap } from "lucide-react";
 
 const SOLEASPAY_COUNTRIES = [
   { code: "CM", name: "Cameroun" },
@@ -38,6 +38,9 @@ const settingsSchema = z.object({
   soleaspayEnabled: z.string(),
   soleaspayCountries: z.string(),
   soleaspayChannelName: z.string().min(1, "Nom requis"),
+  omnipayEnabled: z.string(),
+  omnipayChannelName: z.string().min(1, "Nom requis"),
+  omnipayCallbackKey: z.string(),
   congoPaymentLink: z.string().min(5, "Lien requis"),
 });
 
@@ -70,6 +73,9 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       soleaspayEnabled: "false",
       soleaspayCountries: "",
       soleaspayChannelName: "Westpay",
+      omnipayEnabled: "false",
+      omnipayChannelName: "OmniPay",
+      omnipayCallbackKey: "",
       congoPaymentLink: "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
     },
   });
@@ -90,6 +96,9 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         soleaspayEnabled: settings.soleaspayEnabled || "false",
         soleaspayCountries: settings.soleaspayCountries || "",
         soleaspayChannelName: settings.soleaspayChannelName || "Westpay",
+        omnipayEnabled: settings.omnipayEnabled || "false",
+        omnipayChannelName: settings.omnipayChannelName || "OmniPay",
+        omnipayCallbackKey: settings.omnipayCallbackKey || "",
         congoPaymentLink: settings.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
       });
     }
@@ -343,6 +352,66 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                 </div>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary" />
+              Paiement automatique (OmniPay)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="omnipayEnabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Activer OmniPay</FormLabel>
+                    <FormDescription>Permet les depots et retraits automatiques via OmniPay</FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value === "true"}
+                      onCheckedChange={(checked) => field.onChange(checked ? "true" : "false")}
+                      data-testid="switch-omnipay"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="omnipayChannelName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nom du canal (affiché aux utilisateurs)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Ex: OmniPay" />
+                  </FormControl>
+                  <FormDescription>Ce nom apparaît comme option de recharge sur la page dépôt.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="omnipayCallbackKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Clé Callback OmniPay</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Clé trouvée dans Mon Compte > Callback URL sur OmniPay" />
+                  </FormControl>
+                  <FormDescription>
+                    URL webhook a configurer sur OmniPay : <strong>https://wendysapp.sbs/api/webhooks/omnipay</strong>
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 
