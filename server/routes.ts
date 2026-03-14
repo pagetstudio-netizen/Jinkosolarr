@@ -469,15 +469,16 @@ export async function registerRoutes(
         return res.status(401).json({ message: "Non authentifie" });
       }
 
-      if (amount < 3000) {
-        return res.status(400).json({ message: "Montant minimum: 3000 FCFA" });
+      const settings = await storage.getSettings();
+      const minDeposit = parseInt(settings.minDeposit || "3500");
+      if (amount < minDeposit) {
+        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
       }
 
       if (!accountName || !accountNumber || !paymentMethod || !country) {
         return res.status(400).json({ message: "Tous les champs sont requis" });
       }
 
-      const settings = await storage.getSettings();
       const soleaspayEnabled = settings.soleaspayEnabled !== "false";
       const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
       const omnipayEnabled = settings.omnipayEnabled === "true";

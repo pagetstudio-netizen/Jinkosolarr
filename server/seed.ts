@@ -209,6 +209,7 @@ export async function seed() {
     { key: "support2Link", value: "https://t.me/wendysappgroup" },
     { key: "channelLink", value: "https://t.me/wendysappgroup" },
     { key: "groupLink", value: "https://t.me/wendysappgroup" },
+    { key: "minDeposit", value: "3500" },
     { key: "withdrawalFees", value: "15" },
     { key: "withdrawalStartHour", value: "8" },
     { key: "withdrawalEndHour", value: "17" },

@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronDown, Loader2, CheckCircle, XCircle, Clock, Wallet 
 import { Link } from "wouter";
 import { COUNTRIES, getCountryByCode } from "@/lib/countries";
 
-const MIN_DEPOSIT = 3500;
 const PRESET_AMOUNTS = [3500, 5000, 10000, 20000, 50000, 100000, 250000, 500000];
 
 const COUNTRY_FLAGS: Record<string, string> = {
@@ -59,6 +58,11 @@ export default function DepositPage() {
   const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; isActive: boolean; gateway: string | null }[]>({
     queryKey: ["/api/payment-channels"],
   });
+
+  const { data: platformSettings } = useQuery<Record<string, string>>({
+    queryKey: ["/api/settings"],
+  });
+  const MIN_DEPOSIT = parseInt(platformSettings?.minDeposit || "3500");
   // Only use real (positive-id) channels as fallback for DB record
   const defaultChannelId = paymentChannels.find(c => c.id > 0)?.id ?? null;
 

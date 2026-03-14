@@ -29,6 +29,7 @@ const settingsSchema = z.object({
   support2Link: z.string().min(5, "Lien requis"),
   channelLink: z.string().min(5, "Lien requis"),
   groupLink: z.string().min(5, "Lien requis"),
+  minDeposit: z.string().min(1, "Montant requis"),
   withdrawalFees: z.string().min(1, "Frais requis"),
   withdrawalStartHour: z.string().min(1, "Heure requise"),
   withdrawalEndHour: z.string().min(1, "Heure requise"),
@@ -64,6 +65,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       support2Link: "https://t.me/wendysappgroup",
       channelLink: "https://t.me/wendysappgroup",
       groupLink: "https://t.me/wendysappgroup",
+      minDeposit: "3500",
       withdrawalFees: "15",
       withdrawalStartHour: "8",
       withdrawalEndHour: "17",
@@ -87,6 +89,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         support2Link: settings.support2Link || "https://t.me/wendysappgroup",
         channelLink: settings.channelLink || "https://t.me/wendysappgroup",
         groupLink: settings.groupLink || "https://t.me/wendysappgroup",
+        minDeposit: settings.minDeposit || "3500",
         withdrawalFees: settings.withdrawalFees || "15",
         withdrawalStartHour: settings.withdrawalStartHour || "8",
         withdrawalEndHour: settings.withdrawalEndHour || "17",
@@ -236,6 +239,21 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="minDeposit"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dépôt minimum (FCFA)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="number" min="0" />
+                  </FormControl>
+                  <FormDescription>Montant minimum qu'un utilisateur peut déposer.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="withdrawalFees"
