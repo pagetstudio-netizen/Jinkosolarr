@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ChevronRight, Headphones } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Link } from "wouter";
-import telegramIcon from "@/assets/images/telegram-icon.png";
+import { SiTelegram } from "react-icons/si";
+import serviceAgentImg from "@/assets/images/elf-expert-1.jpeg";
 
 export default function ServicePage() {
   const { data: settings } = useQuery<{ supportLink: string; channelLink: string; groupLink: string }>({
@@ -13,68 +14,91 @@ export default function ServicePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-white">
-      <header className="flex items-center justify-between px-4 py-3 bg-white border-b">
-        <Link href="/account">
-          <button className="p-1" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-[#2196F3]" />
-          </button>
-        </Link>
-        <h1 className="text-[#2196F3] text-base font-semibold">Service client</h1>
-        <div className="w-7" />
-      </header>
+    <div className="flex flex-col min-h-full bg-gray-100">
 
-      <div className="flex-1 overflow-y-auto pb-24">
+      {/* Red header */}
+      <div style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}>
+        <div className="flex items-center px-4 py-4">
+          <Link href="/account">
+            <button className="w-9 h-9 flex items-center justify-center rounded-full bg-white/20" data-testid="button-back">
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+          </Link>
+          <h1 className="flex-1 text-center text-white font-bold text-base mr-9">Service client</h1>
+        </div>
 
-        <div className="bg-[#2196F3] px-6 py-10 flex flex-col items-center">
-          <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
-            <Headphones className="w-8 h-8 text-white" />
+        {/* Hours banner */}
+        <div className="flex items-center justify-center gap-2 pb-5">
+          <Clock className="w-4 h-4 text-white/80" />
+          <p className="text-white/90 text-sm font-medium">Disponible de 09h00 à 20h00</p>
+        </div>
+      </div>
+
+      {/* Cards */}
+      <div className="flex-1 px-4 pt-4 pb-24 space-y-3">
+
+        {/* Service client en ligne */}
+        <button
+          onClick={() => openLink(settings?.supportLink || "https://t.me/+M229bmWp-AkyZWEx")}
+          className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
+          data-testid="button-support-link"
+        >
+          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 border-[#c8102e]/20">
+            <img src={serviceAgentImg} alt="Service client" className="w-full h-full object-cover" />
           </div>
-          <h2 className="text-white text-xl font-bold text-center">Bienvenue sur</h2>
-          <h2 className="text-white text-xl font-bold text-center">Service client</h2>
-        </div>
+          <div className="flex-1 text-left">
+            <p className="font-bold text-gray-800 text-sm">Service client en ligne</p>
+            <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+              Les heures du service client en ligne sont de 10h00 à 18h00.
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        </button>
 
-        <div className="px-5 py-4 space-y-0">
-          <button
-            onClick={() => openLink(settings?.supportLink || "https://t.me/+M229bmWp-AkyZWEx")}
-            className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
-            data-testid="button-support-link"
-          >
-            <img src={telegramIcon} alt="Telegram" className="w-11 h-11 rounded-full" />
-            <span className="flex-1 text-left text-gray-800 font-medium text-base">Telegram</span>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </button>
+        {/* Canal Telegram */}
+        <button
+          onClick={() => openLink(settings?.channelLink || "https://t.me/+M229bmWp-AkyZWEx")}
+          className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
+          data-testid="button-channel-link"
+        >
+          <div className="w-14 h-14 rounded-xl bg-[#229ED9] flex items-center justify-center flex-shrink-0">
+            <SiTelegram className="w-8 h-8 text-white" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-bold text-gray-800 text-sm">Canal Telegram</p>
+            <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+              Dernières nouvelles et annonces, nouvelles informations sur les avantages !
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        </button>
 
-          <button
-            onClick={() => openLink(settings?.channelLink || "https://t.me/+M229bmWp-AkyZWEx")}
-            className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
-            data-testid="button-channel-link"
-          >
-            <img src={telegramIcon} alt="Telegram" className="w-11 h-11 rounded-full" />
-            <span className="flex-1 text-left text-gray-800 font-medium text-base">chaine Telegram</span>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </button>
+        {/* Groupe Telegram */}
+        <button
+          onClick={() => openLink(settings?.groupLink || "https://t.me/+M229bmWp-AkyZWEx")}
+          className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
+          data-testid="button-group-link"
+        >
+          <div className="w-14 h-14 rounded-xl bg-[#229ED9] flex items-center justify-center flex-shrink-0">
+            <SiTelegram className="w-8 h-8 text-white" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-bold text-gray-800 text-sm">Groupe Telegram</p>
+            <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+              Rejoignez notre communauté et échangez avec nos membres !
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        </button>
 
-          <button
-            onClick={() => openLink(settings?.groupLink || "https://t.me/+M229bmWp-AkyZWEx")}
-            className="w-full flex items-center gap-4 py-5 border-b border-gray-100"
-            data-testid="button-group-link"
-          >
-            <img src={telegramIcon} alt="Telegram" className="w-11 h-11 rounded-full" />
-            <span className="flex-1 text-left text-gray-800 font-medium text-base">Groupe Telegram</span>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </button>
-        </div>
-
-        <div className="mx-5 mt-4 bg-gray-50 rounded-2xl p-5">
-          <p className="text-gray-900 text-xl font-bold text-center mb-1">9:00-20:00</p>
-          <p className="text-gray-500 text-sm text-center mb-4">Service client en ligne</p>
-
-          <div className="space-y-3 text-gray-600 text-sm leading-relaxed">
-            <p>1. Si vous ne parvenez pas a ouvrir l'application Telegram officielle ci-dessus, veuillez utiliser un autre navigateur.</p>
-            <p>2. Pour toute question concernant notre plateforme, veuillez contacter notre service client en ligne. Ils repondront a toutes vos questions.</p>
-            <p>3. Si notre service client en ligne ne repond pas immediatement a votre message, veuillez patienter. Nous recevons actuellement un grand nombre de messages. Notre service client en ligne vous repondra des que possible. Merci de votre comprehension et de votre soutien !</p>
-            <p>4. Pour gagner plus d'argent, rejoignez notre chaine Telegram officielle !</p>
+        {/* Instructions */}
+        <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 border-l-4 border-l-[#c8102e]">
+          <p className="text-[#c8102e] font-bold text-sm mb-3">Instructions</p>
+          <div className="space-y-2.5 text-xs text-gray-500 leading-relaxed">
+            <p>1. Si vous ne parvenez pas à ouvrir l'application Telegram officielle, veuillez utiliser un autre navigateur.</p>
+            <p>2. Pour toute question, contactez notre service client en ligne. Ils répondront à toutes vos questions.</p>
+            <p>3. Si notre service client ne répond pas immédiatement, veuillez patienter. Nous recevons un grand nombre de messages et vous répondrons dès que possible.</p>
+            <p>4. Pour gagner plus d'argent, rejoignez notre chaîne Telegram officielle !</p>
           </div>
         </div>
       </div>
