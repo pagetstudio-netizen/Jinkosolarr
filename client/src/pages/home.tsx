@@ -57,21 +57,22 @@ export default function HomePage() {
           >
             <div className="px-6 pt-7 pb-6">
               {/* Title */}
-              <h2 className="text-white text-3xl font-extrabold text-center tracking-widest mb-5">
+              <h2 className="text-white text-3xl font-extrabold text-center tracking-widest mb-4">
                 AVERTIR
               </h2>
 
               {/* Body text */}
               <p className="text-white/90 text-sm leading-relaxed mb-4">
-                Rejoignez Wendy's, profitez des dividendes et faites fructifier votre patrimoine !
+                Wendy's est une plateforme d'investissement sécurisée qui vous permet de faire fructifier
+                votre argent chaque jour, sans effort.
               </p>
 
               {/* Numbered list */}
-              <div className="space-y-2 text-white/90 text-sm mb-6">
-                <p>1. Bonus d'inscription : 700 FCFA.</p>
-                <p>2. Bonus quotidien : 50 FCFA.</p>
-                <p>3. Invitez vos filleuls et recevez 27 % de prime.</p>
-                <p>4. Rejoignez le groupe officiel pour plus d'informations.</p>
+              <div className="space-y-2.5 text-white/90 text-sm mb-6">
+                <p>1. Chaque nouvel utilisateur reçoit <span className="font-bold text-white">700 FCFA</span> de bonus à l'inscription.</p>
+                <p>2. Gagnez <span className="font-bold text-white">50 FCFA</span> de bonus gratuit chaque jour.</p>
+                <p>3. Parrainez vos amis et touchez jusqu'à <span className="font-bold text-white">27 %</span> de commission.</p>
+                <p>4. Rejoignez notre groupe officiel pour les codes bonus et les annonces.</p>
               </div>
 
               {/* D'ACCORD button */}
