@@ -1,5 +1,6 @@
 import { useAuth } from "@/lib/auth";
-import { Send, ChevronRight, Megaphone } from "lucide-react";
+import { ChevronRight, Megaphone } from "lucide-react";
+import { SiTelegram } from "react-icons/si";
 import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
@@ -16,27 +17,23 @@ import iconConnexion from "@assets/20260311_204241_1773262537486.png";
 import iconBonus from "@assets/20260311_204319_1773262537445.png";
 import iconEquipe from "@assets/20260311_204705_1773262537367.png";
 import iconProduits from "@assets/20260311_201005_1773262537523.png";
-import notifyBanner from "@/assets/images/notify-banner.png";
 
-const TELEGRAM_LINK = "https://t.me/+M229bmWp-AkyZWEx";
+const TELEGRAM_LINK = "https://t.me/wendysappgroup";
 
 export default function HomePage() {
   const { user } = useAuth();
-  const [, navigate] = useLocation();
-  const [showPopup, setShowPopup] = useState(false);
+  const [location, navigate] = useLocation();
+  const [showPopup, setShowPopup] = useState(true);
 
   const { data: userProducts } = useQuery<any[]>({
     queryKey: ["/api/user/products"],
     enabled: !!user,
   });
 
+  // Re-show popup every time the user navigates to home
   useEffect(() => {
     setShowPopup(true);
-    const timer = setTimeout(() => {
-      setShowPopup(false);
-    }, 8000);
-    return () => clearTimeout(timer);
-  }, []);
+  }, [location]);
 
   if (!user) return null;
 
@@ -50,43 +47,54 @@ export default function HomePage() {
     <div className="flex flex-col min-h-full bg-gray-100">
       {showPopup && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-300"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-5 animate-in fade-in duration-200"
           onClick={() => setShowPopup(false)}
         >
           <div
-            className="bg-white w-full max-w-[320px] rounded-2xl overflow-hidden relative animate-in zoom-in-95 duration-300"
+            className="w-full max-w-[340px] rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200"
+            style={{ background: "linear-gradient(160deg, #c8102e 0%, #8b0000 100%)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative">
-              <img src={notifyBanner} alt="Notify" className="w-full h-28 object-cover" />
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                <img src={wendysLogo} alt="Wendy's" className="w-12 h-12 object-contain" />
+            <div className="px-6 pt-7 pb-6">
+              {/* Title */}
+              <h2 className="text-white text-3xl font-extrabold text-center tracking-widest mb-5">
+                AVERTIR
+              </h2>
+
+              {/* Body text */}
+              <p className="text-white/90 text-sm leading-relaxed mb-4">
+                Rejoignez Wendy's, profitez des dividendes et faites fructifier votre patrimoine !
+              </p>
+
+              {/* Numbered list */}
+              <div className="space-y-2 text-white/90 text-sm mb-6">
+                <p>1. Bonus d'inscription : 700 FCFA.</p>
+                <p>2. Bonus quotidien : 50 FCFA.</p>
+                <p>3. Invitez vos filleuls et recevez 27 % de prime.</p>
+                <p>4. Rejoignez le groupe officiel pour plus d'informations.</p>
               </div>
-            </div>
-            <div className="pt-10 px-4 pb-4 text-gray-700">
-              <div className="space-y-1.5 text-[12px] leading-snug">
-                <p>Rejoignez Wendy's, profitez des dividendes et faites fructifier votre patrimoine !</p>
-                <p>1. Bonus d'inscription : 700 FCFA</p>
-                <p>2. Bonus quotidien : 50 FCFA</p>
-                <p>3. Invitez vos filleuls et recevez 30 % de prime.</p>
-              </div>
-              <div className="mt-3 space-y-2">
-                <a
-                  href={TELEGRAM_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#c8102e] rounded-full text-white font-semibold text-xs"
-                >
-                  <Send className="w-4 h-4 fill-current" />
-                  Canal Telegram officiel &gt;
-                </a>
-                <button
-                  onClick={() => setShowPopup(false)}
-                  className="mx-auto block px-8 py-2 bg-black text-white rounded-full font-bold text-xs"
-                >
-                  D'accord
-                </button>
-              </div>
+
+              {/* D'ACCORD button */}
+              <button
+                onClick={() => setShowPopup(false)}
+                className="w-full py-3.5 bg-white rounded-full text-[#c8102e] font-extrabold text-base tracking-wide mb-3"
+                data-testid="button-popup-agree"
+              >
+                D'ACCORD
+              </button>
+
+              {/* Telegram button */}
+              <a
+                href={TELEGRAM_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2.5 w-full py-3 bg-white rounded-full text-gray-700 font-semibold text-sm"
+                data-testid="button-popup-telegram"
+                onClick={() => setShowPopup(false)}
+              >
+                <SiTelegram className="w-5 h-5 text-[#229ED9]" />
+                Cliquez ici pour rejoindre le groupe Telegram
+              </a>
             </div>
           </div>
         </div>
