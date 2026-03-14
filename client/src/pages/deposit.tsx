@@ -363,8 +363,8 @@ export default function DepositPage() {
             )}
             {selectedCountry === "CI" && (
               <div className="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3">
-                <p className="text-orange-700 text-xs font-semibold mb-1">Code OTP Orange Côte d'Ivoire</p>
-                <p className="text-orange-600 text-xs">Saisissez le code OTP généré par votre application Orange Money ou reçu par SMS.</p>
+                <p className="text-orange-700 text-xs font-semibold mb-1">Comment générer votre code OTP Orange Côte d'Ivoire :</p>
+                <p className="text-orange-600 text-xs">Composez <strong>#144*82#</strong> sur votre téléphone pour générer votre code OTP, puis saisissez-le ci-dessous.</p>
               </div>
             )}
             <div className="border border-orange-300 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
