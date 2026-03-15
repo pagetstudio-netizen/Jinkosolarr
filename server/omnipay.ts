@@ -15,18 +15,25 @@ const COUNTRY_PREFIXES: Record<string, string> = {
 
 function formatMsisdn(phone: string, country: string): string {
   const prefix = COUNTRY_PREFIXES[country] || "";
-  // Remove everything except digits: strips +, spaces, dashes, parentheses, etc.
-  let cleaned = phone.replace(/\D/g, "");
-  // Remove leading double-zero international prefix (e.g. 0022899935673 → 22899935673)
-  cleaned = cleaned.replace(/^00/, "");
-  // Remove single leading zero only if NOT already starting with the country prefix
-  // (prevents stripping the first digit of numbers like 0559927374 in CI)
-  if (prefix && !cleaned.startsWith(prefix)) {
-    cleaned = cleaned.replace(/^0+/, "");
-    return prefix + cleaned;
+
+  // Step 1: remove all non-digit characters (+, spaces, dashes, etc.)
+  let digits = phone.replace(/\D/g, "");
+
+  // Step 2: remove the international double-zero prefix only (e.g. 0022899935673 → 22899935673)
+  // We do NOT strip a single leading zero — in many West-African countries (e.g. Benin)
+  // the local 0 is part of the subscriber number and must be kept.
+  if (digits.startsWith("00")) {
+    digits = digits.slice(2);
   }
-  // Number already starts with the country code — return as-is (no + sign)
-  return cleaned;
+
+  // Step 3: if the number already starts with the country code, return as-is
+  if (prefix && digits.startsWith(prefix)) {
+    return digits;
+  }
+
+  // Step 4: the number is in local format — prepend the country code as-is
+  // (the local leading 0, if any, is kept because it is part of the number)
+  return prefix ? prefix + digits : digits;
 }
 
 function getOmnipayOperator(paymentMethod: string): string | undefined {
