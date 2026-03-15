@@ -215,14 +215,10 @@ function Router() {
         </ProtectedRoute>
       </Route>
       <Route path="/withdrawal-history">
-        <ProtectedRoute>
-          <WithdrawalHistoryPage />
-        </ProtectedRoute>
+        <Redirect to="/history" />
       </Route>
       <Route path="/deposit-orders">
-        <ProtectedRoute>
-          <DepositOrdersPage />
-        </ProtectedRoute>
+        <Redirect to="/history" />
       </Route>
       <Route path="/service">
         <ProtectedRoute>
