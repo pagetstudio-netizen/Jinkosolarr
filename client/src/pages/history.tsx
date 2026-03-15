@@ -143,7 +143,7 @@ export default function HistoryPage() {
           onClick={() => setActiveTab("deposits")}
           className={`flex-1 py-2.5 text-center font-medium text-sm rounded-full transition-colors ${
             activeTab === "deposits"
-              ? "bg-[#2196F3] text-white"
+              ? "bg-[#c8102e] text-white"
               : "text-gray-500"
           }`}
           data-testid="tab-deposits"
@@ -157,7 +157,7 @@ export default function HistoryPage() {
           onClick={() => setActiveTab("withdrawals")}
           className={`flex-1 py-2.5 text-center font-medium text-sm rounded-full transition-colors ${
             activeTab === "withdrawals"
-              ? "bg-[#2196F3] text-white"
+              ? "bg-[#c8102e] text-white"
               : "text-gray-500"
           }`}
           data-testid="tab-withdrawals"
