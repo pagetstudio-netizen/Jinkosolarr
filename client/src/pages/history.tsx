@@ -128,10 +128,10 @@ export default function HistoryPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-white">
-      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-[#64B5F6] to-white">
+      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
+            <ArrowLeft className="w-5 h-5 text-[#c8102e]" />
           </button>
         </Link>
         <h1 className="text-lg font-semibold text-gray-800">Historique</h1>
