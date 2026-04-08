@@ -1,35 +1,35 @@
 import { useAuth } from "@/lib/auth";
-import { ChevronRight, Megaphone } from "lucide-react";
 import { SiTelegram } from "react-icons/si";
-import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2, MessageCircleMore, DollarSign, Wallet, Headphones, Gift, FileText } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { Product } from "@shared/schema";
 
 import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
 import jinkoLogoSquare from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
-import iconRecharger from "@assets/20260312_105135_1773313898669.png";
-import iconRetraits from "@assets/20260312_105153_1773313898582.png";
-import iconService from "@assets/20260312_105210_1773313898694.png";
-import iconPlayStore from "@assets/d8f_GooglePlay_mediumklein_1773313882717.jpg";
-import iconConnexion from "@assets/20260311_204241_1773262537486.png";
-import iconBonus from "@assets/20260311_204319_1773262537445.png";
-import iconEquipe from "@assets/20260311_204705_1773262537367.png";
-import iconProduits from "@assets/20260311_201005_1773262537523.png";
+import heroImg from "@assets/20260408_191416_1775675670071.jpg";
 
 const TELEGRAM_LINK = "https://t.me/wendysappgroup";
 
+interface ProductWithOwnership extends Product {
+  isOwned: boolean;
+  canClaimFree: boolean;
+  ownedCount?: number;
+}
+
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [location, navigate] = useLocation();
   const [showPopup, setShowPopup] = useState(true);
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
-  const [installed, setInstalled] = useState(false);
+  const { toast } = useToast();
+  const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
 
-  const { data: userProducts } = useQuery<any[]>({
-    queryKey: ["/api/user/products"],
+  const { data: products, isLoading: productsLoading } = useQuery<ProductWithOwnership[]>({
+    queryKey: ["/api/products"],
     enabled: !!user,
   });
 
@@ -37,52 +37,46 @@ export default function HomePage() {
     setShowPopup(true);
   }, [location]);
 
-  useEffect(() => {
-    const w = window as any;
-    if (w._installPrompt) {
-      setInstallPrompt(w._installPrompt);
-      w._installPrompt = null;
-    }
-    if (w._appInstalled) setInstalled(true);
-
-    const handler = (e: any) => { e.preventDefault(); setInstallPrompt(e); };
-    window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => setInstalled(true));
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
-  }, []);
-
-  const { toast } = useToast();
-
-  const handleInstall = async () => {
-    if (installed) {
-      toast({ title: "Déjà installée", description: "L'application est déjà installée sur votre appareil." });
-      return;
-    }
-    if (installPrompt) {
-      installPrompt.prompt();
-      const { outcome } = await installPrompt.userChoice;
-      if (outcome === "accepted") setInstalled(true);
-      setInstallPrompt(null);
-    } else {
-      toast({
-        title: "Installer l'application",
-        description: "Sur iPhone : appuyez sur Partager puis 'Sur l'écran d'accueil'. Sur Android : menu du navigateur → 'Ajouter à l'écran d'accueil'.",
-      });
-    }
-  };
+  const purchaseMutation = useMutation({
+    mutationFn: async (productId: number) => {
+      const response = await apiRequest("POST", `/api/products/${productId}/purchase`, {});
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Erreur");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
+      refreshUser();
+      setConfirmProduct(null);
+      toast({ title: "Produit acheté !", description: "Vous commencerez à recevoir des gains demain." });
+    },
+    onError: (error: any) => {
+      setConfirmProduct(null);
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    },
+  });
 
   if (!user) return null;
 
-  const balance = parseFloat(user.balance || "0");
-  const cumulativeEarnings = parseFloat(user.totalEarnings || "0");
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
-  const activeProductCount = userProducts?.filter((p: any) => p.status === "active").length || 0;
+  const paidProducts = products?.filter(p => !p.isFree) || [];
+
+  const quickActions = [
+    { label: "Recharger", icon: DollarSign, onClick: () => navigate("/deposit"), color: "#f59e0b" },
+    { label: "Retrait", icon: Wallet, onClick: () => navigate("/withdrawal"), color: "#f59e0b" },
+    { label: "Nous contacter", icon: Headphones, onClick: () => navigate("/service"), color: "#f59e0b" },
+    { label: "Argent gratuit", icon: Gift, onClick: () => navigate("/gift-code"), color: "#f59e0b" },
+    { label: "Preuve de retrait", icon: FileText, onClick: () => navigate("/withdrawal-history"), color: "#f59e0b" },
+  ];
 
   return (
     <div className="flex flex-col min-h-full bg-gray-100">
+
+      {/* Popup */}
       {showPopup && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-5 animate-in fade-in duration-200"
@@ -94,32 +88,21 @@ export default function HomePage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-6 pt-7 pb-6">
-              {/* Logo in popup */}
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center overflow-hidden shadow-lg">
                   <img src={jinkoLogoSquare} alt="Jinko Solar" className="w-full h-full object-cover" />
                 </div>
               </div>
-
-              {/* Title */}
-              <h2 className="text-white text-2xl font-extrabold text-center tracking-widest mb-4">
-                AVERTIR
-              </h2>
-
-              {/* Body text */}
+              <h2 className="text-white text-2xl font-extrabold text-center tracking-widest mb-4">AVERTIR</h2>
               <p className="text-white/90 text-sm leading-relaxed mb-4">
                 Jinko Solar est l'un des plus grands fabricants de panneaux solaires au monde, présent dans plus de 160 pays.
               </p>
-
-              {/* Numbered list */}
               <div className="space-y-2 text-white/90 text-sm mb-6">
                 <p>1. Bonus d'inscription : <span className="font-bold text-white">700 FCFA</span>.</p>
                 <p>2. Bonus quotidien : <span className="font-bold text-white">50 FCFA</span>.</p>
                 <p>3. Parrainage : jusqu'à <span className="font-bold text-white">27 %</span> de commission.</p>
                 <p>4. Rejoignez notre groupe pour les codes bonus.</p>
               </div>
-
-              {/* D'ACCORD button */}
               <button
                 onClick={() => setShowPopup(false)}
                 className="w-full py-3.5 bg-white rounded-full font-extrabold text-base tracking-wide mb-3"
@@ -128,8 +111,6 @@ export default function HomePage() {
               >
                 D'ACCORD
               </button>
-
-              {/* Telegram button */}
               <a
                 href={TELEGRAM_LINK}
                 target="_blank"
@@ -146,198 +127,175 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Confirm Purchase Modal */}
+      {confirmProduct && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-5"
+          onClick={() => setConfirmProduct(null)}
+        >
+          <div
+            className="w-full max-w-[320px] rounded-3xl bg-white p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold text-gray-800 mb-2 text-center">Confirmer l'achat</h3>
+            <p className="text-gray-600 text-sm text-center mb-1">{confirmProduct.name}</p>
+            <p className="text-center text-2xl font-bold mb-4" style={{ color: "#f59e0b" }}>
+              {Number(confirmProduct.price).toLocaleString("fr-FR")} {currency}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmProduct(null)}
+                className="flex-1 py-3 rounded-full border border-gray-300 text-gray-600 font-semibold text-sm"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => purchaseMutation.mutate(confirmProduct.id)}
+                disabled={purchaseMutation.isPending}
+                className="flex-1 py-3 rounded-full text-white font-bold text-sm disabled:opacity-50"
+                style={{ background: "#3db51d" }}
+              >
+                {purchaseMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Confirmer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
         <img src={jinkoLogoText} alt="Jinko Solar" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
-        <button onClick={() => navigate("/service")} data-testid="button-service-header">
-          <img src={serviceIcon} alt="Service client" className="w-8 h-8 object-contain" />
+        <button onClick={() => navigate("/service")} data-testid="button-service-header" className="p-1">
+          <MessageCircleMore className="w-7 h-7 text-gray-700" />
         </button>
       </div>
 
+      {/* Hero Image with overlaid buttons */}
+      <div className="relative">
+        <img
+          src={heroImg}
+          alt="Jinko Solar"
+          className="w-full object-cover"
+          style={{ height: 200 }}
+          data-testid="img-hero"
+        />
+        {/* Overlay buttons at the bottom of hero */}
+        <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-4 px-6">
+          <button
+            onClick={() => navigate("/deposit")}
+            className="flex items-center gap-2 px-5 py-2 rounded-full font-bold text-white text-sm shadow-lg"
+            style={{ background: "#e53935", border: "2px solid rgba(255,255,255,0.4)" }}
+            data-testid="button-hero-recharger"
+          >
+            <span className="text-base">💳</span> Recharger
+          </button>
+          <button
+            onClick={() => navigate("/withdrawal")}
+            className="flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm shadow-lg"
+            style={{ background: "rgba(255,255,255,0.9)", color: "#3db51d", border: "2px solid rgba(255,255,255,0.6)" }}
+            data-testid="button-hero-retrait"
+          >
+            <span className="text-base">🏧</span> Retrait
+          </button>
+        </div>
+      </div>
+
+      {/* Yellow Quick Actions Bar */}
       <div className="px-3 pt-3">
-        <div className="rounded-2xl overflow-hidden shadow-sm">
-          <img
-            src={jinkoLogoSquare}
-            alt="Jinko Solar"
-            className="w-full h-44 object-cover"
-            data-testid="img-hero"
-          />
-        </div>
-      </div>
-
-      <div className="px-3 mt-3">
-        <div className="rounded-2xl px-4 py-4 shadow-sm" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
-          <div className="flex justify-around items-center">
-            <button
-              onClick={() => navigate("/deposit")}
-              className="flex flex-col items-center gap-1.5"
-              data-testid="button-depot"
-            >
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconRecharger} alt="Dépôt" className="w-8 h-8 object-contain" style={{ filter: "grayscale(1) brightness(100)", mixBlendMode: "screen" }} />
-              </div>
-              <span className="text-white text-xs font-medium">Dépôt</span>
-            </button>
-
-            <button
-              onClick={() => navigate("/withdrawal")}
-              className="flex flex-col items-center gap-1.5"
-              data-testid="button-retrait"
-            >
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconRetraits} alt="Retrait" className="w-8 h-8 object-contain" style={{ filter: "grayscale(1) brightness(100)", mixBlendMode: "screen" }} />
-              </div>
-              <span className="text-white text-xs font-medium">Retrait</span>
-            </button>
-
-            <button
-              onClick={() => navigate("/service")}
-              className="flex flex-col items-center gap-1.5"
-              data-testid="button-telegram"
-            >
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconService} alt="Service" className="w-8 h-8 object-contain" style={{ filter: "grayscale(1) brightness(100)", mixBlendMode: "screen" }} />
-              </div>
-              <span className="text-white text-xs font-medium">Telegram</span>
-            </button>
-
-            <button
-              onClick={handleInstall}
-              className="flex flex-col items-center gap-1.5"
-              data-testid="button-app"
-            >
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <img src={iconPlayStore} alt="App" className="w-8 h-8 object-contain rounded-lg" />
-              </div>
-              <span className="text-white text-xs font-medium">
-                {installed ? "Installée" : "App"}
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-3 mt-3">
-        <div className="flex gap-2">
-          <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm flex flex-col gap-2">
-            <img src={iconConnexion} alt="Connexion" className="w-10 h-10 object-contain" />
-            <div>
-              <p className="font-bold text-gray-800 text-sm">Connexion</p>
-              <p className="text-gray-500 text-xs">Tâche de référence</p>
-            </div>
-            <button
-              onClick={() => navigate("/checkin")}
-              className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
-              style={{ background: "#3db51d" }}
-              data-testid="button-checkin"
-            >
-              Réclamer maintenant
-            </button>
-          </div>
-
-          <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm flex flex-col gap-2">
-            <img src={iconBonus} alt="Bonus" className="w-10 h-10 object-contain" />
-            <div>
-              <p className="font-bold text-gray-800 text-sm">Bonus</p>
-              <p className="text-gray-500 text-xs">Rédemption</p>
-            </div>
-            <button
-              onClick={() => navigate("/gift-code")}
-              className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
-              style={{ background: "#3db51d" }}
-              data-testid="button-bonus"
-            >
-              Réclamer les récompenses
-            </button>
-          </div>
-
-          <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm flex flex-col gap-2">
-            <button onClick={() => navigate("/team-details")} className="w-full flex flex-col gap-2">
-              <img src={iconEquipe} alt="Mon équipe" className="w-10 h-10 object-contain" />
-              <div>
-                <p className="font-bold text-gray-800 text-sm">Mon équipe</p>
-                <p className="text-gray-500 text-xs">Parrainage</p>
-              </div>
-            </button>
-            <button
-              onClick={() => navigate("/team-details")}
-              className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
-              style={{ background: "#3db51d" }}
-              data-testid="button-team"
-            >
-              Voir les détails
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-3 mt-3">
-        <button
-          onClick={() => navigate("/my-products")}
-          className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3"
-          data-testid="button-my-products"
+        <div
+          className="rounded-2xl px-2 py-4 shadow-sm"
+          style={{ background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)" }}
         >
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#f0fff0" }}>
-            <img src={iconProduits} alt="Mes produits" className="w-9 h-9 object-contain" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="font-bold text-gray-800 text-sm">Mes produits</p>
-            <p className="text-gray-500 text-xs">{activeProductCount} produit(s) actif(s)</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-gray-400" />
-        </button>
-      </div>
-
-      <div className="px-3 mt-3">
-        <div className="flex items-center gap-2 px-3 py-2.5 bg-white rounded-xl shadow-sm">
-          <Megaphone className="w-4 h-4 flex-shrink-0" style={{ color: "#3db51d" }} />
-          <div className="overflow-hidden flex-1">
-            <p className="text-gray-600 text-xs whitespace-nowrap animate-marquee">
-              Jinko Solar ☀️ - Leader mondial du panneau solaire, présent dans plus de 160 pays avec plus de 200 GW de capacité installée dans le monde.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-3 mt-3 pb-24">
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <p className="font-bold text-gray-800 text-sm">My statistics and balance</p>
-            <button onClick={() => navigate("/team")} className="text-xs font-medium flex items-center gap-0.5" style={{ color: "#3db51d" }}>
-              Voir plus <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-          <div className="flex divide-x divide-gray-100">
-            <div className="flex-1 p-4 text-center" data-testid="card-balance">
-              <p className="text-xs text-gray-500 mb-1">Balance</p>
-              <p className="font-bold text-gray-800 text-sm" data-testid="text-balance">
-                {balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} {currency}
-              </p>
-            </div>
-            <div className="flex-1 p-4 text-center" data-testid="card-cumulatif">
-              <p className="text-xs text-gray-500 mb-1">Cumulatif</p>
-              <p className="font-bold text-gray-800 text-sm" data-testid="text-cumulative">
-                {cumulativeEarnings.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} {currency}
-              </p>
-            </div>
-            <div className="flex-1 p-4 text-center" data-testid="card-active-products">
-              <p className="text-xs text-gray-500 mb-1">Produits</p>
-              <p className="font-bold text-sm" style={{ color: "#3db51d" }} data-testid="text-active-products">
-                {activeProductCount}
-              </p>
-            </div>
+          <div className="flex justify-around items-start">
+            {quickActions.map((action) => (
+              <button
+                key={action.label}
+                onClick={action.onClick}
+                className="flex flex-col items-center gap-1.5 flex-1"
+                data-testid={`button-action-${action.label.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center shadow-md"
+                  style={{ background: "rgba(255,255,255,0.25)", border: "2px solid rgba(255,255,255,0.5)" }}
+                >
+                  <action.icon className="w-6 h-6 text-white" strokeWidth={2} />
+                </div>
+                <span className="text-white text-[10px] font-semibold text-center leading-tight max-w-[52px]">
+                  {action.label}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-          animation: marquee 14s linear infinite;
-        }
-      `}</style>
+      {/* Products Section */}
+      <div className="px-3 mt-4 pb-24">
+        {productsLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {paidProducts.map((product) => (
+              <div key={product.id} data-testid={`card-product-${product.id}`}>
+                {/* Product name label */}
+                <p className="font-bold text-gray-800 text-base mb-2 px-1">{product.name}</p>
+
+                {/* Product card */}
+                <div className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#f28b82" }}>
+                  {/* Product image */}
+                  <div className="p-3 pb-0">
+                    <div className="rounded-xl overflow-hidden" style={{ height: 140 }}>
+                      <img
+                        src={jinkoLogoSquare}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Product details */}
+                  <div className="px-4 py-3 space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/90 text-sm">Cycle(Jours)</span>
+                      <span className="text-white font-bold text-sm">{product.cycleDays}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/90 text-sm">Revenu quotidien({currency})</span>
+                      <span className="text-white font-bold text-sm">{Number(product.dailyEarnings).toLocaleString("fr-FR")}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/90 text-sm">Revenu total({currency})</span>
+                      <span className="text-white font-bold text-sm">
+                        {Number(product.price).toLocaleString("fr-FR")}+{Number(product.totalReturn).toLocaleString("fr-FR")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price + Buy button */}
+                <div className="flex items-center justify-between mt-3 px-1">
+                  <div>
+                    <p className="text-xs text-gray-500">Prix({currency})</p>
+                    <p className="text-xl font-bold" style={{ color: "#f59e0b" }}>
+                      {Number(product.price).toLocaleString("fr-FR")}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setConfirmProduct(product)}
+                    className="px-8 py-3 rounded-full text-white font-bold text-base shadow-md"
+                    style={{ background: "#3db51d" }}
+                    data-testid={`button-invest-${product.id}`}
+                  >
+                    Investir
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
