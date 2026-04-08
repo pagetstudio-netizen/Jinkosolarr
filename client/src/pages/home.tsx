@@ -11,7 +11,7 @@ import type { Product } from "@shared/schema";
 
 import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
 import jinkoLogoSquare from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
-import heroImg from "@assets/20260408_191416_1775675670071.jpg";
+import heroImg from "@assets/20260408_191813_1775675938233.jpg";
 
 const TELEGRAM_LINK = "https://t.me/wendysappgroup";
 
@@ -171,31 +171,41 @@ export default function HomePage() {
       </div>
 
       {/* Hero Image with overlaid buttons */}
-      <div className="relative">
+      <div className="relative w-full">
         <img
           src={heroImg}
           alt="Jinko Solar"
-          className="w-full object-cover"
-          style={{ height: 200 }}
+          className="w-full h-auto block"
           data-testid="img-hero"
         />
-        {/* Overlay buttons at the bottom of hero */}
-        <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-4 px-6">
+        {/* Overlay buttons — bottom center, matching the reference design */}
+        <div className="absolute bottom-[14%] left-0 right-0 flex items-center justify-center gap-4">
           <button
             onClick={() => navigate("/deposit")}
-            className="flex items-center gap-2 px-5 py-2 rounded-full font-bold text-white text-sm shadow-lg"
-            style={{ background: "#e53935", border: "2px solid rgba(255,255,255,0.4)" }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-white text-sm shadow-lg"
+            style={{
+              background: "#e53935",
+              border: "2px solid rgba(255,255,255,0.5)",
+              minWidth: 110,
+              justifyContent: "center",
+            }}
             data-testid="button-hero-recharger"
           >
-            <span className="text-base">💳</span> Recharger
+            <span className="text-base leading-none">⚡</span> Recharger
           </button>
           <button
             onClick={() => navigate("/withdrawal")}
-            className="flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm shadow-lg"
-            style={{ background: "rgba(255,255,255,0.9)", color: "#3db51d", border: "2px solid rgba(255,255,255,0.6)" }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm shadow-lg"
+            style={{
+              background: "rgba(255,255,255,0.88)",
+              color: "#3db51d",
+              border: "2px solid rgba(255,255,255,0.7)",
+              minWidth: 100,
+              justifyContent: "center",
+            }}
             data-testid="button-hero-retrait"
           >
-            <span className="text-base">🏧</span> Retrait
+            <span className="text-base leading-none">🏧</span> Retrait
           </button>
         </div>
       </div>
