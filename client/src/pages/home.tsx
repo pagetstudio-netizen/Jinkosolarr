@@ -8,8 +8,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { useToast } from "@/hooks/use-toast";
 
-import wendysLogo from "@assets/wendys_logo.png";
-import heroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
+import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
+import jinkoLogoSquare from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
 import iconRecharger from "@assets/20260312_105135_1773313898669.png";
 import iconRetraits from "@assets/20260312_105153_1773313898582.png";
 import iconService from "@assets/20260312_105210_1773313898694.png";
@@ -33,14 +33,11 @@ export default function HomePage() {
     enabled: !!user,
   });
 
-  // Re-show popup every time the user navigates to home
   useEffect(() => {
     setShowPopup(true);
   }, [location]);
 
-  // Capture PWA install prompt (including early-captured global)
   useEffect(() => {
-    // Pick up prompt captured before React mounted
     const w = window as any;
     if (w._installPrompt) {
       setInstallPrompt(w._installPrompt);
@@ -69,7 +66,6 @@ export default function HomePage() {
       if (outcome === "accepted") setInstalled(true);
       setInstallPrompt(null);
     } else {
-      // iOS or unsupported: show manual instructions
       toast({
         title: "Installer l'application",
         description: "Sur iPhone : appuyez sur Partager puis 'Sur l'écran d'accueil'. Sur Android : menu du navigateur → 'Ajouter à l'écran d'accueil'.",
@@ -94,18 +90,25 @@ export default function HomePage() {
         >
           <div
             className="w-full max-w-[340px] rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200"
-            style={{ background: "linear-gradient(160deg, #c8102e 0%, #8b0000 100%)" }}
+            style={{ background: "linear-gradient(160deg, #3db51d 0%, #1e7a0e 100%)" }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-6 pt-7 pb-6">
+              {/* Logo in popup */}
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center overflow-hidden shadow-lg">
+                  <img src={jinkoLogoSquare} alt="Jinko Solar" className="w-full h-full object-cover" />
+                </div>
+              </div>
+
               {/* Title */}
-              <h2 className="text-white text-3xl font-extrabold text-center tracking-widest mb-4">
+              <h2 className="text-white text-2xl font-extrabold text-center tracking-widest mb-4">
                 AVERTIR
               </h2>
 
               {/* Body text */}
               <p className="text-white/90 text-sm leading-relaxed mb-4">
-                Wendy's est l'une des plus grandes chaînes de burgers au monde.
+                Jinko Solar est l'un des plus grands fabricants de panneaux solaires au monde, présent dans plus de 160 pays.
               </p>
 
               {/* Numbered list */}
@@ -119,7 +122,8 @@ export default function HomePage() {
               {/* D'ACCORD button */}
               <button
                 onClick={() => setShowPopup(false)}
-                className="w-full py-3.5 bg-white rounded-full text-[#c8102e] font-extrabold text-base tracking-wide mb-3"
+                className="w-full py-3.5 bg-white rounded-full font-extrabold text-base tracking-wide mb-3"
+                style={{ color: "#3db51d" }}
                 data-testid="button-popup-agree"
               >
                 D'ACCORD
@@ -143,7 +147,7 @@ export default function HomePage() {
       )}
 
       <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
-        <img src={wendysLogo} alt="Wendy's" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
+        <img src={jinkoLogoText} alt="Jinko Solar" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
         <button onClick={() => navigate("/service")} data-testid="button-service-header">
           <img src={serviceIcon} alt="Service client" className="w-8 h-8 object-contain" />
         </button>
@@ -152,8 +156,8 @@ export default function HomePage() {
       <div className="px-3 pt-3">
         <div className="rounded-2xl overflow-hidden shadow-sm">
           <img
-            src={heroImg}
-            alt="Wendy's Restaurant"
+            src={jinkoLogoSquare}
+            alt="Jinko Solar"
             className="w-full h-44 object-cover"
             data-testid="img-hero"
           />
@@ -161,7 +165,7 @@ export default function HomePage() {
       </div>
 
       <div className="px-3 mt-3">
-        <div className="rounded-2xl px-4 py-4 shadow-sm" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
+        <div className="rounded-2xl px-4 py-4 shadow-sm" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
           <div className="flex justify-around items-center">
             <button
               onClick={() => navigate("/deposit")}
@@ -223,7 +227,7 @@ export default function HomePage() {
             <button
               onClick={() => navigate("/checkin")}
               className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
-              style={{ background: "#c8102e" }}
+              style={{ background: "#3db51d" }}
               data-testid="button-checkin"
             >
               Réclamer maintenant
@@ -239,7 +243,7 @@ export default function HomePage() {
             <button
               onClick={() => navigate("/gift-code")}
               className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
-              style={{ background: "#c8102e" }}
+              style={{ background: "#3db51d" }}
               data-testid="button-bonus"
             >
               Réclamer les récompenses
@@ -257,7 +261,7 @@ export default function HomePage() {
             <button
               onClick={() => navigate("/team-details")}
               className="mt-auto text-xs text-white font-semibold py-1.5 px-2 rounded-lg text-center"
-              style={{ background: "#c8102e" }}
+              style={{ background: "#3db51d" }}
               data-testid="button-team"
             >
               Voir les détails
@@ -272,7 +276,7 @@ export default function HomePage() {
           className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3"
           data-testid="button-my-products"
         >
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#fff0f0" }}>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#f0fff0" }}>
             <img src={iconProduits} alt="Mes produits" className="w-9 h-9 object-contain" />
           </div>
           <div className="flex-1 text-left">
@@ -285,10 +289,10 @@ export default function HomePage() {
 
       <div className="px-3 mt-3">
         <div className="flex items-center gap-2 px-3 py-2.5 bg-white rounded-xl shadow-sm">
-          <Megaphone className="w-4 h-4 text-[#c8102e] flex-shrink-0" />
+          <Megaphone className="w-4 h-4 flex-shrink-0" style={{ color: "#3db51d" }} />
           <div className="overflow-hidden flex-1">
             <p className="text-gray-600 text-xs whitespace-nowrap animate-marquee">
-              Wendy's - Plus de 6 000 restaurants dans le monde, des hamburgers au bœuf frais jamais congelé 🍔
+              Jinko Solar ☀️ - Leader mondial du panneau solaire, présent dans plus de 160 pays avec plus de 200 GW de capacité installée dans le monde.
             </p>
           </div>
         </div>
@@ -298,7 +302,7 @@ export default function HomePage() {
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
             <p className="font-bold text-gray-800 text-sm">My statistics and balance</p>
-            <button onClick={() => navigate("/team")} className="text-xs text-[#c8102e] font-medium flex items-center gap-0.5">
+            <button onClick={() => navigate("/team")} className="text-xs font-medium flex items-center gap-0.5" style={{ color: "#3db51d" }}>
               Voir plus <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -317,7 +321,7 @@ export default function HomePage() {
             </div>
             <div className="flex-1 p-4 text-center" data-testid="card-active-products">
               <p className="text-xs text-gray-500 mb-1">Produits</p>
-              <p className="font-bold text-[#c8102e] text-sm" data-testid="text-active-products">
+              <p className="font-bold text-sm" style={{ color: "#3db51d" }} data-testid="text-active-products">
                 {activeProductCount}
               </p>
             </div>

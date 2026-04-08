@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import { Loader2, Eye, EyeOff, Lock, QrCode, ChevronDown } from "lucide-react";
-import wendysLogo from "@assets/wendys_logo.png";
+import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
 import bgImage from "@assets/20260312_184552_1773341347211.jpg";
 
 const registerSchema = z.object({
@@ -61,7 +61,7 @@ export default function RegisterPage() {
         password: data.password,
         invitationCode: data.invitationCode,
       });
-      toast({ title: "Inscription réussie !", description: "Bienvenue sur Wendy's !" });
+      toast({ title: "Inscription réussie !", description: "Bienvenue sur Jinko Solar !" });
       navigate("/");
     } catch (error: any) {
       toast({ title: "Erreur d'inscription", description: error.message || "Une erreur est survenue", variant: "destructive" });
@@ -79,10 +79,13 @@ export default function RegisterPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-7">
-          <div className="w-18 h-18 rounded-full bg-white shadow-xl flex items-center justify-center overflow-hidden mb-2" style={{ width: 68, height: 68 }}>
-            <img src={wendysLogo} alt="Wendy's" className="w-14 h-14 object-contain" />
+          <div className="rounded-2xl bg-white shadow-xl flex items-center justify-center overflow-hidden mb-2" style={{ width: 68, height: 68 }}>
+            <img src={jinkoLogo} alt="Jinko Solar" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-xl font-extrabold text-[#c8102e] drop-shadow-sm">Wendy's</h1>
+          <h1 className="text-xl font-extrabold drop-shadow-sm">
+            <span style={{ color: "#3db51d" }}>Jinko</span>
+            <span style={{ color: "#c8a028" }}> Solar</span>
+          </h1>
         </div>
 
         {/* Form */}
@@ -112,7 +115,7 @@ export default function RegisterPage() {
               />
             </div>
             {form.formState.errors.phone && (
-              <p className="text-[#c8102e] text-xs mt-1 font-medium">{form.formState.errors.phone.message}</p>
+              <p className="text-xs mt-1 font-medium" style={{ color: "#3db51d" }}>{form.formState.errors.phone.message}</p>
             )}
           </div>
 
@@ -135,7 +138,7 @@ export default function RegisterPage() {
               </button>
             </div>
             {form.formState.errors.password && (
-              <p className="text-[#c8102e] text-xs mt-1 font-medium">{form.formState.errors.password.message}</p>
+              <p className="text-xs mt-1 font-medium" style={{ color: "#3db51d" }}>{form.formState.errors.password.message}</p>
             )}
           </div>
 
@@ -158,7 +161,7 @@ export default function RegisterPage() {
               </button>
             </div>
             {form.formState.errors.confirmPassword && (
-              <p className="text-[#c8102e] text-xs mt-1 font-medium">{form.formState.errors.confirmPassword.message}</p>
+              <p className="text-xs mt-1 font-medium" style={{ color: "#3db51d" }}>{form.formState.errors.confirmPassword.message}</p>
             )}
           </div>
 
@@ -185,7 +188,7 @@ export default function RegisterPage() {
             type="submit"
             disabled={isLoading}
             className="w-full h-14 rounded-full text-white font-bold text-lg shadow-lg disabled:opacity-50 mt-1"
-            style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+            style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
             data-testid="button-register"
           >
             {isLoading ? (
@@ -193,7 +196,7 @@ export default function RegisterPage() {
                 <Loader2 className="w-5 h-5 animate-spin" />
                 Inscription...
               </span>
-            ) : "Registre"}
+            ) : "S'inscrire"}
           </button>
 
           {/* Link to login */}
@@ -201,7 +204,8 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="text-[#c8102e] font-semibold text-base"
+              className="font-semibold text-base"
+              style={{ color: "#3db51d" }}
               data-testid="link-login"
             >
               Déjà un compte ? Se connecter maintenant

@@ -141,8 +141,8 @@ export default function AdminDashboard({ isSuperAdmin }: AdminDashboardProps) {
       value: `${stats.totalWithdrawals.toLocaleString()} F`,
       subtitle: `+${stats.todayWithdrawals.toLocaleString()} F aujourd'hui`,
       icon: ArrowUpFromLine,
-      color: "text-red-500",
-      bg: "bg-red-500/20",
+      color: "text-green-500",
+      bg: "bg-green-500/20",
     },
     {
       title: "Retraits en attente",

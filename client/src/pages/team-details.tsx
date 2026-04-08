@@ -72,7 +72,7 @@ export default function TeamDetailsPage() {
     <div className="min-h-screen bg-gray-100 flex flex-col">
 
       {/* Red header */}
-      <div className="relative px-4 pt-4 pb-8" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
+      <div className="relative px-4 pt-4 pb-8" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
         <div className="flex items-center mb-4">
           <Link href="/">
             <button className="p-1.5 bg-white/20 rounded-full" data-testid="button-back-team">
@@ -104,12 +104,12 @@ export default function TeamDetailsPage() {
               data-testid={`tab-level-${level.num}`}
             >
               {activeLevel === level.num && (
-                <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full" style={{ backgroundColor: "#c8102e" }} />
+                <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full" style={{ backgroundColor: "#3db51d" }} />
               )}
-              <p className={`text-sm font-bold ${activeLevel === level.num ? "text-[#c8102e]" : "text-gray-400"}`}>
+              <p className={`text-sm font-bold ${activeLevel === level.num ? "text-[#3db51d]" : "text-gray-400"}`}>
                 {level.count}
               </p>
-              <p className={`text-[11px] mt-0.5 ${activeLevel === level.num ? "text-[#c8102e]" : "text-gray-400"}`}>
+              <p className={`text-[11px] mt-0.5 ${activeLevel === level.num ? "text-[#3db51d]" : "text-gray-400"}`}>
                 {level.label}
               </p>
             </button>
@@ -122,12 +122,12 @@ export default function TeamDetailsPage() {
         <div className="bg-white rounded-2xl shadow-sm px-4 py-3 flex items-center justify-between">
           <div>
             <p className="text-xs text-gray-400">Total investi — Niveau {activeLevel}</p>
-            <p className="text-base font-black mt-0.5" style={{ color: "#c8102e" }}>
+            <p className="text-base font-black mt-0.5" style={{ color: "#3db51d" }}>
               {levels[activeLevel - 1].total.toLocaleString("en-US", { minimumFractionDigits: 2 })}
             </p>
           </div>
           <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "#fff0f2" }}>
-            <Users className="w-5 h-5" style={{ color: "#c8102e" }} />
+            <Users className="w-5 h-5" style={{ color: "#3db51d" }} />
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function TeamDetailsPage() {
           ) : members.length === 0 ? (
             <div className="text-center py-14 px-6">
               <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: "#fff0f2" }}>
-                <Users className="w-7 h-7" style={{ color: "#c8102e" }} />
+                <Users className="w-7 h-7" style={{ color: "#3db51d" }} />
               </div>
               <p className="text-gray-500 text-sm font-medium">Aucun membre au niveau {activeLevel}</p>
               <p className="text-gray-400 text-xs mt-1">Invitez des amis pour agrandir votre équipe</p>
@@ -166,7 +166,7 @@ export default function TeamDetailsPage() {
                   {/* Avatar */}
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                    style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+                    style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
                   >
                     <span className="text-white text-sm font-bold">
                       {member.phone.slice(0, 1).toUpperCase()}
@@ -184,7 +184,7 @@ export default function TeamDetailsPage() {
                   {/* Invested amount */}
                   <p
                     className="text-sm font-bold shrink-0"
-                    style={{ color: "#c8102e" }}
+                    style={{ color: "#3db51d" }}
                     data-testid={`text-member-invested-${member.id}`}
                   >
                     {member.totalInvested.toLocaleString("en-US", { minimumFractionDigits: 2 })}

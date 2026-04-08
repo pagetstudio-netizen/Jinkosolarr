@@ -4,7 +4,7 @@ import { getCountryByCode } from "@/lib/countries";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 
-import productHeroImg from "@assets/Wendys-Still-Wants-Dynamic-Pricing-to-Work-FT-BLOG0224-53eb3b6_1773262521308.jpg";
+import productHeroImg from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
 
 export default function MyProductsPage() {
   const { user } = useAuth();
@@ -41,7 +41,7 @@ export default function MyProductsPage() {
       <div className="flex-1 overflow-y-auto pb-24">
 
         {/* Red header */}
-        <div className="relative pt-10 pb-8 px-4 text-center" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
+        <div className="relative pt-10 pb-8 px-4 text-center" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
           <div className="absolute top-3 left-3">
             <Link href="/account">
               <button className="p-1.5 bg-white/20 rounded-full" data-testid="button-back">
@@ -69,7 +69,7 @@ export default function MyProductsPage() {
         <div className="px-4 mt-4 space-y-4">
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#c8102e" }} />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
             </div>
           ) : allProducts.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
@@ -97,7 +97,7 @@ export default function MyProductsPage() {
                     <div className="flex justify-end mb-2">
                       <span
                         className="text-white text-xs font-semibold px-3 py-1 rounded-full"
-                        style={{ backgroundColor: "#c8102e" }}
+                        style={{ backgroundColor: "#3db51d" }}
                       >
                         {formatDateTime(up.purchasedAt)}
                       </span>
@@ -106,13 +106,13 @@ export default function MyProductsPage() {
                     {/* Earnings row */}
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-[#c8102e] font-black text-lg leading-tight">
+                        <p className="text-[#3db51d] font-black text-lg leading-tight">
                           {currency} {dailyEarnings.toLocaleString()}
                         </p>
                         <p className="text-gray-400 text-xs">Revenus quotidiens</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[#c8102e] font-black text-lg leading-tight">
+                        <p className="text-[#3db51d] font-black text-lg leading-tight">
                           {currency} {earnedSoFar.toLocaleString()}
                         </p>
                         <p className="text-gray-400 text-xs">Revenus totaux</p>
@@ -129,7 +129,7 @@ export default function MyProductsPage() {
                     />
                     <div>
                       <p className="text-gray-900 font-bold text-sm">{up.product?.name || "Produit"}</p>
-                      <p className="text-[#c8102e] text-xs font-medium mt-0.5">
+                      <p className="text-[#3db51d] text-xs font-medium mt-0.5">
                         Durée : {daysCompleted}/{cycleDays} Jours
                       </p>
                     </div>
@@ -138,7 +138,7 @@ export default function MyProductsPage() {
                   {/* Red bottom bar */}
                   <div
                     className="px-4 py-2.5 text-center text-white text-sm font-semibold"
-                    style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+                    style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
                   >
                     Revenus reçus : {currency} {earnedSoFar.toLocaleString()}
                   </div>

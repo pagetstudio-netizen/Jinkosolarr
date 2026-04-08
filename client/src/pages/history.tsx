@@ -69,7 +69,7 @@ export default function HistoryPage() {
       case "approved":
         return "text-green-500";
       case "rejected":
-        return "text-red-500";
+        return "text-green-500";
       default:
         return "text-[#FF9800]";
     }
@@ -131,7 +131,7 @@ export default function HistoryPage() {
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-[#c8102e]" />
+            <ArrowLeft className="w-5 h-5 text-[#3db51d]" />
           </button>
         </Link>
         <h1 className="text-lg font-semibold text-gray-800">Historique</h1>
@@ -143,7 +143,7 @@ export default function HistoryPage() {
           onClick={() => setActiveTab("deposits")}
           className={`flex-1 py-2.5 text-center font-medium text-sm rounded-full transition-colors ${
             activeTab === "deposits"
-              ? "bg-[#c8102e] text-white"
+              ? "bg-[#3db51d] text-white"
               : "text-gray-500"
           }`}
           data-testid="tab-deposits"
@@ -157,7 +157,7 @@ export default function HistoryPage() {
           onClick={() => setActiveTab("withdrawals")}
           className={`flex-1 py-2.5 text-center font-medium text-sm rounded-full transition-colors ${
             activeTab === "withdrawals"
-              ? "bg-[#c8102e] text-white"
+              ? "bg-[#3db51d] text-white"
               : "text-gray-500"
           }`}
           data-testid="tab-withdrawals"

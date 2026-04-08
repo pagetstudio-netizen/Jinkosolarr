@@ -186,7 +186,7 @@ export default function AdminGiftCodes() {
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="text-red-500"
+                    className="text-green-500"
                     onClick={() => deleteMutation.mutate(giftCode.id)}
                     disabled={deleteMutation.isPending}
                     data-testid={`button-delete-${giftCode.id}`}
@@ -206,13 +206,13 @@ export default function AdminGiftCodes() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Expire le</span>
-                  <span className={`font-semibold ${isExpired(giftCode.expiresAt) ? "text-red-500" : ""}`} data-testid={`text-expires-${giftCode.id}`}>
+                  <span className={`font-semibold ${isExpired(giftCode.expiresAt) ? "text-green-500" : ""}`} data-testid={`text-expires-${giftCode.id}`}>
                     {formatDate(giftCode.expiresAt)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Statut</span>
-                  <span className={`font-semibold ${isExpired(giftCode.expiresAt) || !giftCode.isActive ? "text-red-500" : "text-green-500"}`} data-testid={`text-status-${giftCode.id}`}>
+                  <span className={`font-semibold ${isExpired(giftCode.expiresAt) || !giftCode.isActive ? "text-green-500" : "text-green-500"}`} data-testid={`text-status-${giftCode.id}`}>
                     {isExpired(giftCode.expiresAt) ? "Expire" : giftCode.isActive ? "Actif" : "Inactif"}
                   </span>
                 </div>

@@ -101,15 +101,15 @@ export default function ChangePasswordPage() {
               Mot de passe actuel
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
-                <Lock className="w-3.5 h-3.5 text-[#c8102e]" />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center">
+                <Lock className="w-3.5 h-3.5 text-[#3db51d]" />
               </div>
               <input
                 type={showCurrentPassword ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Votre mot de passe actuel"
-                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#c8102e] bg-gray-50 text-gray-800 transition-colors"
+                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#3db51d] bg-gray-50 text-gray-800 transition-colors"
                 data-testid="input-current-password"
               />
               <button
@@ -131,15 +131,15 @@ export default function ChangePasswordPage() {
               Nouveau mot de passe
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
-                <KeyRound className="w-3.5 h-3.5 text-[#c8102e]" />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center">
+                <KeyRound className="w-3.5 h-3.5 text-[#3db51d]" />
               </div>
               <input
                 type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Minimum 6 caractères"
-                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#c8102e] bg-gray-50 text-gray-800 transition-colors"
+                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#3db51d] bg-gray-50 text-gray-800 transition-colors"
                 data-testid="input-new-password"
               />
               <button
@@ -178,15 +178,15 @@ export default function ChangePasswordPage() {
               Confirmer le mot de passe
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
-                <KeyRound className="w-3.5 h-3.5 text-[#c8102e]" />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center">
+                <KeyRound className="w-3.5 h-3.5 text-[#3db51d]" />
               </div>
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Répétez le nouveau mot de passe"
-                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#c8102e] bg-gray-50 text-gray-800 transition-colors"
+                className="w-full border border-gray-200 rounded-xl pl-12 pr-11 py-3.5 text-sm outline-none focus:border-[#3db51d] bg-gray-50 text-gray-800 transition-colors"
                 data-testid="input-confirm-password"
               />
               <button
@@ -220,7 +220,7 @@ export default function ChangePasswordPage() {
             onClick={handleSubmit}
             disabled={changePasswordMutation.isPending}
             className="w-full py-4 rounded-xl text-white font-bold text-base disabled:opacity-40 shadow-md mt-2"
-            style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+            style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
             data-testid="button-change-password-submit"
           >
             {changePasswordMutation.isPending ? (
@@ -235,19 +235,19 @@ export default function ChangePasswordPage() {
         </div>
 
         {/* Security tips */}
-        <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm border-l-4 border-[#c8102e]">
-          <p className="text-sm font-bold text-[#c8102e] mb-2">Conseils de sécurité</p>
+        <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm border-l-4 border-[#3db51d]">
+          <p className="text-sm font-bold text-[#3db51d] mb-2">Conseils de sécurité</p>
           <ul className="space-y-1.5 text-xs text-gray-500">
             <li className="flex items-start gap-2">
-              <span className="text-[#c8102e] font-bold mt-0.5">•</span>
+              <span className="text-[#3db51d] font-bold mt-0.5">•</span>
               Utilisez au moins 6 caractères avec des lettres et des chiffres.
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#c8102e] font-bold mt-0.5">•</span>
+              <span className="text-[#3db51d] font-bold mt-0.5">•</span>
               Évitez d'utiliser votre nom ou date de naissance.
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#c8102e] font-bold mt-0.5">•</span>
+              <span className="text-[#3db51d] font-bold mt-0.5">•</span>
               Ne partagez jamais votre mot de passe avec quelqu'un.
             </li>
           </ul>

@@ -121,7 +121,7 @@ export default function WithdrawalPage() {
   if (walletsLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#c8102e]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#3db51d]" />
       </div>
     );
   }
@@ -139,19 +139,19 @@ export default function WithdrawalPage() {
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
           <button className="p-1" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-[#c8102e]" />
+            <ChevronLeft className="w-6 h-6 text-[#3db51d]" />
           </button>
         </Link>
-        <h1 className="text-base font-bold text-[#c8102e]">Retrait</h1>
+        <h1 className="text-base font-bold text-[#3db51d]">Retrait</h1>
         <Link href="/history">
           <button className="p-1" data-testid="button-history">
-            <ChevronLeft className="w-6 h-6 text-[#c8102e] rotate-180" />
+            <ChevronLeft className="w-6 h-6 text-[#3db51d] rotate-180" />
           </button>
         </Link>
       </header>
 
       {/* Balance Banner */}
-      <div className="bg-[#c8102e] px-5 py-4 flex items-center gap-4">
+      <div className="bg-[#3db51d] px-5 py-4 flex items-center gap-4">
         <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
           <img
             src={iconCardWhite}
@@ -197,11 +197,11 @@ export default function WithdrawalPage() {
                 <p className="text-xs text-gray-400 mt-0.5">{selectedWallet.accountNumber} · {selectedWallet.paymentMethod}</p>
               </>
             ) : hasWallets ? (
-              <p className="text-sm text-[#c8102e] font-medium">Sélectionner un compte bancaire</p>
+              <p className="text-sm text-[#3db51d] font-medium">Sélectionner un compte bancaire</p>
             ) : (
               <div className="flex items-center gap-2">
-                <Plus className="w-4 h-4 text-[#c8102e]" />
-                <p className="text-sm text-[#c8102e] font-medium">Ajouter un portefeuille de retrait</p>
+                <Plus className="w-4 h-4 text-[#3db51d]" />
+                <p className="text-sm text-[#3db51d] font-medium">Ajouter un portefeuille de retrait</p>
               </div>
             )}
           </div>
@@ -210,10 +210,10 @@ export default function WithdrawalPage() {
 
         {/* Amount section */}
         <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <p className="font-bold text-[#c8102e] text-sm mb-3">Montant du retrait</p>
+          <p className="font-bold text-[#3db51d] text-sm mb-3">Montant du retrait</p>
 
           <div className="border border-gray-200 rounded-lg px-4 py-3 flex items-center gap-3">
-            <span className="font-bold text-[#c8102e] text-sm">{currency}</span>
+            <span className="font-bold text-[#3db51d] text-sm">{currency}</span>
             <input
               type="number"
               value={amount}
@@ -225,7 +225,7 @@ export default function WithdrawalPage() {
           </div>
 
           <div className="flex items-center justify-between text-xs mt-3">
-            <span className="text-[#c8102e]">
+            <span className="text-[#3db51d]">
               Montant reçu: <span className="font-semibold">{currency} {amountAfterFees.toLocaleString()}</span>
             </span>
             <span className="text-gray-400">Impôt: {withdrawalFee}%</span>
@@ -234,12 +234,12 @@ export default function WithdrawalPage() {
 
         {/* Warnings */}
         {!isWithinWithdrawalHours && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-[#c8102e] text-xs">
+          <div className="bg-green-50 border border-red-200 rounded-xl p-3 text-[#3db51d] text-xs">
             ⏰ Horaires de retrait : {withdrawalStartHour}h00 - {withdrawalEndHour}h00 (Fermé actuellement)
           </div>
         )}
         {!hasActiveProduct && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-[#c8102e] text-xs">
+          <div className="bg-green-50 border border-red-200 rounded-xl p-3 text-[#3db51d] text-xs">
             ⚠️ Vous devez avoir un produit actif pour effectuer un retrait.
           </div>
         )}
@@ -249,7 +249,7 @@ export default function WithdrawalPage() {
           onClick={handleSubmit}
           disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
           className="w-full py-4 rounded-full text-white font-bold text-base disabled:opacity-40 shadow-md"
-          style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+          style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
           data-testid="button-submit-withdrawal"
         >
           {withdrawMutation.isPending ? (
@@ -264,14 +264,14 @@ export default function WithdrawalPage() {
 
         {/* Instructions */}
         <div className="pt-2 pb-8">
-          <p className="font-bold text-[#c8102e] text-sm mb-3">Instructions de retrait</p>
-          <div className="space-y-2.5 text-sm text-[#c8102e] leading-relaxed">
+          <p className="font-bold text-[#3db51d] text-sm mb-3">Instructions de retrait</p>
+          <div className="space-y-2.5 text-sm text-[#3db51d] leading-relaxed">
             <p>1. Le montant minimum de retrait est de {minWithdrawal.toLocaleString()} {currency}.</p>
             <p>2. Il n'y a pas de limite de temps pour les retraits, mais une limite de trois retraits par jour est autorisée.</p>
             <p>3. Des frais de traitement de {withdrawalFee}% seront appliqués sur chaque retrait.</p>
             <p>4. Les retraits seront disponibles sous 2 heures, et exceptionnellement sous 24 heures.</p>
             <p>5. Si le retrait échoue, vérifiez que vos informations bancaires sont correctes, puis soumettez à nouveau la demande.</p>
-            <p>6. Effectuez votre première recharge et achetez des produits Wendy's pour activer la fonction de retrait.</p>
+            <p>6. Effectuez votre première recharge et achetez des produits Jinko Solar pour activer la fonction de retrait.</p>
           </div>
         </div>
       </div>

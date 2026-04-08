@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import { Loader2, Eye, EyeOff, Lock, ChevronDown } from "lucide-react";
-import wendysLogo from "@assets/wendys_logo.png";
+import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
 import bgImage from "@assets/20260312_184552_1773341347211.jpg";
 
 const loginSchema = z.object({
@@ -27,7 +27,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
 
-  const savedCredentials = typeof window !== "undefined" ? localStorage.getItem("wendys_credentials") : null;
+  const savedCredentials = typeof window !== "undefined" ? localStorage.getItem("jinko_credentials") : null;
   const parsedCredentials = savedCredentials ? JSON.parse(savedCredentials) : null;
   const [rememberMe, setRememberMe] = useState(!!parsedCredentials);
 
@@ -48,9 +48,9 @@ export default function LoginPage() {
     try {
       await login(data.phone, data.country, data.password);
       if (rememberMe) {
-        localStorage.setItem("wendys_credentials", JSON.stringify({ phone: data.phone, country: data.country, password: data.password }));
+        localStorage.setItem("jinko_credentials", JSON.stringify({ phone: data.phone, country: data.country, password: data.password }));
       } else {
-        localStorage.removeItem("wendys_credentials");
+        localStorage.removeItem("jinko_credentials");
       }
       navigate("/");
     } catch (error: any) {
@@ -69,10 +69,13 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 rounded-full bg-white shadow-xl flex items-center justify-center overflow-hidden mb-3">
-            <img src={wendysLogo} alt="Wendy's" className="w-16 h-16 object-contain" />
+          <div className="w-20 h-20 rounded-2xl bg-white shadow-xl flex items-center justify-center overflow-hidden mb-3">
+            <img src={jinkoLogo} alt="Jinko Solar" className="w-18 h-18 object-cover w-full h-full" />
           </div>
-          <h1 className="text-2xl font-extrabold text-[#c8102e] drop-shadow-sm">Wendy's</h1>
+          <h1 className="text-2xl font-extrabold drop-shadow-sm">
+            <span style={{ color: "#3db51d" }}>Jinko</span>
+            <span style={{ color: "#c8a028" }}> Solar</span>
+          </h1>
         </div>
 
         {/* Form */}
@@ -102,7 +105,7 @@ export default function LoginPage() {
               />
             </div>
             {form.formState.errors.phone && (
-              <p className="text-[#c8102e] text-xs mt-1 font-medium">{form.formState.errors.phone.message}</p>
+              <p className="text-xs mt-1 font-medium" style={{ color: "#3db51d" }}>{form.formState.errors.phone.message}</p>
             )}
           </div>
 
@@ -125,7 +128,7 @@ export default function LoginPage() {
               </button>
             </div>
             {form.formState.errors.password && (
-              <p className="text-[#c8102e] text-xs mt-1 font-medium">{form.formState.errors.password.message}</p>
+              <p className="text-xs mt-1 font-medium" style={{ color: "#3db51d" }}>{form.formState.errors.password.message}</p>
             )}
           </div>
 
@@ -138,12 +141,13 @@ export default function LoginPage() {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 accent-[#c8102e]"
+                className="w-4 h-4"
+                style={{ accentColor: "#3db51d" }}
                 data-testid="checkbox-remember"
               />
               <span className="text-gray-600 text-sm">Se souvenir</span>
             </label>
-            <button type="button" className="text-[#c8102e] text-sm font-semibold">
+            <button type="button" className="text-sm font-semibold" style={{ color: "#3db51d" }}>
               Mot de passe oublié ?
             </button>
           </div>
@@ -153,7 +157,7 @@ export default function LoginPage() {
             type="submit"
             disabled={isLoading}
             className="w-full h-14 rounded-full text-white font-bold text-lg shadow-lg disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+            style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
             data-testid="button-login"
           >
             {isLoading ? (
@@ -169,7 +173,8 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => navigate("/register")}
-              className="text-[#c8102e] font-semibold text-base"
+              className="font-semibold text-base"
+              style={{ color: "#3db51d" }}
               data-testid="link-register"
             >
               S'inscrire

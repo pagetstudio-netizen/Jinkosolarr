@@ -76,7 +76,7 @@ export default function TeamPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl shadow-sm p-4" style={{ background: "linear-gradient(135deg, #c8102e 0%, #a00d25 100%)" }}>
+        <div className="rounded-2xl shadow-sm p-4" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
           <h2 className="text-white font-bold text-base mb-1">Inviter des amis</h2>
           <p className="text-white/80 text-xs mb-3 leading-relaxed">
             Invitez plus d'utilisateurs et vous pourrez profiter de récompenses d'invitation plus généreuses et d'autres récompenses
@@ -93,7 +93,7 @@ export default function TeamPage() {
             <button
               onClick={copyCode}
               className="bg-white rounded-full px-4 py-1.5 text-xs font-semibold shrink-0"
-              style={{ color: "#c8102e" }}
+              style={{ color: "#3db51d" }}
               data-testid="button-copy-code"
             >
               Copier
@@ -111,7 +111,7 @@ export default function TeamPage() {
             <button
               onClick={copyLink}
               className="bg-white rounded-full px-4 py-1.5 text-xs font-semibold shrink-0"
-              style={{ color: "#c8102e" }}
+              style={{ color: "#3db51d" }}
               data-testid="button-copy-link"
             >
               Copier
@@ -125,7 +125,7 @@ export default function TeamPage() {
               <div className="flex justify-center py-2">
                 <span
                   className="px-5 py-1 rounded-full text-white text-sm font-bold"
-                  style={{ background: "#c8102e" }}
+                  style={{ background: "#3db51d" }}
                 >
                   {level.label}
                 </span>
@@ -152,13 +152,13 @@ export default function TeamPage() {
           <h2 className="font-bold text-gray-800 text-base mb-3">Cadeau de parrainage</h2>
           <div className="text-sm text-gray-600 leading-relaxed space-y-2">
             <p>
-              Lorsque vos amis invités s'inscrivent et finalisent leur investissement, vous recevez immédiatement <span className="font-semibold text-[#c8102e]">27%</span> de remise en argent.
+              Lorsque vos amis invités s'inscrivent et finalisent leur investissement, vous recevez immédiatement <span className="font-semibold text-[#3db51d]">27%</span> de remise en argent.
             </p>
             <p>
-              Lorsque les membres de votre équipe de niveau 2 investissent, vous recevez <span className="font-semibold text-[#c8102e]">2%</span> de remise en argent.
+              Lorsque les membres de votre équipe de niveau 2 investissent, vous recevez <span className="font-semibold text-[#3db51d]">2%</span> de remise en argent.
             </p>
             <p>
-              Lorsque les membres de votre équipe de niveau 3 investissent, vous recevez <span className="font-semibold text-[#c8102e]">1%</span> de remise en argent.
+              Lorsque les membres de votre équipe de niveau 3 investissent, vous recevez <span className="font-semibold text-[#3db51d]">1%</span> de remise en argent.
             </p>
             <p>
               Une fois que les membres de votre équipe investissent, la récompense en espèces est immédiatement versée sur votre compte.

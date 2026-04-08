@@ -11,7 +11,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-import wendysLogo from "@assets/wendys_logo.png";
+import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
 import inviteBanner from "@assets/20260311_235212_1773273730144.png";
 import robotCoins from "@assets/20260312_072729_1773301338434.png";
 import robotWallet from "@assets/20260312_072644_1773301338541.png";
@@ -93,7 +93,7 @@ export default function AccountPage() {
         {/* Header */}
         <div className="bg-white px-4 pt-5 pb-4 flex items-center gap-3">
           <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-gray-100 shrink-0">
-            <img src={wendysLogo} alt="Wendy's" className="w-full h-full object-cover" />
+            <img src={jinkoLogo} alt="Jinko Solar" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1">
             <p className="text-gray-500 text-xs">Bonjour!</p>
@@ -101,7 +101,7 @@ export default function AccountPage() {
               {phonePrefix}{user.phone}
             </p>
           </div>
-          <button onClick={handleLogout} className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center" data-testid="button-logout-header">
+          <button onClick={handleLogout} className="w-9 h-9 rounded-full bg-green-50 flex items-center justify-center" data-testid="button-logout-header">
             <img src={iconLogout} alt="Déconnexion" className="w-6 h-6" />
           </button>
         </div>
@@ -165,23 +165,23 @@ export default function AccountPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-xs mb-1">Revenu du jour</p>
-                <p className="font-bold text-sm" style={{ color: "#c8102e" }} data-testid="text-today-earnings">
+                <p className="font-bold text-sm" style={{ color: "#3db51d" }} data-testid="text-today-earnings">
                   {todayEarnings.toFixed(2)} {currency}
                 </p>
                 <p className="text-gray-500 text-xs mt-2 mb-1">Solde</p>
-                <p className="font-bold text-sm" style={{ color: "#c8102e" }} data-testid="text-balance">
+                <p className="font-bold text-sm" style={{ color: "#3db51d" }} data-testid="text-balance">
                   {balance.toFixed(2)} {currency}
                 </p>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <img src={robotCoins} alt="" className="w-28 h-28 object-contain" />
                 <Link href="/withdrawal-history">
-                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-withdrawal-history">
+                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#3db51d" }} data-testid="button-withdrawal-history">
                     Relevé des retraits <ChevronRight className="w-3 h-3" />
                   </button>
                 </Link>
                 <Link href="/deposit-orders">
-                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-deposit-orders">
+                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#3db51d" }} data-testid="button-deposit-orders">
                     Ordre du dépôt <ChevronRight className="w-3 h-3" />
                   </button>
                 </Link>
@@ -196,7 +196,7 @@ export default function AccountPage() {
                 <p className="text-gray-800 font-semibold text-sm mb-1">Carte bancaire</p>
                 <p className="text-gray-500 text-xs">Gérez vos comptes bancaires pour les retraits</p>
                 <Link href="/wallet">
-                  <button className="mt-3 flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-bank">
+                  <button className="mt-3 flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#3db51d" }} data-testid="button-bank">
                     ALLER <ChevronRight className="w-3 h-3" />
                   </button>
                 </Link>
@@ -212,7 +212,7 @@ export default function AccountPage() {
                 <p className="text-gray-800 font-semibold text-sm mb-1">Échanger des récompenses</p>
                 <p className="text-gray-500 text-xs">Utilisez votre code cadeau pour obtenir des bonus</p>
                 <Link href="/gift-code">
-                  <button className="mt-3 flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#c8102e" }} data-testid="button-gift-code">
+                  <button className="mt-3 flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-semibold" style={{ backgroundColor: "#3db51d" }} data-testid="button-gift-code">
                     ALLER <ChevronRight className="w-3 h-3" />
                   </button>
                 </Link>
@@ -227,7 +227,7 @@ export default function AccountPage() {
             <button
               onClick={handleAdminClick}
               className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl"
-              style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+              style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
               data-testid="button-admin"
             >
               <Shield className="w-5 h-5 text-white" />
@@ -260,7 +260,7 @@ export default function AccountPage() {
               onClick={handlePinSubmit}
               disabled={verifyPinMutation.isPending || adminPin.length < 4}
               className="w-full"
-              style={{ backgroundColor: "#c8102e" }}
+              style={{ backgroundColor: "#3db51d" }}
               data-testid="button-verify-pin"
             >
               {verifyPinMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

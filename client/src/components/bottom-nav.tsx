@@ -6,13 +6,13 @@ import iconEquipe from "@assets/téléchargement_(15)_1770815897189.png";
 import iconCompte from "@assets/téléchargement_(12)_1770815897017.png";
 
 const navItems = [
-  { path: "/", label: "Accueil", icon: iconHome, tintRed: false },
-  { path: "/invest", label: "Produit", icon: iconProduit, tintRed: false },
-  { path: "/team", label: "Equipe", icon: iconEquipe, tintRed: true },
-  { path: "/account", label: "Compte", icon: iconCompte, tintRed: true },
+  { path: "/", label: "Accueil", icon: iconHome, tintGreen: false },
+  { path: "/invest", label: "Produit", icon: iconProduit, tintGreen: false },
+  { path: "/team", label: "Equipe", icon: iconEquipe, tintGreen: true },
+  { path: "/account", label: "Compte", icon: iconCompte, tintGreen: true },
 ];
 
-const redFilter = "brightness(0) saturate(100%) invert(13%) sepia(98%) saturate(3000%) hue-rotate(347deg) brightness(85%)";
+const greenFilter = "brightness(0) saturate(100%) invert(42%) sepia(98%) saturate(500%) hue-rotate(80deg) brightness(95%)";
 
 export default function BottomNav() {
   const [location, navigate] = useLocation();
@@ -36,12 +36,12 @@ export default function BottomNav() {
                 className="w-8 h-8 mb-0.5"
                 style={{
                   opacity: isActive ? 1 : 0.45,
-                  filter: item.tintRed ? redFilter : undefined,
+                  filter: item.tintGreen ? greenFilter : undefined,
                 }}
               />
               <span
                 className="text-[10px] font-medium"
-                style={{ color: isActive ? "#c8102e" : "#6b7280" }}
+                style={{ color: isActive ? "#3db51d" : "#6b7280" }}
               >
                 {item.label}
               </span>

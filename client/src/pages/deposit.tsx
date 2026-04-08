@@ -189,19 +189,19 @@ export default function DepositPage() {
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
           <button className="p-1" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-[#c8102e]" />
+            <ChevronLeft className="w-6 h-6 text-[#3db51d]" />
           </button>
         </Link>
-        <h1 className="text-base font-bold text-[#c8102e]">Recharger</h1>
+        <h1 className="text-base font-bold text-[#3db51d]">Recharger</h1>
         <Link href="/history">
           <button className="p-1" data-testid="button-history">
-            <ChevronLeft className="w-6 h-6 text-[#c8102e] rotate-180" />
+            <ChevronLeft className="w-6 h-6 text-[#3db51d] rotate-180" />
           </button>
         </Link>
       </header>
 
       {/* Balance Banner */}
-      <div className="bg-[#c8102e] px-5 py-4 flex items-center gap-4">
+      <div className="bg-[#3db51d] px-5 py-4 flex items-center gap-4">
         <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
           <Wallet className="w-6 h-6 text-white" />
         </div>
@@ -216,7 +216,7 @@ export default function DepositPage() {
         {/* Amount section */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-5 bg-[#c8102e] rounded-full" />
+            <div className="w-1 h-5 bg-[#3db51d] rounded-full" />
             <h2 className="font-bold text-gray-800 text-sm">
               Montant de la recharge{" "}
               <span className="text-gray-400 font-normal text-xs">(Minimum {currency} {MIN_DEPOSIT.toLocaleString()})</span>
@@ -231,7 +231,7 @@ export default function DepositPage() {
                 onClick={() => setAmount(preset)}
                 className={`py-2.5 rounded-lg border text-center text-sm font-medium transition-colors ${
                   amount === preset
-                    ? "border-[#c8102e] bg-red-50 text-[#c8102e]"
+                    ? "border-[#3db51d] bg-green-50 text-[#3db51d]"
                     : "border-gray-200 bg-white text-gray-700"
                 }`}
                 data-testid={`button-preset-${preset}`}
@@ -245,7 +245,7 @@ export default function DepositPage() {
         {/* Country picker */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-5 bg-[#c8102e] rounded-full" />
+            <div className="w-1 h-5 bg-[#3db51d] rounded-full" />
             <h2 className="font-bold text-gray-800 text-sm">Pays</h2>
           </div>
           <button
@@ -269,7 +269,7 @@ export default function DepositPage() {
         {selectedCountry && operators.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-5 bg-[#c8102e] rounded-full" />
+              <div className="w-1 h-5 bg-[#3db51d] rounded-full" />
               <h2 className="font-bold text-gray-800 text-sm">Opérateur</h2>
             </div>
             <button
@@ -288,7 +288,7 @@ export default function DepositPage() {
         {/* Channel selection */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-5 bg-[#c8102e] rounded-full" />
+            <div className="w-1 h-5 bg-[#3db51d] rounded-full" />
             <h2 className="font-bold text-gray-800 text-sm">Canaux de recharge</h2>
           </div>
 
@@ -299,9 +299,9 @@ export default function DepositPage() {
                 onClick={() => setSelectedChannel(channel.id)}
                 className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${
                   selectedChannel === channel.id
-                    ? "bg-[#c8102e] text-white shadow-md"
+                    ? "bg-[#3db51d] text-white shadow-md"
                     : idx === 0
-                      ? "bg-white border-2 border-[#c8102e] text-[#c8102e]"
+                      ? "bg-white border-2 border-[#3db51d] text-[#3db51d]"
                       : "bg-white border-2 border-gray-200 text-gray-700"
                 }`}
                 data-testid={`button-channel-${channel.id}`}
@@ -317,7 +317,7 @@ export default function DepositPage() {
 
         {/* Amount input */}
         <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
-          <span className="font-bold text-[#c8102e] text-sm">{currency}</span>
+          <span className="font-bold text-[#3db51d] text-sm">{currency}</span>
           <input
             type="number"
             value={amount}
@@ -374,7 +374,7 @@ export default function DepositPage() {
           onClick={handleSubmit}
           disabled={depositMutation.isPending || paymentStatus !== "idle"}
           className="w-full py-4 rounded-full text-white font-bold text-base disabled:opacity-40 shadow-md"
-          style={{ background: "linear-gradient(135deg, #c8102e, #a00d25)" }}
+          style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
           data-testid="button-submit-deposit"
         >
           {depositMutation.isPending ? (
@@ -389,8 +389,8 @@ export default function DepositPage() {
 
         {/* Instructions */}
         <div className="pt-2 pb-8">
-          <p className="font-bold text-[#c8102e] text-sm mb-3">Instructions de recharge</p>
-          <div className="space-y-2.5 text-sm text-[#c8102e] leading-relaxed">
+          <p className="font-bold text-[#3db51d] text-sm mb-3">Instructions de recharge</p>
+          <div className="space-y-2.5 text-sm text-[#3db51d] leading-relaxed">
             <p>1. Le dépôt minimum est de {MIN_DEPOSIT.toLocaleString()} {currency}.</p>
             <p>2. Assurez-vous que les informations saisies correspondent exactement à votre compte Mobile Money pour éviter tout rejet de paiement.</p>
             <p>3. Une fois votre paiement effectué, le crédit sera automatiquement appliqué à votre compte dans un délai de 1 à 30 minutes.</p>
@@ -416,16 +416,16 @@ export default function DepositPage() {
                   key={c.code}
                   onClick={() => { setSelectedCountry(c.code); setShowCountryPicker(false); }}
                   className={`w-full px-5 py-3.5 flex items-center gap-3 hover:bg-gray-50 transition-colors ${
-                    selectedCountry === c.code ? "bg-red-50" : ""
+                    selectedCountry === c.code ? "bg-green-50" : ""
                   }`}
                   data-testid={`button-country-${c.code}`}
                 >
                   <span className="text-2xl">{COUNTRY_FLAGS[c.code] || "🌍"}</span>
                   <div className="flex-1 text-left">
-                    <p className={`text-sm font-medium ${selectedCountry === c.code ? "text-[#c8102e]" : "text-gray-800"}`}>{c.name}</p>
+                    <p className={`text-sm font-medium ${selectedCountry === c.code ? "text-[#3db51d]" : "text-gray-800"}`}>{c.name}</p>
                     <p className="text-xs text-gray-400">{c.currency}</p>
                   </div>
-                  {selectedCountry === c.code && <span className="text-[#c8102e] font-bold">✓</span>}
+                  {selectedCountry === c.code && <span className="text-[#3db51d] font-bold">✓</span>}
                 </button>
               ))}
             </div>
@@ -449,12 +449,12 @@ export default function DepositPage() {
                   key={op}
                   onClick={() => { setSelectedOperator(op); setShowOperatorPicker(false); }}
                   className={`w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${
-                    selectedOperator === op ? "bg-red-50" : ""
+                    selectedOperator === op ? "bg-green-50" : ""
                   }`}
                   data-testid={`button-operator-${op}`}
                 >
-                  <span className={`text-sm font-medium ${selectedOperator === op ? "text-[#c8102e]" : "text-gray-800"}`}>{op}</span>
-                  {selectedOperator === op && <span className="text-[#c8102e] font-bold">✓</span>}
+                  <span className={`text-sm font-medium ${selectedOperator === op ? "text-[#3db51d]" : "text-gray-800"}`}>{op}</span>
+                  {selectedOperator === op && <span className="text-[#3db51d] font-bold">✓</span>}
                 </button>
               ))}
             </div>
@@ -472,8 +472,8 @@ export default function DepositPage() {
 
             {paymentStatus === "processing" && (
               <>
-                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-5">
-                  <Loader2 className="w-10 h-10 text-[#c8102e] animate-spin" />
+                <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mb-5">
+                  <Loader2 className="w-10 h-10 text-[#3db51d] animate-spin" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Traitement en cours</h3>
                 <p className="text-gray-500 text-sm">Veuillez patienter...</p>
@@ -482,17 +482,17 @@ export default function DepositPage() {
 
             {paymentStatus === "pending" && (
               <>
-                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-5">
-                  <Clock className="w-10 h-10 text-[#c8102e]" />
+                <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mb-5">
+                  <Clock className="w-10 h-10 text-[#3db51d]" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Validation requise</h3>
                 <p className="text-gray-500 text-sm mb-5">Confirmez le paiement depuis votre téléphone</p>
-                <div className="w-full bg-red-50 rounded-xl p-4 mb-5">
-                  <p className="text-sm text-[#c8102e] text-center">
+                <div className="w-full bg-green-50 rounded-xl p-4 mb-5">
+                  <p className="text-sm text-[#3db51d] text-center">
                     Un message a été envoyé sur votre numéro. Composez votre code PIN pour valider.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 text-[#c8102e]">
+                <div className="flex items-center gap-2 text-[#3db51d]">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-sm font-medium">Vérification en cours...</span>
                 </div>
@@ -521,14 +521,14 @@ export default function DepositPage() {
             {paymentStatus === "rejected" && (
               <>
                 <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-5">
-                  <XCircle className="w-10 h-10 text-[#c8102e]" />
+                  <XCircle className="w-10 h-10 text-[#3db51d]" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement échoué</h3>
                 <p className="text-gray-500 text-sm mb-5">Le paiement a été refusé ou annulé</p>
                 <button
                   onClick={resetForm}
                   className="w-full py-3.5 text-white font-bold rounded-full"
-                  style={{ background: "#c8102e" }}
+                  style={{ background: "#3db51d" }}
                   data-testid="button-close-error"
                 >
                   Réessayer

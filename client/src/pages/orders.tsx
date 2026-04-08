@@ -103,7 +103,7 @@ export default function OrdersPage() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-2">
-                        <p className="text-red-500 font-bold text-sm">
+                        <p className="text-green-500 font-bold text-sm">
                           {up.product?.name || "Produit"}
                         </p>
                         <span className={`px-2 py-0.5 text-[11px] font-semibold rounded ${

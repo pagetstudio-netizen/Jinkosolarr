@@ -15,26 +15,26 @@ export default function AboutPage() {
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-[#2196F3]">Qui sommes-nous ?</h2>
+          <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Qui sommes-nous ?</h2>
           <p className="text-gray-600 leading-relaxed">
-            Fondée en 1969 à Columbus, dans l'État de l'Ohio aux États-Unis, Wendy's est l'une des plus grandes chaînes de restauration rapide au monde, reconnue pour ses hamburgers au bœuf frais jamais congelé et ses burgers carrés emblématiques. Créée par Dave Thomas, l'enseigne s'est rapidement imposée comme un acteur majeur du secteur du fast-food grâce à la qualité de ses produits et à son image de marque distinctive.
+            Jinko Solar est l'un des plus grands fabricants de panneaux solaires au monde, fondé en 2006 et présent dans plus de 160 pays. Reconnu pour la qualité et la fiabilité de ses modules photovoltaïques, Jinko Solar est un leader incontesté de la transition énergétique mondiale.
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Grâce à notre expertise et à notre réseau mondial, nous offrons à nos utilisateurs des opportunités uniques de générer des revenus quotidiens en participant au financement et à l'expansion de la marque Wendy's à l'échelle internationale.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-[#2196F3]">Notre héritage</h2>
-          <p className="text-gray-600 leading-relaxed">
-            Aujourd'hui, Wendy's est présente dans de nombreux pays avec plus de 6 000 restaurants et propose un large choix de burgers, frites, nuggets et desserts populaires comme le Frosty, devenant ainsi une marque reconnue à l'échelle internationale.
+            Grâce à notre expertise et à notre réseau mondial, nous offrons à nos utilisateurs des opportunités uniques de générer des revenus quotidiens en participant au financement et à l'expansion de Jinko Solar à l'échelle internationale.
           </p>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-[#2196F3]">Sécurité et Fiabilité</h2>
+          <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Notre héritage</h2>
           <p className="text-gray-600 leading-relaxed">
-            La sécurité de vos fonds et la transparence de nos opérations sont nos priorités absolues. L'empreinte de Wendy's dans le domaine de la restauration rapide illustre parfaitement la capacité d'une entreprise à conjuguer qualité, innovation et stratégie de marque pérenne.
+            Aujourd'hui, Jinko Solar est présent dans de nombreux pays avec plus de 200 GW de capacité installée et propose une large gamme de panneaux solaires haute performance, devenant ainsi une marque reconnue à l'échelle internationale dans le secteur de l'énergie renouvelable.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Sécurité et Fiabilité</h2>
+          <p className="text-gray-600 leading-relaxed">
+            La sécurité de vos fonds et la transparence de nos opérations sont nos priorités absolues. L'empreinte de Jinko Solar dans le domaine de l'énergie solaire illustre parfaitement la capacité d'une entreprise à conjuguer qualité, innovation et stratégie de marque pérenne.
           </p>
         </div>
       </div>
