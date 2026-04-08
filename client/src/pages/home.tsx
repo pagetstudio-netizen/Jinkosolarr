@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MessageCircleMore, DollarSign, Wallet, Headphones, Gift, FileText } from "lucide-react";
+import { Loader2, MessageCircleMore, DollarSign, Wallet, Headphones, Gift, FileText, Plug, Building2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Product } from "@shared/schema";
 
@@ -171,41 +171,88 @@ export default function HomePage() {
       </div>
 
       {/* Hero Image with overlaid buttons */}
-      <div className="relative w-full">
+      <div style={{ position: "relative", lineHeight: 0 }}>
         <img
           src={heroImg}
           alt="Jinko Solar"
-          className="w-full h-auto block"
+          style={{ width: "100%", display: "block", height: "auto" }}
           data-testid="img-hero"
         />
-        {/* Overlay buttons — bottom center, matching the reference design */}
-        <div className="absolute bottom-[14%] left-0 right-0 flex items-center justify-center gap-4">
+        {/* Overlay buttons — fixed pixels from bottom, centered */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 14,
+            left: 0,
+            right: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 12,
+            padding: "0 12px",
+          }}
+        >
           <button
             onClick={() => navigate("/deposit")}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-white text-sm shadow-lg"
             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              paddingLeft: 16,
+              paddingRight: 18,
+              paddingTop: 9,
+              paddingBottom: 9,
+              borderRadius: 999,
               background: "#e53935",
-              border: "2px solid rgba(255,255,255,0.5)",
-              minWidth: 110,
-              justifyContent: "center",
+              border: "2px solid rgba(255,255,255,0.45)",
+              color: "white",
+              fontWeight: 700,
+              fontSize: 14,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.35)",
+              cursor: "pointer",
             }}
             data-testid="button-hero-recharger"
           >
-            <span className="text-base leading-none">⚡</span> Recharger
+            <div style={{
+              width: 26, height: 26, borderRadius: "50%",
+              background: "rgba(255,255,255,0.25)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Plug size={14} color="white" strokeWidth={2.5} />
+            </div>
+            Recharger
           </button>
+
           <button
             onClick={() => navigate("/withdrawal")}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm shadow-lg"
             style={{
-              background: "rgba(255,255,255,0.88)",
-              color: "#3db51d",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              paddingLeft: 14,
+              paddingRight: 18,
+              paddingTop: 9,
+              paddingBottom: 9,
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.92)",
               border: "2px solid rgba(255,255,255,0.7)",
-              minWidth: 100,
-              justifyContent: "center",
+              color: "#3db51d",
+              fontWeight: 700,
+              fontSize: 14,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+              cursor: "pointer",
             }}
             data-testid="button-hero-retrait"
           >
-            <span className="text-base leading-none">🏧</span> Retrait
+            <div style={{
+              width: 26, height: 26, borderRadius: 6,
+              background: "#1565c0",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 11, color: "white", fontWeight: 900, lineHeight: 1,
+            }}>
+              ATM
+            </div>
+            Retrait
           </button>
         </div>
       </div>
