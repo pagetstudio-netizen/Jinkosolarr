@@ -2,6 +2,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Share2, Users, Coins } from "lucide-react";
+import jinkoBg from "@assets/Jinko-Solars-Brand-Introduction_1775754852895.jpg";
 import { useLocation } from "wouter";
 
 interface TeamStats {
@@ -92,37 +93,60 @@ export default function TeamPage() {
         </div>
 
         {/* Referral card */}
-        <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-          <div className="flex items-start justify-between mb-2">
-            <p className="text-gray-400 text-xs font-medium">Lien de partage</p>
-            <button
-              onClick={copyLink}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold"
-              style={{ background: "#111111" }}
-              data-testid="button-copy-link"
-            >
-              <Copy size={11} />
-              Copier
-            </button>
-          </div>
+        <div
+          className="rounded-2xl overflow-hidden shadow-md"
+          style={{ position: "relative" }}
+        >
+          {/* Background image */}
+          <img
+            src={jinkoBg}
+            alt=""
+            style={{
+              position: "absolute", inset: 0,
+              width: "100%", height: "100%",
+              objectFit: "cover",
+            }}
+          />
+          {/* Dark overlay */}
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(135deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.55) 100%)",
+            }}
+          />
+          {/* Content */}
+          <div className="relative p-4">
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-white/70 text-xs font-medium">Lien de partage</p>
+              <button
+                onClick={copyLink}
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold"
+                style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(4px)" }}
+                data-testid="button-copy-link"
+              >
+                <Copy size={11} />
+                Copier
+              </button>
+            </div>
 
-          <p className="font-extrabold text-gray-900 text-[17px] leading-snug mb-2">
-            Invitez vos amis pour gagner<br />de l'argent gratuit !
-          </p>
-
-          <div className="flex items-end justify-between gap-2">
-            <p className="text-gray-400 text-[11px] truncate flex-1" data-testid="text-referral-link">
-              {referralLink}
+            <p className="font-extrabold text-white text-[17px] leading-snug mb-2">
+              Invitez vos amis pour gagner<br />de l'argent gratuit !
             </p>
-            <button
-              onClick={shareLink}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold flex-shrink-0"
-              style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
-              data-testid="button-share-link"
-            >
-              <Share2 size={11} />
-              Partager
-            </button>
+
+            <div className="flex items-end justify-between gap-2">
+              <p className="text-white/50 text-[11px] truncate flex-1" data-testid="text-referral-link">
+                {referralLink}
+              </p>
+              <button
+                onClick={shareLink}
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold flex-shrink-0"
+                style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
+                data-testid="button-share-link"
+              >
+                <Share2 size={11} />
+                Partager
+              </button>
+            </div>
           </div>
         </div>
 
