@@ -178,13 +178,13 @@ export default function HomePage() {
           style={{ width: "100%", display: "block", height: "auto" }}
           data-testid="img-hero"
         />
-        {/* Overlay buttons — 22% from bottom, right-center zone matching reference */}
+        {/* Overlay buttons — 10% from bottom, right half only (avoid solar panel) */}
         <div
           style={{
             position: "absolute",
-            bottom: "22%",
-            left: "28%",
-            right: "4%",
+            bottom: "10%",
+            left: "36%",
+            right: "3%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
