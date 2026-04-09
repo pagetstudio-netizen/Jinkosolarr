@@ -76,8 +76,8 @@ export default function HomePage() {
     { label: "Recharger", img: iconRecharger, onClick: () => navigate("/deposit") },
     { label: "Retrait", img: iconRetrait, onClick: () => navigate("/withdrawal") },
     { label: "Nous contacter", img: iconContact, onClick: () => navigate("/service") },
-    { label: "Argent gratuit", img: iconGratuit, filterWhite: true, onClick: () => navigate("/gift-code") },
-    { label: "Preuve de retrait", img: iconPreuve, filterWhite: true, onClick: () => navigate("/withdrawal-history") },
+    { label: "Argent gratuit", img: iconGratuit, onClick: () => navigate("/gift-code") },
+    { label: "Preuve de retrait", img: iconPreuve, onClick: () => navigate("/withdrawal-history") },
   ];
 
   return (
