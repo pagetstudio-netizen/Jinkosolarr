@@ -5,7 +5,9 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MessageCircleMore, Gift, FileText } from "lucide-react";
+import { Loader2, MessageCircleMore } from "lucide-react";
+import iconGratuit from "@assets/20260409_174413_1775756828265.png";
+import iconPreuve from "@assets/20260409_174658_1775756828223.png";
 import iconDeposit from "@assets/20260312_105135_1773312869115.png";
 import iconWithdraw from "@assets/20260312_105153_1773312869170.png";
 import iconRecharger from "@assets/20260409_133235_1775749369916.png";
@@ -74,8 +76,8 @@ export default function HomePage() {
     { label: "Recharger", img: iconRecharger, onClick: () => navigate("/deposit") },
     { label: "Retrait", img: iconRetrait, onClick: () => navigate("/withdrawal") },
     { label: "Nous contacter", img: iconContact, onClick: () => navigate("/service") },
-    { label: "Argent gratuit", icon: Gift, onClick: () => navigate("/gift-code") },
-    { label: "Preuve de retrait", icon: FileText, onClick: () => navigate("/withdrawal-history") },
+    { label: "Argent gratuit", img: iconGratuit, filterWhite: true, onClick: () => navigate("/gift-code") },
+    { label: "Preuve de retrait", img: iconPreuve, filterWhite: true, onClick: () => navigate("/withdrawal-history") },
   ];
 
   return (
@@ -273,7 +275,12 @@ export default function HomePage() {
                   style={{ background: "rgba(255,255,255,0.25)", border: "2px solid rgba(255,255,255,0.5)" }}
                 >
                   {"img" in action && action.img
-                    ? <img src={action.img} alt={action.label} className="w-7 h-7 object-contain" />
+                    ? <img
+                        src={action.img}
+                        alt={action.label}
+                        className="w-7 h-7 object-contain"
+                        style={"filterWhite" in action && action.filterWhite ? { filter: "brightness(0) invert(1)" } : undefined}
+                      />
                     : "icon" in action && action.icon
                       ? <action.icon className="w-6 h-6 text-white" strokeWidth={2} />
                       : null
