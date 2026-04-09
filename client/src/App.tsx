@@ -32,6 +32,7 @@ import CheckinPage from "@/pages/checkin";
 import RewardsPage from "@/pages/rewards";
 import WithdrawalHistoryPage from "@/pages/withdrawal-history";
 import DepositOrdersPage from "@/pages/deposit-orders";
+import ProductDetailPage from "@/pages/product-detail";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -273,6 +274,11 @@ function Router() {
         <AdminRoute>
           <AdminTeamPage />
         </AdminRoute>
+      </Route>
+      <Route path="/product/:id">
+        <ProtectedRoute>
+          <ProductDetailPage />
+        </ProtectedRoute>
       </Route>
       <Route component={NotFound} />
     </Switch>

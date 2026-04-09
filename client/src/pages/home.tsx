@@ -2,24 +2,30 @@ import { useAuth } from "@/lib/auth";
 import { SiTelegram } from "react-icons/si";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { useToast } from "@/hooks/use-toast";
 import { Loader2, MessageCircleMore } from "lucide-react";
 import iconGratuit from "@assets/20260409_174413_1775756828265.png";
 import iconPreuve from "@assets/20260409_174658_1775756828223.png";
-import iconDeposit from "@assets/20260312_105135_1773312869115.png";
-import iconWithdraw from "@assets/20260312_105153_1773312869170.png";
 import iconRecharger from "@assets/20260409_133235_1775749369916.png";
 import iconRetrait from "@assets/20260409_133935_1775749370458.png";
 import iconContact from "@assets/20260409_152753_1775749370488.png";
-import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Product } from "@shared/schema";
 
+import p1 from "@/assets/images/product-1.jpg";
+import p2 from "@/assets/images/product-2.webp";
+import p3 from "@/assets/images/product-3.webp";
+import p4 from "@/assets/images/product-4.webp";
+import p5 from "@/assets/images/product-5.webp";
+import p6 from "@/assets/images/product-6.webp";
+import p7 from "@/assets/images/product-7.webp";
+import p8 from "@/assets/images/product-8.webp";
+import p9 from "@/assets/images/product-9.jpg";
 import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
 import jinkoLogoSquare from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
 import heroImg from "@assets/20260408_191813_1775675938233.jpg";
 
+const productImages: Record<number, string> = { 2: p1, 3: p2, 4: p3, 5: p4, 6: p5, 7: p6, 8: p7, 9: p8, 10: p9 };
 const TELEGRAM_LINK = "https://t.me/wendysappgroup";
 
 interface ProductWithOwnership extends Product {
@@ -29,12 +35,9 @@ interface ProductWithOwnership extends Product {
 }
 
 export default function HomePage() {
-  const { user, refreshUser } = useAuth();
+  const { user } = useAuth();
   const [location, navigate] = useLocation();
   const [showPopup, setShowPopup] = useState(true);
-  const { toast } = useToast();
-  const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
-
   const { data: products, isLoading: productsLoading } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
     enabled: !!user,
@@ -43,28 +46,6 @@ export default function HomePage() {
   useEffect(() => {
     setShowPopup(true);
   }, [location]);
-
-  const purchaseMutation = useMutation({
-    mutationFn: async (productId: number) => {
-      const response = await apiRequest("POST", `/api/products/${productId}/purchase`, {});
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Erreur");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
-      refreshUser();
-      setConfirmProduct(null);
-      toast({ title: "Produit acheté !", description: "Vous commencerez à recevoir des gains demain." });
-    },
-    onError: (error: any) => {
-      setConfirmProduct(null);
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    },
-  });
 
   if (!user) return null;
 
@@ -296,70 +277,68 @@ export default function HomePage() {
       </div>
 
       {/* Products Section */}
-      <div className="px-3 mt-4 pb-24">
+      <div className="px-3 mt-4 pb-24 space-y-3">
         {productsLoading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
           </div>
         ) : (
-          <div className="space-y-4">
-            {paidProducts.map((product) => (
-              <div key={product.id} data-testid={`card-product-${product.id}`}>
-                {/* Product name label */}
-                <p className="font-bold text-gray-800 text-base mb-2 px-1">{product.name}</p>
-
-                {/* Product card */}
-                <div className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#f28b82" }}>
-                  {/* Product image */}
-                  <div className="p-3 pb-0">
-                    <div className="rounded-xl overflow-hidden" style={{ height: 140 }}>
-                      <img
-                        src={jinkoLogoSquare}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+          paidProducts.map((product) => {
+            const price = Number(product.price);
+            const total = Number(product.totalReturn);
+            const daily = Number(product.dailyEarnings);
+            const taux = price > 0 ? Math.round((total / price) * 100) : 0;
+            const imgSrc = productImages[product.id] || p1;
+            return (
+              <button
+                key={product.id}
+                onClick={() => navigate(`/product/${product.id}`)}
+                className="w-full text-left rounded-2xl overflow-hidden shadow-md"
+                style={{ backgroundColor: "#1a1a2e" }}
+                data-testid={`card-product-${product.id}`}
+              >
+                {/* Top row: image + info */}
+                <div className="flex gap-3 p-3 pb-2">
+                  <div className="w-[110px] h-[110px] rounded-xl overflow-hidden shrink-0">
+                    <img src={imgSrc} alt={product.name} className="w-full h-full object-cover" />
                   </div>
-
-                  {/* Product details */}
-                  <div className="px-4 py-3 space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/90 text-sm">Cycle(Jours)</span>
-                      <span className="text-white font-bold text-sm">{product.cycleDays}</span>
+                  <div className="flex-1 flex flex-col justify-between py-1">
+                    <div>
+                      <p className="text-white font-bold text-base">{product.name}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">cycles {product.cycleDays}</p>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/90 text-sm">Revenu quotidien({currency})</span>
-                      <span className="text-white font-bold text-sm">{Number(product.dailyEarnings).toLocaleString("fr-FR")}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/90 text-sm">Revenu total({currency})</span>
-                      <span className="text-white font-bold text-sm">
-                        {Number(product.price).toLocaleString("fr-FR")}+{Number(product.totalReturn).toLocaleString("fr-FR")}
+                    <div>
+                      <span className="text-cyan-400 text-xs font-semibold">Prix </span>
+                      <span className="font-extrabold text-base" style={{ color: "#f59e0b" }}>
+                        {price.toLocaleString("fr-FR")} {currency}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Price + Buy button */}
-                <div className="flex items-center justify-between mt-3 px-1">
-                  <div>
-                    <p className="text-xs text-gray-500">Prix({currency})</p>
-                    <p className="text-xl font-bold" style={{ color: "#f59e0b" }}>
-                      {Number(product.price).toLocaleString("fr-FR")}
-                    </p>
+                {/* Divider */}
+                <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "0 12px" }} />
+
+                {/* Stats row */}
+                <div className="flex items-center justify-between px-3 py-2.5">
+                  <div className="flex-1">
+                    <p className="text-gray-500 text-[10px] mb-0.5">Revenu quotidien</p>
+                    <p className="text-white font-bold text-sm">{daily.toLocaleString("fr-FR")} {currency}</p>
                   </div>
-                  <button
-                    onClick={() => setConfirmProduct(product)}
-                    className="px-8 py-3 rounded-full text-white font-bold text-base shadow-md"
-                    style={{ background: "#3db51d" }}
-                    data-testid={`button-invest-${product.id}`}
-                  >
-                    Investir
-                  </button>
+                  <div className="w-px h-7" style={{ background: "rgba(255,255,255,0.1)" }} />
+                  <div className="flex-1 text-center">
+                    <p className="text-gray-500 text-[10px] mb-0.5">Total des gains</p>
+                    <p className="text-white font-bold text-sm">{total.toLocaleString("fr-FR")} {currency}</p>
+                  </div>
+                  <div className="w-px h-7" style={{ background: "rgba(255,255,255,0.1)" }} />
+                  <div className="flex-1 text-right">
+                    <p className="text-gray-500 text-[10px] mb-0.5">Taux de réponse</p>
+                    <p className="font-bold text-sm" style={{ color: "#3db51d" }}>{taux}%</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              </button>
+            );
+          })
         )}
       </div>
     </div>
