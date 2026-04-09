@@ -245,11 +245,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Yellow Quick Actions Bar */}
+      {/* Green Quick Actions Bar */}
       <div className="px-3 pt-3">
         <div
           className="rounded-2xl px-2 py-4 shadow-sm"
-          style={{ background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)" }}
+          style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}
         >
           <div className="flex justify-around items-start">
             {quickActions.map((action) => (
