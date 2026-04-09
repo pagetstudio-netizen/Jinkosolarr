@@ -178,18 +178,17 @@ export default function HomePage() {
           style={{ width: "100%", display: "block", height: "auto" }}
           data-testid="img-hero"
         />
-        {/* Overlay buttons — fixed pixels from bottom, centered */}
+        {/* Overlay buttons — 22% from bottom, right-center zone matching reference */}
         <div
           style={{
             position: "absolute",
-            bottom: 14,
-            left: 0,
-            right: 0,
+            bottom: "22%",
+            left: "28%",
+            right: "4%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 12,
-            padding: "0 12px",
+            gap: 10,
           }}
         >
           <button
