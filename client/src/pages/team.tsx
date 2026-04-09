@@ -2,7 +2,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { getCountryByCode } from "@/lib/countries";
-import { ChevronLeft, Copy } from "lucide-react";
+import { Copy, Share2, Users, Coins } from "lucide-react";
 import { useLocation } from "wouter";
 
 interface TeamStats {
@@ -38,136 +38,155 @@ export default function TeamPage() {
     toast({ title: "Lien copié !" });
   };
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(user.referralCode);
-    toast({ title: "Code copié !" });
+  const shareLink = () => {
+    if (navigator.share) {
+      navigator.share({ title: "Rejoins Jinko Solar", url: referralLink });
+    } else {
+      navigator.clipboard.writeText(referralLink);
+      toast({ title: "Lien copié !" });
+    }
   };
 
-  const totalPeople = (stats?.level1Count || 0) + (stats?.level2Count || 0) + (stats?.level3Count || 0);
   const totalCommission = stats?.totalCommission || 0;
 
   const levels = [
-    { num: 1, label: "LV1", rate: "27%", count: stats?.level1Count || 0, commission: stats?.level1Commission || 0 },
-    { num: 2, label: "LV2", rate: "2%",  count: stats?.level2Count || 0, commission: stats?.level2Commission || 0 },
-    { num: 3, label: "LV3", rate: "1%",  count: stats?.level3Count || 0, commission: stats?.level3Commission || 0 },
+    { num: 1, rate: "27%", count: stats?.level1Count || 0, commission: stats?.level1Commission || 0 },
+    { num: 2, rate: "2%",  count: stats?.level2Count || 0, commission: stats?.level2Commission || 0 },
+    { num: 3, rate: "1%",  count: stats?.level3Count || 0, commission: stats?.level3Commission || 0 },
   ];
 
   return (
-    <div className="flex flex-col min-h-full bg-gray-100">
-      <div className="flex items-center px-4 py-3 bg-white shadow-sm">
-        <button onClick={() => navigate("/")} className="mr-3 text-gray-600" data-testid="button-back">
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-        <h1 className="text-base font-semibold text-gray-800 flex-1 text-center pr-6">
-          Invitations &amp; Récompenses
-        </h1>
-      </div>
+    <div className="flex flex-col min-h-full" style={{ background: "#1c1c2e" }}>
+      <div className="flex-1 overflow-y-auto pb-24 px-4 pt-5 space-y-4">
 
-      <div className="flex-1 overflow-y-auto pb-24 px-4 pt-4 space-y-4">
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-4 flex justify-around">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-gray-800" data-testid="text-total-invited">{totalPeople}</p>
-            <p className="text-xs text-gray-500 mt-1">Nombre d'invités</p>
-          </div>
-          <div className="w-px bg-gray-200" />
-          <div className="text-center">
-            <p className="text-2xl font-bold text-gray-800" data-testid="text-total-commission">{totalCommission.toFixed(0)}</p>
-            <p className="text-xs text-gray-500 mt-1">Commission gagner</p>
-          </div>
+        {/* Agent button */}
+        <div className="flex flex-col items-center gap-2 pt-2">
+          <button
+            className="w-full py-3 rounded-full font-bold text-white text-sm shadow-lg"
+            style={{ background: "linear-gradient(90deg, #f97316 0%, #ea580c 100%)" }}
+            data-testid="button-agent"
+          >
+            Postulez pour devenir agent maintenant
+          </button>
+          <p className="text-gray-400 text-xs text-center px-4 leading-snug">
+            Profitez du partage des bénéfices de l'équipe + services exclusifs
+          </p>
         </div>
 
-        <div className="rounded-2xl shadow-sm p-4" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
-          <h2 className="text-white font-bold text-base mb-1">Inviter des amis</h2>
-          <p className="text-white/80 text-xs mb-3 leading-relaxed">
-            Invitez plus d'utilisateurs et vous pourrez profiter de récompenses d'invitation plus généreuses et d'autres récompenses
+        {/* Referral link card */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <p className="text-gray-400 text-xs mb-1">Lien de partage</p>
+          <p className="font-extrabold text-gray-900 text-base leading-snug mb-1">
+            Invitez vos amis pour gagner<br />de l'argent gratuit !
           </p>
-
-          <div className="border-t border-white/60 pt-3 pb-3 flex items-center justify-between">
-            <div className="flex-1 min-w-0 mr-3">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <Copy className="w-3 h-3 text-white/60 flex-shrink-0" />
-                <span className="text-white/70 text-xs">Code d'invitation</span>
-              </div>
-              <p className="text-white font-semibold text-sm" data-testid="text-referral-code">{user.referralCode}</p>
-            </div>
-            <button
-              onClick={copyCode}
-              className="bg-white rounded-full px-4 py-1.5 text-xs font-semibold shrink-0"
-              style={{ color: "#3db51d" }}
-              data-testid="button-copy-code"
-            >
-              Copier
-            </button>
-          </div>
-
-          <div className="border-t border-white/60 pt-3 flex items-center justify-between">
-            <div className="flex-1 min-w-0 mr-3">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <Copy className="w-3 h-3 text-white/60 flex-shrink-0" />
-                <span className="text-white/70 text-xs">Lien d'invitation</span>
-              </div>
-              <p className="text-white/90 text-xs truncate" data-testid="text-referral-link">{referralLink}</p>
-            </div>
+          <p className="text-gray-400 text-xs mb-3 truncate" data-testid="text-referral-link">
+            {referralLink}
+          </p>
+          <div className="flex gap-2">
             <button
               onClick={copyLink}
-              className="bg-white rounded-full px-4 py-1.5 text-xs font-semibold shrink-0"
-              style={{ color: "#3db51d" }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-white text-xs"
+              style={{ background: "#1a1a2e" }}
               data-testid="button-copy-link"
             >
+              <Copy size={13} />
               Copier
+            </button>
+            <button
+              onClick={shareLink}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-gray-900 text-xs"
+              style={{ background: "#f59e0b" }}
+              data-testid="button-share-link"
+            >
+              <Share2 size={13} />
+              Partager
             </button>
           </div>
         </div>
 
-        <div className="space-y-3">
+        {/* Mon cashback */}
+        <div>
+          <h2 className="text-white font-bold text-base mb-2">Mon cashback</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Mes filleuls */}
+            <div
+              className="rounded-2xl p-4"
+              style={{ background: "#2a2a3e" }}
+              data-testid="card-filleuls"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Users size={16} color="#f59e0b" />
+                <span className="text-gray-300 text-xs font-medium">Mes filleuls</span>
+              </div>
+              <p className="text-white text-2xl font-bold" data-testid="text-filleuls-count">
+                {(stats?.level1Count || 0) + (stats?.level2Count || 0) + (stats?.level3Count || 0)}
+              </p>
+            </div>
+
+            {/* Bonus de parrainage */}
+            <div
+              className="rounded-2xl p-4"
+              style={{ background: "#2a2a3e" }}
+              data-testid="card-bonus"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Coins size={16} color="#f59e0b" />
+                <span className="text-gray-300 text-xs font-medium">Bonus de parrainage</span>
+              </div>
+              <p className="text-white text-2xl font-bold mb-2" data-testid="text-bonus-amount">
+                {totalCommission.toFixed(0)}
+              </p>
+              <button
+                onClick={() => navigate("/withdrawal")}
+                className="px-3 py-1 rounded-full text-gray-900 text-xs font-bold"
+                style={{ background: "#f59e0b" }}
+                data-testid="button-retrait-bonus"
+              >
+                Retrait
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Level cards */}
+        <div className="space-y-2">
           {levels.map((level) => (
-            <div key={level.num} className="bg-white rounded-2xl shadow-sm overflow-hidden" data-testid={`card-level-${level.num}`}>
-              <div className="flex justify-center py-2">
-                <span
-                  className="px-5 py-1 rounded-full text-white text-sm font-bold"
-                  style={{ background: "#3db51d" }}
-                >
-                  {level.label}
+            <div
+              key={level.num}
+              className="rounded-2xl overflow-hidden flex"
+              style={{ background: "#2a2a3e" }}
+              data-testid={`card-level-${level.num}`}
+            >
+              {/* Left: level + rate */}
+              <div
+                className="flex flex-col items-center justify-center px-4 py-4 min-w-[80px]"
+                style={{ background: "#1a1a2e" }}
+              >
+                <span className="text-gray-400 text-xs font-medium mb-0.5">Niveau {level.num}</span>
+                <span className="font-extrabold text-lg" style={{ color: "#f59e0b" }}>
+                  {level.rate}
                 </span>
               </div>
-              <div className="flex justify-around pb-4 pt-1">
-                <div className="text-center">
-                  <p className="text-xl font-bold text-gray-800">{level.rate}</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">Taux de commission</p>
+
+              {/* Right: stats */}
+              <div className="flex-1 flex flex-col justify-center px-4 py-4 gap-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-xs">Filleuls</span>
+                  <span className="text-white text-xs font-bold" data-testid={`text-level${level.num}-count`}>
+                    {level.count}
+                  </span>
                 </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold text-gray-800" data-testid={`text-level${level.num}-count`}>{level.count}</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">Utilisateur valide</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold text-gray-800" data-testid={`text-level${level.num}-commission`}>{level.commission.toFixed(0)}</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">Commission</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-xs">Remboursement du dépôt</span>
+                  <span className="text-white text-xs font-bold" data-testid={`text-level${level.num}-commission`}>
+                    {level.commission.toFixed(0)}
+                  </span>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-4">
-          <h2 className="font-bold text-gray-800 text-base mb-3">Cadeau de parrainage</h2>
-          <div className="text-sm text-gray-600 leading-relaxed space-y-2">
-            <p>
-              Lorsque vos amis invités s'inscrivent et finalisent leur investissement, vous recevez immédiatement <span className="font-semibold text-[#3db51d]">27%</span> de remise en argent.
-            </p>
-            <p>
-              Lorsque les membres de votre équipe de niveau 2 investissent, vous recevez <span className="font-semibold text-[#3db51d]">2%</span> de remise en argent.
-            </p>
-            <p>
-              Lorsque les membres de votre équipe de niveau 3 investissent, vous recevez <span className="font-semibold text-[#3db51d]">1%</span> de remise en argent.
-            </p>
-            <p>
-              Une fois que les membres de votre équipe investissent, la récompense en espèces est immédiatement versée sur votre compte.
-            </p>
-            <p>
-              Par exemple : si votre ami invité investit 3 000 {currency} pour la première fois, vous recevez immédiatement une récompense en espèces de 810 {currency}. La récompense est directement retirable !
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
