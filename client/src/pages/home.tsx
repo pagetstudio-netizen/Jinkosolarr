@@ -47,7 +47,7 @@ export default function HomePage() {
     setShowPopup(true);
   }, [location]);
 
-  if (!user) return null;
+  if (!user) return <div className="min-h-screen bg-gray-100" />;
 
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
