@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/empty-state";
 
 import elfExpert1 from "@/assets/images/elf-expert-1.jpeg";
 import elfExpert2 from "@/assets/images/elf-expert-2.webp";
@@ -142,19 +143,7 @@ export default function OrdersPage() {
             })}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <div className="w-32 h-32 mx-auto mb-4 opacity-50">
-              <svg viewBox="0 0 100 100" className="w-full h-full text-gray-300">
-                <ellipse cx="50" cy="85" rx="35" ry="8" fill="currentColor" opacity="0.3"/>
-                <circle cx="50" cy="45" r="25" fill="none" stroke="currentColor" strokeWidth="3"/>
-                <path d="M50 25 L50 20 M50 65 L50 70" stroke="currentColor" strokeWidth="3"/>
-                <circle cx="50" cy="45" r="8" fill="currentColor"/>
-                <path d="M30 75 L70 75 L75 85 L25 85 Z" fill="currentColor" opacity="0.5"/>
-                <path d="M45 30 Q50 15 55 30" stroke="currentColor" strokeWidth="2" fill="none"/>
-              </svg>
-            </div>
-            <p className="text-gray-500 font-medium">Aucun contenu pour le moment !</p>
-          </div>
+          <EmptyState message="Aucun contenu pour le moment" />
         )}
       </div>
     </div>

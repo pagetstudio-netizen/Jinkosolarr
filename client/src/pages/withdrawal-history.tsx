@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
+import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Withdrawal {
@@ -54,9 +55,7 @@ export default function WithdrawalHistoryPage() {
             <Skeleton key={i} className="h-28 w-full rounded-2xl" />
           ))
         ) : withdrawals.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-gray-400 text-sm">Aucun retrait pour le moment</p>
-          </div>
+          <EmptyState message="Aucun retrait pour le moment" />
         ) : (
           withdrawals.map((w) => {
             const cfg = STATUS_CONFIG[w.status] || { label: w.status, bg: "bg-gray-500", text: "text-white" };

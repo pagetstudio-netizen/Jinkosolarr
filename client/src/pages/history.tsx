@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { EmptyState } from "@/components/empty-state";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { getCountryByCode } from "@/lib/countries";
@@ -177,12 +178,7 @@ export default function HistoryPage() {
                 <Loader2 className="w-8 h-8 animate-spin text-[#2196F3]" />
               </div>
             ) : deposits.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 rounded-full bg-[#e3f2fd] flex items-center justify-center mx-auto mb-4">
-                  <ArrowDownToLine className="w-8 h-8 text-[#2196F3]" />
-                </div>
-                <p className="text-gray-500 text-sm">Aucun depot pour le moment</p>
-              </div>
+              <EmptyState message="Aucun dépôt pour le moment" />
             ) : (
               deposits.map((deposit) => (
                 <div
@@ -242,12 +238,7 @@ export default function HistoryPage() {
                 <Loader2 className="w-8 h-8 animate-spin text-[#2196F3]" />
               </div>
             ) : withdrawals.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 rounded-full bg-[#e3f2fd] flex items-center justify-center mx-auto mb-4">
-                  <ArrowUpFromLine className="w-8 h-8 text-[#2196F3]" />
-                </div>
-                <p className="text-gray-500 text-sm">Aucun retrait pour le moment</p>
-              </div>
+              <EmptyState message="Aucun retrait pour le moment" />
             ) : (
               withdrawals.map((withdrawal) => (
                 <div

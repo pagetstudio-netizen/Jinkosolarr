@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
+import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Deposit {
@@ -54,9 +55,7 @@ export default function DepositOrdersPage() {
             <Skeleton key={i} className="h-28 w-full rounded-2xl" />
           ))
         ) : deposits.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-gray-400 text-sm">Aucun dépôt pour le moment</p>
-          </div>
+          <EmptyState message="Aucun dépôt pour le moment" />
         ) : (
           deposits.map((d) => {
             const cfg = STATUS_CONFIG[d.status] || { label: d.status, bg: "bg-gray-500", text: "text-white" };

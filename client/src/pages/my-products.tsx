@@ -1,4 +1,5 @@
 import { useAuth } from "@/lib/auth";
+import { EmptyState } from "@/components/empty-state";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { ChevronLeft, Loader2 } from "lucide-react";
@@ -72,10 +73,7 @@ export default function MyProductsPage() {
               <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
             </div>
           ) : allProducts.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
-              <p className="text-gray-500 font-medium">Aucun produit pour le moment</p>
-              <p className="text-gray-400 text-sm mt-1">Achetez des produits pour commencer à gagner</p>
-            </div>
+            <EmptyState message="Aucun produit pour le moment" />
           ) : (
             allProducts.map((up: any, index: number) => {
               const cycleDays = up.product?.cycleDays || 60;

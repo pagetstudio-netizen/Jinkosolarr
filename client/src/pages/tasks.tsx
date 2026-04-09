@@ -1,6 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/empty-state";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { getCountryByCode } from "@/lib/countries";
@@ -263,10 +264,7 @@ export default function TasksPage() {
             })}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <Trophy className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">Aucune tâche disponible</p>
-          </div>
+          <EmptyState message="Aucune tâche disponible" />
         )}
       </div>
     </div>
