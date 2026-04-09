@@ -1,4 +1,4 @@
-const CACHE_NAME = "wendys-v1";
+const CACHE_NAME = "jinko-v3";
 const STATIC_ASSETS = ["/", "/manifest.json", "/favicon.png"];
 
 self.addEventListener("install", (event) => {
@@ -21,7 +21,8 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.pathname.startsWith("/api/")) return;
+  if (url.pathname.startsWith("/src/") || url.pathname.includes("@")) return;
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(event.request, { cache: "no-store" }).catch(() => caches.match(event.request))
   );
 });
