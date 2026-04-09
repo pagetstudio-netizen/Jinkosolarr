@@ -165,7 +165,7 @@ export default function HomePage() {
             }}
             data-testid="button-hero-recharger"
           >
-            <img src={iconRecharger} alt="" style={{ width: 20, height: 20, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
+            <img src={iconRecharger} alt="" style={{ width: 20, height: 20, objectFit: "contain" }} />
             Recharger
           </button>
 
@@ -195,7 +195,7 @@ export default function HomePage() {
               background: "#2a8d13",
               display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
-              <img src={iconRetrait} alt="" style={{ width: 14, height: 14, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
+              <img src={iconRetrait} alt="" style={{ width: 14, height: 14, objectFit: "contain" }} />
             </span>
             Retrait
           </button>
