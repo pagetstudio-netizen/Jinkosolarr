@@ -115,41 +115,6 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Confirm Purchase Modal */}
-      {confirmProduct && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-5"
-          onClick={() => setConfirmProduct(null)}
-        >
-          <div
-            className="w-full max-w-[320px] rounded-3xl bg-white p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-bold text-gray-800 mb-2 text-center">Confirmer l'achat</h3>
-            <p className="text-gray-600 text-sm text-center mb-1">{confirmProduct.name}</p>
-            <p className="text-center text-2xl font-bold mb-4" style={{ color: "#f59e0b" }}>
-              {Number(confirmProduct.price).toLocaleString("fr-FR")} {currency}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmProduct(null)}
-                className="flex-1 py-3 rounded-full border border-gray-300 text-gray-600 font-semibold text-sm"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={() => purchaseMutation.mutate(confirmProduct.id)}
-                disabled={purchaseMutation.isPending}
-                className="flex-1 py-3 rounded-full text-white font-bold text-sm disabled:opacity-50"
-                style={{ background: "#3db51d" }}
-              >
-                {purchaseMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Confirmer"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
         <img src={jinkoLogoText} alt="Jinko Solar" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
