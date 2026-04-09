@@ -1,7 +1,6 @@
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { getCountryByCode } from "@/lib/countries";
 import { Copy, Share2, Users, Coins } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -15,19 +14,28 @@ interface TeamStats {
   level3Commission: number;
 }
 
-const DARK_BG = "#181818";
-const CARD_BG = "#242424";
-const CARD_DARK = "#111111";
 const GREEN = "#3db51d";
 const GREEN_DARK = "#2a8d13";
 
-const textureBg = {
-  backgroundColor: DARK_BG,
+const pageBg: React.CSSProperties = {
+  backgroundColor: "#111111",
   backgroundImage: `
-    repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 10px),
-    repeating-linear-gradient(-45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 10px)
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,0.035) 0px,
+      rgba(255,255,255,0.035) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(255,255,255,0.035) 0px,
+      rgba(255,255,255,0.035) 1px,
+      transparent 1px,
+      transparent 8px
+    )
   `,
-} as React.CSSProperties;
+};
 
 export default function TeamPage() {
   const { user } = useAuth();
@@ -66,11 +74,11 @@ export default function TeamPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-full" style={textureBg}>
+    <div className="flex flex-col min-h-full" style={pageBg}>
       <div className="flex-1 overflow-y-auto pb-24 px-4 pt-5 space-y-4">
 
         {/* Agent button + subtitle */}
-        <div className="flex flex-col items-center gap-2 pt-1">
+        <div className="flex flex-col items-center gap-3 pt-1">
           <button
             className="w-full py-3 rounded-full font-bold text-white text-sm shadow-lg"
             style={{ background: "linear-gradient(90deg, #f97316 0%, #ea580c 100%)" }}
@@ -78,44 +86,41 @@ export default function TeamPage() {
           >
             Postulez pour devenir agent maintenant
           </button>
-          <p className="text-gray-400 text-xs text-center leading-snug">
+          <p className="text-gray-400 text-xs text-center leading-relaxed">
             Profitez du partage des bénéfices de l'équipe + services exclusifs
           </p>
         </div>
 
-        {/* Referral link card */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          {/* Top row */}
+        {/* Referral card */}
+        <div className="bg-white rounded-2xl p-4 shadow">
           <div className="flex items-start justify-between mb-2">
-            <p className="text-gray-400 text-xs">Lien de partage</p>
+            <p className="text-gray-400 text-xs font-medium">Lien de partage</p>
             <button
               onClick={copyLink}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold shadow"
-              style={{ background: "#1a1a2e", whiteSpace: "nowrap" }}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold"
+              style={{ background: "#111111" }}
               data-testid="button-copy-link"
             >
-              <Copy size={12} />
+              <Copy size={11} />
               Copier
             </button>
           </div>
 
-          {/* Bold text */}
           <p className="font-extrabold text-gray-900 text-[17px] leading-snug mb-2">
             Invitez vos amis pour gagner<br />de l'argent gratuit !
           </p>
 
-          {/* Bottom row */}
-          <div className="flex items-end justify-between">
-            <p className="text-gray-400 text-xs truncate flex-1 mr-2" data-testid="text-referral-link">
+          <div className="flex items-end justify-between gap-2">
+            <p className="text-gray-400 text-[11px] truncate flex-1" data-testid="text-referral-link">
               {referralLink}
             </p>
             <button
               onClick={shareLink}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold shadow flex-shrink-0"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold flex-shrink-0"
               style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
               data-testid="button-share-link"
             >
-              <Share2 size={12} />
+              <Share2 size={11} />
               Partager
             </button>
           </div>
@@ -129,14 +134,28 @@ export default function TeamPage() {
             {/* Mes filleuls */}
             <div
               className="rounded-2xl p-4"
-              style={{ background: CARD_BG }}
+              style={{
+                backgroundColor: "#1e1e1e",
+                backgroundImage: `
+                  repeating-linear-gradient(
+                    45deg,
+                    rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px,
+                    transparent 1px, transparent 8px
+                  ),
+                  repeating-linear-gradient(
+                    -45deg,
+                    rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px,
+                    transparent 1px, transparent 8px
+                  )
+                `,
+              }}
               data-testid="card-filleuls"
             >
               <div className="flex items-center gap-2 mb-3">
-                <Users size={18} color={GREEN} />
-                <span className="text-gray-300 text-xs font-semibold">Mes filleuls</span>
+                <Users size={16} color={GREEN} />
+                <span className="text-gray-400 text-xs font-medium">Mes filleuls</span>
               </div>
-              <p className="text-white text-3xl font-bold" data-testid="text-filleuls-count">
+              <p className="text-white text-3xl font-extrabold" data-testid="text-filleuls-count">
                 {totalFilleuls}
               </p>
             </div>
@@ -144,19 +163,33 @@ export default function TeamPage() {
             {/* Bonus de parrainage */}
             <div
               className="rounded-2xl p-4"
-              style={{ background: CARD_BG }}
+              style={{
+                backgroundColor: "#1e1e1e",
+                backgroundImage: `
+                  repeating-linear-gradient(
+                    45deg,
+                    rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px,
+                    transparent 1px, transparent 8px
+                  ),
+                  repeating-linear-gradient(
+                    -45deg,
+                    rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px,
+                    transparent 1px, transparent 8px
+                  )
+                `,
+              }}
               data-testid="card-bonus"
             >
               <div className="flex items-center gap-2 mb-3">
-                <Coins size={18} color={GREEN} />
-                <span className="text-gray-300 text-xs font-semibold">Bonus de parrainage</span>
+                <Coins size={16} color={GREEN} />
+                <span className="text-gray-400 text-xs font-medium">Bonus de parrainage</span>
               </div>
-              <p className="text-white text-3xl font-bold mb-3" data-testid="text-bonus-amount">
+              <p className="text-white text-3xl font-extrabold mb-3" data-testid="text-bonus-amount">
                 {totalCommission.toFixed(0)}
               </p>
               <button
                 onClick={() => navigate("/withdrawal")}
-                className="px-4 py-1.5 rounded-full text-white text-xs font-bold"
+                className="px-4 py-1 rounded-full text-white text-xs font-bold"
                 style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
                 data-testid="button-retrait-bonus"
               >
@@ -166,35 +199,45 @@ export default function TeamPage() {
           </div>
         </div>
 
-        {/* Level cards — each as a separate block */}
+        {/* Level cards — each separate block, dark left / white right */}
         <div className="space-y-3">
           {levels.map((level) => (
             <div
               key={level.num}
-              className="rounded-2xl overflow-hidden flex shadow-sm"
-              style={{ background: "#2e2e2e" }}
+              className="rounded-2xl overflow-hidden flex shadow-md"
               data-testid={`card-level-${level.num}`}
             >
-              {/* Left dark block */}
+              {/* Left: dark with carbon texture */}
               <div
-                className="flex flex-col items-center justify-center px-5 py-5 min-w-[90px]"
-                style={{ background: CARD_DARK }}
+                className="flex flex-col items-center justify-center py-5 px-4 min-w-[88px]"
+                style={{
+                  backgroundColor: "#111111",
+                  backgroundImage: `
+                    repeating-linear-gradient(
+                      45deg,
+                      rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
+                      transparent 1px, transparent 8px
+                    ),
+                    repeating-linear-gradient(
+                      -45deg,
+                      rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
+                      transparent 1px, transparent 8px
+                    )
+                  `,
+                }}
               >
-                <span className="text-gray-400 text-[11px] font-medium mb-1">
+                <span className="text-gray-400 text-[11px] font-semibold mb-1 tracking-wide">
                   Niveau {level.num}
                 </span>
-                <span
-                  className="font-extrabold text-2xl"
-                  style={{ color: GREEN }}
-                >
+                <span className="font-extrabold text-2xl" style={{ color: GREEN }}>
                   {level.rate}
                 </span>
               </div>
 
-              {/* Right content */}
-              <div className="flex-1 flex flex-col justify-center px-5 py-5 gap-2">
+              {/* Right: white */}
+              <div className="flex-1 bg-white flex flex-col justify-center px-5 py-5 gap-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 text-sm">Filleuls</span>
+                  <span className="text-gray-600 text-sm">Filleuls</span>
                   <span
                     className="text-sm font-bold"
                     style={{ color: GREEN }}
@@ -204,7 +247,7 @@ export default function TeamPage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 text-sm">Remboursement du dépôt</span>
+                  <span className="text-gray-600 text-sm">Remboursement du dépôt</span>
                   <span
                     className="text-sm font-bold"
                     style={{ color: GREEN }}
