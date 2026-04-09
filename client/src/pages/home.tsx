@@ -165,7 +165,7 @@ export default function HomePage() {
             }}
             data-testid="button-hero-recharger"
           >
-            <img src={iconDeposit} alt="" style={{ width: 20, height: 20, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
+            <img src={iconRecharger} alt="" style={{ width: 20, height: 20, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
             Recharger
           </button>
 
@@ -195,7 +195,7 @@ export default function HomePage() {
               background: "#2a8d13",
               display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
-              <img src={iconWithdraw} alt="" style={{ width: 14, height: 14, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
+              <img src={iconRetrait} alt="" style={{ width: 14, height: 14, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
             </span>
             Retrait
           </button>
@@ -220,17 +220,11 @@ export default function HomePage() {
                   className="w-12 h-12 rounded-full flex items-center justify-center shadow-md"
                   style={{ background: "rgba(255,255,255,0.25)", border: "2px solid rgba(255,255,255,0.5)" }}
                 >
-                  {"img" in action && action.img
-                    ? <img
-                        src={action.img}
-                        alt={action.label}
-                        className="w-7 h-7 object-contain"
-                        style={"filterWhite" in action && action.filterWhite ? { filter: "brightness(0) invert(1)" } : undefined}
-                      />
-                    : "icon" in action && action.icon
-                      ? <action.icon className="w-6 h-6 text-white" strokeWidth={2} />
-                      : null
-                  }
+                  <img
+                    src={action.img}
+                    alt={action.label}
+                    className="w-7 h-7 object-contain"
+                  />
                 </div>
                 <span className="text-white text-[10px] font-semibold text-center leading-tight max-w-[52px]">
                   {action.label}
