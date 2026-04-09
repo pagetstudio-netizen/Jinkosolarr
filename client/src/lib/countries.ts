@@ -1,16 +1,14 @@
 export const COUNTRIES = [
+  { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", paymentMethods: ["Moov Money", "MTN"] },
   { code: "CM", name: "Cameroun", flag: "CM", currency: "XAF", paymentMethods: ["Orange Money", "MTN"] },
   { code: "BF", name: "Burkina Faso", flag: "BF", currency: "XOF", paymentMethods: ["Orange Money", "Moov Money"] },
-  { code: "TG", name: "Togo", flag: "TG", currency: "XOF", paymentMethods: ["Moov Money", "Mixx by Yas"] },
-  { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", paymentMethods: ["Moov Money", "MTN"] },
   { code: "CI", name: "Cote d'Ivoire", flag: "CI", currency: "XOF", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
 ];
 
 export const ELIGIBLE_COUNTRIES = [
+  { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", phonePrefix: "229", paymentMethods: ["Moov Money", "MTN"] },
   { code: "CM", name: "Cameroun", flag: "CM", currency: "XAF", phonePrefix: "237", paymentMethods: ["Orange Money", "MTN"] },
   { code: "BF", name: "Burkina Faso", flag: "BF", currency: "XOF", phonePrefix: "226", paymentMethods: ["Orange Money", "Moov Money"] },
-  { code: "TG", name: "Togo", flag: "TG", currency: "XOF", phonePrefix: "228", paymentMethods: ["Moov Money", "Mixx by Yas"] },
-  { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", phonePrefix: "229", paymentMethods: ["Moov Money", "MTN"] },
   { code: "CI", name: "Cote d'Ivoire", flag: "CI", currency: "XOF", phonePrefix: "225", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
 ] as const;
 
