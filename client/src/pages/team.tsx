@@ -74,7 +74,7 @@ export default function TeamPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-full" style={pageBg}>
+    <div className="flex flex-col min-h-full bg-white">
       <div className="flex-1 overflow-y-auto pb-24 px-4 pt-5 space-y-4">
 
         {/* Agent button + subtitle */}
@@ -86,13 +86,13 @@ export default function TeamPage() {
           >
             Postulez pour devenir agent maintenant
           </button>
-          <p className="text-gray-400 text-xs text-center leading-relaxed">
+          <p className="text-gray-500 text-xs text-center leading-relaxed">
             Profitez du partage des bénéfices de l'équipe + services exclusifs
           </p>
         </div>
 
         {/* Referral card */}
-        <div className="bg-white rounded-2xl p-4 shadow">
+        <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
           <div className="flex items-start justify-between mb-2">
             <p className="text-gray-400 text-xs font-medium">Lien de partage</p>
             <button
@@ -128,7 +128,7 @@ export default function TeamPage() {
 
         {/* Mon cashback */}
         <div>
-          <h2 className="text-white font-bold text-base mb-3">Mon cashback</h2>
+          <h2 className="text-gray-900 font-bold text-base mb-3">Mon cashback</h2>
 
           <div className="grid grid-cols-2 gap-3">
             {/* Mes filleuls */}
