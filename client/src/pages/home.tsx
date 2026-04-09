@@ -217,7 +217,7 @@ export default function HomePage() {
             }}
             data-testid="button-hero-recharger"
           >
-            <img src={iconDeposit} alt="" style={{ width: 20, height: 20, objectFit: "contain" }} />
+            <img src={iconDeposit} alt="" style={{ width: 20, height: 20, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
             Recharger
           </button>
 
@@ -242,7 +242,13 @@ export default function HomePage() {
             }}
             data-testid="button-hero-retrait"
           >
-            <img src={iconWithdraw} alt="" style={{ width: 20, height: 20, objectFit: "contain" }} />
+            <span style={{
+              width: 22, height: 22, borderRadius: "50%",
+              background: "#2a8d13",
+              display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <img src={iconWithdraw} alt="" style={{ width: 14, height: 14, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
+            </span>
             Retrait
           </button>
         </div>
