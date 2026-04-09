@@ -5,7 +5,9 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MessageCircleMore, DollarSign, Wallet, Headphones, Gift, FileText, Plug, Building2 } from "lucide-react";
+import { Loader2, MessageCircleMore, DollarSign, Wallet, Headphones, Gift, FileText } from "lucide-react";
+import iconDeposit from "@assets/20260312_105135_1773312869115.png";
+import iconWithdraw from "@assets/20260312_105153_1773312869170.png";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Product } from "@shared/schema";
 
@@ -196,29 +198,23 @@ export default function HomePage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
-              paddingLeft: 16,
-              paddingRight: 18,
-              paddingTop: 9,
-              paddingBottom: 9,
+              gap: 5,
+              paddingLeft: 10,
+              paddingRight: 13,
+              paddingTop: 6,
+              paddingBottom: 6,
               borderRadius: 999,
               background: "#e53935",
               border: "2px solid rgba(255,255,255,0.45)",
               color: "white",
               fontWeight: 700,
-              fontSize: 14,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.35)",
+              fontSize: 12,
+              boxShadow: "0 3px 8px rgba(0,0,0,0.35)",
               cursor: "pointer",
             }}
             data-testid="button-hero-recharger"
           >
-            <div style={{
-              width: 26, height: 26, borderRadius: "50%",
-              background: "rgba(255,255,255,0.25)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <Plug size={14} color="white" strokeWidth={2.5} />
-            </div>
+            <img src={iconDeposit} alt="" style={{ width: 20, height: 20, objectFit: "contain" }} />
             Recharger
           </button>
 
@@ -227,30 +223,23 @@ export default function HomePage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
-              paddingLeft: 14,
-              paddingRight: 18,
-              paddingTop: 9,
-              paddingBottom: 9,
+              gap: 5,
+              paddingLeft: 10,
+              paddingRight: 13,
+              paddingTop: 6,
+              paddingBottom: 6,
               borderRadius: 999,
               background: "rgba(255,255,255,0.92)",
               border: "2px solid rgba(255,255,255,0.7)",
               color: "#3db51d",
               fontWeight: 700,
-              fontSize: 14,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+              fontSize: 12,
+              boxShadow: "0 3px 8px rgba(0,0,0,0.25)",
               cursor: "pointer",
             }}
             data-testid="button-hero-retrait"
           >
-            <div style={{
-              width: 26, height: 26, borderRadius: 6,
-              background: "#1565c0",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 11, color: "white", fontWeight: 900, lineHeight: 1,
-            }}>
-              ATM
-            </div>
+            <img src={iconWithdraw} alt="" style={{ width: 20, height: 20, objectFit: "contain" }} />
             Retrait
           </button>
         </div>
