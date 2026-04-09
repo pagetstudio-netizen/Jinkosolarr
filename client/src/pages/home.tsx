@@ -5,9 +5,12 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MessageCircleMore, DollarSign, Wallet, Headphones, Gift, FileText } from "lucide-react";
+import { Loader2, MessageCircleMore, Gift, FileText } from "lucide-react";
 import iconDeposit from "@assets/20260312_105135_1773312869115.png";
 import iconWithdraw from "@assets/20260312_105153_1773312869170.png";
+import iconRecharger from "@assets/20260409_133235_1775749369916.png";
+import iconRetrait from "@assets/20260409_133935_1775749370458.png";
+import iconContact from "@assets/20260409_152753_1775749370488.png";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Product } from "@shared/schema";
 
@@ -68,11 +71,11 @@ export default function HomePage() {
   const paidProducts = products?.filter(p => !p.isFree) || [];
 
   const quickActions = [
-    { label: "Recharger", icon: DollarSign, onClick: () => navigate("/deposit"), color: "#f59e0b" },
-    { label: "Retrait", icon: Wallet, onClick: () => navigate("/withdrawal"), color: "#f59e0b" },
-    { label: "Nous contacter", icon: Headphones, onClick: () => navigate("/service"), color: "#f59e0b" },
-    { label: "Argent gratuit", icon: Gift, onClick: () => navigate("/gift-code"), color: "#f59e0b" },
-    { label: "Preuve de retrait", icon: FileText, onClick: () => navigate("/withdrawal-history"), color: "#f59e0b" },
+    { label: "Recharger", img: iconRecharger, onClick: () => navigate("/deposit") },
+    { label: "Retrait", img: iconRetrait, onClick: () => navigate("/withdrawal") },
+    { label: "Nous contacter", img: iconContact, onClick: () => navigate("/service") },
+    { label: "Argent gratuit", icon: Gift, onClick: () => navigate("/gift-code") },
+    { label: "Preuve de retrait", icon: FileText, onClick: () => navigate("/withdrawal-history") },
   ];
 
   return (
@@ -263,7 +266,12 @@ export default function HomePage() {
                   className="w-12 h-12 rounded-full flex items-center justify-center shadow-md"
                   style={{ background: "rgba(255,255,255,0.25)", border: "2px solid rgba(255,255,255,0.5)" }}
                 >
-                  <action.icon className="w-6 h-6 text-white" strokeWidth={2} />
+                  {"img" in action && action.img
+                    ? <img src={action.img} alt={action.label} className="w-7 h-7 object-contain" />
+                    : "icon" in action && action.icon
+                      ? <action.icon className="w-6 h-6 text-white" strokeWidth={2} />
+                      : null
+                  }
                 </div>
                 <span className="text-white text-[10px] font-semibold text-center leading-tight max-w-[52px]">
                   {action.label}
