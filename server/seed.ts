@@ -28,7 +28,7 @@ export async function seed() {
     await db.insert(users).values({
       fullName: "Super Admin",
       phone: "99935673",
-      country: "TG",
+      country: "BJ",
       password: hashedPassword,
       referralCode: "ADMIN1",
       balance: "0",
