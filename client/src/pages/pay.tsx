@@ -2,19 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2, CheckCircle2, XCircle, ShieldCheck, ChevronLeft } from "lucide-react";
-import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
+import { Loader2, CheckCircle2, XCircle, Phone } from "lucide-react";
 
 const GREEN = "#3db51d";
-const GREEN_DARK = "#2a8d13";
 
 const COUNTRIES = [
-  { code: "BJ", name: "Bénin", flag: "🇧🇯", currency: "XOF" },
-  { code: "CI", name: "Côte d'Ivoire", flag: "🇨🇮", currency: "XOF" },
-  { code: "CM", name: "Cameroun", flag: "🇨🇲", currency: "XAF" },
-  { code: "BF", name: "Burkina Faso", flag: "🇧🇫", currency: "XOF" },
-  { code: "TG", name: "Togo", flag: "🇹🇬", currency: "XOF" },
-  { code: "CG", name: "Congo", flag: "🇨🇬", currency: "XAF" },
+  { code: "BJ", name: "Bénin",         dialCode: "+229", currency: "XOF" },
+  { code: "CI", name: "Côte d'Ivoire", dialCode: "+225", currency: "XOF" },
+  { code: "CM", name: "Cameroun",      dialCode: "+237", currency: "XAF" },
+  { code: "BF", name: "Burkina Faso",  dialCode: "+226", currency: "XOF" },
+  { code: "TG", name: "Togo",          dialCode: "+228", currency: "XOF" },
+  { code: "CG", name: "Congo",         dialCode: "+242", currency: "XAF" },
 ];
 
 const OPERATORS: Record<string, string[]> = {
@@ -31,39 +29,54 @@ type FlowType = "ussd_push" | "otp_sms" | "otp_ussd" | "wave";
 
 function StepBar({ current }: { current: Step }) {
   const steps = [
-    { n: 1, label: "Informations" },
-    { n: 2, label: "Validation" },
-    { n: 3, label: "Confirmation" },
+    { n: 1 as Step, label: "Informations" },
+    { n: 2 as Step, label: "Validation" },
+    { n: 3 as Step, label: "Confirmation" },
   ];
+
+  const progress = ((current - 1) / (steps.length - 1)) * 100;
+
   return (
-    <div className="flex items-center justify-between px-4 py-4">
-      {steps.map((s, i) => (
-        <div key={s.n} className="flex items-center flex-1">
-          <div className="flex flex-col items-center">
+    <div className="px-5 pt-4 pb-2">
+      <div className="flex items-center justify-between mb-3">
+        <div className="relative flex-1 h-1 bg-gray-200 rounded-full mr-4">
+          <div
+            className="absolute left-0 top-0 h-1 rounded-full transition-all duration-500"
+            style={{ width: `${progress}%`, background: GREEN }}
+          />
+        </div>
+        <span className="text-xs text-gray-400 shrink-0">Etape {current} sur 3</span>
+      </div>
+      <div className="flex items-start justify-between">
+        {steps.map((s, i) => (
+          <div key={s.n} className="flex flex-col items-center" style={{ flex: 1 }}>
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
-              style={{
-                background: current >= s.n ? GREEN : "#e5e7eb",
-                color: current >= s.n ? "white" : "#9ca3af",
-              }}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all"
+              style={
+                current > s.n
+                  ? { background: GREEN, borderColor: GREEN, color: "white" }
+                  : current === s.n
+                  ? { background: "white", borderColor: GREEN, color: GREEN }
+                  : { background: "white", borderColor: "#d1d5db", color: "#9ca3af" }
+              }
             >
-              {s.n}
+              {current > s.n ? (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2.5 7L5.5 10L11.5 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                s.n
+              )}
             </div>
             <span
-              className="text-xs mt-1 font-medium"
+              className="text-xs mt-1 font-medium text-center"
               style={{ color: current >= s.n ? GREEN : "#9ca3af" }}
             >
               {s.label}
             </span>
           </div>
-          {i < steps.length - 1 && (
-            <div
-              className="flex-1 h-0.5 mx-2 mb-5"
-              style={{ background: current > s.n ? GREEN : "#e5e7eb" }}
-            />
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -72,7 +85,6 @@ export default function PayPage() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
 
-  // Read URL params
   const params = new URLSearchParams(window.location.search);
   const amountParam = parseInt(params.get("amount") || "0");
   const countryParam = params.get("country") || user?.country || "BJ";
@@ -85,7 +97,6 @@ export default function PayPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Result state
   const [depositId, setDepositId] = useState<number | null>(null);
   const [flow, setFlow] = useState<FlowType | null>(null);
   const [waveUrl, setWaveUrl] = useState<string | null>(null);
@@ -94,16 +105,18 @@ export default function PayPage() {
 
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  const countryInfo = COUNTRIES.find((c) => c.code === country);
+  const countryInfo = COUNTRIES.find((c) => c.code === country)!;
   const currency = countryInfo?.currency || "XOF";
   const operators = OPERATORS[country] || [];
 
-  // Auto-select first operator when country changes
   useEffect(() => {
     setOperator(operators[0] || "");
   }, [country]);
 
-  // Polling for status
+  useEffect(() => {
+    return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
+  }, []);
+
   function startPolling(id: number) {
     pollingRef.current = setInterval(async () => {
       try {
@@ -122,14 +135,10 @@ export default function PayPage() {
     }, 4000);
   }
 
-  useEffect(() => {
-    return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
-  }, []);
-
   async function handleStep1Submit() {
     setError("");
     if (!phone.trim()) { setError("Entrez votre numéro de téléphone"); return; }
-    if (!operator) { setError("Sélectionnez un opérateur"); return; }
+    if (!operator) { setError("Sélectionnez une méthode de paiement"); return; }
     setLoading(true);
     try {
       const res = await apiRequest("POST", "/api/ashtechpay/initiate", {
@@ -138,6 +147,11 @@ export default function PayPage() {
         operator,
         country_code: country,
       });
+      if (!res.ok) {
+        const err = await res.json();
+        setError(err.message || "Erreur lors de l'initiation");
+        return;
+      }
       const data = await res.json();
       setDepositId(data.depositId);
       setFlow(data.flow);
@@ -148,7 +162,7 @@ export default function PayPage() {
         startPolling(data.depositId);
       }
     } catch (e: any) {
-      setError(e.message || "Erreur lors de l'initiation du paiement");
+      setError(e.message || "Erreur réseau");
     } finally {
       setLoading(false);
     }
@@ -166,14 +180,18 @@ export default function PayPage() {
         country_code: country,
         otp: otp.trim(),
       });
+      if (!res.ok) {
+        const err = await res.json();
+        setError(err.message || "Code OTP incorrect");
+        return;
+      }
       const data = await res.json();
       if (data.depositId) {
         setDepositId(data.depositId);
-        setFlow(data.flow);
         startPolling(data.depositId);
       }
     } catch (e: any) {
-      setError(e.message || "Code OTP incorrect");
+      setError(e.message || "Erreur réseau");
     } finally {
       setLoading(false);
     }
@@ -184,7 +202,7 @@ export default function PayPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-gray-500 mb-4">Montant invalide</p>
-          <button onClick={() => navigate("/deposit")} className="text-green-600 font-semibold">
+          <button onClick={() => navigate("/deposit")} className="font-semibold" style={{ color: GREEN }}>
             ← Retour au dépôt
           </button>
         </div>
@@ -193,297 +211,380 @@ export default function PayPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <div
-        className="px-4 py-4 flex items-center gap-3"
-        style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
-      >
-        <button
-          onClick={() => navigate("/deposit")}
-          className="w-8 h-8 rounded-full flex items-center justify-center"
-          style={{ background: "rgba(255,255,255,0.2)" }}
-          data-testid="button-back-pay"
-        >
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        <div className="flex items-center gap-2 flex-1">
-          <ShieldCheck className="w-5 h-5 text-white/80" />
-          <span className="text-white font-semibold text-sm">Paiement sécurisé</span>
-        </div>
-        <img src={jinkoLogoText} alt="Jinko Solar" className="h-7 w-auto object-contain brightness-0 invert" />
-      </div>
+    <div className="min-h-screen flex flex-col" style={{ background: GREEN }}>
 
-      {/* Amount display */}
-      <div
-        className="px-4 pb-5 pt-3 text-center"
-        style={{ background: `linear-gradient(180deg, ${GREEN_DARK} 0%, ${GREEN} 100%)` }}
-      >
-        <p className="text-white/70 text-xs uppercase tracking-widest mb-1">Montant à payer</p>
-        <p className="text-white font-extrabold text-4xl tracking-tight">
+      {/* ── Green header ── */}
+      <div className="px-5 pt-8 pb-6">
+        <p className="text-white font-extrabold text-xl leading-tight">Jinko Solar</p>
+        <p className="text-white/80 text-sm mt-0.5">Paiement sécurisé</p>
+        <p className="text-white/70 text-sm mt-4">Montant :</p>
+        <p className="text-white font-extrabold text-4xl leading-tight mt-0.5">
           {amountParam.toLocaleString("fr-FR")}
-          <span className="text-xl ml-2 font-semibold opacity-80">{currency}</span>
+          <span className="text-2xl font-bold ml-2 opacity-90">{currency}</span>
         </p>
       </div>
 
-      {/* Card */}
-      <div className="flex-1 px-4 -mt-3">
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <StepBar current={step} />
-          <div className="px-4 pb-6">
+      {/* ── White card ── */}
+      <div className="flex-1 bg-white rounded-t-3xl overflow-hidden flex flex-col">
+        <StepBar current={step} />
 
-            {/* ─── Step 1: Informations ─── */}
-            {step === 1 && (
-              <div className="space-y-4">
-                {/* Country */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Pays</label>
+        <div className="px-5 pb-8 flex-1">
+
+          {/* ─── Step 1: Informations ─── */}
+          {step === 1 && (
+            <div className="space-y-5 pt-2">
+
+              {/* Phone */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Numéro de téléphone mobile :</p>
+                <div className="flex rounded-xl border border-gray-200 overflow-hidden">
+                  <div
+                    className="flex items-center justify-center px-3 shrink-0 text-white text-sm font-bold min-w-[56px]"
+                    style={{ background: GREEN }}
+                  >
+                    {countryInfo?.dialCode}
+                  </div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Ex: 90123456"
+                    className="flex-1 px-3 py-3 text-sm text-gray-800 focus:outline-none bg-white"
+                    data-testid="input-phone-pay"
+                  />
+                </div>
+              </div>
+
+              {/* Country */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Pays :</p>
+                <div className="relative">
                   <select
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2"
-                    style={{ focusRingColor: GREEN } as any}
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 bg-white focus:outline-none appearance-none pr-10"
                     data-testid="select-country"
                   >
                     {COUNTRIES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.flag} {c.name}
-                      </option>
+                      <option key={c.code} value={c.code}>{c.name}</option>
                     ))}
                   </select>
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                    </svg>
+                  </div>
                 </div>
+              </div>
 
-                {/* Phone */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
-                    Numéro de téléphone
-                  </label>
-                  <div className="flex rounded-xl border border-gray-200 overflow-hidden">
-                    <div
-                      className="flex items-center px-3 text-white text-sm font-bold shrink-0"
-                      style={{ background: GREEN }}
+              {/* Operator */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Méthode de paiement :</p>
+                <div className="space-y-2">
+                  {operators.map((op) => (
+                    <label
+                      key={op}
+                      className="flex items-center gap-3 rounded-xl border px-4 py-3.5 cursor-pointer transition-all"
+                      style={{ borderColor: operator === op ? GREEN : "#e5e7eb" }}
+                      onClick={() => setOperator(op)}
                     >
-                      {countryInfo?.flag}
+                      <div
+                        className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
+                        style={{ borderColor: operator === op ? GREEN : "#d1d5db" }}
+                      >
+                        {operator === op && (
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ background: GREEN }} />
+                        )}
+                      </div>
+                      <span className="text-sm text-gray-700 font-medium">{op}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+              <button
+                onClick={handleStep1Submit}
+                disabled={loading}
+                className="w-full rounded-xl py-4 text-white font-bold text-sm flex items-center justify-center gap-2 transition-opacity"
+                style={{ background: loading ? "#9ca3af" : GREEN }}
+                data-testid="button-pay-now"
+              >
+                {loading
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Traitement en cours...</>
+                  : "Payer maintenant  ›"}
+              </button>
+            </div>
+          )}
+
+          {/* ─── Step 2: Validation ─── */}
+          {step === 2 && (
+            <div className="space-y-5 pt-2">
+
+              {/* USSD Push */}
+              {flow === "ussd_push" && (
+                <>
+                  {/* Yellow alert */}
+                  <div
+                    className="rounded-xl px-4 py-3 text-center"
+                    style={{ background: "#FFF8E1", border: "1px solid #FFE082" }}
+                  >
+                    <p className="text-sm font-semibold" style={{ color: "#E65100" }}>
+                      Une demande de paiement a été envoyée sur votre téléphone
+                    </p>
+                  </div>
+
+                  {/* Phone icon */}
+                  <div className="flex flex-col items-center py-3">
+                    <div
+                      className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
+                      style={{ background: `${GREEN}22` }}
+                    >
+                      <Phone className="w-9 h-9" style={{ color: GREEN }} />
                     </div>
+                    <p className="font-bold text-gray-800 text-base text-center">
+                      Validez le paiement sur votre téléphone
+                    </p>
+                    <p className="text-gray-500 text-sm text-center mt-2 leading-relaxed">
+                      Composez votre code secret pour confirmer la transaction de{" "}
+                      {amountParam.toLocaleString("fr-FR")} {currency}
+                    </p>
+                  </div>
+
+                  {/* Spinner */}
+                  <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Vérification en cours...
+                  </div>
+
+                  {/* Back button */}
+                  <button
+                    onClick={() => { if (pollingRef.current) clearInterval(pollingRef.current); setStep(1); setFlow(null); }}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm"
+                    style={{ background: "#1565C0" }}
+                    data-testid="button-back-step2"
+                  >
+                    Retour
+                  </button>
+                </>
+              )}
+
+              {/* Wave */}
+              {flow === "wave" && waveUrl && (
+                <>
+                  <div
+                    className="rounded-xl px-4 py-3 text-center"
+                    style={{ background: "#FFF8E1", border: "1px solid #FFE082" }}
+                  >
+                    <p className="text-sm font-semibold" style={{ color: "#E65100" }}>
+                      Ouvrez Wave pour confirmer votre paiement de {amountParam.toLocaleString("fr-FR")} {currency}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-center py-3">
+                    <div
+                      className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
+                      style={{ background: `${GREEN}22` }}
+                    >
+                      <Phone className="w-9 h-9" style={{ color: GREEN }} />
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-400 text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Vérification en cours...
+                    </div>
+                  </div>
+                  <a
+                    href={waveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full rounded-xl py-4 text-white font-bold text-sm text-center"
+                    style={{ background: "#1a9bd7" }}
+                    data-testid="button-wave-pay"
+                  >
+                    Ouvrir Wave
+                  </a>
+                  <button
+                    onClick={() => { if (pollingRef.current) clearInterval(pollingRef.current); setStep(1); setFlow(null); }}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm"
+                    style={{ background: "#1565C0" }}
+                    data-testid="button-back-wave"
+                  >
+                    Retour
+                  </button>
+                </>
+              )}
+
+              {/* OTP SMS */}
+              {flow === "otp_sms" && (
+                <>
+                  <div
+                    className="rounded-xl px-4 py-3"
+                    style={{ background: "#FFF8E1", border: "1px solid #FFE082" }}
+                  >
+                    <p className="text-sm font-semibold text-center" style={{ color: "#E65100" }}>
+                      Un SMS avec votre code OTP a été envoyé sur votre téléphone
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-center py-2">
+                    <div
+                      className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
+                      style={{ background: `${GREEN}22` }}
+                    >
+                      <Phone className="w-9 h-9" style={{ color: GREEN }} />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Code OTP reçu par SMS :</p>
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Ex: 97000000"
-                      className="flex-1 px-3 py-3 text-sm text-gray-800 focus:outline-none bg-white"
-                      data-testid="input-phone-pay"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="Ex: 123456"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-xl tracking-[0.4em] font-bold focus:outline-none"
+                      data-testid="input-otp"
                     />
                   </div>
-                </div>
+                  {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+                  <button
+                    onClick={handleOtpSubmit}
+                    disabled={loading}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm flex items-center justify-center gap-2"
+                    style={{ background: loading ? "#9ca3af" : GREEN }}
+                    data-testid="button-confirm-otp"
+                  >
+                    {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Validation...</> : "Valider le paiement  ›"}
+                  </button>
+                  <button
+                    onClick={() => setStep(1)}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm"
+                    style={{ background: "#1565C0" }}
+                    data-testid="button-back-otp"
+                  >
+                    Retour
+                  </button>
+                </>
+              )}
 
-                {/* Operator */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
-                    Méthode de paiement
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {operators.map((op) => (
-                      <button
-                        key={op}
-                        onClick={() => setOperator(op)}
-                        className="rounded-xl border py-3 px-3 text-sm font-semibold text-left transition-all"
-                        style={{
-                          borderColor: operator === op ? GREEN : "#e5e7eb",
-                          background: operator === op ? `${GREEN}15` : "white",
-                          color: operator === op ? GREEN : "#374151",
-                        }}
-                        data-testid={`button-op-${op}`}
-                      >
-                        {op}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
-                <button
-                  onClick={handleStep1Submit}
-                  disabled={loading}
-                  className="w-full rounded-xl py-4 text-white font-extrabold text-base flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform"
-                  style={{ background: loading ? "#9ca3af" : `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
-                  data-testid="button-pay-now"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                  {loading ? "Traitement..." : "Payer maintenant"}
-                </button>
-              </div>
-            )}
-
-            {/* ─── Step 2: Validation ─── */}
-            {step === 2 && (
-              <div className="space-y-5">
-                {/* USSD Push — waiting */}
-                {(flow === "ussd_push") && (
-                  <div className="text-center py-4">
-                    <div
-                      className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                      style={{ background: `${GREEN}20` }}
-                    >
-                      <Loader2 className="w-8 h-8 animate-spin" style={{ color: GREEN }} />
-                    </div>
-                    <p className="font-bold text-gray-800 text-base mb-2">Confirmez sur votre téléphone</p>
-                    <p className="text-gray-500 text-sm leading-relaxed">
-                      Vous allez recevoir une demande de confirmation sur votre téléphone. Validez avec votre PIN {operator} pour finaliser le paiement.
+              {/* OTP USSD */}
+              {flow === "otp_ussd" && (
+                <>
+                  <div
+                    className="rounded-xl px-4 py-3"
+                    style={{ background: "#FFF8E1", border: "1px solid #FFE082" }}
+                  >
+                    <p className="text-sm font-semibold text-center" style={{ color: "#E65100" }}>
+                      Composez le code ci-dessous sur votre téléphone pour recevoir votre OTP
                     </p>
-                  </div>
-                )}
-
-                {/* Wave */}
-                {flow === "wave" && waveUrl && (
-                  <div className="text-center py-4 space-y-4">
-                    <div
-                      className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
-                      style={{ background: `${GREEN}20` }}
-                    >
-                      <Loader2 className="w-8 h-8 animate-spin" style={{ color: GREEN }} />
-                    </div>
-                    <p className="font-bold text-gray-800">Payer avec Wave</p>
-                    <p className="text-gray-500 text-sm">Appuyez sur le bouton pour ouvrir l'application Wave et confirmer le paiement.</p>
-                    <a
-                      href={waveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full rounded-xl py-4 text-white font-bold text-center"
-                      style={{ background: "#1a9bd7" }}
-                      data-testid="button-wave-pay"
-                    >
-                      Ouvrir Wave →
-                    </a>
-                  </div>
-                )}
-
-                {/* OTP SMS */}
-                {flow === "otp_sms" && (
-                  <div className="space-y-4">
-                    <div className="bg-orange-50 rounded-xl px-4 py-3">
-                      <p className="text-orange-700 text-sm font-semibold">Code OTP requis</p>
-                      <p className="text-orange-600 text-xs mt-1">
-                        Orange Money a envoyé un SMS avec votre code OTP. Saisissez-le ci-dessous pour valider.
+                    {ussdCode && (
+                      <p className="font-extrabold text-lg text-center mt-2" style={{ color: "#E65100" }}>
+                        {ussdCode}
                       </p>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Code OTP (reçu par SMS)</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        placeholder="Ex: 123456"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-xl tracking-widest font-bold focus:outline-none"
-                        data-testid="input-otp"
-                      />
-                    </div>
-                    {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-                    <button
-                      onClick={handleOtpSubmit}
-                      disabled={loading}
-                      className="w-full rounded-xl py-4 text-white font-extrabold flex items-center justify-center gap-2"
-                      style={{ background: loading ? "#9ca3af" : `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
-                      data-testid="button-confirm-otp"
-                    >
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                      {loading ? "Validation..." : "Valider le paiement"}
-                    </button>
+                    )}
                   </div>
-                )}
-
-                {/* OTP USSD (Burkina Faso Orange) */}
-                {flow === "otp_ussd" && (
-                  <div className="space-y-4">
-                    <div className="bg-orange-50 rounded-xl px-4 py-3">
-                      <p className="text-orange-700 text-sm font-semibold">Code USSD à composer</p>
-                      <p className="text-orange-600 text-xs mt-1">
-                        Composez ce code sur votre téléphone pour recevoir l'OTP par SMS :
-                      </p>
-                      {ussdCode && (
-                        <p className="text-orange-800 font-extrabold text-lg mt-2 text-center tracking-widest">
-                          {ussdCode}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Code OTP reçu</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        placeholder="Ex: 123456"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-xl tracking-widest font-bold focus:outline-none"
-                        data-testid="input-otp-ussd"
-                      />
-                    </div>
-                    {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-                    <button
-                      onClick={handleOtpSubmit}
-                      disabled={loading}
-                      className="w-full rounded-xl py-4 text-white font-extrabold flex items-center justify-center gap-2"
-                      style={{ background: loading ? "#9ca3af" : `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
-                      data-testid="button-confirm-otp-ussd"
+                  <div className="flex flex-col items-center py-2">
+                    <div
+                      className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
+                      style={{ background: `${GREEN}22` }}
                     >
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                      {loading ? "Validation..." : "Valider le paiement"}
-                    </button>
+                      <Phone className="w-9 h-9" style={{ color: GREEN }} />
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Code OTP reçu :</p>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="Ex: 123456"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-xl tracking-[0.4em] font-bold focus:outline-none"
+                      data-testid="input-otp-ussd"
+                    />
+                  </div>
+                  {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+                  <button
+                    onClick={handleOtpSubmit}
+                    disabled={loading}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm flex items-center justify-center gap-2"
+                    style={{ background: loading ? "#9ca3af" : GREEN }}
+                    data-testid="button-confirm-otp-ussd"
+                  >
+                    {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Validation...</> : "Valider le paiement  ›"}
+                  </button>
+                  <button
+                    onClick={() => setStep(1)}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm"
+                    style={{ background: "#1565C0" }}
+                    data-testid="button-back-otp-ussd"
+                  >
+                    Retour
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
-            {/* ─── Step 3: Confirmation ─── */}
-            {step === 3 && (
-              <div className="text-center py-6 space-y-4">
-                {finalStatus === "approved" ? (
-                  <>
-                    <CheckCircle2 className="w-16 h-16 mx-auto" style={{ color: GREEN }} />
-                    <p className="font-extrabold text-xl text-gray-800">Paiement réussi !</p>
-                    <p className="text-gray-500 text-sm">
-                      Votre dépôt de {amountParam.toLocaleString("fr-FR")} {currency} a été crédité sur votre compte Jinko Solar.
-                    </p>
-                    <button
-                      onClick={() => navigate("/")}
-                      className="w-full rounded-xl py-4 text-white font-extrabold mt-2"
-                      style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
-                      data-testid="button-go-home"
-                    >
-                      Retour à l'accueil
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="w-16 h-16 mx-auto text-red-500" />
-                    <p className="font-extrabold text-xl text-gray-800">Paiement échoué</p>
-                    <p className="text-gray-500 text-sm">
-                      Le paiement a été refusé ou annulé. Veuillez réessayer.
-                    </p>
-                    <button
-                      onClick={() => { setStep(1); setFlow(null); setOtp(""); setError(""); }}
-                      className="w-full rounded-xl py-4 text-white font-extrabold mt-2"
-                      style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
-                      data-testid="button-retry"
-                    >
-                      Réessayer
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+          {/* ─── Step 3: Confirmation ─── */}
+          {step === 3 && (
+            <div className="flex flex-col items-center text-center py-6 space-y-4 pt-4">
+              {finalStatus === "approved" ? (
+                <>
+                  <div
+                    className="w-20 h-20 rounded-full flex items-center justify-center"
+                    style={{ background: `${GREEN}20` }}
+                  >
+                    <CheckCircle2 className="w-12 h-12" style={{ color: GREEN }} />
+                  </div>
+                  <p className="font-extrabold text-xl text-gray-800">Paiement réussi !</p>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    Votre dépôt de {amountParam.toLocaleString("fr-FR")} {currency} a été crédité sur votre compte Jinko Solar.
+                  </p>
+                  <button
+                    onClick={() => navigate("/")}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm mt-2"
+                    style={{ background: GREEN }}
+                    data-testid="button-go-home"
+                  >
+                    Retour à l'accueil
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center bg-red-50">
+                    <XCircle className="w-12 h-12 text-red-500" />
+                  </div>
+                  <p className="font-extrabold text-xl text-gray-800">Paiement échoué</p>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    Le paiement a été refusé ou annulé. Veuillez réessayer.
+                  </p>
+                  <button
+                    onClick={() => { setStep(1); setFlow(null); setOtp(""); setError(""); }}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm mt-2"
+                    style={{ background: GREEN }}
+                    data-testid="button-retry"
+                  >
+                    Réessayer
+                  </button>
+                  <button
+                    onClick={() => navigate("/deposit")}
+                    className="w-full rounded-xl py-4 text-white font-bold text-sm"
+                    style={{ background: "#1565C0" }}
+                    data-testid="button-back-fail"
+                  >
+                    Retour
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="text-center py-4 px-4">
-        <p className="text-gray-400 text-xs flex items-center justify-center gap-1">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          Paiement sécurisé via Ashtech Pay · Jinko Solar
-        </p>
+        {/* Footer */}
+        <div className="text-center py-3 px-5 border-t border-gray-100">
+          <p className="text-gray-400 text-xs">Paiement sécurisé via Jinko Solar</p>
+        </div>
       </div>
     </div>
   );
