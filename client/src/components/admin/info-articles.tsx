@@ -166,16 +166,19 @@ export default function AdminInfoArticles() {
               <textarea
                 value={content}
                 onChange={e => setContent(e.target.value)}
-                placeholder="Écrivez le contenu de l'article..."
-                rows={5}
+                placeholder={"Écrivez la section 1...\n---\nÉcrivez la section 2...\n---\nÉcrivez la section 3..."}
+                rows={7}
                 className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-500"
                 data-testid="textarea-content"
               />
+              <p className="text-xs text-gray-400 mt-1">
+                Utilisez <span className="font-mono bg-gray-100 px-1 rounded">---</span> sur une ligne pour séparer les sections. Chaque image supplémentaire s'insère après la section correspondante.
+              </p>
             </div>
 
             {/* Extra images */}
             <div>
-              <label className="text-sm font-medium">Images supplémentaires</label>
+              <label className="text-sm font-medium">Images supplémentaires (entre les sections)</label>
               <div className="mt-1 space-y-2">
                 {extraImages.map((img, i) => (
                   <div key={i} className="relative rounded-xl overflow-hidden" style={{ height: 100 }}>
