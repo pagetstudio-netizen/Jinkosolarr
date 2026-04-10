@@ -39,9 +39,6 @@ const settingsSchema = z.object({
   soleaspayEnabled: z.string(),
   soleaspayCountries: z.string(),
   soleaspayChannelName: z.string().min(1, "Nom requis"),
-  omnipayEnabled: z.string(),
-  omnipayChannelName: z.string().min(1, "Nom requis"),
-  omnipayCallbackKey: z.string(),
   ashtechpayEnabled: z.string(),
   ashtechpayApiKey: z.string(),
   ashtechpayChannelName: z.string().min(1, "Nom requis"),
@@ -78,9 +75,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       soleaspayEnabled: "false",
       soleaspayCountries: "",
       soleaspayChannelName: "Westpay",
-      omnipayEnabled: "false",
-      omnipayChannelName: "OmniPay",
-      omnipayCallbackKey: "",
       ashtechpayEnabled: "false",
       ashtechpayApiKey: "",
       ashtechpayChannelName: "AshtechPay",
@@ -105,9 +99,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         soleaspayEnabled: settings.soleaspayEnabled || "false",
         soleaspayCountries: settings.soleaspayCountries || "",
         soleaspayChannelName: settings.soleaspayChannelName || "Westpay",
-        omnipayEnabled: settings.omnipayEnabled || "false",
-        omnipayChannelName: settings.omnipayChannelName || "OmniPay",
-        omnipayCallbackKey: settings.omnipayCallbackKey || "",
         ashtechpayEnabled: settings.ashtechpayEnabled || "false",
         ashtechpayApiKey: settings.ashtechpayApiKey || "",
         ashtechpayChannelName: settings.ashtechpayChannelName || "AshtechPay",
@@ -379,66 +370,6 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Zap className="w-5 h-5 text-primary" />
-              Paiement automatique (OmniPay)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="omnipayEnabled"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Activer OmniPay</FormLabel>
-                    <FormDescription>Permet les depots et retraits automatiques via OmniPay</FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value === "true"}
-                      onCheckedChange={(checked) => field.onChange(checked ? "true" : "false")}
-                      data-testid="switch-omnipay"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="omnipayChannelName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nom du canal (affiché aux utilisateurs)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Ex: OmniPay" />
-                  </FormControl>
-                  <FormDescription>Ce nom apparaît comme option de recharge sur la page dépôt.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="omnipayCallbackKey"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Clé Callback OmniPay</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Clé trouvée dans Mon Compte > Callback URL sur OmniPay" />
-                  </FormControl>
-                  <FormDescription>
-                    URL webhook a configurer sur OmniPay : <strong>https://wendysapp.sbs/api/webhooks/omnipay</strong>
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </CardContent>
         </Card>
 

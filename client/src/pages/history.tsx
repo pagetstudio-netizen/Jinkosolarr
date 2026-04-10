@@ -17,8 +17,6 @@ interface Deposit {
   createdAt: string;
   soleaspayReference?: string;
   soleaspayOrderId?: string;
-  omnipayId?: string;
-  omnipayReference?: string;
 }
 
 interface Withdrawal {
