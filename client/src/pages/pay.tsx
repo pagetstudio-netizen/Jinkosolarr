@@ -11,8 +11,6 @@ const COUNTRIES = [
   { code: "CI", name: "Côte d'Ivoire", dialCode: "+225", currency: "XOF" },
   { code: "CM", name: "Cameroun",      dialCode: "+237", currency: "XAF" },
   { code: "BF", name: "Burkina Faso",  dialCode: "+226", currency: "XOF" },
-  { code: "TG", name: "Togo",          dialCode: "+228", currency: "XOF" },
-  { code: "CG", name: "Congo",         dialCode: "+242", currency: "XAF" },
 ];
 
 const OPERATORS: Record<string, string[]> = {
@@ -20,8 +18,6 @@ const OPERATORS: Record<string, string[]> = {
   CM: ["MTN Mobile Money", "Orange Money"],
   BF: ["Moov Money", "Orange Money"],
   CI: ["Moov Money", "MTN Mobile Money", "Orange Money", "Wave"],
-  TG: ["Flooz (Moov)", "T-Money"],
-  CG: ["MTN Mobile Money"],
 };
 
 type Step = 1 | 2 | 3;
