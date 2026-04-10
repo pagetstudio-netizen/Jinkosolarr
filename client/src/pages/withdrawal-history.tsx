@@ -6,6 +6,7 @@ import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
 
 interface Withdrawal {
   id: number;
@@ -15,10 +16,10 @@ interface Withdrawal {
   createdAt: string;
 }
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
-  approved: { label: "Succès",     bg: "bg-gray-900",         text: "text-white" },
-  pending:  { label: "En attente", bg: "bg-orange-400",        text: "text-white" },
-  rejected: { label: "Rejeté",     bg: "bg-red-600",           text: "text-white" },
+const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  approved: { label: "Succès",     color: "#3db51d" },
+  pending:  { label: "En attente", color: "#f97316" },
+  rejected: { label: "Rejeté",     color: "#ef4444" },
 };
 
 function formatDate(iso: string) {
@@ -38,52 +39,60 @@ export default function WithdrawalHistoryPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div style={{ minHeight: "100vh", background: "#f3f4f6" }}>
+
       {/* Header */}
-      <header className="flex items-center px-4 py-3 bg-white border-b border-gray-200">
+      <header style={{ display: "flex", alignItems: "center", padding: "12px 16px", background: "white", borderBottom: "1px solid #e5e7eb" }}>
         <Link href="/account">
-          <button className="p-1 mr-2" data-testid="button-back">
-            <ChevronLeft className="w-5 h-5 text-[#3db51d]" />
+          <button style={{ padding: 4, marginRight: 8, background: "transparent", border: "none", cursor: "pointer" }} data-testid="button-back">
+            <ChevronLeft size={22} color="#3db51d" />
           </button>
         </Link>
-        <h1 className="flex-1 text-center text-base font-bold text-gray-900 pr-8">
+        <h1 style={{ flex: 1, textAlign: "center", fontSize: 16, fontWeight: 700, color: "#111827", paddingRight: 30 }}>
           Historique des retraits
         </h1>
       </header>
 
-      <div className="p-4 space-y-3">
+      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
         {isLoading ? (
           Array(4).fill(0).map((_, i) => (
-            <Skeleton key={i} className="h-28 w-full rounded-2xl" />
+            <Skeleton key={i} className="h-20 w-full rounded-2xl" />
           ))
         ) : withdrawals.length === 0 ? (
           <EmptyState message="Aucun retrait pour le moment" />
         ) : (
           withdrawals.map((w) => {
-            const cfg = STATUS_CONFIG[w.status] || { label: w.status, bg: "bg-gray-500", text: "text-white" };
+            const cfg = STATUS_CONFIG[w.status] || { label: w.status, color: "#6b7280" };
+            const displayAmount = w.netAmount
+              ? parseFloat(w.netAmount).toLocaleString()
+              : parseFloat(w.amount).toLocaleString();
+
             return (
-              <div key={w.id} className="bg-white rounded-2xl overflow-hidden shadow-sm">
-                {/* Red top bar */}
-                <div className="h-3 rounded-t-2xl" style={{ backgroundColor: "#3db51d" }} />
+              <div
+                key={w.id}
+                style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 6px rgba(0,0,0,0.07)", border: "1px solid #f0f0f0", display: "flex", alignItems: "stretch" }}
+                data-testid={`card-withdrawal-${w.id}`}
+              >
+                {/* Logo à gauche */}
+                <div style={{ width: 72, flexShrink: 0, background: "linear-gradient(135deg, #1a6e2e 0%, #3db51d 60%, #7dd94a 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: 10 }}>
+                  <img
+                    src={jinkoLogo}
+                    alt="Jinko Solar"
+                    style={{ width: 48, height: 48, objectFit: "contain", filter: "brightness(0) invert(1)" }}
+                  />
+                </div>
 
-                <div className="px-5 py-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-500 text-sm">Montant</span>
-                    <span className="text-[#3db51d] font-bold text-base">
-                      {parseFloat(w.amount).toLocaleString()}
+                {/* Contenu à droite */}
+                <div style={{ flex: 1, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: "#111827" }}>Retrait</span>
+                    <span style={{ fontWeight: 800, fontSize: 15, color: "#111827" }}>
+                      {displayAmount} <span style={{ fontSize: 12, fontWeight: 600 }}>{currency}</span>
                     </span>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-500 text-sm">État</span>
-                    <span className={`${cfg.bg} ${cfg.text} text-xs font-semibold px-4 py-1.5 rounded-full`}>
-                      {cfg.label}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-500 text-sm">Date</span>
-                    <span className="text-gray-400 text-sm">{formatDate(w.createdAt)}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 12, color: "#9ca3af" }}>{formatDate(w.createdAt)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: cfg.color }}>{cfg.label}</span>
                   </div>
                 </div>
               </div>
