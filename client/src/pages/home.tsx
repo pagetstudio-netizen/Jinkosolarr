@@ -2,9 +2,11 @@ import { useAuth } from "@/lib/auth";
 import { SiTelegram } from "react-icons/si";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { Loader2, MessageCircleMore } from "lucide-react";
+import { Loader2, MessageCircleMore, X, Gift } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import iconGratuit from "@assets/20260409_174413_1775756828265.png";
 import iconPreuve from "@assets/20260409_174658_1775756828223.png";
 import iconRecharger from "@assets/20260409_133235_1775749369916.png";
@@ -35,9 +37,33 @@ interface ProductWithOwnership extends Product {
 }
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const { toast } = useToast();
   const [location, navigate] = useLocation();
   const [showPopup, setShowPopup] = useState(true);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [giftCode, setGiftCode] = useState("");
+
+  const claimMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const response = await apiRequest("POST", "/api/gift-codes/claim", { code });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Erreur");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      refreshUser();
+      setGiftCode("");
+      setShowGiftModal(false);
+      toast({ title: "Félicitations !", description: data.message });
+    },
+    onError: (error: any) => {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    },
+  });
+
   const { data: products, isLoading: productsLoading } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
     enabled: !!user,
@@ -57,7 +83,7 @@ export default function HomePage() {
     { label: "Recharger", img: iconRecharger, onClick: () => navigate("/deposit") },
     { label: "Retrait", img: iconRetrait, onClick: () => navigate("/withdrawal") },
     { label: "Nous contacter", img: iconContact, onClick: () => navigate("/service") },
-    { label: "Argent gratuit", img: iconGratuit, onClick: () => navigate("/gift-code") },
+    { label: "Argent gratuit", img: iconGratuit, onClick: () => { setGiftCode(""); setShowGiftModal(true); } },
     { label: "Être informé", img: iconPreuve, onClick: () => navigate("/info") },
   ];
 
@@ -300,6 +326,79 @@ export default function HomePage() {
           })
         )}
       </div>
+
+      {/* Gift Code Modal */}
+      {showGiftModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-5" style={{ background: "rgba(0,0,0,0.55)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowGiftModal(false); }}>
+          <div className="w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl" style={{ background: "#3db51d" }}>
+            {/* Close button */}
+            <div className="flex justify-end px-4 pt-4">
+              <button onClick={() => setShowGiftModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full" style={{ background: "rgba(0,0,0,0.15)" }} data-testid="button-close-gift">
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+            {/* Title */}
+            <div className="px-6 pb-2 pt-1">
+              <h2 className="text-white font-extrabold text-2xl italic leading-tight">
+                Recevez de<br />l'argent gratuit
+              </h2>
+            </div>
+
+            {/* Money bag emoji */}
+            <div className="flex justify-center py-4">
+              <span style={{ fontSize: 52 }}>💰</span>
+            </div>
+
+            {/* Input */}
+            <div className="px-6 pb-4">
+              <input
+                type="text"
+                value={giftCode}
+                onChange={(e) => setGiftCode(e.target.value.toUpperCase())}
+                placeholder="Votre code bonus"
+                className="w-full px-4 py-3.5 rounded-xl text-center font-mono tracking-widest text-gray-800 text-sm outline-none"
+                style={{ borderWidth: 2.5, borderStyle: "solid", borderColor: giftCode ? "#1a5c0a" : "white", background: "white" }}
+                data-testid="input-gift-code-modal"
+              />
+            </div>
+
+            {/* Confirm button */}
+            <div className="px-6 pb-5">
+              <button
+                onClick={() => {
+                  if (!giftCode.trim()) { toast({ title: "Erreur", description: "Veuillez saisir un code", variant: "destructive" }); return; }
+                  claimMutation.mutate(giftCode.trim());
+                }}
+                disabled={claimMutation.isPending}
+                className="w-full py-4 rounded-xl font-extrabold text-sm tracking-widest flex items-center justify-center gap-2"
+                style={{ background: "#111827", color: "#f59e0b" }}
+                data-testid="button-confirm-gift"
+              >
+                {claimMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin text-yellow-400" /> : "CONFIRMER"}
+              </button>
+            </div>
+
+            {/* Info section */}
+            <div className="mx-5 mb-5 rounded-2xl p-4 space-y-2" style={{ background: "rgba(0,0,0,0.15)" }}>
+              <div className="flex items-start gap-2">
+                <span className="text-base mt-0.5">💡</span>
+                <p className="text-white text-xs font-medium leading-relaxed">
+                  <span className="font-bold">Récompenses Cash!</span><br />
+                  Entrez le code bonus pour recevoir un montant aléatoire! Jusqu'à 10 000 FCFA!
+                </p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-base mt-0.5">💡</span>
+                <p className="text-white text-xs leading-relaxed">
+                  Les codes bonus seront publiés sur la chaîne officielle Telegram tous les jours à 11h30 et 18h00. Suivez notre chaîne pour ne rien manquer!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
