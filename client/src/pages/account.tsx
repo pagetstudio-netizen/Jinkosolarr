@@ -4,13 +4,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
-import { Loader2, Shield, ChevronRight, Copy, Settings, LogOut } from "lucide-react";
+import { Loader2, Shield, ChevronRight, Copy, Settings, LogOut, MessageCircleMore } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
+import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
 import iconDeposit from "@assets/20260312_105135_1773312869115.png";
 import iconWithdraw from "@assets/20260312_105153_1773312869170.png";
 import serviceIcon from "@assets/20260312_105210_1773312869198.png";
@@ -109,31 +110,30 @@ export default function AccountPage() {
     <div className="flex flex-col min-h-full bg-gray-100">
       <div className="flex-1 overflow-y-auto pb-24">
 
-        {/* Green header */}
+        {/* White header — same as home page */}
+        <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
+          <img src={jinkoLogoText} alt="Jinko Solar" className="h-10 w-auto object-contain" />
+          <div className="flex items-center gap-2">
+            {user.isAdmin && (
+              <button
+                onClick={handleAdminClick}
+                className="p-1"
+                data-testid="button-admin"
+              >
+                <Shield className="w-6 h-6 text-gray-700" />
+              </button>
+            )}
+            <button onClick={() => navigate("/service")} className="p-1" data-testid="button-service-account">
+              <MessageCircleMore className="w-7 h-7 text-gray-700" />
+            </button>
+          </div>
+        </div>
+
+        {/* Green header — user info only */}
         <div
           className="px-4 pt-5 pb-6"
           style={{ background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
         >
-          {/* Top row: logo + chat icon */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg overflow-hidden bg-white flex items-center justify-center">
-                <img src={jinkoLogo} alt="Jinko Solar" className="w-full h-full object-cover" />
-              </div>
-              <span className="text-white font-extrabold text-lg tracking-tight">Jinko Solar</span>
-            </div>
-            {user.isAdmin && (
-              <button
-                onClick={handleAdminClick}
-                className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.2)" }}
-                data-testid="button-admin"
-              >
-                <Shield className="w-5 h-5 text-white" />
-              </button>
-            )}
-          </div>
-
           {/* User info row */}
           <div className="flex items-center gap-3">
             <div
