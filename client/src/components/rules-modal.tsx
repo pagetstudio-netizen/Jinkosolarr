@@ -32,7 +32,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
                 <li>- Frais de retrait : 15%</li>
                 <li>- Horaires : 8h - 17h (tous les pays)</li>
                 <li>- Cameroun et Bénin : 9h - 18h</li>
-                <li>- Maximum 2 retraits par jour</li>
+                <li>- Maximum 3 retraits par jour</li>
                 <li>- Un produit actif est requis pour retirer</li>
                 <li>- Un portefeuille de retrait doit être enregistré</li>
               </ul>

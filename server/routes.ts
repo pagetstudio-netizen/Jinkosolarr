@@ -838,8 +838,8 @@ export async function registerRoutes(
       }
 
       const todayCount = await storage.getUserWithdrawalCountToday(user.id);
-      if (todayCount >= 2) {
-        return res.status(400).json({ message: "Maximum 2 retraits par jour" });
+      if (todayCount >= 3) {
+        return res.status(400).json({ message: "Maximum 3 retraits par jour" });
       }
 
       const settings = await storage.getSettings();
@@ -1082,7 +1082,7 @@ export async function registerRoutes(
         withdrawalFees: parseFloat(settings.withdrawalFees || "15"),
         withdrawalStartHour: parseInt(settings.withdrawalStartHour || "8"),
         withdrawalEndHour: parseInt(settings.withdrawalEndHour || "17"),
-        maxWithdrawalsPerDay: 2,
+        maxWithdrawalsPerDay: 3,
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

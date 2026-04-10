@@ -30,7 +30,7 @@ export default function RulesPage() {
             <li>Le montant minimum de retrait est de 1200 FCFA.</li>
             <li>Les frais de retrait sont fixes a 15% pour couvrir les frais de transaction et d'entretien.</li>
             <li>Les retraits sont traites entre 8h et 17h (GMT) les jours ouvrables.</li>
-            <li>Limite de 2 retraits maximum par jour par utilisateur.</li>
+            <li>Limite de 3 retraits maximum par jour par utilisateur.</li>
           </ul>
         </section>
 
