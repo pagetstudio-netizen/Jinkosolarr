@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import historyIcon from "@assets/5708960_1774829436660-C3SIos42_1775833646464.png";
+import walletIcon from "@assets/20260410_193054_1775850084890.png";
 import jinkoBg from "@assets/15502488526db98c02ac135d0ac0e262d31dee111d_1775833317804.jpg";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
@@ -196,16 +197,11 @@ export default function WithdrawalPage() {
             </p>
           </div>
           {/* Icône portefeuille */}
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center shadow"
-            style={{ background: "white" }}
-          >
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect x="3" y="9" width="26" height="18" rx="3" fill={GREEN} />
-              <rect x="3" y="7" width="26" height="6" rx="2" fill={GREEN} opacity="0.6" />
-              <circle cx="23" cy="18" r="2.5" fill="white" />
-            </svg>
-          </div>
+          <img
+            src={walletIcon}
+            alt="Portefeuille"
+            style={{ width: 80, height: 80, objectFit: "contain" }}
+          />
         </div>
 
         {/* Section saisie montant */}
