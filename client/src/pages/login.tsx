@@ -7,9 +7,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
-import { Loader2, Eye, EyeOff, ChevronDown } from "lucide-react";
+import ContactSheet from "@/components/contact-sheet";
+import { Loader2, Eye, EyeOff, Phone, Lock } from "lucide-react";
 import authBg from "@assets/auth_bg_solar.png";
 import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
+import serviceAgent from "@assets/service_p1_1775839314312.png";
+
+const GREEN = "#3db51d";
 
 const loginSchema = z.object({
   phone: z.string().min(8, "Numéro invalide"),
@@ -19,17 +23,6 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-const INPUT_STYLE: React.CSSProperties = {
-  background: "rgba(30,30,30,0.75)",
-  border: "1px solid rgba(255,255,255,0.13)",
-  borderRadius: 14,
-  height: 52,
-  color: "white",
-  display: "flex",
-  alignItems: "center",
-  overflow: "hidden",
-};
-
 export default function LoginPage() {
   const [, navigate] = useLocation();
   const { login } = useAuth();
@@ -38,6 +31,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
+  const [showContact, setShowContact] = useState(false);
 
   const saved = typeof window !== "undefined" ? localStorage.getItem("jinko_credentials") : null;
   const parsed = saved ? JSON.parse(saved) : null;
@@ -74,141 +68,136 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{
-        backgroundImage: `url(${authBg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        position: "relative",
-      }}
-    >
-      {/* Dark overlay */}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.52)", zIndex: 0 }} />
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f4f6", maxWidth: 480, margin: "0 auto", position: "relative" }}>
 
-      <div className="relative z-10 flex flex-col flex-1 px-6 pt-14 pb-10 overflow-y-auto">
+      {/* ── Header banner ── */}
+      <div style={{ position: "relative", height: "42vh", minHeight: 230, overflow: "hidden", flexShrink: 0 }}>
+        <img
+          src={authBg}
+          alt=""
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)" }} />
 
-        {/* Logo + Title */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden mb-4 shadow-xl backdrop-blur">
-            <img src={jinkoLogo} alt="Jinko Solar" className="w-full h-full object-cover" />
+        {/* Brand logo + name */}
+        <div style={{ position: "absolute", bottom: 24, left: 20, display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "white", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: "0 2px 14px rgba(0,0,0,0.3)" }}>
+            <img src={jinkoLogo} alt="Jinko Solar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-wide drop-shadow-lg">Jinko Solar</h1>
+          <span style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: 0.3, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
+            Jinko Solar
+          </span>
         </div>
 
-        {/* Tab switcher */}
-        <div
-          className="flex rounded-full p-1 mb-7"
-          style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+        {/* Service agent floating photo (blurred) – opens contact popup */}
+        <button
+          type="button"
+          onClick={() => setShowContact(true)}
+          data-testid="button-contact-agent"
+          style={{ position: "absolute", top: 18, right: 18, width: 54, height: 54, borderRadius: "50%", overflow: "hidden", border: "2.5px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.35)", background: "white", cursor: "pointer", padding: 0 }}
         >
-          <button
-            type="button"
-            className="flex-1 py-2.5 rounded-full font-bold text-sm text-white transition-all"
-            style={{ background: "rgba(0,0,0,0.85)" }}
-            data-testid="tab-login"
-          >
-            Se connecter
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/register")}
-            className="flex-1 py-2.5 rounded-full font-semibold text-sm transition-all"
-            style={{ color: "rgba(255,255,255,0.6)" }}
-            data-testid="tab-register"
-          >
-            S'inscrire
-          </button>
-        </div>
+          <img
+            src={serviceAgent}
+            alt="Nous contacter"
+            style={{ width: "100%", height: "100%", objectFit: "cover", filter: "blur(0.8px) brightness(1.05)" }}
+          />
+        </button>
+      </div>
 
-        {/* Form */}
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      {/* ── White form card ── */}
+      <div style={{ flex: 1, background: "white", borderRadius: "28px 28px 0 0", marginTop: -26, padding: "30px 20px 40px", overflowY: "auto" }}>
+
+        <form onSubmit={form.handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
           {/* Phone */}
           <div>
-            <div style={INPUT_STYLE}>
+            <div style={{ background: "#f9fafb", borderRadius: 14, height: 56, display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", overflow: "hidden" }}>
+              <div style={{ paddingLeft: 14, paddingRight: 10, color: "#9ca3af", display: "flex", alignItems: "center" }}>
+                <Phone size={18} />
+              </div>
               <button
                 type="button"
                 onClick={() => setCountryModalOpen(true)}
-                className="flex items-center gap-1 px-4 h-full shrink-0"
-                style={{ borderRight: "1px solid rgba(255,255,255,0.1)" }}
                 data-testid="button-select-country"
+                style={{ fontSize: 14, fontWeight: 700, color: "#374151", paddingRight: 12, height: "100%", display: "flex", alignItems: "center", background: "transparent", border: "none", borderRight: "1.5px solid #e5e7eb", cursor: "pointer" }}
               >
-                <span className="text-white font-bold text-sm">
-                  {countryData ? `+${countryData.phonePrefix}` : "+"}
-                </span>
-                <ChevronDown className="w-4 h-4 text-white/60" />
+                {countryData ? `+${countryData.phonePrefix}` : "+"}
               </button>
               <input
                 {...form.register("phone")}
-                type="text"
-                inputMode="numeric"
+                type="tel"
                 placeholder="Numéro de téléphone"
-                className="flex-1 bg-transparent px-4 outline-none text-sm"
-                style={{ color: "white" }}
                 data-testid="input-phone"
+                style={{ flex: 1, background: "transparent", border: "none", outline: "none", paddingLeft: 12, paddingRight: 12, fontSize: 14, color: "#111827" }}
               />
             </div>
             {form.formState.errors.phone && (
-              <p className="text-xs mt-1 text-yellow-400">{form.formState.errors.phone.message}</p>
+              <p style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>{form.formState.errors.phone.message}</p>
             )}
           </div>
 
           {/* Password */}
           <div>
-            <div style={INPUT_STYLE}>
+            <div style={{ background: "#f9fafb", borderRadius: 14, height: 56, display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", overflow: "hidden" }}>
+              <div style={{ paddingLeft: 14, paddingRight: 10, color: "#9ca3af", display: "flex", alignItems: "center" }}>
+                <Lock size={18} />
+              </div>
               <input
                 {...form.register("password")}
                 type={showPassword ? "text" : "password"}
                 placeholder="Mot de passe"
-                className="flex-1 bg-transparent px-4 outline-none text-sm"
-                style={{ color: "white" }}
                 data-testid="input-password"
+                style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#111827" }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="pr-4 pl-2"
                 data-testid="button-toggle-password"
+                style={{ paddingRight: 14, paddingLeft: 8, color: "#9ca3af", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center" }}
               >
-                {showPassword
-                  ? <EyeOff className="w-4 h-4 text-white/50" />
-                  : <Eye className="w-4 h-4 text-white/50" />
-                }
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
             {form.formState.errors.password && (
-              <p className="text-xs mt-1 text-yellow-400">{form.formState.errors.password.message}</p>
+              <p style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>{form.formState.errors.password.message}</p>
             )}
           </div>
 
           <input type="hidden" {...form.register("country")} />
 
-          {/* Remember */}
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4"
-              data-testid="checkbox-remember"
-            />
-            <span className="text-white/60 text-xs">Se souvenir de moi</span>
-          </label>
+          {/* Remember + Forgot */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                data-testid="checkbox-remember"
+                style={{ width: 16, height: 16, accentColor: GREEN }}
+              />
+              <span style={{ fontSize: 13, color: "#6b7280" }}>Souviens-toi</span>
+            </label>
+            <span style={{ fontSize: 13, color: "#6b7280" }}>Mot de passe oublié ?</span>
+          </div>
 
-          {/* Submit */}
+          {/* Green submit */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-14 rounded-full font-bold text-white text-base shadow-2xl disabled:opacity-50 mt-2"
-            style={{ background: "rgba(0,0,0,0.88)", border: "1px solid rgba(255,255,255,0.15)" }}
             data-testid="button-login"
+            style={{ width: "100%", height: 52, borderRadius: 28, background: GREEN, color: "white", fontWeight: 700, fontSize: 16, border: "none", cursor: "pointer", opacity: isLoading ? 0.72 : 1, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 4px 18px rgba(61,181,29,0.35)" }}
           >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Connexion...
-              </span>
-            ) : "Se connecter"}
+            {isLoading ? <><Loader2 size={20} className="animate-spin" />Connexion...</> : "Se connecter"}
+          </button>
+
+          {/* Outlined register button */}
+          <button
+            type="button"
+            onClick={() => navigate("/register")}
+            data-testid="button-goto-register"
+            style={{ width: "100%", height: 52, borderRadius: 28, background: "white", color: "#e53935", fontWeight: 700, fontSize: 16, border: "2px solid #e53935", cursor: "pointer" }}
+          >
+            S'inscrire
           </button>
 
         </form>
@@ -219,6 +208,7 @@ export default function LoginPage() {
         onClose={() => setCountryModalOpen(false)}
         onSelect={(code) => form.setValue("country", code, { shouldValidate: true })}
       />
+      <ContactSheet open={showContact} onClose={() => setShowContact(false)} />
     </div>
   );
 }
