@@ -92,121 +92,130 @@ export default function RegisterPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#080d18", maxWidth: 480, margin: "0 auto", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "#080d18", maxWidth: 480, margin: "0 auto", position: "relative", overflow: "hidden" }}>
 
-      {/* ── Header banner (Jinko Solar image) ── */}
-      <div style={{ position: "relative", flexShrink: 0 }}>
+      {/* Image absolue en arrière-plan */}
+      <img
+        src={jinkoBanner}
+        alt="Jinko Solar"
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "auto", display: "block", zIndex: 0 }}
+      />
+
+      {/* Contenu principal par-dessus (z-index 1) */}
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+
+        {/* Espaceur invisible calqué sur la hauteur de l'image */}
         <img
           src={jinkoBanner}
-          alt="Jinko Solar"
-          style={{ width: "100%", height: "auto", display: "block" }}
+          alt=""
+          aria-hidden="true"
+          style={{ width: "100%", height: "auto", visibility: "hidden", display: "block", flexShrink: 0 }}
         />
+
+        {/* Carte blanche formulaire */}
+        <div style={{ flex: 1, background: "white", borderRadius: "16px 16px 0 0", marginTop: -14, padding: "28px 20px 20px" }}>
+
+          <form onSubmit={form.handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+            {/* Phone */}
+            <div>
+              <div style={{ background: "#f9fafb", borderRadius: 14, height: 56, display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", overflow: "hidden" }}>
+                <div style={{ paddingLeft: 14, paddingRight: 10, color: "#9ca3af", display: "flex", alignItems: "center" }}>
+                  <Phone size={18} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCountryModalOpen(true)}
+                  data-testid="button-select-country"
+                  style={{ fontSize: 14, fontWeight: 700, color: "#374151", paddingRight: 12, height: "100%", display: "flex", alignItems: "center", background: "transparent", border: "none", borderRight: "1.5px solid #e5e7eb", cursor: "pointer" }}
+                >
+                  {countryData ? `+${countryData.phonePrefix}` : "+"}
+                </button>
+                <input
+                  {...form.register("phone")}
+                  type="tel"
+                  placeholder="Numéro de téléphone"
+                  data-testid="input-phone"
+                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", paddingLeft: 12, paddingRight: 12, fontSize: 14, color: "#111827" }}
+                />
+              </div>
+              {form.formState.errors.phone && (
+                <p style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>{form.formState.errors.phone.message}</p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <div style={{ background: "#f9fafb", borderRadius: 14, height: 56, display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", overflow: "hidden" }}>
+                <div style={{ paddingLeft: 14, paddingRight: 10, color: "#9ca3af", display: "flex", alignItems: "center" }}>
+                  <Lock size={18} />
+                </div>
+                <input
+                  {...form.register("password")}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mot de passe"
+                  data-testid="input-password"
+                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#111827" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  data-testid="button-toggle-password"
+                  style={{ paddingRight: 14, paddingLeft: 8, color: "#9ca3af", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center" }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {form.formState.errors.password && (
+                <p style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>{form.formState.errors.password.message}</p>
+              )}
+            </div>
+
+            {/* Code invitation */}
+            <div>
+              <div style={{ background: "#f9fafb", borderRadius: 14, height: 56, display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", overflow: "hidden" }}>
+                <div style={{ paddingLeft: 14, paddingRight: 10, color: "#9ca3af", display: "flex", alignItems: "center" }}>
+                  <UserPlus size={18} />
+                </div>
+                <input
+                  {...form.register("invitationCode")}
+                  type="text"
+                  placeholder="Code d'invitation (optionnel)"
+                  data-testid="input-invitation-code"
+                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", paddingLeft: 4, paddingRight: 12, fontSize: 14, color: "#111827" }}
+                />
+              </div>
+            </div>
+
+            <input type="hidden" {...form.register("country")} />
+
+            {/* Bouton S'inscrire */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              data-testid="button-register"
+              style={{ width: "100%", height: 52, borderRadius: 28, background: GREEN, color: "white", fontWeight: 700, fontSize: 16, border: "none", cursor: "pointer", opacity: isLoading ? 0.72 : 1, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 4px 18px rgba(61,181,29,0.35)" }}
+            >
+              {isLoading ? <><Loader2 size={20} className="animate-spin" />Inscription...</> : "S'inscrire"}
+            </button>
+
+            {/* Bouton J'ai un compte outline */}
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              data-testid="button-goto-login"
+              style={{ width: "100%", height: 52, borderRadius: 28, background: "white", color: "#e53935", fontWeight: 700, fontSize: 16, border: "2px solid #e53935", cursor: "pointer" }}
+            >
+              J'ai un compte
+            </button>
+
+          </form>
+
+          <div style={{ height: 80 }} />
+        </div>
       </div>
 
-      {/* ── White form card ── */}
-      <div style={{ flex: 1, background: "white", borderRadius: "16px 16px 0 0", marginTop: -14, padding: "28px 20px 20px", overflowY: "auto" }}>
-
-        <form onSubmit={form.handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
-          {/* Phone */}
-          <div>
-            <div style={{ background: "#f9fafb", borderRadius: 14, height: 56, display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", overflow: "hidden" }}>
-              <div style={{ paddingLeft: 14, paddingRight: 10, color: "#9ca3af", display: "flex", alignItems: "center" }}>
-                <Phone size={18} />
-              </div>
-              <button
-                type="button"
-                onClick={() => setCountryModalOpen(true)}
-                data-testid="button-select-country"
-                style={{ fontSize: 14, fontWeight: 700, color: "#374151", paddingRight: 12, height: "100%", display: "flex", alignItems: "center", background: "transparent", border: "none", borderRight: "1.5px solid #e5e7eb", cursor: "pointer" }}
-              >
-                {countryData ? `+${countryData.phonePrefix}` : "+"}
-              </button>
-              <input
-                {...form.register("phone")}
-                type="tel"
-                placeholder="Numéro de téléphone"
-                data-testid="input-phone"
-                style={{ flex: 1, background: "transparent", border: "none", outline: "none", paddingLeft: 12, paddingRight: 12, fontSize: 14, color: "#111827" }}
-              />
-            </div>
-            {form.formState.errors.phone && (
-              <p style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>{form.formState.errors.phone.message}</p>
-            )}
-          </div>
-
-          {/* Password */}
-          <div>
-            <div style={{ background: "#f9fafb", borderRadius: 14, height: 56, display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", overflow: "hidden" }}>
-              <div style={{ paddingLeft: 14, paddingRight: 10, color: "#9ca3af", display: "flex", alignItems: "center" }}>
-                <Lock size={18} />
-              </div>
-              <input
-                {...form.register("password")}
-                type={showPassword ? "text" : "password"}
-                placeholder="Mot de passe"
-                data-testid="input-password"
-                style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#111827" }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                data-testid="button-toggle-password"
-                style={{ paddingRight: 14, paddingLeft: 8, color: "#9ca3af", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center" }}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-            {form.formState.errors.password && (
-              <p style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>{form.formState.errors.password.message}</p>
-            )}
-          </div>
-
-          {/* Invitation code */}
-          <div>
-            <div style={{ background: "#f9fafb", borderRadius: 14, height: 56, display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", overflow: "hidden" }}>
-              <div style={{ paddingLeft: 14, paddingRight: 10, color: "#9ca3af", display: "flex", alignItems: "center" }}>
-                <UserPlus size={18} />
-              </div>
-              <input
-                {...form.register("invitationCode")}
-                type="text"
-                placeholder="Code d'invitation (optionnel)"
-                data-testid="input-invitation-code"
-                style={{ flex: 1, background: "transparent", border: "none", outline: "none", paddingLeft: 4, paddingRight: 12, fontSize: 14, color: "#111827" }}
-              />
-            </div>
-          </div>
-
-          <input type="hidden" {...form.register("country")} />
-
-          {/* Green submit */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            data-testid="button-register"
-            style={{ width: "100%", height: 52, borderRadius: 28, background: GREEN, color: "white", fontWeight: 700, fontSize: 16, border: "none", cursor: "pointer", opacity: isLoading ? 0.72 : 1, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 4px 18px rgba(61,181,29,0.35)" }}
-          >
-            {isLoading ? <><Loader2 size={20} className="animate-spin" />Inscription...</> : "S'inscrire"}
-          </button>
-
-          {/* Outlined login button */}
-          <button
-            type="button"
-            onClick={() => navigate("/login")}
-            data-testid="button-goto-login"
-            style={{ width: "100%", height: 52, borderRadius: 28, background: "white", color: "#e53935", fontWeight: 700, fontSize: 16, border: "2px solid #e53935", cursor: "pointer" }}
-          >
-            J'ai un compte
-          </button>
-
-        </form>
-
-        {/* Bottom space */}
-        <div style={{ height: 80 }} />
-      </div>
-
-      {/* ── Draggable service agent button (bottom-right) ── */}
+      {/* Bouton service agent déplaçable – bas droite */}
       <button
         type="button"
         onClick={() => { if (!dragging.current) setShowContact(true); }}
@@ -214,22 +223,7 @@ export default function RegisterPage() {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         data-testid="button-contact-agent"
-        style={{
-          position: "fixed",
-          bottom: 28 - pos.y,
-          right: 20 - pos.x,
-          width: 58,
-          height: 58,
-          borderRadius: "50%",
-          overflow: "hidden",
-          border: "3px solid white",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-          background: "white",
-          cursor: "grab",
-          padding: 0,
-          zIndex: 100,
-          touchAction: "none",
-        }}
+        style={{ position: "fixed", bottom: 28 - pos.y, right: 20 - pos.x, width: 58, height: 58, borderRadius: "50%", overflow: "hidden", border: "3px solid white", boxShadow: "0 4px 20px rgba(0,0,0,0.3)", background: "white", cursor: "grab", padding: 0, zIndex: 100, touchAction: "none" }}
       >
         <img
           src={serviceAgent}
