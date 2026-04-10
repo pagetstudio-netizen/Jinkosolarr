@@ -65,12 +65,12 @@ export default function DepositPage() {
       {/* ── Carte blanche ── */}
       <div
         style={{
-          width: "calc(100% - 32px)",
+          width: "calc(100% - 16px)",
           marginLeft: 16,
-          marginRight: 16,
+          marginRight: 0,
           boxSizing: "border-box",
           background: "white",
-          borderRadius: 24,
+          borderRadius: "24px 0 0 24px",
           boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
           padding: "20px 16px 20px",
         }}
