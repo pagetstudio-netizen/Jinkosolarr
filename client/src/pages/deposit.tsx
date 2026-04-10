@@ -138,42 +138,36 @@ export default function DepositPage() {
         </div>
       </div>
 
-      {/* ── Espace ── */}
-      <div style={{ height: 28 }} />
-
-      {/* ── Bouton Recharger maintenant — pill centré ── */}
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <button
-          onClick={handleRecharge}
-          data-testid="button-submit-deposit"
-          style={{
-            width: 220,
-            height: 50,
-            borderRadius: 999,
-            background: GREEN,
-            color: "white",
-            fontWeight: 700,
-            fontSize: 15,
-            border: "none",
-            cursor: "pointer",
-            boxShadow: "0 4px 12px rgba(61,181,29,0.35)",
-          }}
-        >
-          Recharger maintenant
-        </button>
-      </div>
-
-      {/* ── Espace ── */}
-      <div style={{ height: 24 }} />
-
-      {/* ── Zone instructions — fond gris ── */}
+      {/* ── Zone gris : bouton + instructions ── */}
       <div
         style={{
           flex: 1,
           background: "#f5f5f5",
-          padding: "20px 20px 40px",
+          padding: "24px 20px 40px",
         }}
       >
+        {/* Bouton Recharger maintenant — pill centré, sur fond gris */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
+          <button
+            onClick={handleRecharge}
+            data-testid="button-submit-deposit"
+            style={{
+              width: 220,
+              height: 50,
+              borderRadius: 999,
+              background: GREEN,
+              color: "white",
+              fontWeight: 700,
+              fontSize: 15,
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(61,181,29,0.35)",
+            }}
+          >
+            Recharger maintenant
+          </button>
+        </div>
+
         <p style={{ fontWeight: 700, fontSize: 14, color: "#111827", marginBottom: 16 }}>
           💳 Instructions de Recharge :
         </p>
