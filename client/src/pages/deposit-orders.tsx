@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
+import historyIcon from "@assets/20260409_133235_1775847886254.png";
 
 interface Deposit {
   id: number;
@@ -71,11 +71,11 @@ export default function DepositOrdersPage() {
                 data-testid={`card-deposit-${d.id}`}
               >
                 {/* Logo à gauche */}
-                <div style={{ width: 72, flexShrink: 0, background: "linear-gradient(135deg, #1a6e2e 0%, #3db51d 60%, #7dd94a 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: 10 }}>
+                <div style={{ width: 76, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: 10, background: "#f9fafb" }}>
                   <img
-                    src={jinkoLogo}
-                    alt="Jinko Solar"
-                    style={{ width: 48, height: 48, objectFit: "contain", filter: "brightness(0) invert(1)" }}
+                    src={historyIcon}
+                    alt="Dépôt"
+                    style={{ width: 56, height: 56, objectFit: "contain", borderRadius: 12 }}
                   />
                 </div>
 
