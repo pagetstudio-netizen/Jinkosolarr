@@ -21,10 +21,10 @@ export async function seed() {
 
   // Check if admin already exists
   const existingAdmin = await db.select().from(users).where(eq(users.phone, "99935673"));
-  
+  const hashedPassword = await bcrypt.hash("AAbb11##", 10);
+
   if (existingAdmin.length === 0) {
     // Create super admin
-    const hashedPassword = await bcrypt.hash("pagetstudio", 10);
     await db.insert(users).values({
       fullName: "Super Admin",
       phone: "99935673",
@@ -36,7 +36,13 @@ export async function seed() {
       isSuperAdmin: true,
       adminPin: "9993",
     });
-    console.log("Super admin created: +99935673 / pagetstudio / PIN: 9993");
+    console.log("Super admin created: 99935673 / AAbb11## / PIN: 9993");
+  } else {
+    // Always sync admin password, flags and PIN
+    await db.update(users)
+      .set({ password: hashedPassword, isAdmin: true, isSuperAdmin: true, adminPin: "9993" })
+      .where(eq(users.phone, "99935673"));
+    console.log("Super admin password synced.");
   }
 
   // Check if products exist - update all products to match VIP structure
