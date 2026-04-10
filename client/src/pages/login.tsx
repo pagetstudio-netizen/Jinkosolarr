@@ -200,7 +200,7 @@ export default function LoginPage() {
               data-testid="button-goto-register"
               style={{ width: "100%", height: 52, borderRadius: 28, background: "white", color: "#e53935", fontWeight: 700, fontSize: 16, border: "2px solid #e53935", cursor: "pointer" }}
             >
-              Autorisé
+              Autoriser
             </button>
 
           </form>
