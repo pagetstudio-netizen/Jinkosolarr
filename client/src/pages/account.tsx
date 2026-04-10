@@ -16,9 +16,7 @@ import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_177567114217
 import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
 import iconDeposit from "@assets/20260312_105135_1773312869115.png";
 import iconWithdraw from "@assets/20260312_105153_1773312869170.png";
-import serviceIcon from "@assets/20260312_105210_1773312869198.png";
 import iconSecurite from "@assets/20260312_105239_1773312869222.png";
-import giftBox from "@assets/20260312_072546_1773301338613.png";
 
 const GREEN = "#3db51d";
 const GREEN_DARK = "#2a8d13";
@@ -102,12 +100,9 @@ export default function AccountPage() {
 
   const menuItems = [
     { icon: iconWithdraw, label: "Mon portefeuille", href: "/wallet" },
-    { icon: iconDeposit, label: "Recharger", href: "/deposit" },
-    { icon: giftBox, label: "Argent gratuit", href: "/gift-code" },
     { icon: iconDeposit, label: "Historique des dépôts", href: "/deposit-orders" },
     { icon: iconWithdraw, label: "Historique des retraits", href: "/withdrawal-history" },
-    { icon: serviceIcon, label: "Nous contacter", href: "" },
-    { icon: iconSecurite, label: "Sécurité", href: "/change-password" },
+    { icon: iconSecurite, label: "La clé du compte", href: "/change-password" },
   ];
 
   return (
