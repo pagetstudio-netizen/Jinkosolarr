@@ -197,7 +197,7 @@ export default function RegisterPage() {
               data-testid="button-register"
               style={{ width: "100%", height: 52, borderRadius: 28, background: GREEN, color: "white", fontWeight: 700, fontSize: 16, border: "none", cursor: "pointer", opacity: isLoading ? 0.72 : 1, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 4px 18px rgba(61,181,29,0.35)" }}
             >
-              {isLoading ? <><Loader2 size={20} className="animate-spin" />Inscription...</> : "S'inscrire"}
+              {isLoading ? <><Loader2 size={20} className="animate-spin" />Chargement...</> : "Autoriser"}
             </button>
 
             {/* Bouton J'ai un compte outline */}
