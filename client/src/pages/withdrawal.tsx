@@ -170,7 +170,7 @@ export default function WithdrawalPage() {
       </div>
 
       {/* Carte blanche principale */}
-      <div className="mx-4 bg-white rounded-3xl shadow-lg overflow-hidden">
+      <div className="bg-white shadow-lg overflow-hidden" style={{ marginLeft: 16, marginRight: 0, borderRadius: "24px 0 0 24px" }}>
 
         {/* Section solde — fond vert clair */}
         <div
