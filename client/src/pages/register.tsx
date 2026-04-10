@@ -35,7 +35,7 @@ export default function RegisterPage() {
   const [showContact, setShowContact] = useState(false);
 
   const params = new URLSearchParams(searchString);
-  const refCode = params.get("money") || params.get("reg") || "";
+  const refCode = params.get("start") || params.get("money") || params.get("reg") || "";
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),

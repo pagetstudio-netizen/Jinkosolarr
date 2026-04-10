@@ -51,7 +51,7 @@ export default function TeamPage() {
 
   if (!user) return null;
 
-  const referralLink = `${window.location.origin}/rejoindre?money=${user.referralCode}`;
+  const referralLink = `${window.location.origin}/register?start=${user.referralCode}`;
   const totalCommission = stats?.totalCommission || 0;
   const totalFilleuls =
     (stats?.level1Count || 0) + (stats?.level2Count || 0) + (stats?.level3Count || 0);
