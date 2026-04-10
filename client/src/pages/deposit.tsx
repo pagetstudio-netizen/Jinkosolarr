@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
@@ -13,6 +13,7 @@ const PRESET_AMOUNTS = [3500, 8000, 15000];
 export default function DepositPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  useEffect(() => { document.title = "Dépôt | Jinko Solar"; }, []);
   const [amount, setAmount] = useState<number | "">("");
 
   const countryInfo = getCountryByCode(user?.country || "");

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useMutation } from "@tanstack/react-query";
 import { ChevronLeft, Loader2, Gift, Tag } from "lucide-react";
@@ -11,6 +11,7 @@ import wendysNight from "@assets/batu-gezer-AGGhkGuVs2w-unsplash_1773332229247.j
 export default function GiftCodePage() {
   const { refreshUser } = useAuth();
   const { toast } = useToast();
+  useEffect(() => { document.title = "Argent gratuit | Jinko Solar"; }, []);
   const [code, setCode] = useState("");
 
   const claimMutation = useMutation({

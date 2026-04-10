@@ -80,6 +80,7 @@ function StepBar({ current }: { current: Step }) {
 export default function PayPage() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
+  useEffect(() => { document.title = "Paiement | Jinko Solar"; }, []);
 
   const params = new URLSearchParams(window.location.search);
   const amountParam = parseInt(params.get("amount") || "0");

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -17,6 +18,7 @@ interface BonusStatus {
 export default function CheckinPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  useEffect(() => { document.title = "Présence | Jinko Solar"; }, []);
 
   const { data: bonusStatus } = useQuery<BonusStatus>({
     queryKey: ["/api/daily-bonus-status"],

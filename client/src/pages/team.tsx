@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -41,6 +42,7 @@ const pageBg: React.CSSProperties = {
 export default function TeamPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  useEffect(() => { document.title = "Équipe | Jinko Solar"; }, []);
   const [, navigate] = useLocation();
 
   const { data: stats } = useQuery<TeamStats>({

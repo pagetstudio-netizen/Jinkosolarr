@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +33,7 @@ const INPUT_STYLE: React.CSSProperties = {
 export default function LoginPage() {
   const [, navigate] = useLocation();
   const { login } = useAuth();
+  useEffect(() => { document.title = "Connexion | Jinko Solar"; }, []);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

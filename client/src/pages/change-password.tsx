@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +10,7 @@ const GREEN = "#3db51d";
 export default function ChangePasswordPage() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  useEffect(() => { document.title = "Sécurité | Jinko Solar"; }, []);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

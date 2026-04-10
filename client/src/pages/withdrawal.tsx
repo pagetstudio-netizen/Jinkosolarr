@@ -29,6 +29,7 @@ interface UserProduct {
 export default function WithdrawalPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
+  useEffect(() => { document.title = "Retrait | Jinko Solar"; }, []);
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number | "">("");
   const [selectedWallet, setSelectedWallet] = useState<WalletData | null>(null);

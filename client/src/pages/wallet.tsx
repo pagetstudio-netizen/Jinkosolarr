@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -22,6 +22,7 @@ type WalletForm = z.infer<typeof walletSchema>;
 export default function WalletPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  useEffect(() => { document.title = "Portefeuille | Jinko Solar"; }, []);
   const [, navigate] = useLocation();
   const searchString = useSearch();
   const params = new URLSearchParams(searchString);

@@ -41,6 +41,7 @@ export default function HomePage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [location, navigate] = useLocation();
+  useEffect(() => { document.title = "Accueil | Jinko Solar"; }, []);
   const [showPopup, setShowPopup] = useState(true);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showContactSheet, setShowContactSheet] = useState(false);

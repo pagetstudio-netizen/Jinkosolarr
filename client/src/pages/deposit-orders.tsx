@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
@@ -27,6 +28,7 @@ function formatDate(iso: string) {
 }
 
 export default function DepositOrdersPage() {
+  useEffect(() => { document.title = "Historique des dépôts | Jinko Solar"; }, []);
   const { user } = useAuth();
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";

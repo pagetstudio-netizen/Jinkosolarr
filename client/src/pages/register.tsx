@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useSearch } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,6 +38,7 @@ const INPUT_STYLE: React.CSSProperties = {
 export default function RegisterPage() {
   const [, navigate] = useLocation();
   const searchString = useSearch();
+  useEffect(() => { document.title = "Inscription | Jinko Solar"; }, []);
   const { register } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);

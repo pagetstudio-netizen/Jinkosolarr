@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import ContactSheet from "@/components/contact-sheet";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -24,6 +24,7 @@ export default function InvestPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  useEffect(() => { document.title = "Investir | Jinko Solar"; }, []);
   const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
   const [showContactSheet, setShowContactSheet] = useState(false);
 
