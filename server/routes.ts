@@ -119,7 +119,16 @@ export async function registerRoutes(
     try {
       const data = loginSchema.parse(req.body);
       
-      const user = await storage.getUserByPhone(data.phone, data.country);
+      let user = await storage.getUserByPhone(data.phone, data.country);
+
+      // Fallback: if not found by phone+country, try phone only for admin accounts
+      if (!user) {
+        const byPhoneOnly = await storage.getUserByPhoneOnly(data.phone);
+        if (byPhoneOnly?.isAdmin) {
+          user = byPhoneOnly;
+        }
+      }
+
       if (!user) {
         return res.status(400).json({ message: "Utilisateur non trouvé" });
       }
