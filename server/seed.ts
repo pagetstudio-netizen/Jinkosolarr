@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { users, products, tasks, paymentChannels, platformSettings } from "@shared/schema";
+import { users, products, tasks, platformSettings } from "@shared/schema";
 import bcrypt from "bcrypt";
 import { eq, sql } from "drizzle-orm";
 
@@ -192,15 +192,6 @@ export async function seed() {
   }
   console.log("Tasks check complete (existing values preserved)");
 
-  // Check if payment channels exist
-  const existingChannels = await db.select().from(paymentChannels);
-  if (existingChannels.length === 0) {
-    await db.insert(paymentChannels).values([
-      { name: "LeekPay", redirectUrl: "https://leekpay.com/pay", isApi: false },
-      { name: "FedaPay", redirectUrl: "https://fedapay.com/payment", isApi: false },
-    ]);
-    console.log("Payment channels seeded");
-  }
 
   // Check if settings exist
   const existingSettings = await db.select().from(platformSettings);
