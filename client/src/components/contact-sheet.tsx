@@ -1,14 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, X } from "lucide-react";
-import { SiTelegram } from "react-icons/si";
+import telegramIcon from "@assets/telegram-6896827_1280_1775837360062.png";
 
 interface ContactSheetProps {
   open: boolean;
   onClose: () => void;
 }
 
-const TELEGRAM_BLUE = "#229ED9";
-const GREEN = "#3db51d";
 
 export default function ContactSheet({ open, onClose }: ContactSheetProps) {
   const { data: settings } = useQuery<{
@@ -87,11 +85,8 @@ export default function ContactSheet({ open, onClose }: ContactSheetProps) {
               style={{ border: "1px solid #f0f0f0" }}
               data-testid={item.testId}
             >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: TELEGRAM_BLUE }}
-              >
-                <SiTelegram className="w-6 h-6 text-white" />
+              <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0">
+                <img src={telegramIcon} alt="Telegram" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-800 text-sm">{item.label}</p>
