@@ -101,7 +101,7 @@ export default function LoginPage() {
       </div>
 
       {/* ── White form card ── */}
-      <div style={{ flex: 1, background: "white", borderRadius: "28px 28px 0 0", marginTop: -26, padding: "30px 20px 20px", overflowY: "auto" }}>
+      <div style={{ flex: 1, background: "white", borderRadius: "16px 16px 0 0", marginTop: -14, padding: "28px 20px 20px", overflowY: "auto" }}>
 
         <form onSubmit={form.handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
