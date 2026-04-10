@@ -42,6 +42,9 @@ const settingsSchema = z.object({
   omnipayEnabled: z.string(),
   omnipayChannelName: z.string().min(1, "Nom requis"),
   omnipayCallbackKey: z.string(),
+  ashtechpayEnabled: z.string(),
+  ashtechpayApiKey: z.string(),
+  ashtechpayChannelName: z.string().min(1, "Nom requis"),
   congoPaymentLink: z.string().min(5, "Lien requis"),
 });
 
@@ -78,6 +81,9 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       omnipayEnabled: "false",
       omnipayChannelName: "OmniPay",
       omnipayCallbackKey: "",
+      ashtechpayEnabled: "false",
+      ashtechpayApiKey: "",
+      ashtechpayChannelName: "AshtechPay",
       congoPaymentLink: "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
     },
   });
@@ -102,6 +108,9 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         omnipayEnabled: settings.omnipayEnabled || "false",
         omnipayChannelName: settings.omnipayChannelName || "OmniPay",
         omnipayCallbackKey: settings.omnipayCallbackKey || "",
+        ashtechpayEnabled: settings.ashtechpayEnabled || "false",
+        ashtechpayApiKey: settings.ashtechpayApiKey || "",
+        ashtechpayChannelName: settings.ashtechpayChannelName || "AshtechPay",
         congoPaymentLink: settings.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
       });
     }
@@ -425,6 +434,66 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                   </FormControl>
                   <FormDescription>
                     URL webhook a configurer sur OmniPay : <strong>https://wendysapp.sbs/api/webhooks/omnipay</strong>
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Zap className="w-5 h-5 text-green-600" />
+              Paiement automatique (AshtechPay)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="ashtechpayEnabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Activer AshtechPay</FormLabel>
+                    <FormDescription>Permet les dépôts automatiques via AshtechPay (MTN, Moov, Orange, Wave)</FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value === "true"}
+                      onCheckedChange={(checked) => field.onChange(checked ? "true" : "false")}
+                      data-testid="switch-ashtechpay"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="ashtechpayChannelName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nom du canal (affiché aux utilisateurs)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Ex: Mobile Money" />
+                  </FormControl>
+                  <FormDescription>Ce nom apparaît comme option de recharge sur la page dépôt.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="ashtechpayApiKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Clé API AshtechPay</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" placeholder="Bearer token fourni par AshtechPay" />
+                  </FormControl>
+                  <FormDescription>
+                    URL webhook à configurer : <strong>{typeof window !== "undefined" ? window.location.origin : ""}/api/webhooks/ashtechpay</strong>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

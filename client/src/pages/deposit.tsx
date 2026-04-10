@@ -160,6 +160,13 @@ export default function DepositPage() {
       toast({ title: "Montant invalide", description: `Le minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`, variant: "destructive" });
       return;
     }
+
+    // AshtechPay: redirect to dedicated payment page
+    if (selectedChannel?.gateway === "ashtechpay") {
+      navigate(`/pay?amount=${amount}&country=${userCountry}`);
+      return;
+    }
+
     if (!accountNumber.trim()) {
       toast({ title: "Numéro requis", description: "Veuillez entrer votre numéro Mobile Money", variant: "destructive" });
       return;
@@ -338,20 +345,29 @@ export default function DepositPage() {
           />
         </div>
 
-        {/* Phone number */}
-        <div className="flex items-center gap-3 border-b border-gray-100 py-3">
-          <input
-            type="tel"
-            value={accountNumber}
-            onChange={(e) => setAccountNumber(e.target.value)}
-            placeholder={`Numéro ${selectedChannel?.name || "Mobile Money"}`}
-            className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
-            data-testid="input-account-number"
-          />
-        </div>
+        {/* AshtechPay info banner */}
+        {selectedChannel?.gateway === "ashtechpay" && (
+          <div className="my-3 rounded-xl px-4 py-3 text-sm text-green-800" style={{ background: "#3db51d20" }}>
+            Vous serez redirigé vers notre page de paiement sécurisée pour choisir votre opérateur et finaliser le paiement.
+          </div>
+        )}
+
+        {/* Phone number — hidden for AshtechPay */}
+        {selectedChannel?.gateway !== "ashtechpay" && (
+          <div className="flex items-center gap-3 border-b border-gray-100 py-3">
+            <input
+              type="tel"
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+              placeholder={`Numéro ${selectedChannel?.name || "Mobile Money"}`}
+              className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
+              data-testid="input-account-number"
+            />
+          </div>
+        )}
 
         {/* Operator picker — shown if channel name doesn't match a single operator */}
-        {operators.length > 1 && (
+        {selectedChannel?.gateway !== "ashtechpay" && operators.length > 1 && (
           <div className="border-b border-gray-100 py-3">
             <button
               onClick={() => setShowOperatorPicker(true)}
@@ -365,7 +381,7 @@ export default function DepositPage() {
         )}
 
         {/* OTP field */}
-        {showOtpField && (
+        {selectedChannel?.gateway !== "ashtechpay" && showOtpField && (
           <div className="space-y-2 pt-1">
             {user?.country === "BF" && (
               <div className="bg-orange-50 rounded-xl px-4 py-3">
@@ -408,6 +424,8 @@ export default function DepositPage() {
               <Loader2 className="w-5 h-5 animate-spin" />
               Envoi en cours...
             </span>
+          ) : selectedChannel?.gateway === "ashtechpay" ? (
+            "Continuer vers le paiement →"
           ) : (
             "Déposez maintenant"
           )}

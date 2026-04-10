@@ -213,6 +213,9 @@ export async function seed() {
     { key: "omnipayEnabled", value: "false" },
     { key: "omnipayChannelName", value: "OmniPay" },
     { key: "omnipayCallbackKey", value: "" },
+    { key: "ashtechpayEnabled", value: "false" },
+    { key: "ashtechpayApiKey", value: "" },
+    { key: "ashtechpayChannelName", value: "AshtechPay" },
   ];
 
   for (const settingData of requiredSettings) {

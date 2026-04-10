@@ -22,6 +22,7 @@ import {
   verifyOmnipaySignature,
   isOmnipaySupported,
 } from "./omnipay";
+import * as ashtech from "./ashtechpay";
 
 declare module "express-session" {
   interface SessionData {
@@ -421,6 +422,8 @@ export async function registerRoutes(
       const soleaspayChannelName = settings.soleaspayChannelName || "Westpay";
       const omnipayEnabled = settings.omnipayEnabled === "true";
       const omnipayChannelName = settings.omnipayChannelName || "OmniPay";
+      const ashtechpayEnabled = settings.ashtechpayEnabled === "true";
+      const ashtechpayChannelName = settings.ashtechpayChannelName || "AshtechPay";
 
       // Build virtual gateway channels when enabled in settings
       const virtualChannels: any[] = [];
@@ -442,6 +445,16 @@ export async function registerRoutes(
           isApi: true,
           isActive: true,
           gateway: "omnipay",
+        });
+      }
+      if (ashtechpayEnabled) {
+        virtualChannels.push({
+          id: -3,
+          name: ashtechpayChannelName,
+          redirectUrl: "",
+          isApi: true,
+          isActive: true,
+          gateway: "ashtechpay",
         });
       }
 
@@ -797,6 +810,159 @@ export async function registerRoutes(
       res.status(500).send("error");
     }
   });
+
+  // ─── AshtechPay ───────────────────────────────────────────────────
+
+  // Get operators for a country
+  app.get("/api/ashtechpay/operators", requireAuth, async (req, res) => {
+    try {
+      const { country } = req.query;
+      const operators = ashtech.ASHTECH_OPERATORS[country as string] || [];
+      const currency = ashtech.ASHTECH_CURRENCIES[country as string] || "XOF";
+      res.json({ operators, currency });
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
+  });
+
+  // Initiate AshtechPay payment (called from /pay page)
+  app.post("/api/ashtechpay/initiate", requireAuth, async (req, res) => {
+    try {
+      const settings = await storage.getSettings();
+      const apiKey = settings.ashtechpayApiKey || "";
+      const enabled = settings.ashtechpayEnabled === "true";
+      if (!enabled || !apiKey) return res.status(400).json({ message: "AshtechPay non configuré" });
+
+      const { amount, phone, operator, country_code, otp } = req.body;
+      if (!amount || !phone || !operator || !country_code) {
+        return res.status(400).json({ message: "Champs requis: amount, phone, operator, country_code" });
+      }
+
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(401).json({ message: "Non authentifié" });
+
+      const minDeposit = parseInt(settings.minDeposit || "3500");
+      if (amount < minDeposit) return res.status(400).json({ message: `Montant minimum: ${minDeposit} FCFA` });
+
+      const currency = ashtech.ASHTECH_CURRENCIES[country_code] || "XOF";
+      const reference = `JINKO-${user.id}-${Date.now()}`;
+      const webhookUrl = `${req.protocol}://${req.get("host")}/api/webhooks/ashtechpay`;
+
+      // Create a pending deposit record
+      const deposit = await storage.createDeposit({
+        userId: user.id,
+        amount,
+        accountName: user.fullName,
+        accountNumber: phone,
+        country: country_code,
+        paymentMethod: operator,
+        status: "processing",
+        ashtechpayReference: reference,
+      });
+
+      const { httpStatus, data } = await ashtech.initiatePayment(apiKey, {
+        amount, currency, phone, operator, country_code,
+        reference,
+        otp: otp || undefined,
+        notify_url: webhookUrl,
+      });
+
+      const flow = ashtech.detectFlow(httpStatus, data);
+
+      if (!flow) {
+        await storage.updateDeposit(deposit.id, { status: "rejected" });
+        return res.status(400).json({ message: data.message || "Paiement refusé par l'opérateur" });
+      }
+
+      // Save transaction id if available
+      if (data.transaction_id) {
+        await storage.updateDeposit(deposit.id, { ashtechpayTransactionId: data.transaction_id });
+      }
+
+      return res.json({
+        depositId: deposit.id,
+        flow,
+        waveUrl: data.wave_url || null,
+        ussdCode: data.ussd_code || null,
+        transactionId: data.transaction_id || null,
+        otpRequired: flow === "otp_sms" || flow === "otp_ussd",
+      });
+    } catch (e: any) {
+      console.error("[ashtechpay] initiate error:", e);
+      res.status(500).json({ message: e.message });
+    }
+  });
+
+  // Check deposit status (polling)
+  app.get("/api/ashtechpay/deposit/:id/status", requireAuth, async (req, res) => {
+    try {
+      const deposit = await storage.getDeposit(parseInt(req.params.id));
+      if (!deposit || deposit.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Dépôt introuvable" });
+      }
+
+      if (deposit.status === "approved") return res.json({ status: "approved" });
+      if (deposit.status === "rejected") return res.json({ status: "rejected" });
+
+      if (deposit.ashtechpayTransactionId) {
+        const settings = await storage.getSettings();
+        const apiKey = settings.ashtechpayApiKey || "";
+        const txStatus = await ashtech.getTransactionStatus(apiKey, deposit.ashtechpayTransactionId);
+
+        if (txStatus.status === "success") {
+          await storage.updateDeposit(deposit.id, { status: "approved", processedAt: new Date() });
+          const user = await storage.getUser(deposit.userId);
+          if (user) {
+            const newBalance = parseFloat(user.balance) + deposit.amount;
+            await storage.updateUser(user.id, { balance: newBalance.toFixed(2), hasDeposited: true });
+            await storage.processDepositReferralCommissions(user.id, deposit.amount);
+          }
+          return res.json({ status: "approved" });
+        } else if (txStatus.status === "failed") {
+          await storage.updateDeposit(deposit.id, { status: "rejected", processedAt: new Date() });
+          return res.json({ status: "rejected" });
+        }
+      }
+
+      res.json({ status: "processing" });
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
+  });
+
+  // AshtechPay webhook
+  app.post("/api/webhooks/ashtechpay", async (req, res) => {
+    res.status(200).json({ received: true });
+    try {
+      const { event, transaction_id, reference, status } = req.body;
+      if (!reference) return;
+
+      const deposits = await storage.getDeposits();
+      const deposit = deposits.find((d: any) => d.ashtechpayReference === reference);
+      if (!deposit) return;
+      if (deposit.status === "approved" || deposit.status === "rejected") return;
+
+      if (event === "payment.completed" || status === "completed") {
+        await storage.updateDeposit(deposit.id, {
+          status: "approved",
+          ashtechpayTransactionId: transaction_id,
+          processedAt: new Date(),
+        });
+        const user = await storage.getUser(deposit.userId);
+        if (user) {
+          const newBalance = parseFloat(user.balance) + deposit.amount;
+          await storage.updateUser(user.id, { balance: newBalance.toFixed(2), hasDeposited: true });
+          await storage.processDepositReferralCommissions(user.id, deposit.amount);
+        }
+      } else if (event === "payment.failed" || status === "failed") {
+        await storage.updateDeposit(deposit.id, { status: "rejected", processedAt: new Date() });
+      }
+    } catch (e: any) {
+      console.error("[ashtechpay] webhook error:", e);
+    }
+  });
+
+  // ─── End AshtechPay ───────────────────────────────────────────────
 
   // Withdrawals
   app.post("/api/withdrawals", requireAuth, async (req, res) => {

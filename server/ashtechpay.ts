@@ -1,0 +1,82 @@
+const BASE_URL = "https://ashtechpay.top";
+
+export const ASHTECH_CURRENCIES: Record<string, string> = {
+  BJ: "XOF", CI: "XOF", BF: "XOF", TG: "XOF", SN: "XOF", ML: "XOF",
+  GW: "XOF", GN: "GNF", CM: "XAF", CF: "XAF", CG: "XAF", GA: "XAF",
+  GQ: "XAF", TD: "XAF", NE: "XOF", CD: "CDF",
+};
+
+export const ASHTECH_OPERATORS: Record<string, string[]> = {
+  BJ: ["Moov Money", "MTN Mobile Money"],
+  CM: ["MTN Mobile Money", "Orange Money"],
+  BF: ["Moov Money", "Orange Money"],
+  CI: ["Moov Money", "MTN Mobile Money", "Orange Money", "Wave"],
+  TG: ["Flooz (Moov)", "T-Money"],
+  CG: ["MTN Mobile Money"],
+};
+
+export type AshtechFlowType = "ussd_push" | "otp_sms" | "otp_ussd" | "wave";
+
+export interface AshtechInitiateResult {
+  flow: AshtechFlowType;
+  transactionId: string;
+  waveUrl?: string;
+  ussdCode?: string;
+  status: string;
+  amount: number;
+  creditedAmount: number;
+}
+
+export interface AshtechPaymentParams {
+  amount: number;
+  currency: string;
+  phone: string;
+  operator: string;
+  country_code: string;
+  reference?: string;
+  otp?: string;
+  notify_url?: string;
+}
+
+export async function initiatePayment(
+  apiKey: string,
+  params: AshtechPaymentParams
+): Promise<{ httpStatus: number; data: any }> {
+  const res = await fetch(`${BASE_URL}/v1/collect`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+  const data = await res.json();
+  return { httpStatus: res.status, data };
+}
+
+export async function getTransactionStatus(
+  apiKey: string,
+  transactionId: string
+): Promise<any> {
+  const res = await fetch(`${BASE_URL}/v1/transaction/${transactionId}`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+  return res.json();
+}
+
+export async function getCountries(apiKey: string): Promise<any[]> {
+  const res = await fetch(`${BASE_URL}/v1/countries`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export function detectFlow(httpStatus: number, data: any): AshtechFlowType | null {
+  if (httpStatus === 202 && data.flow === "wave") return "wave";
+  if (httpStatus === 202) return "ussd_push";
+  if (httpStatus === 400 && data.error === "otp_required") {
+    return data.ussd_code ? "otp_ussd" : "otp_sms";
+  }
+  return null;
+}

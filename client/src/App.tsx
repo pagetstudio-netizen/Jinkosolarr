@@ -35,6 +35,7 @@ import DepositOrdersPage from "@/pages/deposit-orders";
 import ProductDetailPage from "@/pages/product-detail";
 import InfoPage from "@/pages/info";
 import InfoDetailPage from "@/pages/info-detail";
+import PayPage from "@/pages/pay";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -192,6 +193,11 @@ function Router() {
       <Route path="/deposit">
         <ProtectedRoute>
           <DepositPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/pay">
+        <ProtectedRoute>
+          <PayPage />
         </ProtectedRoute>
       </Route>
       <Route path="/withdrawal">
