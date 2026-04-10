@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
-import { Loader2, Shield, ChevronRight, Copy, Settings, LogOut, MessageCircleMore } from "lucide-react";
+import { Loader2, Shield, ChevronRight, Copy, Settings, MessageCircleMore } from "lucide-react";
 import { useState } from "react";
 import ContactSheet from "@/components/contact-sheet";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -14,8 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 
 import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
 import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
-import iconDeposit from "@assets/20260312_105135_1773312869115.png";
-import iconWithdraw from "@assets/20260312_105153_1773312869170.png";
+import iconDeposit from "@assets/20260410_193219_1775849744533.png";
+import iconWithdraw from "@assets/20260410_192847_1775849812824.png";
+import iconLogout from "@assets/20260410_193432_1775849812759.png";
 import iconSecurite from "@assets/20260312_105239_1773312869222.png";
 
 const GREEN = "#3db51d";
@@ -255,8 +256,8 @@ export default function AccountPage() {
             data-testid="button-logout"
           >
             <div className="w-9 h-9 rounded-xl flex items-center justify-center mr-3 shrink-0"
-              style={{ background: "#fff0f0" }}>
-              <LogOut className="w-5 h-5 text-red-400" />
+              style={{ background: "#f5f5f5" }}>
+              <img src={iconLogout} alt="" className="w-5 h-5 object-contain" />
             </div>
             <span className="flex-1 text-gray-800 font-medium text-sm">Déconnexion</span>
             <ChevronRight className="w-4 h-4 text-gray-300" />
