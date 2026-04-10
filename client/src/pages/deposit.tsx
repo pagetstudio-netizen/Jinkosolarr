@@ -4,10 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
+import jinkoBg from "@assets/15502488526db98c02ac135d0ac0e262d31dee111d_1775833317804.jpg";
 
 const GREEN = "#3db51d";
-
-/* 3 montants prédéfinis — exactement comme la capture */
 const PRESET_AMOUNTS = [3500, 8000, 15000];
 
 export default function DepositPage() {
@@ -36,120 +35,98 @@ export default function DepositPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: GREEN, overflowX: "hidden" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5f5f5", overflowX: "hidden" }}>
 
-      {/* ── En-tête sur fond vert ── */}
+      {/* ── Zone image : en-tête + carte ── */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "40px 16px 16px",
+          backgroundImage: `url(${jinkoBg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          paddingBottom: 32,
         }}
       >
-        <button onClick={() => navigate("/")} data-testid="button-back" style={{ padding: 4 }}>
-          <ChevronLeft style={{ width: 24, height: 24, color: "white" }} />
-        </button>
-        <h1 style={{ fontSize: 18, fontWeight: 700, color: "white", margin: 0 }}>Recharger</h1>
-        <Link href="/deposit-orders">
-          <button data-testid="button-history" style={{ padding: 4 }}>
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-              <rect x="3" y="4" width="18" height="3" rx="1.5" fill="white" />
-              <rect x="3" y="10.5" width="18" height="3" rx="1.5" fill="white" />
-              <rect x="3" y="17" width="18" height="3" rx="1.5" fill="white" />
-            </svg>
+        {/* En-tête */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "40px 16px 16px" }}>
+          <button onClick={() => navigate("/")} data-testid="button-back" style={{ padding: 4 }}>
+            <ChevronLeft style={{ width: 24, height: 24, color: "white" }} />
           </button>
-        </Link>
-      </div>
-
-      {/* ── Carte blanche ── */}
-      <div
-        style={{
-          width: "calc(100% - 16px)",
-          marginLeft: 16,
-          marginRight: 0,
-          boxSizing: "border-box",
-          background: "white",
-          borderRadius: "24px 0 0 24px",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
-          padding: "20px 16px 20px",
-        }}
-      >
-        {/* 3 boutons prédéfinis */}
-        <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
-          {PRESET_AMOUNTS.map((p) => (
-            <button
-              key={p}
-              onClick={() => setAmount(p)}
-              data-testid={`button-preset-${p}`}
-              style={{
-                flex: "0 0 auto",
-                height: 36,
-                paddingLeft: 14,
-                paddingRight: 14,
-                borderRadius: 8,
-                border: `1.5px solid ${amount === p ? GREEN : "#d1d5db"}`,
-                background: amount === p ? GREEN : "white",
-                color: amount === p ? "white" : "#374151",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {p.toLocaleString()}
+          <h1 style={{ fontSize: 18, fontWeight: 700, color: "white", margin: 0 }}>Recharger</h1>
+          <Link href="/deposit-orders">
+            <button data-testid="button-history" style={{ padding: 4 }}>
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="3" rx="1.5" fill="white" />
+                <rect x="3" y="10.5" width="18" height="3" rx="1.5" fill="white" />
+                <rect x="3" y="17" width="18" height="3" rx="1.5" fill="white" />
+              </svg>
             </button>
-          ))}
+          </Link>
         </div>
 
-        {/* Label vert */}
-        <p style={{ fontSize: 13, color: GREEN, marginBottom: 10 }}>
-          Veuillez saisir le montant de recharge
-        </p>
-
-        {/* Champ montant — fin */}
+        {/* Carte blanche */}
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            border: "1.5px solid #e5e7eb",
-            borderRadius: 10,
-            padding: "10px 14px",
+            width: "calc(100% - 16px)",
+            marginLeft: 16,
+            marginRight: 0,
+            boxSizing: "border-box" as const,
+            background: "white",
+            borderRadius: "24px 0 0 24px",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
+            padding: "20px 16px 20px",
           }}
         >
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-            placeholder={MIN_DEPOSIT.toLocaleString()}
-            data-testid="input-deposit-amount"
-            style={{
-              flex: 1,
-              fontSize: 16,
-              color: "#6b7280",
-              border: "none",
-              outline: "none",
-              background: "transparent",
-            }}
-          />
-          <span style={{ fontSize: 15, color: "#9ca3af", fontWeight: 600, marginLeft: 8 }}>
-            {currency}
-          </span>
+          {/* 3 boutons montants */}
+          <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+            {PRESET_AMOUNTS.map((p) => (
+              <button
+                key={p}
+                onClick={() => setAmount(p)}
+                data-testid={`button-preset-${p}`}
+                style={{
+                  flex: "0 0 auto",
+                  height: 36,
+                  paddingLeft: 14,
+                  paddingRight: 14,
+                  borderRadius: 8,
+                  border: `1.5px solid ${amount === p ? GREEN : "#d1d5db"}`,
+                  background: amount === p ? GREEN : "white",
+                  color: amount === p ? "white" : "#374151",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap" as const,
+                }}
+              >
+                {p.toLocaleString()}
+              </button>
+            ))}
+          </div>
+
+          {/* Label */}
+          <p style={{ fontSize: 13, color: GREEN, marginBottom: 10, margin: "0 0 10px 0" }}>
+            Veuillez saisir le montant de recharge
+          </p>
+
+          {/* Champ montant */}
+          <div style={{ display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "10px 14px" }}>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
+              placeholder={MIN_DEPOSIT.toLocaleString()}
+              data-testid="input-deposit-amount"
+              style={{ flex: 1, fontSize: 16, color: "#6b7280", border: "none", outline: "none", background: "transparent" }}
+            />
+            <span style={{ fontSize: 15, color: "#9ca3af", fontWeight: 600, marginLeft: 8 }}>{currency}</span>
+          </div>
         </div>
       </div>
 
-      {/* ── Espace vert entre la carte et la zone grise ── */}
-      <div style={{ height: 32 }} />
+      {/* ── Zone grise : bouton + instructions ── */}
+      <div style={{ flex: 1, background: "#f5f5f5", padding: "24px 20px 40px" }}>
 
-      {/* ── Zone gris : bouton + instructions ── */}
-      <div
-        style={{
-          flex: 1,
-          background: "#f5f5f5",
-          padding: "24px 20px 40px",
-        }}
-      >
-        {/* Bouton Recharger maintenant — pill centré, sur fond gris */}
+        {/* Bouton Recharger maintenant */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
           <button
             onClick={handleRecharge}
@@ -171,33 +148,20 @@ export default function DepositPage() {
           </button>
         </div>
 
+        {/* Instructions */}
         <p style={{ fontWeight: 700, fontSize: 14, color: "#111827", marginBottom: 16 }}>
           💳 Instructions de Recharge :
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {[
-            {
-              bold: "Montant minimum de recharge :",
-              text: ` ${MIN_DEPOSIT.toLocaleString()} ${currency}`,
-            },
-            {
-              bold: "Vérifiez attentivement vos informations de compte",
-              text: " lors du virement pour éviter toute erreur de paiement",
-            },
-            {
-              bold: "Chaque commande possède ses propres informations de paiement",
-              text: " ; ne réutilisez pas les informations précédentes pour un second paiement",
-            },
-            {
-              bold: "Après un virement réussi",
-              text: ", veuillez patienter 10 à 30 minutes. Si le montant n'est pas crédité après ce délai, contactez le service client.",
-            },
+            { bold: "Montant minimum de recharge :", text: ` ${MIN_DEPOSIT.toLocaleString()} ${currency}` },
+            { bold: "Vérifiez attentivement vos informations de compte", text: " lors du virement pour éviter toute erreur de paiement" },
+            { bold: "Chaque commande possède ses propres informations de paiement", text: " ; ne réutilisez pas les informations précédentes pour un second paiement" },
+            { bold: "Après un virement réussi", text: ", veuillez patienter 10 à 30 minutes. Si le montant n'est pas crédité après ce délai, contactez le service client." },
           ].map((item, i) => (
             <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-              <span style={{ color: "#1565C0", fontWeight: 700, fontSize: 14, marginTop: 1, flexShrink: 0 }}>
-                ◆
-              </span>
+              <span style={{ color: "#1565C0", fontWeight: 700, fontSize: 14, marginTop: 1, flexShrink: 0 }}>◆</span>
               <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>
                 <span style={{ fontWeight: 700 }}>{item.bold}</span>
                 {item.text}
