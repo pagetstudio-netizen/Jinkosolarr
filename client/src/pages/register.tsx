@@ -7,22 +7,33 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
-import { Loader2, Eye, EyeOff, Lock, QrCode, ChevronDown } from "lucide-react";
+import { Loader2, Eye, EyeOff, ChevronDown, QrCode } from "lucide-react";
+import authBg from "@assets/auth_bg_solar.png";
 import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
-import bgImage from "@assets/20260312_184552_1773341347211.jpg";
 
 const registerSchema = z.object({
-  phone: z.string().min(8, "Numéro de téléphone invalide"),
+  phone: z.string().min(8, "Numéro invalide"),
   country: z.string().min(2, "Sélectionnez un pays"),
   password: z.string().min(6, "Au moins 6 caractères"),
   confirmPassword: z.string().min(1, "Confirmez le mot de passe"),
   invitationCode: z.string().optional(),
-}).refine((data) => data.password === data.confirmPassword, {
+}).refine(d => d.password === d.confirmPassword, {
   message: "Les mots de passe ne correspondent pas",
   path: ["confirmPassword"],
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
+
+const INPUT_STYLE: React.CSSProperties = {
+  background: "rgba(30,30,30,0.75)",
+  border: "1px solid rgba(255,255,255,0.13)",
+  borderRadius: 14,
+  height: 52,
+  color: "white",
+  display: "flex",
+  alignItems: "center",
+  overflow: "hidden",
+};
 
 export default function RegisterPage() {
   const [, navigate] = useLocation();
@@ -31,7 +42,7 @@ export default function RegisterPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
 
   const params = new URLSearchParams(searchString);
@@ -63,8 +74,8 @@ export default function RegisterPage() {
       });
       toast({ title: "Inscription réussie !", description: "Bienvenue sur Jinko Solar !" });
       navigate("/");
-    } catch (error: any) {
-      toast({ title: "Erreur d'inscription", description: error.message || "Une erreur est survenue", variant: "destructive" });
+    } catch (e: any) {
+      toast({ title: "Erreur d'inscription", description: e.message || "Une erreur est survenue", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -72,110 +83,134 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col overflow-hidden"
-      style={{ backgroundImage: `url(${bgImage})`, backgroundSize: "cover", backgroundPosition: "center" }}
+      className="min-h-screen flex flex-col"
+      style={{
+        backgroundImage: `url(${authBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        position: "relative",
+      }}
     >
-      <div className="relative z-10 flex flex-col flex-1 px-6 pt-10 pb-6 overflow-y-auto">
+      {/* Dark overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.52)", zIndex: 0 }} />
 
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-7">
-          <div className="rounded-2xl bg-white shadow-xl flex items-center justify-center overflow-hidden mb-2" style={{ width: 68, height: 68 }}>
+      <div className="relative z-10 flex flex-col flex-1 px-6 pt-14 pb-10 overflow-y-auto">
+
+        {/* Logo + Title */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden mb-4 shadow-xl backdrop-blur">
             <img src={jinkoLogo} alt="Jinko Solar" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-xl font-extrabold drop-shadow-sm">
-            <span style={{ color: "#3db51d" }}>Jinko</span>
-            <span style={{ color: "#c8a028" }}> Solar</span>
-          </h1>
+          <h1 className="text-3xl font-extrabold text-white tracking-wide drop-shadow-lg">Jinko Solar</h1>
+        </div>
+
+        {/* Tab switcher */}
+        <div
+          className="flex rounded-full p-1 mb-6"
+          style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+        >
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="flex-1 py-2.5 rounded-full font-semibold text-sm transition-all"
+            style={{ color: "rgba(255,255,255,0.6)" }}
+            data-testid="tab-login"
+          >
+            Se connecter
+          </button>
+          <button
+            type="button"
+            className="flex-1 py-2.5 rounded-full font-bold text-sm text-white transition-all"
+            style={{ background: "rgba(0,0,0,0.85)" }}
+            data-testid="tab-register"
+          >
+            S'inscrire
+          </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
 
-          {/* Mobile */}
+          {/* Phone */}
           <div>
-            <p className="text-gray-700 font-semibold text-sm mb-2">Mobile</p>
-            <div className="flex items-center bg-white border border-gray-200 rounded-2xl overflow-hidden h-14 shadow-sm">
+            <div style={INPUT_STYLE}>
               <button
                 type="button"
                 onClick={() => setCountryModalOpen(true)}
-                className="flex items-center gap-1 pl-4 pr-3 h-full border-r border-gray-200 shrink-0"
+                className="flex items-center gap-1 px-4 h-full shrink-0"
+                style={{ borderRight: "1px solid rgba(255,255,255,0.1)" }}
                 data-testid="button-select-country"
               >
-                <span className="text-gray-700 font-bold text-base">
+                <span className="text-white font-bold text-sm">
                   {countryData ? `+${countryData.phonePrefix}` : "+"}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
+                <ChevronDown className="w-4 h-4 text-white/60" />
               </button>
               <input
                 {...form.register("phone")}
                 type="tel"
-                placeholder="Mobile"
-                className="flex-1 bg-transparent px-4 text-gray-800 placeholder:text-gray-400 text-base outline-none"
+                placeholder="Numéro de téléphone"
+                className="flex-1 bg-transparent px-4 outline-none text-sm"
+                style={{ color: "white" }}
                 data-testid="input-phone"
               />
             </div>
             {form.formState.errors.phone && (
-              <p className="text-xs mt-1 font-medium" style={{ color: "#3db51d" }}>{form.formState.errors.phone.message}</p>
+              <p className="text-xs mt-1 text-yellow-400">{form.formState.errors.phone.message}</p>
             )}
           </div>
 
           {/* Password */}
           <div>
-            <p className="text-gray-700 font-semibold text-sm mb-2">Mot de passe</p>
-            <div className="flex items-center bg-white border border-gray-200 rounded-2xl h-14 shadow-sm">
-              <div className="pl-4 pr-3">
-                <Lock className="w-5 h-5 text-gray-400" />
-              </div>
+            <div style={INPUT_STYLE}>
               <input
                 {...form.register("password")}
                 type={showPassword ? "text" : "password"}
-                placeholder="Mot de passe"
-                className="flex-1 bg-transparent text-gray-800 placeholder:text-gray-400 text-base outline-none"
+                placeholder="Définir le mot de passe"
+                className="flex-1 bg-transparent px-4 outline-none text-sm"
+                style={{ color: "white" }}
                 data-testid="input-password"
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="pr-4 pl-2" data-testid="button-toggle-password">
-                {showPassword ? <EyeOff className="w-5 h-5 text-gray-400" /> : <Eye className="w-5 h-5 text-gray-400" />}
+                {showPassword ? <EyeOff className="w-4 h-4 text-white/50" /> : <Eye className="w-4 h-4 text-white/50" />}
               </button>
             </div>
             {form.formState.errors.password && (
-              <p className="text-xs mt-1 font-medium" style={{ color: "#3db51d" }}>{form.formState.errors.password.message}</p>
+              <p className="text-xs mt-1 text-yellow-400">{form.formState.errors.password.message}</p>
             )}
           </div>
 
           {/* Confirm password */}
           <div>
-            <p className="text-gray-700 font-semibold text-sm mb-2">Confirmer le mot de passe</p>
-            <div className="flex items-center bg-white border border-gray-200 rounded-2xl h-14 shadow-sm">
-              <div className="pl-4 pr-3">
-                <Lock className="w-5 h-5 text-gray-400" />
-              </div>
+            <div style={INPUT_STYLE}>
               <input
                 {...form.register("confirmPassword")}
-                type={showConfirmPassword ? "text" : "password"}
+                type={showConfirm ? "text" : "password"}
                 placeholder="Confirmer le mot de passe"
-                className="flex-1 bg-transparent text-gray-800 placeholder:text-gray-400 text-base outline-none"
+                className="flex-1 bg-transparent px-4 outline-none text-sm"
+                style={{ color: "white" }}
                 data-testid="input-confirm-password"
               />
-              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="pr-4 pl-2" data-testid="button-toggle-confirm-password">
-                {showConfirmPassword ? <EyeOff className="w-5 h-5 text-gray-400" /> : <Eye className="w-5 h-5 text-gray-400" />}
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="pr-4 pl-2" data-testid="button-toggle-confirm">
+                {showConfirm ? <EyeOff className="w-4 h-4 text-white/50" /> : <Eye className="w-4 h-4 text-white/50" />}
               </button>
             </div>
             {form.formState.errors.confirmPassword && (
-              <p className="text-xs mt-1 font-medium" style={{ color: "#3db51d" }}>{form.formState.errors.confirmPassword.message}</p>
+              <p className="text-xs mt-1 text-yellow-400">{form.formState.errors.confirmPassword.message}</p>
             )}
           </div>
 
           {/* Invitation code */}
           <div>
-            <p className="text-gray-700 font-semibold text-sm mb-2">Code d'invitation</p>
-            <div className="flex items-center bg-white border border-gray-200 rounded-2xl h-14 shadow-sm">
-              <div className="pl-4 pr-3">
-                <QrCode className="w-5 h-5 text-gray-400" />
+            <div style={INPUT_STYLE}>
+              <div className="pl-4 pr-3 flex items-center">
+                <QrCode className="w-4 h-4 text-white/40" />
               </div>
               <input
                 {...form.register("invitationCode")}
                 placeholder="Code d'invitation (optionnel)"
-                className="flex-1 bg-transparent text-gray-800 placeholder:text-gray-400 text-base outline-none"
+                className="flex-1 bg-transparent px-2 outline-none text-sm"
+                style={{ color: "white" }}
                 data-testid="input-invitation-code"
               />
             </div>
@@ -187,8 +222,8 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-14 rounded-full text-white font-bold text-lg shadow-lg disabled:opacity-50 mt-1"
-            style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
+            className="w-full h-14 rounded-full font-bold text-white text-base shadow-2xl disabled:opacity-50 mt-2"
+            style={{ background: "rgba(0,0,0,0.88)", border: "1px solid rgba(255,255,255,0.15)" }}
             data-testid="button-register"
           >
             {isLoading ? (
@@ -199,18 +234,6 @@ export default function RegisterPage() {
             ) : "S'inscrire"}
           </button>
 
-          {/* Link to login */}
-          <div className="text-center pt-1 pb-4">
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="font-semibold text-base"
-              style={{ color: "#3db51d" }}
-              data-testid="link-login"
-            >
-              Déjà un compte ? Se connecter maintenant
-            </button>
-          </div>
         </form>
       </div>
 
