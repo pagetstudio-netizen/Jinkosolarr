@@ -171,20 +171,17 @@ export default function LoginPage() {
 
             <input type="hidden" {...form.register("country")} />
 
-            {/* Remember + Forgot */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  data-testid="checkbox-remember"
-                  style={{ width: 16, height: 16, accentColor: GREEN }}
-                />
-                <span style={{ fontSize: 13, color: "#6b7280" }}>Souviens-toi</span>
-              </label>
-              <span style={{ fontSize: 13, color: "#6b7280" }}>Mot de passe oublié ?</span>
-            </div>
+            {/* Remember */}
+            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                data-testid="checkbox-remember"
+                style={{ width: 16, height: 16, accentColor: GREEN }}
+              />
+              <span style={{ fontSize: 13, color: "#6b7280" }}>Souviens-toi</span>
+            </label>
 
             {/* Bouton Se connecter */}
             <button
