@@ -36,7 +36,7 @@ export default function DepositPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: GREEN }}>
+    <div className="min-h-screen flex flex-col" style={{ background: GREEN, overflowX: "hidden" }}>
 
       {/* ── En-tête sur fond vert ── */}
       <div
@@ -65,7 +65,10 @@ export default function DepositPage() {
       {/* ── Carte blanche ── */}
       <div
         style={{
-          margin: "0 16px",
+          width: "calc(100% - 32px)",
+          marginLeft: 16,
+          marginRight: 16,
+          boxSizing: "border-box",
           background: "white",
           borderRadius: 24,
           boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
