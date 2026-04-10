@@ -133,6 +133,7 @@ export const paymentChannels = pgTable("payment_channels", {
   redirectUrl: text("redirect_url").notNull(),
   isApi: boolean("is_api").notNull().default(false),
   isActive: boolean("is_active").notNull().default(true),
+  countries: text("countries").array().default(sql`'{}'::text[]`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   modifiedBy: integer("modified_by"),
   modifiedAt: timestamp("modified_at"),

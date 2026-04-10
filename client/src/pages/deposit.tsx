@@ -3,15 +3,12 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, ChevronDown, Loader2, CheckCircle, XCircle, Clock, Wallet } from "lucide-react";
-import { Link } from "wouter";
-import { COUNTRIES, getCountryByCode } from "@/lib/countries";
+import { ChevronLeft, Loader2, CheckCircle, XCircle, Clock, ClipboardList } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { getCountryByCode } from "@/lib/countries";
+import type { PaymentChannel } from "@shared/schema";
 
-const PRESET_AMOUNTS = [3500, 5000, 10000, 20000, 50000, 100000, 250000, 500000];
-
-const COUNTRY_FLAGS: Record<string, string> = {
-  CM: "🇨🇲", BF: "🇧🇫", TG: "🇹🇬", BJ: "🇧🇯", CI: "🇨🇮", CG: "🇨🇬",
-};
+const PRESET_AMOUNTS = [3500, 8000, 15000, 35000, 80000, 150000, 300000, 500000];
 
 type PaymentStatus = "idle" | "processing" | "pending" | "approved" | "rejected";
 
@@ -22,49 +19,66 @@ interface DepositResponse {
   paymentUrl?: string;
 }
 
+// Channels augmented with virtual gateway entries
+interface Channel {
+  id: number;
+  name: string;
+  isActive: boolean;
+  gateway?: string | null;
+  countries?: string[] | null;
+}
+
 export default function DepositPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
+
+  // Step: "channel" | "form"
+  const [step, setStep] = useState<"channel" | "form">("channel");
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
 
   const [amount, setAmount] = useState<number | "">("");
-  const [selectedChannel, setSelectedChannel] = useState<number | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState(user?.country || "");
-  const [selectedOperator, setSelectedOperator] = useState("");
-  const [accountName, setAccountName] = useState(user?.fullName || "");
   const [accountNumber, setAccountNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
   const [showOperatorPicker, setShowOperatorPicker] = useState(false);
+  const [selectedOperator, setSelectedOperator] = useState("");
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  // OTP rules per country + operator
-  const isOrangeOperator = selectedOperator.toLowerCase().includes("orange");
-  const needsOtp = isOrangeOperator && (selectedCountry === "CI" || selectedCountry === "BF");
-  const otpAutoFilled = isOrangeOperator && selectedCountry === "CM"; // Cameroun: no OTP from user
-  const showOtpField = needsOtp && !otpAutoFilled;
-
-  const countryInfo = getCountryByCode(selectedCountry || user?.country || "");
+  const countryInfo = getCountryByCode(user?.country || "");
   const currency = countryInfo?.currency || "FCFA";
   const balance = parseFloat(user?.balance || "0");
   const operators = countryInfo?.paymentMethods || [];
 
-  // Reset operator and OTP when country changes
-  useEffect(() => { setSelectedOperator(""); setOtpCode(""); }, [selectedCountry]);
-  // Reset OTP when operator changes
-  useEffect(() => { setOtpCode(""); }, [selectedOperator]);
+  // OTP logic
+  const isOrangeOperator = (selectedChannel?.name || selectedOperator).toLowerCase().includes("orange");
+  const needsOtp = isOrangeOperator && (user?.country === "CI" || user?.country === "BF");
+  const otpAutoFilled = isOrangeOperator && user?.country === "CM";
+  const showOtpField = needsOtp && !otpAutoFilled;
 
-  const { data: paymentChannels = [] } = useQuery<{ id: number; name: string; isActive: boolean; gateway: string | null }[]>({
-    queryKey: ["/api/payment-channels"],
-  });
+  // Reset OTP when channel changes
+  useEffect(() => { setOtpCode(""); setSelectedOperator(""); }, [selectedChannel]);
 
   const { data: platformSettings } = useQuery<Record<string, string>>({
     queryKey: ["/api/settings"],
   });
   const MIN_DEPOSIT = parseInt(platformSettings?.minDeposit || "3500");
-  // Only use real (positive-id) channels as fallback for DB record
-  const defaultChannelId = paymentChannels.find(c => c.id > 0)?.id ?? null;
+
+  const { data: rawChannels = [] } = useQuery<Channel[]>({
+    queryKey: ["/api/payment-channels"],
+  });
+
+  // Filter channels by user's country
+  const userCountry = user?.country || "";
+  const availableChannels = rawChannels.filter((ch) => {
+    if (!ch.isActive) return false;
+    const countries = ch.countries as string[] | null;
+    // If no countries configured → show to all
+    if (!countries || countries.length === 0) return true;
+    return countries.includes(userCountry);
+  });
 
   useEffect(() => {
     return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
@@ -125,16 +139,20 @@ export default function DepositPage() {
     },
   });
 
-  const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
-
   const resetForm = () => {
     setAmount("");
     setSelectedChannel(null);
     setSelectedOperator("");
-    setAccountName(user?.fullName || "");
     setAccountNumber("");
+    setOtpCode("");
     setPaymentStatus("idle");
     setCurrentDepositId(null);
+    setStep("channel");
+  };
+
+  const handleSelectChannel = (ch: Channel) => {
+    setSelectedChannel(ch);
+    setStep("form");
   };
 
   const handleSubmit = () => {
@@ -142,20 +160,8 @@ export default function DepositPage() {
       toast({ title: "Montant invalide", description: `Le minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`, variant: "destructive" });
       return;
     }
-    if (!selectedCountry) {
-      toast({ title: "Pays requis", description: "Veuillez sélectionner votre pays", variant: "destructive" });
-      return;
-    }
-    if (!selectedOperator) {
-      toast({ title: "Opérateur requis", description: "Veuillez sélectionner votre opérateur", variant: "destructive" });
-      return;
-    }
-    if (!selectedChannel) {
-      toast({ title: "Canal requis", description: "Veuillez sélectionner un canal de recharge", variant: "destructive" });
-      return;
-    }
     if (!accountNumber.trim()) {
-      toast({ title: "Numéro requis", description: "Veuillez entrer votre numéro de téléphone", variant: "destructive" });
+      toast({ title: "Numéro requis", description: "Veuillez entrer votre numéro Mobile Money", variant: "destructive" });
       return;
     }
     if (showOtpField && !otpCode.trim()) {
@@ -163,161 +169,165 @@ export default function DepositPage() {
       return;
     }
 
+    const channelId = selectedChannel && selectedChannel.id > 0 ? selectedChannel.id : (rawChannels.find(c => c.id > 0)?.id ?? 1);
+    const operator = selectedOperator || selectedChannel?.name || operators[0] || "Mobile Money";
+
     setPaymentStatus("processing");
-    const chosenChannel = paymentChannels.find(c => c.id === selectedChannel);
-    // For virtual gateway channels (id < 0), use first real channel for DB record (or null)
-    const channelIdForRecord = selectedChannel && selectedChannel > 0 ? selectedChannel : defaultChannelId;
     depositMutation.mutate({
       amount: amount as number,
-      paymentMethod: selectedOperator,
-      accountName,
+      paymentMethod: operator,
+      accountName: user?.fullName || "",
       accountNumber,
-      country: selectedCountry,
-      paymentChannelId: channelIdForRecord,
-      useSoleaspay: chosenChannel?.gateway === "soleaspay",
-      useOmnipay: chosenChannel?.gateway === "omnipay",
+      country: userCountry,
+      paymentChannelId: channelId,
+      useSoleaspay: selectedChannel?.gateway === "soleaspay",
+      useOmnipay: selectedChannel?.gateway === "omnipay",
       otpCode: showOtpField ? otpCode.trim() : undefined,
     });
   };
 
   if (!user) return null;
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-
-      {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
-        <Link href="/account">
-          <button className="p-1" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-[#3db51d]" />
+  // ─── STEP 1: Channel Selection ────────────────────────────────────────────
+  if (step === "channel") {
+    return (
+      <div className="min-h-screen bg-white">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <button onClick={() => navigate("/")} className="p-1" data-testid="button-back">
+            <ChevronLeft className="w-6 h-6 text-gray-700" />
           </button>
-        </Link>
-        <h1 className="text-base font-bold text-[#3db51d]">Recharger</h1>
-        <Link href="/history">
-          <button className="p-1" data-testid="button-history">
-            <ChevronLeft className="w-6 h-6 text-[#3db51d] rotate-180" />
-          </button>
-        </Link>
-      </header>
-
-      {/* Balance Banner */}
-      <div className="bg-[#3db51d] px-5 py-4 flex items-center gap-4">
-        <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
-          <Wallet className="w-6 h-6 text-white" />
+          <h1 className="text-base font-bold text-gray-800">Dépôt en ligne</h1>
+          <Link href="/deposit-orders">
+            <button className="p-1" data-testid="button-history">
+              <ClipboardList className="w-6 h-6 text-gray-700" />
+            </button>
+          </Link>
         </div>
-        <div>
-          <p className="text-white text-2xl font-bold">{currency} {balance.toFixed(2)}</p>
-          <p className="text-white/75 text-xs mt-0.5">Solde du compte</p>
+
+        {/* Balance Banner */}
+        <div
+          className="px-5 py-5"
+          style={{ background: "linear-gradient(135deg, #c8c8d0 0%, #a8a8b8 100%)" }}
+        >
+          <p className="text-white text-3xl font-bold">{currency} {balance.toLocaleString("fr-FR", { minimumFractionDigits: 0 })}</p>
+          <p className="text-white/80 text-sm mt-1">Solde du compte</p>
         </div>
-      </div>
 
-      <div className="p-4 space-y-4">
-
-        {/* Amount section */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-5 bg-[#3db51d] rounded-full" />
-            <h2 className="font-bold text-gray-800 text-sm">
-              Montant de la recharge{" "}
-              <span className="text-gray-400 font-normal text-xs">(Minimum {currency} {MIN_DEPOSIT.toLocaleString()})</span>
-            </h2>
+        <div className="p-5 space-y-5">
+          {/* Section title */}
+          <div>
+            <p className="text-gray-800 font-semibold text-sm mb-1">Choisissez votre canal de recharge</p>
+            <p className="text-gray-400 text-xs">
+              Canaux disponibles pour{" "}
+              <span className="font-medium text-gray-600">{countryInfo?.name || userCountry}</span>
+            </p>
           </div>
 
-          {/* Preset amounts */}
+          {/* Channel list */}
+          {availableChannels.length === 0 ? (
+            <div className="py-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <XCircle className="w-8 h-8 text-gray-300" />
+              </div>
+              <p className="text-gray-500 text-sm font-medium">Aucun canal disponible</p>
+              <p className="text-gray-400 text-xs mt-1">Contactez l'administrateur pour configurer les canaux de paiement.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {availableChannels.map((ch) => (
+                <button
+                  key={ch.id}
+                  onClick={() => handleSelectChannel(ch)}
+                  className="w-full rounded-2xl py-4 px-5 text-center font-bold text-base text-white transition-all active:scale-95"
+                  style={{ background: "#111827" }}
+                  data-testid={`button-channel-${ch.id}`}
+                >
+                  {ch.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Instructions */}
+          <div className="pt-4">
+            <p className="font-bold text-gray-800 text-sm mb-3">Instructions de dépôt</p>
+            <div className="space-y-2 text-sm text-gray-500 leading-relaxed">
+              <p>1. Le dépôt minimum est de {MIN_DEPOSIT.toLocaleString()} {currency}. Les dépôts inférieurs à ce montant ne seront pas crédités.</p>
+              <p>2. Assurez-vous que les informations saisies correspondent exactement à votre compte Mobile Money.</p>
+              <p>3. Une fois votre paiement effectué, le crédit sera appliqué dans un délai de 1 à 30 minutes.</p>
+              <p>4. En cas de problème, contactez le service client.</p>
+              <p>5. Pour votre sécurité, ne transférez jamais de fonds à des inconnus.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── STEP 2: Deposit Form ─────────────────────────────────────────────────
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <button onClick={() => { setStep("channel"); setAmount(""); setAccountNumber(""); setOtpCode(""); }} className="p-1" data-testid="button-back">
+          <ChevronLeft className="w-6 h-6 text-gray-700" />
+        </button>
+        <h1 className="text-base font-bold text-gray-800">Dépôt en ligne</h1>
+        <Link href="/deposit-orders">
+          <button className="p-1" data-testid="button-history">
+            <ClipboardList className="w-6 h-6 text-gray-700" />
+          </button>
+        </Link>
+      </div>
+
+      {/* Balance Banner */}
+      <div
+        className="px-5 py-5"
+        style={{ background: "linear-gradient(135deg, #c8c8d0 0%, #a8a8b8 100%)" }}
+      >
+        <p className="text-white text-3xl font-bold">{currency} {balance.toLocaleString("fr-FR", { minimumFractionDigits: 0 })}</p>
+        <p className="text-white/80 text-sm mt-1">Solde du compte</p>
+      </div>
+
+      <div className="px-5 py-5 space-y-0">
+
+        {/* Selected channel badge */}
+        <div className="mb-4 inline-flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1.5">
+          <div className="w-2 h-2 rounded-full bg-green-500" />
+          <span className="text-xs font-semibold text-gray-700">{selectedChannel?.name}</span>
+        </div>
+
+        {/* Preset Amounts */}
+        <div>
+          <p className="text-gray-800 font-semibold text-sm mb-3">
+            Montant du dépôt{" "}
+            <span className="text-gray-400 font-normal">( {MIN_DEPOSIT.toLocaleString()} {currency} )</span>
+          </p>
           <div className="grid grid-cols-4 gap-2">
             {PRESET_AMOUNTS.map((preset) => (
               <button
                 key={preset}
                 onClick={() => setAmount(preset)}
-                className={`py-2.5 rounded-lg border text-center text-sm font-medium transition-colors ${
-                  amount === preset
-                    ? "border-[#3db51d] bg-green-50 text-[#3db51d]"
-                    : "border-gray-200 bg-white text-gray-700"
-                }`}
+                className="rounded-xl py-3 text-center text-sm font-bold transition-all active:scale-95"
+                style={{
+                  background: amount === preset ? "#3db51d" : "#111827",
+                  color: "white",
+                }}
                 data-testid={`button-preset-${preset}`}
               >
-                {preset.toLocaleString()}
+                {preset >= 1000 ? `${preset / 1000}k` : preset}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Country picker */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-5 bg-[#3db51d] rounded-full" />
-            <h2 className="font-bold text-gray-800 text-sm">Pays</h2>
-          </div>
-          <button
-            onClick={() => setShowCountryPicker(true)}
-            className="w-full border border-gray-200 rounded-full px-4 py-3 flex items-center justify-between bg-white"
-            data-testid="button-open-country"
-          >
-            <span className={`text-sm flex items-center gap-2 ${selectedCountry ? "text-gray-800 font-medium" : "text-gray-400"}`}>
-              {selectedCountry ? (
-                <>
-                  <span>{COUNTRY_FLAGS[selectedCountry] || ""}</span>
-                  <span>{COUNTRIES.find(c => c.code === selectedCountry)?.name}</span>
-                </>
-              ) : "Sélectionnez votre pays"}
-            </span>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
-          </button>
-        </div>
+        {/* Divider */}
+        <div className="border-t border-gray-100 my-4" />
 
-        {/* Operator picker */}
-        {selectedCountry && operators.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-5 bg-[#3db51d] rounded-full" />
-              <h2 className="font-bold text-gray-800 text-sm">Opérateur</h2>
-            </div>
-            <button
-              onClick={() => setShowOperatorPicker(true)}
-              className="w-full border border-gray-200 rounded-full px-4 py-3 flex items-center justify-between bg-white"
-              data-testid="button-open-operator"
-            >
-              <span className={`text-sm ${selectedOperator ? "text-gray-800 font-medium" : "text-gray-400"}`}>
-                {selectedOperator || "Sélectionnez votre opérateur"}
-              </span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            </button>
-          </div>
-        )}
-
-        {/* Channel selection */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-5 bg-[#3db51d] rounded-full" />
-            <h2 className="font-bold text-gray-800 text-sm">Canaux de recharge</h2>
-          </div>
-
-          <div className="space-y-2">
-            {paymentChannels.map((channel, idx) => (
-              <button
-                key={channel.id}
-                onClick={() => setSelectedChannel(channel.id)}
-                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${
-                  selectedChannel === channel.id
-                    ? "bg-[#3db51d] text-white shadow-md"
-                    : idx === 0
-                      ? "bg-white border-2 border-[#3db51d] text-[#3db51d]"
-                      : "bg-white border-2 border-gray-200 text-gray-700"
-                }`}
-                data-testid={`button-channel-${channel.id}`}
-              >
-                Canaux {channel.name}
-              </button>
-            ))}
-            {paymentChannels.length === 0 && (
-              <p className="text-center text-gray-400 text-sm py-2">Aucun canal disponible</p>
-            )}
-          </div>
-        </div>
-
-        {/* Amount input */}
-        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
-          <span className="font-bold text-[#3db51d] text-sm">{currency}</span>
+        {/* Custom amount input */}
+        <div className="flex items-center gap-3 border-b border-gray-100 py-3">
+          <span className="text-gray-500 font-bold text-sm w-14 shrink-0">{currency}</span>
           <input
             type="number"
             value={amount}
@@ -329,52 +339,68 @@ export default function DepositPage() {
         </div>
 
         {/* Phone number */}
-        <div className="border border-gray-200 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
+        <div className="flex items-center gap-3 border-b border-gray-100 py-3">
           <input
             type="tel"
             value={accountNumber}
             onChange={(e) => setAccountNumber(e.target.value)}
-            placeholder={`Numéro ${selectedOperator || "Mobile Money"}`}
+            placeholder={`Numéro ${selectedChannel?.name || "Mobile Money"}`}
             className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
             data-testid="input-account-number"
           />
         </div>
 
-        {/* OTP field — visible only for Orange CI and Orange BF */}
+        {/* Operator picker — shown if channel name doesn't match a single operator */}
+        {operators.length > 1 && (
+          <div className="border-b border-gray-100 py-3">
+            <button
+              onClick={() => setShowOperatorPicker(true)}
+              className="w-full flex items-center justify-between text-sm text-gray-500"
+              data-testid="button-open-operator"
+            >
+              <span>{selectedOperator || `Sélectionnez l'opérateur (${countryInfo?.name})`}</span>
+              <ChevronLeft className="w-4 h-4 rotate-180 text-gray-400" />
+            </button>
+          </div>
+        )}
+
+        {/* OTP field */}
         {showOtpField && (
-          <div className="space-y-2">
-            {selectedCountry === "BF" && (
-              <div className="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3">
-                <p className="text-orange-700 text-xs font-semibold mb-1">Comment générer votre code OTP Orange Burkina :</p>
-                <p className="text-orange-600 text-xs">Composez <strong>*144*4*6*{amount || "montant"}#</strong> sur votre téléphone, puis entrez le code reçu ci-dessous.</p>
+          <div className="space-y-2 pt-1">
+            {user?.country === "BF" && (
+              <div className="bg-orange-50 rounded-xl px-4 py-3">
+                <p className="text-orange-700 text-xs font-semibold mb-1">Code OTP Orange Burkina :</p>
+                <p className="text-orange-600 text-xs">Composez <strong>*144*4*6*{amount || "montant"}#</strong> sur votre téléphone.</p>
               </div>
             )}
-            {selectedCountry === "CI" && (
-              <div className="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3">
-                <p className="text-orange-700 text-xs font-semibold mb-1">Comment générer votre code OTP Orange Côte d'Ivoire :</p>
-                <p className="text-orange-600 text-xs">Composez <strong>#144*82#</strong> sur votre téléphone pour générer votre code OTP, puis saisissez-le ci-dessous.</p>
+            {user?.country === "CI" && (
+              <div className="bg-orange-50 rounded-xl px-4 py-3">
+                <p className="text-orange-700 text-xs font-semibold mb-1">Code OTP Orange Côte d'Ivoire :</p>
+                <p className="text-orange-600 text-xs">Composez <strong>#144*82#</strong> pour générer votre code OTP.</p>
               </div>
             )}
-            <div className="border border-orange-300 rounded-full px-4 py-3 flex items-center gap-3 bg-white">
+            <div className="flex items-center gap-3 border-b border-orange-200 py-3">
               <input
                 type="number"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
                 placeholder="Code OTP Orange"
                 className="flex-1 text-sm outline-none text-gray-500 bg-transparent tracking-widest"
-                maxLength={8}
                 data-testid="input-otp-code"
               />
             </div>
           </div>
         )}
 
+        {/* Divider */}
+        <div className="border-t border-gray-100 mt-2 mb-5" />
+
         {/* Submit button */}
         <button
           onClick={handleSubmit}
           disabled={depositMutation.isPending || paymentStatus !== "idle"}
-          className="w-full py-4 rounded-full text-white font-bold text-base disabled:opacity-40 shadow-md"
-          style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
+          className="w-full py-4 rounded-2xl text-white font-bold text-base disabled:opacity-40"
+          style={{ background: "#111827" }}
           data-testid="button-submit-deposit"
         >
           {depositMutation.isPending ? (
@@ -383,15 +409,15 @@ export default function DepositPage() {
               Envoi en cours...
             </span>
           ) : (
-            "Rechargez maintenant"
+            "Déposez maintenant"
           )}
         </button>
 
         {/* Instructions */}
-        <div className="pt-2 pb-8">
-          <p className="font-bold text-[#3db51d] text-sm mb-3">Instructions de recharge</p>
-          <div className="space-y-2.5 text-sm text-[#3db51d] leading-relaxed">
-            <p>1. Le dépôt minimum est de {MIN_DEPOSIT.toLocaleString()} {currency}.</p>
+        <div className="pt-6 pb-10">
+          <p className="font-bold text-gray-800 text-sm mb-3">Instructions de dépôt</p>
+          <div className="space-y-2 text-sm text-gray-500 leading-relaxed">
+            <p>1. Le dépôt minimum est de {MIN_DEPOSIT.toLocaleString()} {currency}. Les dépôts inférieurs à ce montant ne seront pas crédités.</p>
             <p>2. Assurez-vous que les informations saisies correspondent exactement à votre compte Mobile Money pour éviter tout rejet de paiement.</p>
             <p>3. Une fois votre paiement effectué, le crédit sera automatiquement appliqué à votre compte dans un délai de 1 à 30 minutes.</p>
             <p>4. Si vous n'avez pas reçu vos fonds après un délai anormalement long, veuillez contacter le service client en ligne.</p>
@@ -401,44 +427,11 @@ export default function DepositPage() {
         </div>
       </div>
 
-      {/* Country Picker Sheet */}
-      {showCountryPicker && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowCountryPicker(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h3 className="text-base font-bold text-gray-800">Sélectionnez votre pays</h3>
-              <button onClick={() => setShowCountryPicker(false)} className="text-gray-400 font-bold text-lg">✕</button>
-            </div>
-            <div className="overflow-y-auto max-h-64">
-              {COUNTRIES.map((c) => (
-                <button
-                  key={c.code}
-                  onClick={() => { setSelectedCountry(c.code); setShowCountryPicker(false); }}
-                  className={`w-full px-5 py-3.5 flex items-center gap-3 hover:bg-gray-50 transition-colors ${
-                    selectedCountry === c.code ? "bg-green-50" : ""
-                  }`}
-                  data-testid={`button-country-${c.code}`}
-                >
-                  <span className="text-2xl">{COUNTRY_FLAGS[c.code] || "🌍"}</span>
-                  <div className="flex-1 text-left">
-                    <p className={`text-sm font-medium ${selectedCountry === c.code ? "text-[#3db51d]" : "text-gray-800"}`}>{c.name}</p>
-                    <p className="text-xs text-gray-400">{c.currency}</p>
-                  </div>
-                  {selectedCountry === c.code && <span className="text-[#3db51d] font-bold">✓</span>}
-                </button>
-              ))}
-            </div>
-            <div className="h-6" />
-          </div>
-        </div>
-      )}
-
       {/* Operator Picker Sheet */}
       {showOperatorPicker && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowOperatorPicker(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl animate-in slide-in-from-bottom duration-300">
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <h3 className="text-base font-bold text-gray-800">Sélectionnez votre opérateur</h3>
               <button onClick={() => setShowOperatorPicker(false)} className="text-gray-400 font-bold text-lg">✕</button>
@@ -448,9 +441,7 @@ export default function DepositPage() {
                 <button
                   key={op}
                   onClick={() => { setSelectedOperator(op); setShowOperatorPicker(false); }}
-                  className={`w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${
-                    selectedOperator === op ? "bg-green-50" : ""
-                  }`}
+                  className={`w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 ${selectedOperator === op ? "bg-green-50" : ""}`}
                   data-testid={`button-operator-${op}`}
                 >
                   <span className={`text-sm font-medium ${selectedOperator === op ? "text-[#3db51d]" : "text-gray-800"}`}>{op}</span>
@@ -467,7 +458,7 @@ export default function DepositPage() {
       {paymentStatus !== "idle" && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl animate-in slide-in-from-bottom duration-300 flex flex-col items-center px-6 pt-3 pb-10">
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl flex flex-col items-center px-6 pt-3 pb-10">
             <div className="w-10 h-1 bg-gray-300 rounded-full mb-6" />
 
             {paymentStatus === "processing" && (
@@ -487,11 +478,6 @@ export default function DepositPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Validation requise</h3>
                 <p className="text-gray-500 text-sm mb-5">Confirmez le paiement depuis votre téléphone</p>
-                <div className="w-full bg-green-50 rounded-xl p-4 mb-5">
-                  <p className="text-sm text-[#3db51d] text-center">
-                    Un message a été envoyé sur votre numéro. Composez votre code PIN pour valider.
-                  </p>
-                </div>
                 <div className="flex items-center gap-2 text-[#3db51d]">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-sm font-medium">Vérification en cours...</span>
@@ -510,26 +496,27 @@ export default function DepositPage() {
                 </p>
                 <button
                   onClick={resetForm}
-                  className="w-full py-3.5 bg-green-500 text-white font-bold rounded-full"
-                  data-testid="button-close-success"
+                  className="w-full py-3.5 rounded-xl text-white font-bold"
+                  style={{ background: "#3db51d" }}
+                  data-testid="button-done"
                 >
-                  Fermer
+                  Terminer
                 </button>
               </>
             )}
 
             {paymentStatus === "rejected" && (
               <>
-                <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-5">
-                  <XCircle className="w-10 h-10 text-[#3db51d]" />
+                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-5">
+                  <XCircle className="w-10 h-10 text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement échoué</h3>
-                <p className="text-gray-500 text-sm mb-5">Le paiement a été refusé ou annulé</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Paiement refusé</h3>
+                <p className="text-gray-500 text-sm mb-5">Votre dépôt n'a pas pu être traité. Réessayez.</p>
                 <button
                   onClick={resetForm}
-                  className="w-full py-3.5 text-white font-bold rounded-full"
-                  style={{ background: "#3db51d" }}
-                  data-testid="button-close-error"
+                  className="w-full py-3.5 rounded-xl text-white font-bold"
+                  style={{ background: "#111827" }}
+                  data-testid="button-retry"
                 >
                   Réessayer
                 </button>
