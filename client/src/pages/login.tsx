@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import ContactSheet from "@/components/contact-sheet";
-import { Loader2, Eye, EyeOff, Phone, Lock } from "lucide-react";
+import { Loader2, Eye, EyeOff, Phone, Lock, ChevronDown } from "lucide-react";
 import jinkoBanner from "@assets/20260408_191813_1775839627189.jpg";
 import serviceAgent from "@assets/service_p1_1775839314312.png";
 
@@ -124,9 +124,10 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setCountryModalOpen(true)}
                   data-testid="button-select-country"
-                  style={{ fontSize: 14, fontWeight: 700, color: "#374151", paddingRight: 12, height: "100%", display: "flex", alignItems: "center", background: "transparent", border: "none", borderRight: "1.5px solid #e5e7eb", cursor: "pointer" }}
+                  style={{ fontSize: 14, fontWeight: 700, color: "#374151", paddingRight: 10, height: "100%", display: "flex", alignItems: "center", gap: 2, background: "transparent", border: "none", borderRight: "1.5px solid #e5e7eb", cursor: "pointer" }}
                 >
                   {countryData ? `+${countryData.phonePrefix}` : "+"}
+                  <ChevronDown size={14} style={{ color: "#9ca3af" }} />
                 </button>
                 <input
                   {...form.register("phone")}
