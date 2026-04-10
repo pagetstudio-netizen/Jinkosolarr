@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import historyIcon from "@assets/5708960_1774829436660-C3SIos42_1775833646464.png";
+import jinkoBg from "@assets/15502488526db98c02ac135d0ac0e262d31dee111d_1775833317804.jpg";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 
@@ -152,9 +153,12 @@ export default function WithdrawalPage() {
   const balance = parseFloat(user?.balance || "0");
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: GREEN }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "#f5f5f5", overflowX: "hidden" }}>
 
-      {/* Header — sur fond vert */}
+      {/* ── Zone image : en-tête + carte ── */}
+      <div style={{ backgroundImage: `url(${jinkoBg})`, backgroundSize: "cover", backgroundPosition: "center", paddingBottom: 32 }}>
+
+      {/* Header sur fond image */}
       <div className="flex items-center justify-between px-4 pt-10 pb-4">
         <Link href="/account">
           <button data-testid="button-back">
@@ -232,6 +236,7 @@ export default function WithdrawalPage() {
           </div>
         </div>
       </div>
+      </div>{/* fin zone image */}
 
       {/* Bouton Choisissez votre portefeuille */}
       <div className="mx-4 mt-4">
@@ -268,20 +273,35 @@ export default function WithdrawalPage() {
         </div>
       )}
 
-      {/* Bouton Retirer maintenant */}
-      <div className="flex justify-center mt-5 mb-1">
+      {/* Bouton Retirer maintenant — pill centré */}
+      <div style={{ display: "flex", justifyContent: "center", marginTop: 20, marginBottom: 4 }}>
         <button
           onClick={handleSubmit}
           disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
-          className="px-14 py-4 rounded-full text-white font-bold text-base shadow-md disabled:opacity-40"
-          style={{ background: GREEN }}
           data-testid="button-submit-withdrawal"
+          style={{
+            width: 220,
+            height: 50,
+            borderRadius: 999,
+            background: GREEN,
+            color: "white",
+            fontWeight: 700,
+            fontSize: 15,
+            border: "none",
+            cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(61,181,29,0.35)",
+            opacity: (withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct) ? 0.4 : 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
         >
           {withdrawMutation.isPending ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="w-5 h-5 animate-spin" />
+            <>
+              <Loader2 style={{ width: 18, height: 18, animation: "spin 1s linear infinite" }} />
               Envoi en cours...
-            </span>
+            </>
           ) : (
             "Retirer maintenant"
           )}
