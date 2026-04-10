@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
+import ContactSheet from "@/components/contact-sheet";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +25,7 @@ export default function InvestPage() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
+  const [showContactSheet, setShowContactSheet] = useState(false);
 
   const { data: products, isLoading } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
@@ -71,10 +73,11 @@ export default function InvestPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-gray-100">
+      <ContactSheet open={showContactSheet} onClose={() => setShowContactSheet(false)} />
       <div className="flex items-center justify-between px-4 py-3 shadow-sm" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
         <img src={jinkoLogoFull} alt="Jinko Solar" className="h-9 w-auto object-contain" data-testid="img-jinko-logo" />
         <button
-          onClick={() => navigate("/service")}
+          onClick={() => setShowContactSheet(true)}
           className="flex items-center justify-center"
           data-testid="button-service"
         >

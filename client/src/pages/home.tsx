@@ -1,6 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import { SiTelegram } from "react-icons/si";
 import { useLocation } from "wouter";
+import ContactSheet from "@/components/contact-sheet";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
@@ -42,6 +43,7 @@ export default function HomePage() {
   const [location, navigate] = useLocation();
   const [showPopup, setShowPopup] = useState(true);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showContactSheet, setShowContactSheet] = useState(false);
   const [giftCode, setGiftCode] = useState("");
 
   const claimMutation = useMutation({
@@ -82,13 +84,15 @@ export default function HomePage() {
   const quickActions = [
     { label: "Recharger", img: iconRecharger, onClick: () => navigate("/deposit") },
     { label: "Retrait", img: iconRetrait, onClick: () => navigate("/withdrawal") },
-    { label: "Nous contacter", img: iconContact, onClick: () => navigate("/service") },
+    { label: "Nous contacter", img: iconContact, onClick: () => setShowContactSheet(true) },
     { label: "Argent gratuit", img: iconGratuit, onClick: () => { setGiftCode(""); setShowGiftModal(true); } },
     { label: "Être informé", img: iconPreuve, onClick: () => navigate("/info") },
   ];
 
   return (
     <div className="flex flex-col min-h-full bg-gray-100">
+
+      <ContactSheet open={showContactSheet} onClose={() => setShowContactSheet(false)} />
 
       {/* Popup */}
       {showPopup && (
@@ -144,7 +148,7 @@ export default function HomePage() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
         <img src={jinkoLogoText} alt="Jinko Solar" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
-        <button onClick={() => navigate("/service")} data-testid="button-service-header" className="p-1">
+        <button onClick={() => setShowContactSheet(true)} data-testid="button-service-header" className="p-1">
           <MessageCircleMore className="w-7 h-7 text-gray-700" />
         </button>
       </div>

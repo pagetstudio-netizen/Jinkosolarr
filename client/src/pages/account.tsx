@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
 import { Loader2, Shield, ChevronRight, Copy, Settings, LogOut, MessageCircleMore } from "lucide-react";
 import { useState } from "react";
+import ContactSheet from "@/components/contact-sheet";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +45,7 @@ export default function AccountPage() {
   const [, navigate] = useLocation();
   const [showPinModal, setShowPinModal] = useState(false);
   const [adminPin, setAdminPin] = useState("");
+  const [showContactSheet, setShowContactSheet] = useState(false);
 
   const { data: products } = useQuery<any[]>({
     queryKey: ["/api/user-products"],
@@ -102,12 +104,13 @@ export default function AccountPage() {
     { icon: giftBox, label: "Argent gratuit", href: "/gift-code" },
     { icon: iconDeposit, label: "Historique des dépôts", href: "/deposit-orders" },
     { icon: iconWithdraw, label: "Historique des retraits", href: "/withdrawal-history" },
-    { icon: serviceIcon, label: "Nous contacter", href: "/service" },
+    { icon: serviceIcon, label: "Nous contacter", href: "" },
     { icon: iconSecurite, label: "Sécurité", href: "/change-password" },
   ];
 
   return (
     <div className="flex flex-col min-h-full bg-gray-100">
+      <ContactSheet open={showContactSheet} onClose={() => setShowContactSheet(false)} />
       <div className="flex-1 overflow-y-auto pb-24">
 
         {/* White header — same as home page */}
@@ -123,7 +126,7 @@ export default function AccountPage() {
                 <Shield className="w-6 h-6 text-gray-700" />
               </button>
             )}
-            <button onClick={() => navigate("/service")} className="p-1" data-testid="button-service-account">
+            <button onClick={() => setShowContactSheet(true)} className="p-1" data-testid="button-service-account">
               <MessageCircleMore className="w-7 h-7 text-gray-700" />
             </button>
           </div>
@@ -223,14 +226,13 @@ export default function AccountPage() {
 
         {/* Menu items — white card */}
         <div className="mx-3 mt-4 bg-white rounded-2xl shadow-sm overflow-hidden">
-          {menuItems.map((item, idx) => (
-            <Link href={item.href} key={item.label}>
+          {menuItems.map((item, idx) => {
+            const inner = (
               <button
                 className="w-full flex items-center px-4 py-3.5 text-left"
-                style={{
-                  borderBottom: idx < menuItems.length - 1 ? "1px solid #f0f0f0" : "none",
-                }}
+                style={{ borderBottom: idx < menuItems.length - 1 ? "1px solid #f0f0f0" : "none" }}
                 data-testid={`button-menu-${idx}`}
+                onClick={item.href === "" ? () => setShowContactSheet(true) : undefined}
               >
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center mr-3 shrink-0"
                   style={{ background: "#f5f5f5" }}>
@@ -239,8 +241,13 @@ export default function AccountPage() {
                 <span className="flex-1 text-gray-800 font-medium text-sm">{item.label}</span>
                 <ChevronRight className="w-4 h-4 text-gray-300" />
               </button>
-            </Link>
-          ))}
+            );
+            return item.href ? (
+              <Link href={item.href} key={item.label}>{inner}</Link>
+            ) : (
+              <div key={item.label}>{inner}</div>
+            );
+          })}
         </div>
 
         {/* Logout — separate card */}
