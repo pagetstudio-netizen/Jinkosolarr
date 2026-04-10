@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,8 +9,7 @@ import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import ContactSheet from "@/components/contact-sheet";
 import { Loader2, Eye, EyeOff, Phone, Lock } from "lucide-react";
-import authBg from "@assets/auth_bg_solar.png";
-import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
+import jinkoBanner from "@assets/20260408_191813_1775839627189.jpg";
 import serviceAgent from "@assets/service_p1_1775839314312.png";
 
 const GREEN = "#3db51d";
@@ -67,45 +66,43 @@ export default function LoginPage() {
     }
   }
 
+  // Draggable service agent button
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const dragging = useRef(false);
+  const startRef = useRef({ mx: 0, my: 0, bx: 0, by: 0 });
+
+  function onPointerDown(e: React.PointerEvent) {
+    dragging.current = true;
+    startRef.current = { mx: e.clientX, my: e.clientY, bx: pos.x, by: pos.y };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragging.current) return;
+    setPos({
+      x: startRef.current.bx + (e.clientX - startRef.current.mx),
+      y: startRef.current.by + (e.clientY - startRef.current.my),
+    });
+  }
+  function onPointerUp() {
+    dragging.current = false;
+  }
+
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f4f6", maxWidth: 480, margin: "0 auto", position: "relative" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f4f6", maxWidth: 480, margin: "0 auto", position: "relative", overflow: "hidden" }}>
 
-      {/* ── Header banner ── */}
-      <div style={{ position: "relative", height: "42vh", minHeight: 230, overflow: "hidden", flexShrink: 0 }}>
+      {/* ── Header banner (Jinko Solar image) ── */}
+      <div style={{ position: "relative", height: "40vh", minHeight: 200, overflow: "hidden", flexShrink: 0 }}>
         <img
-          src={authBg}
-          alt=""
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
+          src={jinkoBanner}
+          alt="Jinko Solar"
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
         />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)" }} />
-
-        {/* Brand logo + name */}
-        <div style={{ position: "absolute", bottom: 24, left: 20, display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 12, background: "white", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: "0 2px 14px rgba(0,0,0,0.3)" }}>
-            <img src={jinkoLogo} alt="Jinko Solar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </div>
-          <span style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: 0.3, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
-            Jinko Solar
-          </span>
-        </div>
-
-        {/* Service agent floating photo (blurred) – opens contact popup */}
-        <button
-          type="button"
-          onClick={() => setShowContact(true)}
-          data-testid="button-contact-agent"
-          style={{ position: "absolute", top: 18, right: 18, width: 54, height: 54, borderRadius: "50%", overflow: "hidden", border: "2.5px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.35)", background: "white", cursor: "pointer", padding: 0 }}
-        >
-          <img
-            src={serviceAgent}
-            alt="Nous contacter"
-            style={{ width: "100%", height: "100%", objectFit: "cover", filter: "blur(0.8px) brightness(1.05)" }}
-          />
-        </button>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.3) 100%)" }} />
       </div>
 
       {/* ── White form card ── */}
-      <div style={{ flex: 1, background: "white", borderRadius: "28px 28px 0 0", marginTop: -26, padding: "30px 20px 40px", overflowY: "auto" }}>
+      <div style={{ flex: 1, background: "white", borderRadius: "28px 28px 0 0", marginTop: -26, padding: "30px 20px 20px", overflowY: "auto" }}>
 
         <form onSubmit={form.handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
@@ -201,7 +198,42 @@ export default function LoginPage() {
           </button>
 
         </form>
+
+        {/* Bottom space */}
+        <div style={{ height: 80 }} />
       </div>
+
+      {/* ── Draggable service agent button (bottom-right) ── */}
+      <button
+        type="button"
+        onClick={() => { if (!dragging.current) setShowContact(true); }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        data-testid="button-contact-agent"
+        style={{
+          position: "fixed",
+          bottom: 28 - pos.y,
+          right: 20 - pos.x,
+          width: 58,
+          height: 58,
+          borderRadius: "50%",
+          overflow: "hidden",
+          border: "3px solid white",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+          background: "white",
+          cursor: "grab",
+          padding: 0,
+          zIndex: 100,
+          touchAction: "none",
+        }}
+      >
+        <img
+          src={serviceAgent}
+          alt="Nous contacter"
+          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "blur(0.6px) brightness(1.05)", pointerEvents: "none" }}
+        />
+      </button>
 
       <CountrySelector
         open={countryModalOpen}
