@@ -3,11 +3,9 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
+import { ChevronLeft, Loader2, Plus, CreditCard } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
-import iconCardWhite from "@assets/téléchargement_(18)_1773330337885.png";
-import iconCardBlack from "@assets/téléchargement_(20)_1773330337986.png";
 
 interface WalletData {
   id: number;
@@ -33,27 +31,30 @@ export default function WithdrawalPage() {
   const [, navigate] = useLocation();
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
-  const currency = countryInfo?.currency || "FCFA";
+  const currency = countryInfo?.currency || "XOF";
   const minWithdrawal = 1200;
 
   const { data: withdrawalSettings } = useQuery<{
     withdrawalFees: number;
     withdrawalStartHour: number;
     withdrawalEndHour: number;
-    maxWithdrawalsPerDay: number;
   }>({
     queryKey: ["/api/settings/withdrawal"],
     staleTime: 0,
     refetchOnMount: true,
   });
 
-  const withdrawalFee = withdrawalSettings?.withdrawalFees ?? 15;
+  const withdrawalFee = withdrawalSettings?.withdrawalFees ?? 17;
   const withdrawalStartHour = withdrawalSettings?.withdrawalStartHour ?? 8;
   const withdrawalEndHour = withdrawalSettings?.withdrawalEndHour ?? 17;
 
-  const amountAfterFees = amount ? Math.floor(Number(amount) * (1 - withdrawalFee / 100)) : 0;
+  const amountAfterFees = amount
+    ? Math.floor(Number(amount) * (1 - withdrawalFee / 100))
+    : 0;
+
   const currentHour = new Date().getHours();
-  const isWithinWithdrawalHours = currentHour >= withdrawalStartHour && currentHour < withdrawalEndHour;
+  const isWithinWithdrawalHours =
+    currentHour >= withdrawalStartHour && currentHour < withdrawalEndHour;
 
   const { data: wallets = [], isLoading: walletsLoading } = useQuery<WalletData[]>({
     queryKey: ["/api/wallets"],
@@ -69,7 +70,7 @@ export default function WithdrawalPage() {
   useEffect(() => {
     const savedWalletId = localStorage.getItem("selectedWalletId");
     if (savedWalletId && wallets.length > 0) {
-      const wallet = wallets.find(w => w.id === parseInt(savedWalletId));
+      const wallet = wallets.find((w) => w.id === parseInt(savedWalletId));
       if (wallet) setSelectedWallet(wallet);
       localStorage.removeItem("selectedWalletId");
     }
@@ -77,7 +78,7 @@ export default function WithdrawalPage() {
 
   useEffect(() => {
     if (!selectedWallet && wallets.length > 0) {
-      const defaultWallet = wallets.find(w => w.isDefault);
+      const defaultWallet = wallets.find((w) => w.isDefault);
       if (defaultWallet) setSelectedWallet(defaultWallet);
     }
   }, [wallets, selectedWallet]);
@@ -100,19 +101,35 @@ export default function WithdrawalPage() {
 
   const handleSubmit = () => {
     if (!isWithinWithdrawalHours) {
-      toast({ title: "Horaires de retrait", description: `Les retraits sont disponibles de ${withdrawalStartHour}h à ${withdrawalEndHour}h`, variant: "destructive" });
+      toast({
+        title: "Horaires de retrait",
+        description: `Les retraits sont disponibles de ${withdrawalStartHour}h à ${withdrawalEndHour}h`,
+        variant: "destructive",
+      });
       return;
     }
     if (!hasActiveProduct) {
-      toast({ title: "Produit requis", description: "Vous devez avoir un produit actif pour effectuer un retrait", variant: "destructive" });
+      toast({
+        title: "Produit requis",
+        description: "Vous devez avoir un produit actif pour effectuer un retrait",
+        variant: "destructive",
+      });
       return;
     }
     if (!amount || amount < minWithdrawal) {
-      toast({ title: "Montant invalide", description: `Le montant minimum est de ${minWithdrawal} ${currency}`, variant: "destructive" });
+      toast({
+        title: "Montant invalide",
+        description: `Le montant minimum est de ${minWithdrawal} ${currency}`,
+        variant: "destructive",
+      });
       return;
     }
     if (!selectedWallet) {
-      toast({ title: "Compte requis", description: "Veuillez sélectionner un compte bancaire", variant: "destructive" });
+      toast({
+        title: "Compte requis",
+        description: "Veuillez sélectionner un compte bancaire",
+        variant: "destructive",
+      });
       return;
     }
     withdrawMutation.mutate({ amount, walletId: selectedWallet.id });
@@ -121,7 +138,7 @@ export default function WithdrawalPage() {
   if (walletsLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#3db51d]" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
       </div>
     );
   }
@@ -131,125 +148,105 @@ export default function WithdrawalPage() {
   const balance = parseFloat(user?.balance || "0");
   const hasWallets = wallets.length > 0;
 
-  /* ── Main withdrawal page ── */
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col" style={{ background: "#f5f5f5" }}>
 
-      {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
           <button className="p-1" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-[#3db51d]" />
+            <ChevronLeft className="w-6 h-6 text-gray-700" />
           </button>
         </Link>
-        <h1 className="text-base font-bold text-[#3db51d]">Retrait</h1>
-        <Link href="/history">
+        <h1 className="text-base font-bold text-gray-800">Retrait</h1>
+        <Link href="/withdrawal-history">
           <button className="p-1" data-testid="button-history">
-            <ChevronLeft className="w-6 h-6 text-[#3db51d] rotate-180" />
+            <ChevronLeft className="w-6 h-6 text-gray-700 rotate-180" />
           </button>
         </Link>
-      </header>
-
-      {/* Balance Banner */}
-      <div className="bg-[#3db51d] px-5 py-4 flex items-center gap-4">
-        <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
-          <img
-            src={iconCardWhite}
-            alt="card"
-            className="w-7 h-7 object-contain"
-            style={{ filter: "brightness(0) invert(1)" }}
-          />
-        </div>
-        <div>
-          <p className="text-white text-2xl font-bold" data-testid="text-balance">
-            {currency} {balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
-          </p>
-          <p className="text-white/75 text-xs mt-0.5">Solde du compte</p>
-        </div>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="px-4 py-4 space-y-4">
 
-        {/* Select bank account */}
-        <button
-          onClick={() => {
-            if (!hasWallets) {
-              navigate("/wallet");
-            } else {
-              navigate("/wallet?from=withdrawal");
-            }
-          }}
-          className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3.5 flex items-center gap-3 shadow-sm"
-          data-testid="button-select-wallet"
-        >
-          <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center flex-shrink-0">
-            <img
-              src={iconCardBlack}
-              alt="card"
-              className="w-6 h-6 object-contain"
-              style={{ filter: "brightness(0) invert(1)" }}
-            />
+        {/* ── Balance card ── */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold" style={{ color: "#3db51d" }}>Solde du compte</p>
+            <p className="text-3xl font-extrabold mt-1" style={{ color: "#3db51d" }} data-testid="text-balance">
+              {balance.toLocaleString("fr-FR", { minimumFractionDigits: 0 })}<span className="text-xl ml-1">{currency}</span>
+            </p>
           </div>
-          <div className="flex-1 text-left">
-            {selectedWallet ? (
-              <>
-                <p className="text-sm font-semibold text-gray-800">{selectedWallet.accountName}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{selectedWallet.accountNumber} · {selectedWallet.paymentMethod}</p>
-              </>
-            ) : hasWallets ? (
-              <p className="text-sm text-[#3db51d] font-medium">Sélectionner un compte bancaire</p>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Plus className="w-4 h-4 text-[#3db51d]" />
-                <p className="text-sm text-[#3db51d] font-medium">Ajouter un portefeuille de retrait</p>
-              </div>
-            )}
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center"
+            style={{ background: "#3db51d" }}
+          >
+            <CreditCard className="w-7 h-7 text-white" />
           </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </button>
+        </div>
 
-        {/* Amount section */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <p className="font-bold text-[#3db51d] text-sm mb-3">Montant du retrait</p>
-
-          <div className="border border-gray-200 rounded-lg px-4 py-3 flex items-center gap-3">
-            <span className="font-bold text-[#3db51d] text-sm">{currency}</span>
+        {/* ── Amount input card ── */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
+          <p className="text-xs" style={{ color: "#3db51d" }}>
+            Veuillez saisir le montant de retrait
+          </p>
+          <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3">
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
-              placeholder="Veuillez saisir le montant du retrait."
-              className="flex-1 text-sm outline-none text-gray-500 bg-transparent"
+              placeholder="montant"
+              className="flex-1 text-xl font-semibold text-gray-700 outline-none bg-transparent"
               data-testid="input-withdrawal-amount"
             />
+            <span className="text-gray-400 font-semibold text-base ml-2">{currency}</span>
           </div>
-
-          <div className="flex items-center justify-between text-xs mt-3">
-            <span className="text-[#3db51d]">
-              Montant reçu: <span className="font-semibold">{currency} {amountAfterFees.toLocaleString()}</span>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-500">
+              Montant reçu :{" "}
+              <span className="font-semibold text-gray-700">
+                {amountAfterFees.toLocaleString()}
+              </span>
             </span>
-            <span className="text-gray-400">Impôt: {withdrawalFee}%</span>
+            <span className="text-gray-400">Taxe : {withdrawalFee.toFixed(2)}%</span>
           </div>
         </div>
 
+        {/* ── Choose wallet button ── */}
+        <button
+          onClick={() => navigate(hasWallets ? "/wallet?from=withdrawal" : "/wallet")}
+          className="w-full py-4 rounded-2xl text-white font-bold text-sm flex items-center gap-3 px-5"
+          style={{ background: "#3db51d" }}
+          data-testid="button-select-wallet"
+        >
+          <CreditCard className="w-5 h-5 text-white" />
+          <span className="flex-1 text-left">
+            {selectedWallet
+              ? `${selectedWallet.accountName} · ${selectedWallet.accountNumber}`
+              : hasWallets
+              ? "Choisissez votre portefeuille"
+              : "Ajouter un portefeuille"}
+          </span>
+          <span className="text-white font-bold text-lg">›</span>
+        </button>
+
         {/* Warnings */}
         {!isWithinWithdrawalHours && (
-          <div className="bg-green-50 border border-red-200 rounded-xl p-3 text-[#3db51d] text-xs">
-            ⏰ Horaires de retrait : {withdrawalStartHour}h00 - {withdrawalEndHour}h00 (Fermé actuellement)
+          <div className="rounded-xl border border-gray-200 bg-white p-3 text-sm" style={{ color: "#3db51d" }}>
+            ⏰ Horaires de retrait : {withdrawalStartHour}h00 – {withdrawalEndHour}h00 (Fermé actuellement)
           </div>
         )}
         {!hasActiveProduct && (
-          <div className="bg-green-50 border border-red-200 rounded-xl p-3 text-[#3db51d] text-xs">
+          <div className="rounded-xl border border-gray-200 bg-white p-3 text-sm" style={{ color: "#3db51d" }}>
             ⚠️ Vous devez avoir un produit actif pour effectuer un retrait.
           </div>
         )}
 
-        {/* Submit button */}
+        {/* ── Submit button ── */}
         <button
           onClick={handleSubmit}
           disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
-          className="w-full py-4 rounded-full text-white font-bold text-base disabled:opacity-40 shadow-md"
-          style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
+          className="w-full py-4 rounded-full text-white font-bold text-base shadow disabled:opacity-40"
+          style={{ background: "#3db51d" }}
           data-testid="button-submit-withdrawal"
         >
           {withdrawMutation.isPending ? (
@@ -258,22 +255,59 @@ export default function WithdrawalPage() {
               Envoi en cours...
             </span>
           ) : (
-            "Retirez-vous maintenant"
+            "Retirer maintenant"
           )}
         </button>
 
-        {/* Instructions */}
-        <div className="pt-2 pb-8">
-          <p className="font-bold text-[#3db51d] text-sm mb-3">Instructions de retrait</p>
-          <div className="space-y-2.5 text-sm text-[#3db51d] leading-relaxed">
-            <p>1. Le montant minimum de retrait est de {minWithdrawal.toLocaleString()} {currency}.</p>
-            <p>2. Il n'y a pas de limite de temps pour les retraits, mais une limite de trois retraits par jour est autorisée.</p>
-            <p>3. Des frais de traitement de {withdrawalFee}% seront appliqués sur chaque retrait.</p>
-            <p>4. Les retraits seront disponibles sous 2 heures, et exceptionnellement sous 24 heures.</p>
-            <p>5. Si le retrait échoue, vérifiez que vos informations bancaires sont correctes, puis soumettez à nouveau la demande.</p>
-            <p>6. Effectuez votre première recharge et achetez des produits Jinko Solar pour activer la fonction de retrait.</p>
+        {/* ── Instructions ── */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3 pb-8">
+          <p className="font-bold text-gray-800 text-sm flex items-center gap-2">
+            💳 Instructions de Retrait :
+          </p>
+          <div className="space-y-2.5 text-sm text-gray-600 leading-relaxed">
+            <div className="flex gap-2">
+              <span style={{ color: "#3db51d" }}>◆</span>
+              <span>
+                <span className="font-bold">Montant minimum de retrait :</span>{" "}
+                {minWithdrawal.toLocaleString()} {currency}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span style={{ color: "#3db51d" }}>◆</span>
+              <span>
+                <span className="font-bold">Retraits possibles à tout moment</span>, sans limite de
+                temps, de montant ou de fréquence
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span style={{ color: "#3db51d" }}>◆</span>
+              <span>
+                <span className="font-bold">Frais de retrait :</span> {withdrawalFee}% par transaction
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span style={{ color: "#3db51d" }}>◆</span>
+              <span>
+                <span className="font-bold">Délai de traitement :</span> généralement dans les 2 heures, jusqu'à 24h dans des cas exceptionnels
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span style={{ color: "#3db51d" }}>◆</span>
+              <span>
+                Si le retrait échoue, vérifiez que vos informations de portefeuille sont correctes
+                et soumettez à nouveau la demande.
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span style={{ color: "#3db51d" }}>◆</span>
+              <span>
+                Effectuez votre première recharge et activez un produit Jinko Solar pour débloquer
+                la fonction de retrait.
+              </span>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   );
