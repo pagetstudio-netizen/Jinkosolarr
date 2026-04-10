@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, Loader2 } from "lucide-react";
+import historyIcon from "@assets/5708960_1774829436660-C3SIos42_1775833646464.png";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 
@@ -163,11 +164,7 @@ export default function WithdrawalPage() {
         <h1 className="text-lg font-bold text-white">Retrait</h1>
         <Link href="/withdrawal-history">
           <button data-testid="button-history">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <rect x="3" y="4" width="18" height="3" rx="1.5" fill="white" />
-              <rect x="3" y="10.5" width="18" height="3" rx="1.5" fill="white" />
-              <rect x="3" y="17" width="18" height="3" rx="1.5" fill="white" />
-            </svg>
+            <img src={historyIcon} alt="Historique" style={{ width: 26, height: 26, objectFit: "contain" }} />
           </button>
         </Link>
       </div>

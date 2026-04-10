@@ -5,6 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import jinkoBg from "@assets/15502488526db98c02ac135d0ac0e262d31dee111d_1775833317804.jpg";
+import historyIcon from "@assets/5708960_1774829436660-C3SIos42_1775833646464.png";
 
 const GREEN = "#3db51d";
 const PRESET_AMOUNTS = [3500, 8000, 15000];
@@ -54,11 +55,7 @@ export default function DepositPage() {
           <h1 style={{ fontSize: 18, fontWeight: 700, color: "white", margin: 0 }}>Recharger</h1>
           <Link href="/deposit-orders">
             <button data-testid="button-history" style={{ padding: 4 }}>
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-                <rect x="3" y="4" width="18" height="3" rx="1.5" fill="white" />
-                <rect x="3" y="10.5" width="18" height="3" rx="1.5" fill="white" />
-                <rect x="3" y="17" width="18" height="3" rx="1.5" fill="white" />
-              </svg>
+              <img src={historyIcon} alt="Historique" style={{ width: 26, height: 26, objectFit: "contain", filter: "brightness(0) invert(1)" }} />
             </button>
           </Link>
         </div>
