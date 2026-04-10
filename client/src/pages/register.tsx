@@ -95,13 +95,12 @@ export default function RegisterPage() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f4f6", maxWidth: 480, margin: "0 auto", position: "relative", overflow: "hidden" }}>
 
       {/* ── Header banner (Jinko Solar image) ── */}
-      <div style={{ position: "relative", height: "40vh", minHeight: 200, overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ position: "relative", flexShrink: 0 }}>
         <img
           src={jinkoBanner}
           alt="Jinko Solar"
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+          style={{ width: "100%", height: "auto", display: "block" }}
         />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.3) 100%)" }} />
       </div>
 
       {/* ── White form card ── */}
