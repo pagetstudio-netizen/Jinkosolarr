@@ -91,7 +91,7 @@ export default function ProductDetailPage() {
 
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-5 pb-3">
-        <button onClick={() => navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }} data-testid="button-back">
+        <button onClick={() => navigate("/")} className="w-9 h-9 flex items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.1)" }} data-testid="button-back">
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
         <h1 className="flex-1 text-center text-white font-bold text-base pr-9">Détails du produit</h1>
