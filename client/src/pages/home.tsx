@@ -86,7 +86,7 @@ export default function HomePage() {
                 Jinko Solar est l'un des plus grands fabricants de panneaux solaires au monde, présent dans plus de 160 pays.
               </p>
               <div className="space-y-2 text-white/90 text-sm mb-6">
-                <p>1. Bonus d'inscription : <span className="font-bold text-white">700 FCFA</span>.</p>
+                <p>1. Bonus d'inscription : <span className="font-bold text-white">800 FCFA</span>.</p>
                 <p>2. Bonus quotidien : <span className="font-bold text-white">50 FCFA</span>.</p>
                 <p>3. Parrainage : jusqu'à <span className="font-bold text-white">27 %</span> de commission.</p>
                 <p>4. Rejoignez notre groupe pour les codes bonus.</p>
