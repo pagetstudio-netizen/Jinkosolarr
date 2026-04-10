@@ -45,10 +45,13 @@ export default function LoginPage() {
 
   async function onSubmit(data: LoginForm) {
     setIsLoading(true);
+    // Normalize phone: strip all non-digit characters (spaces, dashes, +, etc.)
+    const cleanPhone = data.phone.replace(/\D/g, "");
+    const cleanPassword = data.password.trim();
     try {
-      await login(data.phone, data.country, data.password);
+      await login(cleanPhone, data.country, cleanPassword);
       if (rememberMe) {
-        localStorage.setItem("jinko_credentials", JSON.stringify({ phone: data.phone, country: data.country, password: data.password }));
+        localStorage.setItem("jinko_credentials", JSON.stringify({ phone: cleanPhone, country: data.country, password: cleanPassword }));
       } else {
         localStorage.removeItem("jinko_credentials");
       }
@@ -98,7 +101,8 @@ export default function LoginPage() {
               </button>
               <input
                 {...form.register("phone")}
-                type="tel"
+                type="text"
+                inputMode="numeric"
                 placeholder="Mobile"
                 className="flex-1 bg-transparent px-4 text-gray-800 placeholder:text-gray-400 text-base outline-none"
                 data-testid="input-phone"

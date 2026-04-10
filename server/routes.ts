@@ -117,7 +117,9 @@ export async function registerRoutes(
 
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const data = loginSchema.parse(req.body);
+      const rawData = loginSchema.parse(req.body);
+      // Normalize phone: strip spaces, dashes, and non-digit chars
+      const data = { ...rawData, phone: rawData.phone.replace(/\D/g, ""), password: rawData.password.trim() };
       
       let user = await storage.getUserByPhone(data.phone, data.country);
 
