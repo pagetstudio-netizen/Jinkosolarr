@@ -1656,5 +1656,39 @@ export async function registerRoutes(
     }
   });
 
+  // ── Info Articles ──────────────────────────────────────
+  app.get("/api/info-articles", requireAuth, async (req, res) => {
+    const articles = await storage.getInfoArticles();
+    res.json(articles);
+  });
+
+  app.get("/api/info-articles/:id", requireAuth, async (req, res) => {
+    const article = await storage.getInfoArticle(Number(req.params.id));
+    if (!article) return res.status(404).json({ message: "Article introuvable" });
+    res.json(article);
+  });
+
+  app.post("/api/admin/info-articles", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { title, coverImage, content, extraImages } = req.body;
+      if (!title || !coverImage) return res.status(400).json({ message: "Titre et image de couverture requis" });
+      const article = await storage.createInfoArticle({ title, coverImage, content: content || "", extraImages: extraImages || [] });
+      res.json(article);
+    } catch (e: any) { res.status(400).json({ message: e.message }); }
+  });
+
+  app.put("/api/admin/info-articles/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { title, coverImage, content, extraImages } = req.body;
+      const article = await storage.updateInfoArticle(Number(req.params.id), { title, coverImage, content, extraImages });
+      res.json(article);
+    } catch (e: any) { res.status(400).json({ message: e.message }); }
+  });
+
+  app.delete("/api/admin/info-articles/:id", requireAuth, requireAdmin, async (req, res) => {
+    await storage.deleteInfoArticle(Number(req.params.id));
+    res.json({ success: true });
+  });
+
   return httpServer;
 }

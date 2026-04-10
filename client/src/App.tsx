@@ -33,6 +33,8 @@ import RewardsPage from "@/pages/rewards";
 import WithdrawalHistoryPage from "@/pages/withdrawal-history";
 import DepositOrdersPage from "@/pages/deposit-orders";
 import ProductDetailPage from "@/pages/product-detail";
+import InfoPage from "@/pages/info";
+import InfoDetailPage from "@/pages/info-detail";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -278,6 +280,16 @@ function Router() {
       <Route path="/product/:id">
         <ProtectedRoute>
           <ProductDetailPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/info">
+        <ProtectedRoute>
+          <InfoPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/info/:id">
+        <ProtectedRoute>
+          <InfoDetailPage />
         </ProtectedRoute>
       </Route>
       <Route component={NotFound} />

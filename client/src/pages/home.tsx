@@ -58,7 +58,7 @@ export default function HomePage() {
     { label: "Retrait", img: iconRetrait, onClick: () => navigate("/withdrawal") },
     { label: "Nous contacter", img: iconContact, onClick: () => navigate("/service") },
     { label: "Argent gratuit", img: iconGratuit, onClick: () => navigate("/gift-code") },
-    { label: "Preuve de retrait", img: iconPreuve, onClick: () => navigate("/withdrawal-history") },
+    { label: "Être informé", img: iconPreuve, onClick: () => navigate("/info") },
   ];
 
   return (

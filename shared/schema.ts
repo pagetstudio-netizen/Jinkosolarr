@@ -257,6 +257,20 @@ export const referralCommissionsRelations = relations(referralCommissions, ({ on
   product: one(products, { fields: [referralCommissions.productId], references: [products.id] }),
 }));
 
+// Info Articles table
+export const infoArticles = pgTable("info_articles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  coverImage: text("cover_image").notNull(),
+  content: text("content").notNull().default(""),
+  extraImages: text("extra_images").array().default(sql`'{}'::text[]`),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertInfoArticleSchema = createInsertSchema(infoArticles).omit({ id: true, createdAt: true });
+export type InfoArticle = typeof infoArticles.$inferSelect;
+export type InsertInfoArticle = z.infer<typeof insertInfoArticleSchema>;
+
 // Schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,

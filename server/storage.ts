@@ -1094,6 +1094,39 @@ export class DatabaseStorage implements IStorage {
       });
     });
   }
+
+  async getInfoArticles() {
+    const { infoArticles } = await import("@shared/schema");
+    return db.select().from(infoArticles).orderBy(infoArticles.createdAt);
+  }
+
+  async getInfoArticle(id: number) {
+    const { infoArticles } = await import("@shared/schema");
+    const [article] = await db.select().from(infoArticles).where(eq(infoArticles.id, id));
+    return article;
+  }
+
+  async createInfoArticle(data: { title: string; coverImage: string; content: string; extraImages?: string[] }) {
+    const { infoArticles } = await import("@shared/schema");
+    const [article] = await db.insert(infoArticles).values({
+      title: data.title,
+      coverImage: data.coverImage,
+      content: data.content,
+      extraImages: data.extraImages || [],
+    }).returning();
+    return article;
+  }
+
+  async updateInfoArticle(id: number, data: { title?: string; coverImage?: string; content?: string; extraImages?: string[] }) {
+    const { infoArticles } = await import("@shared/schema");
+    const [article] = await db.update(infoArticles).set(data).where(eq(infoArticles.id, id)).returning();
+    return article;
+  }
+
+  async deleteInfoArticle(id: number) {
+    const { infoArticles } = await import("@shared/schema");
+    await db.delete(infoArticles).where(eq(infoArticles.id, id));
+  }
 }
 
 export const storage = new DatabaseStorage();
