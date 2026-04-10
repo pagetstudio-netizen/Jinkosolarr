@@ -129,10 +129,10 @@ export default function AccountPage() {
           </div>
         </div>
 
-        {/* Green header — user info only */}
+        {/* Green header — dégradé vert → blanc en bas */}
         <div
-          className="px-4 pt-5 pb-6"
-          style={{ background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
+          className="px-4 pt-5 pb-10"
+          style={{ background: `linear-gradient(to bottom, ${GREEN} 0%, ${GREEN} 55%, #f2f2f2 100%)` }}
         >
           {/* User info row */}
           <div className="flex items-center gap-3">
@@ -161,7 +161,7 @@ export default function AccountPage() {
         </div>
 
         {/* Balance card (carbon fiber) */}
-        <div className="mx-3 -mt-3">
+        <div className="mx-3 mt-3">
           <div style={carbonCard} className="p-4 shadow-xl">
             {/* Solde + buttons */}
             <div className="flex items-center justify-between mb-2">
@@ -169,8 +169,8 @@ export default function AccountPage() {
               <div className="flex gap-2">
                 <Link href="/deposit">
                   <button
-                    className="px-4 py-1.5 rounded-full text-white text-xs font-bold"
-                    style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
+                    className="px-5 py-1.5 rounded-full text-white text-xs font-bold"
+                    style={{ background: GREEN, boxShadow: `0 2px 8px rgba(61,181,29,0.4)` }}
                     data-testid="button-recharger"
                   >
                     Recharger
@@ -178,8 +178,8 @@ export default function AccountPage() {
                 </Link>
                 <Link href="/withdrawal">
                   <button
-                    className="px-4 py-1.5 rounded-full text-xs font-bold"
-                    style={{ background: "#2a2a2a", color: "#ccc", border: "1px solid #444" }}
+                    className="px-5 py-1.5 rounded-full text-xs font-bold"
+                    style={{ background: "transparent", color: "white", border: "1.5px solid rgba(255,255,255,0.5)" }}
                     data-testid="button-retrait"
                   >
                     Retrait
