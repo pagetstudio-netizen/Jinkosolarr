@@ -89,7 +89,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f4f6", maxWidth: 480, margin: "0 auto", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#080d18", maxWidth: 480, margin: "0 auto", position: "relative", overflow: "hidden" }}>
 
       {/* ── Header banner (Jinko Solar image) ── */}
       <div style={{ position: "relative", flexShrink: 0 }}>
