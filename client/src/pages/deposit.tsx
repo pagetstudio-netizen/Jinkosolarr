@@ -138,6 +138,9 @@ export default function DepositPage() {
         </div>
       </div>
 
+      {/* ── Espace vert entre la carte et la zone grise ── */}
+      <div style={{ height: 32 }} />
+
       {/* ── Zone gris : bouton + instructions ── */}
       <div
         style={{
