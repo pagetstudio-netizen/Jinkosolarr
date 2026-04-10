@@ -3,9 +3,11 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, Loader2, Plus, CreditCard } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
+
+const GREEN = "#3db51d";
 
 interface WalletData {
   id: number;
@@ -66,6 +68,7 @@ export default function WithdrawalPage() {
   });
 
   const hasActiveProduct = userProducts.some((p) => p.status === "active");
+  const hasWallets = wallets.length > 0;
 
   useEffect(() => {
     const savedWalletId = localStorage.getItem("selectedWalletId");
@@ -137,8 +140,8 @@ export default function WithdrawalPage() {
 
   if (walletsLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: GREEN }}>
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
       </div>
     );
   }
@@ -146,111 +149,139 @@ export default function WithdrawalPage() {
   if (!user) return null;
 
   const balance = parseFloat(user?.balance || "0");
-  const hasWallets = wallets.length > 0;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#f5f5f5" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: GREEN }}>
 
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
+      {/* Header — sur fond vert */}
+      <div className="flex items-center justify-between px-4 pt-10 pb-4">
         <Link href="/account">
-          <button className="p-1" data-testid="button-back">
-            <ChevronLeft className="w-6 h-6 text-gray-700" />
+          <button data-testid="button-back">
+            <ChevronLeft className="w-6 h-6 text-white" />
           </button>
         </Link>
-        <h1 className="text-base font-bold text-gray-800">Retrait</h1>
+        <h1 className="text-lg font-bold text-white">Retrait</h1>
         <Link href="/withdrawal-history">
-          <button className="p-1" data-testid="button-history">
-            <ChevronLeft className="w-6 h-6 text-gray-700 rotate-180" />
+          <button data-testid="button-history">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="3" rx="1.5" fill="white" />
+              <rect x="3" y="10.5" width="18" height="3" rx="1.5" fill="white" />
+              <rect x="3" y="17" width="18" height="3" rx="1.5" fill="white" />
+            </svg>
           </button>
         </Link>
       </div>
 
-      <div className="px-4 py-4 space-y-4">
+      {/* Carte blanche principale */}
+      <div className="mx-4 bg-white rounded-3xl shadow-lg overflow-hidden">
 
-        {/* ── Balance card ── */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 flex items-center justify-between">
+        {/* Section solde — fond vert clair */}
+        <div
+          className="flex items-center justify-between px-5 py-5"
+          style={{ background: "#e8f8e0" }}
+        >
           <div>
-            <p className="text-sm font-semibold" style={{ color: "#3db51d" }}>Solde du compte</p>
-            <p className="text-3xl font-extrabold mt-1" style={{ color: "#3db51d" }} data-testid="text-balance">
-              {balance.toLocaleString("fr-FR", { minimumFractionDigits: 0 })}<span className="text-xl ml-1">{currency}</span>
+            <p className="text-sm font-semibold" style={{ color: GREEN }}>
+              Solde du compte
+            </p>
+            <p
+              className="text-4xl font-extrabold mt-1 leading-tight"
+              style={{ color: GREEN }}
+              data-testid="text-balance"
+            >
+              {balance.toLocaleString("fr-FR", { minimumFractionDigits: 0 })}
+              <span className="text-2xl font-bold ml-1">{currency}</span>
             </p>
           </div>
+          {/* Icône portefeuille */}
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center"
-            style={{ background: "#3db51d" }}
+            className="w-16 h-16 rounded-full flex items-center justify-center shadow"
+            style={{ background: "white" }}
           >
-            <CreditCard className="w-7 h-7 text-white" />
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="3" y="9" width="26" height="18" rx="3" fill={GREEN} />
+              <rect x="3" y="7" width="26" height="6" rx="2" fill={GREEN} opacity="0.6" />
+              <circle cx="23" cy="18" r="2.5" fill="white" />
+            </svg>
           </div>
         </div>
 
-        {/* ── Amount input card ── */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
-          <p className="text-xs" style={{ color: "#3db51d" }}>
+        {/* Section saisie montant */}
+        <div className="px-5 pt-4 pb-5">
+          <p className="text-sm mb-3" style={{ color: GREEN }}>
             Veuillez saisir le montant de retrait
           </p>
-          <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3">
+
+          {/* Champ montant */}
+          <div
+            className="flex items-center rounded-xl px-4 py-3 border"
+            style={{ borderColor: "#e5e7eb" }}
+          >
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
               placeholder="montant"
-              className="flex-1 text-xl font-semibold text-gray-700 outline-none bg-transparent"
+              className="flex-1 text-lg text-gray-600 outline-none bg-transparent"
               data-testid="input-withdrawal-amount"
             />
-            <span className="text-gray-400 font-semibold text-base ml-2">{currency}</span>
+            <span className="text-gray-400 font-semibold ml-2">{currency}</span>
           </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500">
-              Montant reçu :{" "}
-              <span className="font-semibold text-gray-700">
-                {amountAfterFees.toLocaleString()}
-              </span>
-            </span>
-            <span className="text-gray-400">Taxe : {withdrawalFee.toFixed(2)}%</span>
+
+          {/* Montant reçu / Taxe */}
+          <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+            <span>Montant reçu : {amountAfterFees.toLocaleString()}</span>
+            <span>Taxe : {withdrawalFee.toFixed(2)}%</span>
           </div>
         </div>
+      </div>
 
-        {/* ── Choose wallet button ── */}
+      {/* Bouton Choisissez votre portefeuille */}
+      <div className="mx-4 mt-4">
         <button
           onClick={() => navigate(hasWallets ? "/wallet?from=withdrawal" : "/wallet")}
-          className="w-full py-4 rounded-2xl text-white font-bold text-sm flex items-center gap-3 px-5"
-          style={{ background: "#3db51d" }}
+          className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-white font-semibold text-sm shadow"
+          style={{ background: GREEN }}
           data-testid="button-select-wallet"
         >
-          <CreditCard className="w-5 h-5 text-white" />
+          {/* Icône carte */}
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <rect x="1" y="4" width="20" height="14" rx="3" stroke="white" strokeWidth="1.8" />
+            <rect x="1" y="8" width="20" height="3" fill="white" />
+            <rect x="4" y="13" width="6" height="2" rx="1" fill="white" />
+          </svg>
           <span className="flex-1 text-left">
             {selectedWallet
               ? `${selectedWallet.accountName} · ${selectedWallet.accountNumber}`
-              : hasWallets
-              ? "Choisissez votre portefeuille"
-              : "Ajouter un portefeuille"}
+              : "Choisissez votre portefeuille"}
           </span>
-          <span className="text-white font-bold text-lg">›</span>
+          <span className="text-white text-lg font-bold">›</span>
         </button>
+      </div>
 
-        {/* Warnings */}
-        {!isWithinWithdrawalHours && (
-          <div className="rounded-xl border border-gray-200 bg-white p-3 text-sm" style={{ color: "#3db51d" }}>
-            ⏰ Horaires de retrait : {withdrawalStartHour}h00 – {withdrawalEndHour}h00 (Fermé actuellement)
-          </div>
-        )}
-        {!hasActiveProduct && (
-          <div className="rounded-xl border border-gray-200 bg-white p-3 text-sm" style={{ color: "#3db51d" }}>
-            ⚠️ Vous devez avoir un produit actif pour effectuer un retrait.
-          </div>
-        )}
+      {/* Warnings */}
+      {!isWithinWithdrawalHours && (
+        <div className="mx-4 mt-3 bg-white rounded-2xl px-4 py-3 text-sm" style={{ color: GREEN }}>
+          ⏰ Horaires de retrait : {withdrawalStartHour}h00 – {withdrawalEndHour}h00 (Fermé actuellement)
+        </div>
+      )}
+      {!hasActiveProduct && (
+        <div className="mx-4 mt-3 bg-white rounded-2xl px-4 py-3 text-sm" style={{ color: GREEN }}>
+          ⚠️ Vous devez avoir un produit actif pour effectuer un retrait.
+        </div>
+      )}
 
-        {/* ── Submit button ── */}
+      {/* Bouton Retirer maintenant */}
+      <div className="flex justify-center mt-5 mb-1">
         <button
           onClick={handleSubmit}
           disabled={withdrawMutation.isPending || !amount || !selectedWallet || !hasActiveProduct}
-          className="w-full py-4 rounded-full text-white font-bold text-base shadow disabled:opacity-40"
-          style={{ background: "#3db51d" }}
+          className="px-14 py-4 rounded-full text-white font-bold text-base shadow-md disabled:opacity-40"
+          style={{ background: GREEN }}
           data-testid="button-submit-withdrawal"
         >
           {withdrawMutation.isPending ? (
-            <span className="flex items-center justify-center gap-2">
+            <span className="flex items-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
               Envoi en cours...
             </span>
@@ -258,56 +289,57 @@ export default function WithdrawalPage() {
             "Retirer maintenant"
           )}
         </button>
+      </div>
 
-        {/* ── Instructions ── */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3 pb-8">
-          <p className="font-bold text-gray-800 text-sm flex items-center gap-2">
-            💳 Instructions de Retrait :
-          </p>
-          <div className="space-y-2.5 text-sm text-gray-600 leading-relaxed">
-            <div className="flex gap-2">
-              <span style={{ color: "#3db51d" }}>◆</span>
-              <span>
-                <span className="font-bold">Montant minimum de retrait :</span>{" "}
-                {minWithdrawal.toLocaleString()} {currency}
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <span style={{ color: "#3db51d" }}>◆</span>
-              <span>
-                <span className="font-bold">Retraits possibles à tout moment</span>, sans limite de
-                temps, de montant ou de fréquence
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <span style={{ color: "#3db51d" }}>◆</span>
-              <span>
-                <span className="font-bold">Frais de retrait :</span> {withdrawalFee}% par transaction
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <span style={{ color: "#3db51d" }}>◆</span>
-              <span>
-                <span className="font-bold">Délai de traitement :</span> généralement dans les 2 heures, jusqu'à 24h dans des cas exceptionnels
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <span style={{ color: "#3db51d" }}>◆</span>
-              <span>
-                Si le retrait échoue, vérifiez que vos informations de portefeuille sont correctes
-                et soumettez à nouveau la demande.
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <span style={{ color: "#3db51d" }}>◆</span>
-              <span>
-                Effectuez votre première recharge et activez un produit Jinko Solar pour débloquer
-                la fonction de retrait.
-              </span>
-            </div>
+      {/* Zone instructions — fond gris clair */}
+      <div className="flex-1 bg-gray-50 mt-4 px-5 pt-5 pb-10 space-y-4">
+        <p className="font-bold text-gray-800 text-sm flex items-center gap-2">
+          💳 Instructions de Retrait :
+        </p>
+
+        <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
+          <div className="flex gap-2 items-start">
+            <span className="mt-0.5 font-bold" style={{ color: "#1565C0" }}>◆</span>
+            <p>
+              <span className="font-bold">Montant minimum de retrait :</span>{" "}
+              {minWithdrawal.toLocaleString()} {currency}
+            </p>
+          </div>
+          <div className="flex gap-2 items-start">
+            <span className="mt-0.5 font-bold" style={{ color: "#1565C0" }}>◆</span>
+            <p>
+              <span className="font-bold">Retraits possibles à tout moment</span>, sans limite de
+              temps, de montant ou de fréquence
+            </p>
+          </div>
+          <div className="flex gap-2 items-start">
+            <span className="mt-0.5 font-bold" style={{ color: "#1565C0" }}>◆</span>
+            <p>
+              <span className="font-bold">Frais de retrait :</span> {withdrawalFee}% par transaction
+            </p>
+          </div>
+          <div className="flex gap-2 items-start">
+            <span className="mt-0.5 font-bold" style={{ color: "#1565C0" }}>◆</span>
+            <p>
+              <span className="font-bold">Délai de traitement :</span> généralement dans les 2
+              heures, jusqu'à 24h dans des cas exceptionnels
+            </p>
+          </div>
+          <div className="flex gap-2 items-start">
+            <span className="mt-0.5 font-bold" style={{ color: "#1565C0" }}>◆</span>
+            <p>
+              Si le retrait échoue, vérifiez que vos informations de portefeuille sont correctes
+              et soumettez à nouveau la demande.
+            </p>
+          </div>
+          <div className="flex gap-2 items-start">
+            <span className="mt-0.5 font-bold" style={{ color: "#1565C0" }}>◆</span>
+            <p>
+              Effectuez votre première recharge et activez un produit Jinko Solar pour débloquer
+              la fonction de retrait.
+            </p>
           </div>
         </div>
-
       </div>
     </div>
   );
