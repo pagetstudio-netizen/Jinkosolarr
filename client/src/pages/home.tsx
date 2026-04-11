@@ -32,7 +32,7 @@ import jinkoLogoSquare from "@assets/jinko-solar-logo-png_seeklogo-265492_177567
 import heroImg from "@assets/20260408_191813_1775675938233.jpg";
 
 const productImages: Record<number, string> = { 2: p1, 3: p2, 4: p3, 5: p4, 6: p5, 7: p6, 8: p7, 9: p8, 10: p9 };
-const TELEGRAM_LINK = "https://t.me/wendysappgroup";
+const TELEGRAM_LINK = "https://t.me/Jinkosolarr";
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;

@@ -7,7 +7,6 @@ interface ContactSheetProps {
   onClose: () => void;
 }
 
-
 export default function ContactSheet({ open, onClose }: ContactSheetProps) {
   const { data: settings } = useQuery<{
     supportLink: string;
@@ -25,22 +24,22 @@ export default function ContactSheet({ open, onClose }: ContactSheetProps) {
 
   const items = [
     {
-      label: "Canal Telegram",
+      label: "Chaîne officielle",
       sublabel: "Rejoignez notre chaîne officielle",
-      url: settings?.channelLink || "https://t.me/wendysappgroup",
+      url: settings?.channelLink || "https://t.me/Jinkosolarr",
       testId: "button-contact-channel",
     },
     {
-      label: "Service client 1",
-      sublabel: "Disponible de 09h00 à 20h00",
-      url: settings?.supportLink || "https://t.me/wendysappgroup",
-      testId: "button-contact-support1",
+      label: "Groupe de discussion",
+      sublabel: "Rejoignez notre groupe Telegram",
+      url: settings?.groupLink || "https://t.me/Jinkosolarr",
+      testId: "button-contact-group",
     },
     {
-      label: "Service client 2",
+      label: "Service client",
       sublabel: "Disponible de 09h00 à 20h00",
-      url: settings?.support2Link || "https://t.me/wendysappgroup",
-      testId: "button-contact-support2",
+      url: settings?.supportLink || "https://t.me/Jinkosolarr",
+      testId: "button-contact-support",
     },
   ];
 

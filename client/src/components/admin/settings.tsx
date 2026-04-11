@@ -61,10 +61,10 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      supportLink: "https://t.me/wendysappgroup",
-      support2Link: "https://t.me/wendysappgroup",
-      channelLink: "https://t.me/wendysappgroup",
-      groupLink: "https://t.me/wendysappgroup",
+      supportLink: "https://t.me/Jinkosolarr",
+      support2Link: "https://t.me/Jinkosolarr",
+      channelLink: "https://t.me/Jinkosolarr",
+      groupLink: "https://t.me/Jinkosolarr",
       minDeposit: "3500",
       withdrawalFees: "15",
       withdrawalStartHour: "8",
@@ -85,10 +85,10 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   useEffect(() => {
     if (settings) {
       form.reset({
-        supportLink: settings.supportLink || "https://t.me/wendysappgroup",
-        support2Link: settings.support2Link || "https://t.me/wendysappgroup",
-        channelLink: settings.channelLink || "https://t.me/wendysappgroup",
-        groupLink: settings.groupLink || "https://t.me/wendysappgroup",
+        supportLink: settings.supportLink || "https://t.me/Jinkosolarr",
+        support2Link: settings.support2Link || "https://t.me/Jinkosolarr",
+        channelLink: settings.channelLink || "https://t.me/Jinkosolarr",
+        groupLink: settings.groupLink || "https://t.me/Jinkosolarr",
         minDeposit: settings.minDeposit || "3500",
         withdrawalFees: settings.withdrawalFees || "15",
         withdrawalStartHour: settings.withdrawalStartHour || "8",
