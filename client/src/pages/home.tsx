@@ -144,7 +144,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero Image with overlaid buttons */}
-      <div style={{ position: "relative", lineHeight: 0 }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 10, lineHeight: 0 }}>
         <img
           src={heroImg}
           alt="Jinko Solar"
