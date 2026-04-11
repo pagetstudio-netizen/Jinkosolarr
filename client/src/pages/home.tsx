@@ -100,31 +100,35 @@ export default function HomePage() {
       {showPopup && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 animate-in fade-in duration-200"
+          onClick={() => setShowPopup(false)}
         >
-          {/* Image popup — position relative pour superposer les boutons */}
-          <div style={{ position: "relative", width: "88vw", maxWidth: 360 }}>
+          {/* Image popup */}
+          <div
+            style={{ position: "relative", width: "96vw", maxWidth: 440 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={popupCharacters}
               alt="popup"
               style={{ width: "100%", display: "block", borderRadius: 20 }}
             />
 
-            {/* Zone cliquable transparente sur le bouton Télégram Groupe */}
+            {/* Zone cliquable — bouton Télégram Groupe (ouvre Telegram) */}
             <a
               href={TELEGRAM_LINK}
               target="_blank"
               rel="noopener noreferrer"
               data-testid="button-popup-telegram"
               onClick={() => setShowPopup(false)}
-              style={{ position: "absolute", left: "10%", right: "10%", bottom: "15%", height: "9%", borderRadius: 50, display: "block" }}
+              style={{ position: "absolute", left: "10%", right: "10%", bottom: "14%", height: "8%", borderRadius: 50, display: "block" }}
               aria-label="Rejoindre le groupe Telegram"
             />
 
-            {/* Zone cliquable transparente sur le X en bas */}
+            {/* Zone cliquable — X (ferme le popup) */}
             <button
               onClick={() => setShowPopup(false)}
               data-testid="button-popup-close"
-              style={{ position: "absolute", left: "50%", bottom: "2%", transform: "translateX(-50%)", width: "14%", aspectRatio: "1", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer" }}
+              style={{ position: "absolute", left: "50%", bottom: "3%", transform: "translateX(-50%)", width: "12%", aspectRatio: "1", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer" }}
               aria-label="Fermer"
             />
           </div>
