@@ -5,7 +5,23 @@ import { getCountryByCode } from "@/lib/countries";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 
-import productHeroImg from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
+import fallbackImg from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
+import p1 from "@assets/panneaux-solaires-3d-realiste_625553-173_1775768333512.jpg";
+import p2 from "@assets/images_(33)_1775768333811.jpeg";
+import p3 from "@assets/panneau-solaire-detoure-min_1775768333844.png";
+import p4 from "@assets/panneau-solaire-hybride_1775768333929.jpg";
+import p5 from "@assets/images_(30)_1775768333959.jpeg";
+import p6 from "@assets/images_(29)_1775768333985.jpeg";
+import p7 from "@assets/images_(28)_1775768334009.jpeg";
+import p8 from "@assets/images_(26)_1775768334029.jpeg";
+import p9 from "@assets/Jinko-solar-panel-535-555W-p-type-1_1775768334052.jpg";
+
+const productImages: Record<number, string> = {
+  2: p1, 3: p2, 4: p3, 5: p4, 6: p5, 7: p6, 8: p7, 9: p8, 10: p9,
+};
+
+const GREEN = "#3db51d";
+const GREEN_DARK = "#2a8d13";
 
 export default function MyProductsPage() {
   const { user } = useAuth();
@@ -41,8 +57,8 @@ export default function MyProductsPage() {
     <div className="flex flex-col min-h-full bg-gray-100">
       <div className="flex-1 overflow-y-auto pb-24">
 
-        {/* Red header */}
-        <div className="relative pt-10 pb-8 px-4 text-center" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
+        {/* Header */}
+        <div className="relative pt-10 pb-8 px-4 text-center" style={{ background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}>
           <div className="absolute top-3 left-3">
             <Link href="/account">
               <button className="p-1.5 bg-white/20 rounded-full" data-testid="button-back">
@@ -70,16 +86,19 @@ export default function MyProductsPage() {
         <div className="px-4 mt-4 space-y-4">
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: GREEN }} />
             </div>
           ) : allProducts.length === 0 ? (
             <EmptyState message="Aucun produit pour le moment" />
           ) : (
-            allProducts.map((up: any, index: number) => {
+            allProducts.map((up: any) => {
+              const productId = up.product?.id;
+              const imgSrc = productImages[productId] || fallbackImg;
               const cycleDays = up.product?.cycleDays || 60;
               const daysRemaining = up.daysRemaining || 0;
               const daysCompleted = Math.max(0, cycleDays - daysRemaining);
               const dailyEarnings = up.product?.dailyEarnings || 0;
+              const price = up.product?.price || 0;
               const totalRevenue = cycleDays * dailyEarnings;
               const earnedSoFar = parseFloat(up.totalEarned || "0");
 
@@ -89,56 +108,64 @@ export default function MyProductsPage() {
                   className="bg-white rounded-2xl shadow-sm overflow-hidden"
                   data-testid={`product-card-${up.id}`}
                 >
-                  {/* Date badge + earnings row */}
-                  <div className="px-4 pt-3 pb-2">
-                    {/* Date badge */}
-                    <div className="flex justify-end mb-2">
-                      <span
-                        className="text-white text-xs font-semibold px-3 py-1 rounded-full"
-                        style={{ backgroundColor: "#3db51d" }}
-                      >
-                        {formatDateTime(up.purchasedAt)}
-                      </span>
-                    </div>
+                  {/* Product name */}
+                  <p className="text-center text-gray-900 font-bold text-base pt-4 pb-2 px-4">
+                    {up.product?.name || "Produit"}
+                  </p>
 
-                    {/* Earnings row */}
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-[#3db51d] font-black text-lg leading-tight">
-                          {currency} {dailyEarnings.toLocaleString()}
-                        </p>
-                        <p className="text-gray-400 text-xs">Revenus quotidiens</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[#3db51d] font-black text-lg leading-tight">
-                          {currency} {earnedSoFar.toLocaleString()}
-                        </p>
-                        <p className="text-gray-400 text-xs">Revenus totaux</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Product info row */}
-                  <div className="flex items-center gap-3 px-4 py-3 border-t border-gray-100">
+                  {/* Image + details row */}
+                  <div className="flex items-start gap-4 px-4 pb-3">
+                    {/* Product image */}
                     <img
-                      src={productHeroImg}
+                      src={imgSrc}
                       alt={up.product?.name || "Produit"}
-                      className="w-14 h-14 object-cover rounded-xl shrink-0"
+                      className="rounded-xl object-cover shrink-0"
+                      style={{ width: 90, height: 90 }}
                     />
-                    <div>
-                      <p className="text-gray-900 font-bold text-sm">{up.product?.name || "Produit"}</p>
-                      <p className="text-[#3db51d] text-xs font-medium mt-0.5">
-                        Durée : {daysCompleted}/{cycleDays} Jours
-                      </p>
+
+                    {/* Info rows */}
+                    <div className="flex-1 space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 text-sm">Prix :</span>
+                        <span className="font-semibold text-sm" style={{ color: GREEN }}>
+                          {currency} {Number(price).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 text-sm">Revenus quotidiens :</span>
+                        <span className="font-semibold text-sm" style={{ color: GREEN }}>
+                          {currency} {Number(dailyEarnings).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 text-sm">Revenus totaux :</span>
+                        <span className="font-semibold text-sm" style={{ color: GREEN }}>
+                          {currency} {Number(totalRevenue).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 text-sm">Revenus perçus :</span>
+                        <span className="font-semibold text-sm" style={{ color: GREEN }}>
+                          {currency} {earnedSoFar.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 text-sm">Acheté le :</span>
+                        <span className="font-semibold text-xs" style={{ color: GREEN }}>
+                          {formatDateTime(up.purchasedAt)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Red bottom bar */}
-                  <div
-                    className="px-4 py-2.5 text-center text-white text-sm font-semibold"
-                    style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
-                  >
-                    Revenus reçus : {currency} {earnedSoFar.toLocaleString()}
+                  {/* Durée button */}
+                  <div className="px-4 pb-4">
+                    <div
+                      className="w-full py-2.5 rounded-full text-center text-white text-sm font-bold"
+                      style={{ background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}
+                    >
+                      Durée : {daysCompleted}/{cycleDays}
+                    </div>
                   </div>
                 </div>
               );

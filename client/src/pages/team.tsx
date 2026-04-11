@@ -80,20 +80,6 @@ export default function TeamPage() {
     <div className="flex flex-col min-h-full bg-white">
       <div className="flex-1 overflow-y-auto pb-24 px-4 pt-5 space-y-4">
 
-        {/* Agent button + subtitle */}
-        <div className="flex flex-col items-center gap-3 pt-1">
-          <button
-            className="w-full py-3 rounded-full font-bold text-white text-sm shadow-lg"
-            style={{ background: "linear-gradient(90deg, #f97316 0%, #ea580c 100%)" }}
-            data-testid="button-agent"
-          >
-            Postulez pour devenir agent maintenant
-          </button>
-          <p className="text-gray-500 text-xs text-center leading-relaxed">
-            Profitez du partage des bénéfices de l'équipe + services exclusifs
-          </p>
-        </div>
-
         {/* Referral card */}
         <div
           className="rounded-2xl overflow-hidden shadow-md"
