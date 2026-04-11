@@ -99,55 +99,35 @@ export default function HomePage() {
       {/* Popup */}
       {showPopup && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/70 animate-in fade-in duration-200"
-          onClick={() => setShowPopup(false)}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 animate-in fade-in duration-200"
         >
-          {/* Card wrapper */}
-          <div
-            className="relative w-[88vw] max-w-[340px] animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Characters image — floats above the card */}
-            <div style={{ position: "relative", zIndex: 2, textAlign: "center", marginBottom: -30 }}>
-              <img
-                src={popupCharacters}
-                alt=""
-                style={{ width: "85%", maxWidth: 280, display: "inline-block", objectFit: "contain", filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.5))" }}
-              />
-            </div>
+          {/* Image popup — position relative pour superposer les boutons */}
+          <div style={{ position: "relative", width: "88vw", maxWidth: 360 }}>
+            <img
+              src={popupCharacters}
+              alt="popup"
+              style={{ width: "100%", display: "block", borderRadius: 20 }}
+            />
 
-            {/* White card */}
-            <div style={{ background: "white", borderRadius: 24, paddingTop: 40, paddingBottom: 24, paddingLeft: 24, paddingRight: 24, position: "relative", zIndex: 1 }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: "#111827", textAlign: "center", marginBottom: 10, lineHeight: 1.5 }}>
-                Vous pouvez rejoindre notre communauté sur Télégram en cliquant sur le bouton suivant,
-              </p>
-              <p style={{ fontSize: 13, color: "#6b7280", textAlign: "center", marginBottom: 20, lineHeight: 1.6 }}>
-                N'hésitez pas à contacter le service client en cas de problème.
-              </p>
+            {/* Zone cliquable transparente sur le bouton Télégram Groupe */}
+            <a
+              href={TELEGRAM_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="button-popup-telegram"
+              onClick={() => setShowPopup(false)}
+              style={{ position: "absolute", left: "10%", right: "10%", bottom: "15%", height: "9%", borderRadius: 50, display: "block" }}
+              aria-label="Rejoindre le groupe Telegram"
+            />
 
-              {/* Telegram Group button */}
-              <a
-                href={TELEGRAM_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-testid="button-popup-telegram"
-                onClick={() => setShowPopup(false)}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, width: "100%", padding: "14px 0", borderRadius: 50, background: "linear-gradient(90deg, #3db51d, #5fd131)", color: "white", fontWeight: 800, fontSize: 16, textDecoration: "none", boxShadow: "0 4px 16px rgba(61,181,29,0.4)" }}
-              >
-                <SiTelegram size={22} color="white" />
-                Télégram Groupe
-              </a>
-            </div>
+            {/* Zone cliquable transparente sur le X en bas */}
+            <button
+              onClick={() => setShowPopup(false)}
+              data-testid="button-popup-close"
+              style={{ position: "absolute", left: "50%", bottom: "2%", transform: "translateX(-50%)", width: "14%", aspectRatio: "1", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer" }}
+              aria-label="Fermer"
+            />
           </div>
-
-          {/* Red X close button — below the card */}
-          <button
-            onClick={() => setShowPopup(false)}
-            data-testid="button-popup-close"
-            style={{ marginTop: 20, width: 48, height: 48, borderRadius: "50%", background: "white", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}
-          >
-            <X size={24} color="#ef4444" strokeWidth={3} />
-          </button>
         </div>
       )}
 
