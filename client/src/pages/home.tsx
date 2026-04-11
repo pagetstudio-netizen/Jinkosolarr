@@ -13,7 +13,9 @@ import iconPreuve from "@assets/20260409_174658_1775756828223.png";
 import iconRecharger from "@assets/20260409_133235_1775749369916.png";
 import iconRetrait from "@assets/20260409_133935_1775749370458.png";
 import iconContact from "@assets/20260409_152753_1775749370488.png";
-import popupCharacters from "@assets/20260411_133548_1775916720304.png";
+import popupCharacters from "@assets/20260411_151613_1775920729926.png";
+import popupTelegramBtn from "@assets/20260411_144546_1775920729992.png";
+import popupCloseBtn from "@assets/20260411_144711_1775920729969.png";
 import type { Product } from "@shared/schema";
 
 import p1 from "@assets/panneaux-solaires-3d-realiste_625553-173_1775768333512.jpg";
@@ -99,51 +101,47 @@ export default function HomePage() {
       {/* Popup */}
       {showPopup && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 animate-in fade-in duration-200"
           onClick={() => setShowPopup(false)}
         >
+          {/* Contenu du popup — clic intérieur ne ferme pas */}
           <div
-            style={{ position: "relative", width: "96vw", maxWidth: 440 }}
+            style={{ width: "92vw", maxWidth: 420, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Image principale */}
             <img
               src={popupCharacters}
-              alt="popup"
+              alt="Bienvenue"
               style={{ width: "100%", display: "block", borderRadius: 20 }}
+              data-testid="img-popup"
             />
 
-            {/* Bouton Télégram Groupe — zone large sur le bouton jaune de l'image */}
+            {/* Bouton Télégram Groupe */}
             <a
               href={TELEGRAM_LINK}
               target="_blank"
               rel="noopener noreferrer"
               data-testid="button-popup-telegram"
-              style={{
-                position: "absolute",
-                left: "5%", right: "5%",
-                bottom: "13%", height: "11%",
-                borderRadius: 50,
-                display: "block",
-                cursor: "pointer",
-              }}
+              style={{ width: "90%", display: "block" }}
               aria-label="Rejoindre le groupe Telegram"
-            />
+            >
+              <img
+                src={popupTelegramBtn}
+                alt="Télégram Group"
+                style={{ width: "100%", display: "block", borderRadius: 50 }}
+              />
+            </a>
 
-            {/* Bouton X — zone centrée sur le X rouge en bas de l'image */}
+            {/* Bouton X — ferme le popup */}
             <button
               onClick={() => setShowPopup(false)}
               data-testid="button-popup-close"
-              style={{
-                position: "absolute",
-                left: "38%", right: "38%",
-                bottom: "1%", height: "10%",
-                borderRadius: "50%",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-              }}
+              style={{ background: "transparent", border: "none", cursor: "pointer", padding: 0, width: 64, height: 64 }}
               aria-label="Fermer"
-            />
+            >
+              <img src={popupCloseBtn} alt="Fermer" style={{ width: "100%", height: "100%" }} />
+            </button>
           </div>
         </div>
       )}
