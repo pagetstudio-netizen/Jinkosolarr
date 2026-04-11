@@ -13,6 +13,7 @@ import iconPreuve from "@assets/20260409_174658_1775756828223.png";
 import iconRecharger from "@assets/20260409_133235_1775749369916.png";
 import iconRetrait from "@assets/20260409_133935_1775749370458.png";
 import iconContact from "@assets/20260409_152753_1775749370488.png";
+import popupCharacters from "@assets/20260411_133548_1775916720304.png";
 import type { Product } from "@shared/schema";
 
 import p1 from "@assets/panneaux-solaires-3d-realiste_625553-173_1775768333512.jpg";
@@ -98,51 +99,55 @@ export default function HomePage() {
       {/* Popup */}
       {showPopup && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-5 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/70 animate-in fade-in duration-200"
           onClick={() => setShowPopup(false)}
         >
+          {/* Card wrapper */}
           <div
-            className="w-full max-w-[340px] rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200"
-            style={{ background: "linear-gradient(160deg, #3db51d 0%, #1e7a0e 100%)" }}
+            className="relative w-[88vw] max-w-[340px] animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 pt-7 pb-6">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center overflow-hidden shadow-lg">
-                  <img src={jinkoLogoSquare} alt="Jinko Solar" className="w-full h-full object-cover" />
-                </div>
-              </div>
-              <h2 className="text-white text-2xl font-extrabold text-center tracking-widest mb-4">AVERTIR</h2>
-              <p className="text-white/90 text-sm leading-relaxed mb-4">
-                Jinko Solar est l'un des plus grands fabricants de panneaux solaires au monde, présent dans plus de 160 pays.
+            {/* Characters image — floats above the card */}
+            <div style={{ position: "relative", zIndex: 2, textAlign: "center", marginBottom: -30 }}>
+              <img
+                src={popupCharacters}
+                alt=""
+                style={{ width: "85%", maxWidth: 280, display: "inline-block", objectFit: "contain", filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.5))" }}
+              />
+            </div>
+
+            {/* White card */}
+            <div style={{ background: "white", borderRadius: 24, paddingTop: 40, paddingBottom: 24, paddingLeft: 24, paddingRight: 24, position: "relative", zIndex: 1 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: "#111827", textAlign: "center", marginBottom: 10, lineHeight: 1.5 }}>
+                Vous pouvez rejoindre notre communauté sur Télégram en cliquant sur le bouton suivant,
               </p>
-              <div className="space-y-2 text-white/90 text-sm mb-6">
-                <p>1. Bonus d'inscription : <span className="font-bold text-white">800 FCFA</span>.</p>
-                <p>2. Bonus quotidien : <span className="font-bold text-white">50 FCFA</span>.</p>
-                <p>3. Parrainage : jusqu'à <span className="font-bold text-white">27 %</span> de commission.</p>
-                <p>4. Rejoignez notre groupe pour les codes bonus.</p>
-              </div>
-              <button
-                onClick={() => setShowPopup(false)}
-                className="w-full py-3.5 bg-white rounded-full font-extrabold text-base tracking-wide mb-3"
-                style={{ color: "#3db51d" }}
-                data-testid="button-popup-agree"
-              >
-                D'ACCORD
-              </button>
+              <p style={{ fontSize: 13, color: "#6b7280", textAlign: "center", marginBottom: 20, lineHeight: 1.6 }}>
+                N'hésitez pas à contacter le service client en cas de problème.
+              </p>
+
+              {/* Telegram Group button */}
               <a
                 href={TELEGRAM_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 w-full py-3 bg-white rounded-full text-gray-700 font-semibold text-sm"
                 data-testid="button-popup-telegram"
                 onClick={() => setShowPopup(false)}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, width: "100%", padding: "14px 0", borderRadius: 50, background: "linear-gradient(90deg, #3db51d, #5fd131)", color: "white", fontWeight: 800, fontSize: 16, textDecoration: "none", boxShadow: "0 4px 16px rgba(61,181,29,0.4)" }}
               >
-                <SiTelegram className="w-5 h-5 text-[#229ED9]" />
-                Cliquez ici pour rejoindre le groupe Telegram
+                <SiTelegram size={22} color="white" />
+                Télégram Groupe
               </a>
             </div>
           </div>
+
+          {/* Red X close button — below the card */}
+          <button
+            onClick={() => setShowPopup(false)}
+            data-testid="button-popup-close"
+            style={{ marginTop: 20, width: 48, height: 48, borderRadius: "50%", background: "white", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}
+          >
+            <X size={24} color="#ef4444" strokeWidth={3} />
+          </button>
         </div>
       )}
 
