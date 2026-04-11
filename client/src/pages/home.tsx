@@ -102,7 +102,6 @@ export default function HomePage() {
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 animate-in fade-in duration-200"
           onClick={() => setShowPopup(false)}
         >
-          {/* Image popup */}
           <div
             style={{ position: "relative", width: "96vw", maxWidth: 440 }}
             onClick={(e) => e.stopPropagation()}
@@ -113,22 +112,36 @@ export default function HomePage() {
               style={{ width: "100%", display: "block", borderRadius: 20 }}
             />
 
-            {/* Zone cliquable — bouton Télégram Groupe (ouvre Telegram) */}
+            {/* Bouton Télégram Groupe — zone large sur le bouton jaune de l'image */}
             <a
               href={TELEGRAM_LINK}
               target="_blank"
               rel="noopener noreferrer"
               data-testid="button-popup-telegram"
-              onClick={() => setShowPopup(false)}
-              style={{ position: "absolute", left: "10%", right: "10%", bottom: "14%", height: "8%", borderRadius: 50, display: "block" }}
+              style={{
+                position: "absolute",
+                left: "5%", right: "5%",
+                bottom: "13%", height: "11%",
+                borderRadius: 50,
+                display: "block",
+                cursor: "pointer",
+              }}
               aria-label="Rejoindre le groupe Telegram"
             />
 
-            {/* Zone cliquable — X (ferme le popup) */}
+            {/* Bouton X — zone centrée sur le X rouge en bas de l'image */}
             <button
               onClick={() => setShowPopup(false)}
               data-testid="button-popup-close"
-              style={{ position: "absolute", left: "50%", bottom: "3%", transform: "translateX(-50%)", width: "12%", aspectRatio: "1", borderRadius: "50%", background: "transparent", border: "none", cursor: "pointer" }}
+              style={{
+                position: "absolute",
+                left: "38%", right: "38%",
+                bottom: "1%", height: "10%",
+                borderRadius: "50%",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+              }}
               aria-label="Fermer"
             />
           </div>
