@@ -677,43 +677,54 @@ export async function registerRoutes(
       const reference = `JINKO-${user.id}-${Date.now()}`;
       const webhookUrl = `${req.protocol}://${req.get("host")}/api/webhooks/ashtechpay`;
 
+      // Ensure phone has country code prefix
+      const DIAL_CODES: Record<string, string> = { BJ: "229", CI: "225", CM: "237", BF: "226", TG: "228", SN: "221" };
+      const dialCode = DIAL_CODES[country_code] || "";
+      let formattedPhone = phone.replace(/\D/g, "");
+      if (dialCode && !formattedPhone.startsWith(dialCode)) {
+        formattedPhone = dialCode + formattedPhone;
+      }
+
       // Create a pending deposit record
       const deposit = await storage.createDeposit({
         userId: user.id,
         amount,
         accountName: user.fullName,
-        accountNumber: phone,
+        accountNumber: formattedPhone,
         country: country_code,
         paymentMethod: operator,
         status: "processing",
         ashtechpayReference: reference,
       });
 
-      const { httpStatus, data } = await ashtech.initiatePayment(apiKey, {
-        amount, currency, phone, operator, country_code,
-        reference,
-        otp: otp || undefined,
-        notify_url: webhookUrl,
-      });
+      const requestPayload = { amount, currency, phone: formattedPhone, operator, country_code, reference, otp: otp || undefined, notify_url: webhookUrl };
+      console.log("[ashtechpay] initiate request:", JSON.stringify(requestPayload));
+
+      const { httpStatus, data } = await ashtech.initiatePayment(apiKey, requestPayload);
+
+      console.log("[ashtechpay] initiate response httpStatus:", httpStatus, "data:", JSON.stringify(data));
 
       const flow = ashtech.detectFlow(httpStatus, data);
 
       if (!flow) {
         await storage.updateDeposit(deposit.id, { status: "rejected" });
-        return res.status(400).json({ message: data.message || "Paiement refusé par l'opérateur" });
+        const errMsg = data.message || data.error || data.detail || "Paiement refusé par l'opérateur";
+        console.error("[ashtechpay] no flow detected, raw response:", JSON.stringify(data));
+        return res.status(400).json({ message: errMsg });
       }
 
       // Save transaction id if available
-      if (data.transaction_id) {
-        await storage.updateDeposit(deposit.id, { ashtechpayTransactionId: data.transaction_id });
+      const txId = data.transaction_id || data.transactionId || data.id || null;
+      if (txId) {
+        await storage.updateDeposit(deposit.id, { ashtechpayTransactionId: String(txId) });
       }
 
       return res.json({
         depositId: deposit.id,
         flow,
-        waveUrl: data.wave_url || null,
-        ussdCode: data.ussd_code || null,
-        transactionId: data.transaction_id || null,
+        waveUrl: data.wave_url || data.waveUrl || null,
+        ussdCode: data.ussd_code || data.ussdCode || null,
+        transactionId: txId,
         otpRequired: flow === "otp_sms" || flow === "otp_ussd",
       });
     } catch (e: any) {
@@ -738,7 +749,11 @@ export async function registerRoutes(
         const apiKey = settings.ashtechpayApiKey || "";
         const txStatus = await ashtech.getTransactionStatus(apiKey, deposit.ashtechpayTransactionId);
 
-        if (txStatus.status === "success") {
+        console.log("[ashtechpay] poll txStatus:", JSON.stringify(txStatus));
+        const successStatuses = ["success", "completed", "paid", "confirmed"];
+        const failedStatuses  = ["failed", "rejected", "cancelled", "expired", "error"];
+        const txSt = (txStatus.status || "").toLowerCase();
+        if (successStatuses.includes(txSt)) {
           await storage.updateDeposit(deposit.id, { status: "approved", processedAt: new Date() });
           const user = await storage.getUser(deposit.userId);
           if (user) {
@@ -747,7 +762,7 @@ export async function registerRoutes(
             await storage.processDepositReferralCommissions(user.id, deposit.amount);
           }
           return res.json({ status: "approved" });
-        } else if (txStatus.status === "failed") {
+        } else if (failedStatuses.includes(txSt)) {
           await storage.updateDeposit(deposit.id, { status: "rejected", processedAt: new Date() });
           return res.json({ status: "rejected" });
         }

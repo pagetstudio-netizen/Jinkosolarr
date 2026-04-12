@@ -73,9 +73,16 @@ export async function getCountries(apiKey: string): Promise<any[]> {
 }
 
 export function detectFlow(httpStatus: number, data: any): AshtechFlowType | null {
-  if (httpStatus === 202 && data.flow === "wave") return "wave";
-  if (httpStatus === 202) return "ussd_push";
-  if (httpStatus === 400 && data.error === "otp_required") {
+  // OTP required (can be 400 or 200)
+  if (data.error === "otp_required" || data.otp_required === true) {
+    return data.ussd_code ? "otp_ussd" : "otp_sms";
+  }
+  // Wave flow
+  if (data.flow === "wave" || data.wave_url) return "wave";
+  // USSD push — accept 200, 201, 202
+  if ([200, 201, 202].includes(httpStatus)) return "ussd_push";
+  // Explicit OTP from 400
+  if (httpStatus === 400 && (data.error === "otp_required" || data.otp_required)) {
     return data.ussd_code ? "otp_ussd" : "otp_sms";
   }
   return null;
