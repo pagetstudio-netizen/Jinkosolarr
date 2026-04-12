@@ -1,5 +1,4 @@
 const SOLEASPAY_API_URL = "https://soleaspay.com";
-const API_KEY = process.env.SOLEASPAY_API_KEY;
 
 export const SOLEASPAY_SERVICE_MAP: Record<string, Record<string, number>> = {
   CM: {
@@ -125,13 +124,14 @@ export function formatWallet(phone: string, country: string): string {
 }
 
 export async function initiatePayment(
+  apiKey: string,
   wallet: string,
   amount: number,
   country: string,
   paymentMethod: string,
   orderId: string,
   payerName: string,
-  payerEmail: string = "customer@wendys.com"
+  payerEmail: string = "customer@jinkosolar.com"
 ): Promise<SoleaspayPaymentResponse> {
   const serviceId = getServiceId(country, paymentMethod);
   if (!serviceId) {
@@ -139,26 +139,29 @@ export async function initiatePayment(
   }
 
   const currency = getCurrency(country);
-  const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+  const baseUrl = process.env.REPLIT_DEV_DOMAIN
     ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-    : "https://wendys.replit.app";
+    : "https://jinkosolar.replit.app";
 
   const requestBody: SoleaspayPaymentRequest = {
     wallet: formatWallet(wallet, country),
     amount,
     currency,
     order_id: orderId,
-    description: `Depot Wendy's #${orderId}`,
+    description: `Depot Jinko Solar #${orderId}`,
     payer: payerName,
     payerEmail,
     successUrl: `${baseUrl}/deposit-success`,
     failureUrl: `${baseUrl}/deposit-failed`,
   };
 
+  const effectiveKey = apiKey || process.env.SOLEASPAY_API_KEY || "";
+  console.log("[soleaspay] initiatePayment request:", JSON.stringify(requestBody));
+
   const response = await fetch(`${SOLEASPAY_API_URL}/api/agent/bills/v3`, {
     method: "POST",
     headers: {
-      "x-api-key": API_KEY || "",
+      "x-api-key": effectiveKey,
       "operation": "2",
       "service": serviceId.toString(),
       "Content-Type": "application/json",
@@ -167,16 +170,18 @@ export async function initiatePayment(
   });
 
   const result = await response.json() as SoleaspayPaymentResponse;
+  console.log("[soleaspay] initiatePayment response:", JSON.stringify(result));
   return result;
 }
 
-export async function verifyPayment(orderId: string, payId: string): Promise<SoleaspayVerifyResponse> {
+export async function verifyPayment(apiKey: string, orderId: string, payId: string): Promise<SoleaspayVerifyResponse> {
+  const effectiveKey = apiKey || process.env.SOLEASPAY_API_KEY || "";
   const response = await fetch(
     `${SOLEASPAY_API_URL}/api/agent/verif-pay?orderId=${orderId}&payId=${payId}`,
     {
       method: "GET",
       headers: {
-        "x-api-key": API_KEY || "",
+        "x-api-key": effectiveKey,
         "Content-Type": "application/json",
       },
     }

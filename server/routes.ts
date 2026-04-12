@@ -450,7 +450,7 @@ export async function registerRoutes(
   app.get("/api/soleaspay/services", requireAuth, async (req, res) => {
     try {
       const settings = await storage.getSettings();
-      const soleaspayEnabled = settings.soleaspayEnabled !== "false";
+      const soleaspayEnabled = settings.soleaspayEnabled === "true";
       const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
       res.json({ 
         enabled: soleaspayEnabled,
@@ -482,7 +482,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Tous les champs sont requis" });
       }
 
-      const soleaspayEnabled = settings.soleaspayEnabled !== "false";
+      const soleaspayEnabled = settings.soleaspayEnabled === "true";
       const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
 
       const orderId = `WENDYS-${Date.now()}-${user.id}`;
@@ -496,14 +496,16 @@ export async function registerRoutes(
           });
         }
         try {
+          const soleaspayApiKey = settings.soleaspayApiKey || process.env.SOLEASPAY_API_KEY || "";
           const paymentResult = await initiatePayment(
+            soleaspayApiKey,
             accountNumber,
             amount,
             country,
             paymentMethod,
             orderId,
             accountName,
-            `user${user.id}@wendys.com`
+            `user${user.id}@jinkosolar.com`
           );
 
           if (paymentResult.success && paymentResult.data) {
@@ -579,7 +581,9 @@ export async function registerRoutes(
 
       if (deposit.soleaspayReference && deposit.soleaspayOrderId) {
         try {
-          const verifyResult = await verifyPayment(deposit.soleaspayOrderId, deposit.soleaspayReference);
+          const settingsForVerify = await storage.getSettings();
+          const soleaspayApiKey = settingsForVerify.soleaspayApiKey || process.env.SOLEASPAY_API_KEY || "";
+          const verifyResult = await verifyPayment(soleaspayApiKey, deposit.soleaspayOrderId, deposit.soleaspayReference);
           const newStatus = mapSoleaspayStatus(verifyResult.status);
 
           if (newStatus !== "pending" && newStatus !== deposit.status) {

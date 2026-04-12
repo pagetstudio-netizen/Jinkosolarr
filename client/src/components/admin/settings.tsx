@@ -37,6 +37,7 @@ const settingsSchema = z.object({
   level2Commission: z.string().min(1, "Commission requise"),
   level3Commission: z.string().min(1, "Commission requise"),
   soleaspayEnabled: z.string(),
+  soleaspayApiKey: z.string(),
   soleaspayCountries: z.string(),
   soleaspayChannelName: z.string().min(1, "Nom requis"),
   ashtechpayEnabled: z.string(),
@@ -73,6 +74,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       level2Commission: "2",
       level3Commission: "1",
       soleaspayEnabled: "false",
+      soleaspayApiKey: "",
       soleaspayCountries: "",
       soleaspayChannelName: "Westpay",
       ashtechpayEnabled: "false",
@@ -97,6 +99,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         level2Commission: settings.level2Commission || "2",
         level3Commission: settings.level3Commission || "1",
         soleaspayEnabled: settings.soleaspayEnabled || "false",
+        soleaspayApiKey: settings.soleaspayApiKey || "",
         soleaspayCountries: settings.soleaspayCountries || "",
         soleaspayChannelName: settings.soleaspayChannelName || "Westpay",
         ashtechpayEnabled: settings.ashtechpayEnabled || "false",
@@ -326,6 +329,20 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                       data-testid="switch-soleaspay"
                     />
                   </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="soleaspayApiKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Clé API Soleaspay</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" placeholder="Clé API fournie par Soleaspay" />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { apiRequest } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2, CheckCircle2, XCircle, Phone } from "lucide-react";
 
 const GREEN = "#3db51d";
@@ -13,11 +14,20 @@ const COUNTRIES = [
   { code: "BF", name: "Burkina Faso",  dialCode: "+226", currency: "XOF" },
 ];
 
-const OPERATORS: Record<string, string[]> = {
+// Operators for AshtechPay
+const ASHTECH_OPERATORS: Record<string, string[]> = {
   BJ: ["Moov Money", "MTN Mobile Money"],
   CM: ["MTN Mobile Money", "Orange Money"],
   BF: ["Moov Money", "Orange Money"],
   CI: ["Moov Money", "MTN Mobile Money", "Orange Money", "Wave"],
+};
+
+// Operators for SoleasPay (must match service map keys)
+const SOLEASPAY_OPERATORS: Record<string, string[]> = {
+  BJ: ["MTN", "Moov Money"],
+  CM: ["MTN", "Orange Money"],
+  BF: ["Moov Money", "Orange Money"],
+  CI: ["MTN", "Moov Money", "Orange Money", "Wave"],
 };
 
 type Step = 1 | 2 | 3;
@@ -86,6 +96,15 @@ export default function PayPage() {
   const amountParam = parseInt(params.get("amount") || "0");
   const countryParam = params.get("country") || user?.country || "BJ";
 
+  const { data: platformSettings } = useQuery<Record<string, string>>({
+    queryKey: ["/api/settings"],
+  });
+
+  const ashtechEnabled = platformSettings?.ashtechpayEnabled === "true";
+  const soleaspayEnabled = platformSettings?.soleaspayEnabled === "true";
+  // Use SoleasPay when it's enabled (AshtechPay may be off)
+  const useSoleaspay = soleaspayEnabled && !ashtechEnabled;
+
   const [step, setStep] = useState<Step>(1);
   const [country, setCountry] = useState(countryParam);
   const [phone, setPhone] = useState("");
@@ -104,20 +123,26 @@ export default function PayPage() {
 
   const countryInfo = COUNTRIES.find((c) => c.code === country)!;
   const currency = countryInfo?.currency || "XOF";
-  const operators = OPERATORS[country] || [];
+  const operators = useSoleaspay
+    ? (SOLEASPAY_OPERATORS[country] || [])
+    : (ASHTECH_OPERATORS[country] || []);
 
   useEffect(() => {
     setOperator(operators[0] || "");
-  }, [country]);
+  }, [country, useSoleaspay]);
 
   useEffect(() => {
     return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
   }, []);
 
-  function startPolling(id: number) {
+  function startPolling(id: number, isSoleaspay: boolean) {
+    const endpoint = isSoleaspay
+      ? `/api/deposits/${id}/verify`
+      : `/api/ashtechpay/deposit/${id}/status`;
+
     pollingRef.current = setInterval(async () => {
       try {
-        const res = await fetch(`/api/ashtechpay/deposit/${id}/status`, { credentials: "include" });
+        const res = await fetch(endpoint, { credentials: "include" });
         const data = await res.json();
         if (data.status === "approved") {
           clearInterval(pollingRef.current!);
@@ -137,26 +162,51 @@ export default function PayPage() {
     if (!phone.trim()) { setError("Entrez votre numéro de téléphone"); return; }
     if (!operator) { setError("Sélectionnez une méthode de paiement"); return; }
     setLoading(true);
+
     try {
-      const res = await apiRequest("POST", "/api/ashtechpay/initiate", {
-        amount: amountParam,
-        phone: phone.replace(/\D/g, ""),
-        operator,
-        country_code: country,
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        setError(err.message || "Erreur lors de l'initiation");
-        return;
-      }
-      const data = await res.json();
-      setDepositId(data.depositId);
-      setFlow(data.flow);
-      setWaveUrl(data.waveUrl);
-      setUssdCode(data.ussdCode);
-      setStep(2);
-      if (data.flow === "ussd_push" || data.flow === "wave") {
-        startPolling(data.depositId);
+      if (useSoleaspay) {
+        // SoleasPay flow
+        const res = await apiRequest("POST", "/api/deposits", {
+          amount: amountParam,
+          accountName: user?.fullName || "Client",
+          accountNumber: phone.replace(/\D/g, ""),
+          paymentMethod: operator,
+          country,
+          paymentChannelId: -1,
+          useSoleaspay: true,
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          setError(err.message || "Erreur lors de l'initiation");
+          return;
+        }
+        const data = await res.json();
+        setDepositId(data.deposit?.id);
+        setFlow("ussd_push");
+        setStep(2);
+        startPolling(data.deposit?.id, true);
+      } else {
+        // AshtechPay flow
+        const res = await apiRequest("POST", "/api/ashtechpay/initiate", {
+          amount: amountParam,
+          phone: phone.replace(/\D/g, ""),
+          operator,
+          country_code: country,
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          setError(err.message || "Erreur lors de l'initiation");
+          return;
+        }
+        const data = await res.json();
+        setDepositId(data.depositId);
+        setFlow(data.flow);
+        setWaveUrl(data.waveUrl);
+        setUssdCode(data.ussdCode);
+        setStep(2);
+        if (data.flow === "ussd_push" || data.flow === "wave") {
+          startPolling(data.depositId, false);
+        }
       }
     } catch (e: any) {
       setError(e.message || "Erreur réseau");
@@ -185,7 +235,7 @@ export default function PayPage() {
       const data = await res.json();
       if (data.depositId) {
         setDepositId(data.depositId);
-        startPolling(data.depositId);
+        startPolling(data.depositId, false);
       }
     } catch (e: any) {
       setError(e.message || "Erreur réseau");

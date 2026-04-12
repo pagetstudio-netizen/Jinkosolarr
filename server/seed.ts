@@ -206,6 +206,7 @@ export async function seed() {
     { key: "level2Commission", value: "2" },
     { key: "level3Commission", value: "1" },
     { key: "soleaspayEnabled", value: "false" },
+    { key: "soleaspayApiKey", value: "" },
     { key: "soleaspayCountries", value: "" },
     { key: "soleaspayChannelName", value: "Westpay" },
     { key: "ashtechpayEnabled", value: "false" },
