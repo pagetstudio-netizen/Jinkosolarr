@@ -110,7 +110,7 @@ export default function AccountPage() {
     { src: iconInviter,     alt: "Inviter un ami",    label: "Inviter un ami",   action: () => navigate("/team") },
     { src: iconMessage,     alt: "Un message",        label: "Un message",       action: () => setShowContactSheet(true) },
     { src: iconAbout,       alt: "À propos de",       label: "À propos de",      action: () => navigate("/about") },
-    { src: iconServiceClient, alt: "Service client",   label: "Service client",   action: () => navigate("/service") },
+    { src: iconServiceClient, alt: "Service client",   label: "Service client",   action: () => setShowContactSheet(true) },
     { src: iconSecurite,    alt: "Sécurité",          label: "Sécurité",         action: () => navigate("/change-password") },
     { src: iconDeconnexion, alt: "Déconnexion",       label: "Déconnexion",      action: handleLogout },
   ];
