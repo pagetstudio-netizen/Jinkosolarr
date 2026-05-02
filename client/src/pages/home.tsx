@@ -226,17 +226,50 @@ export default function HomePage() {
 
       {/* ── CONFIRM PURCHASE MODAL ───────────────────────── */}
       {confirmProduct && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center px-6"
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-5"
           style={{ background: "rgba(0,0,0,0.55)" }}
           onClick={() => setConfirmProduct(null)}>
           <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}>
 
-            <div className="pt-6 pb-4 px-6 text-center">
-              <p className="text-base font-semibold text-gray-800">
-                Êtes-vous sûr de vouloir acheter ce produit ?
-              </p>
-              <p className="text-sm text-gray-500 mt-1 font-medium">{confirmProduct.name}</p>
+            {/* Nom du produit */}
+            <div className="pt-6 pb-2 text-center">
+              <h3 className="text-xl font-bold text-gray-900">{confirmProduct.name}</h3>
+            </div>
+
+            {/* Image du produit */}
+            <div className="flex justify-center px-6 py-3">
+              <img
+                src={confirmProduct.imageUrl || fallbackImg}
+                alt={confirmProduct.name}
+                className="w-36 h-28 object-cover rounded-2xl"
+                onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
+              />
+            </div>
+
+            {/* Sous-titre */}
+            <p className="text-center text-sm text-gray-500 px-6 pb-3">
+              Revenus distribués toutes les 24 heures
+            </p>
+
+            {/* Détails */}
+            <div className="px-6 pb-4 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 text-sm">Prix :</span>
+                <span className="font-bold text-sm" style={{ color: GREEN }}>{currency} {Number(confirmProduct.price).toLocaleString("fr-FR")}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 text-sm">Revenu quotidien :</span>
+                <span className="font-bold text-sm" style={{ color: GREEN }}>{currency} {Number(confirmProduct.dailyEarnings).toLocaleString("fr-FR")}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 text-sm">Revenu total :</span>
+                <span className="font-bold text-sm" style={{ color: GREEN }}>{currency} {Number(confirmProduct.totalReturn).toLocaleString("fr-FR")}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 text-sm">Période de validité :</span>
+                <span className="text-gray-900 font-bold text-sm">{confirmProduct.cycleDays} jours</span>
+              </div>
             </div>
 
             <div className="flex gap-3 px-6 pb-6">
