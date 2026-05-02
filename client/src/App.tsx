@@ -36,6 +36,7 @@ import ProductDetailPage from "@/pages/product-detail";
 import InfoPage from "@/pages/info";
 import InfoDetailPage from "@/pages/info-detail";
 import PayPage from "@/pages/pay";
+import DepositCallbackPage from "@/pages/deposit-callback";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -293,6 +294,11 @@ function Router() {
       <Route path="/info/:id">
         <ProtectedRoute>
           <InfoDetailPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/deposit-callback">
+        <ProtectedRoute>
+          <DepositCallbackPage />
         </ProtectedRoute>
       </Route>
       <Route component={NotFound} />

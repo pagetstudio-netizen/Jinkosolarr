@@ -8,42 +8,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, Save, Link, Clock, Users, CreditCard, Zap } from "lucide-react";
-
-const SOLEASPAY_COUNTRIES = [
-  { code: "CM", name: "Cameroun" },
-  { code: "BF", name: "Burkina Faso" },
-  { code: "TG", name: "Togo" },
-  { code: "BJ", name: "Benin" },
-  { code: "CI", name: "Cote d'Ivoire" },
-  { code: "CG", name: "Congo Brazzaville" },
-  { code: "CD", name: "RDC" },
-];
+import { Loader2, Save, Link, Clock, Users, CreditCard } from "lucide-react";
 
 const settingsSchema = z.object({
-  supportLink: z.string().min(5, "Lien requis"),
-  support2Link: z.string().min(5, "Lien requis"),
-  channelLink: z.string().min(5, "Lien requis"),
-  groupLink: z.string().min(5, "Lien requis"),
-  minDeposit: z.string().min(1, "Montant requis"),
-  withdrawalFees: z.string().min(1, "Frais requis"),
+  supportLink:         z.string().min(5, "Lien requis"),
+  support2Link:        z.string().min(5, "Lien requis"),
+  channelLink:         z.string().min(5, "Lien requis"),
+  groupLink:           z.string().min(5, "Lien requis"),
+  congoPaymentLink:    z.string().min(5, "Lien requis"),
+  minDeposit:          z.string().min(1, "Montant requis"),
+  withdrawalFees:      z.string().min(1, "Frais requis"),
   withdrawalStartHour: z.string().min(1, "Heure requise"),
-  withdrawalEndHour: z.string().min(1, "Heure requise"),
-  level1Commission: z.string().min(1, "Commission requise"),
-  level2Commission: z.string().min(1, "Commission requise"),
-  level3Commission: z.string().min(1, "Commission requise"),
-  soleaspayEnabled: z.string(),
-  soleaspayApiKey: z.string(),
-  soleaspayCountries: z.string(),
-  soleaspayChannelName: z.string().min(1, "Nom requis"),
-  ashtechpayEnabled: z.string(),
-  ashtechpayApiKey: z.string(),
-  ashtechpayChannelName: z.string().min(1, "Nom requis"),
-  congoPaymentLink: z.string().min(5, "Lien requis"),
+  withdrawalEndHour:   z.string().min(1, "Heure requise"),
+  level1Commission:    z.string().min(1, "Commission requise"),
+  level2Commission:    z.string().min(1, "Commission requise"),
+  level3Commission:    z.string().min(1, "Commission requise"),
+  westpayEnabled:        z.string(),
+  westpaySlug:           z.string(),
+  westpayEmail:          z.string(),
+  westpayPassword:       z.string(),
+  westpayWebhookSecret:  z.string(),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -54,6 +41,7 @@ interface AdminSettingsProps {
 
 export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
 
   const { data: settings, isLoading } = useQuery<Record<string, string>>({
     queryKey: ["/api/admin/settings"],
@@ -62,50 +50,46 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      supportLink: "https://t.me/Jinkosolarr",
-      support2Link: "https://t.me/Jinkosolarr",
-      channelLink: "https://t.me/Jinkosolarr",
-      groupLink: "https://t.me/Jinkosolarr",
-      minDeposit: "3500",
-      withdrawalFees: "15",
+      supportLink:         "https://t.me/Jinkosolarr",
+      support2Link:        "https://t.me/Jinkosolarr",
+      channelLink:         "https://t.me/Jinkosolarr",
+      groupLink:           "https://t.me/Jinkosolarr",
+      congoPaymentLink:    "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
+      minDeposit:          "3000",
+      withdrawalFees:      "17",
       withdrawalStartHour: "8",
-      withdrawalEndHour: "17",
-      level1Commission: "27",
-      level2Commission: "2",
-      level3Commission: "1",
-      soleaspayEnabled: "false",
-      soleaspayApiKey: "",
-      soleaspayCountries: "",
-      soleaspayChannelName: "Westpay",
-      ashtechpayEnabled: "false",
-      ashtechpayApiKey: "",
-      ashtechpayChannelName: "AshtechPay",
-      congoPaymentLink: "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
+      withdrawalEndHour:   "17",
+      level1Commission:    "27",
+      level2Commission:    "2",
+      level3Commission:    "1",
+      westpayEnabled:       "false",
+      westpaySlug:          "",
+      westpayEmail:         "",
+      westpayPassword:      "",
+      westpayWebhookSecret: "",
     },
   });
 
   useEffect(() => {
     if (settings) {
       form.reset({
-        supportLink: settings.supportLink || "https://t.me/Jinkosolarr",
-        support2Link: settings.support2Link || "https://t.me/Jinkosolarr",
-        channelLink: settings.channelLink || "https://t.me/Jinkosolarr",
-        groupLink: settings.groupLink || "https://t.me/Jinkosolarr",
-        minDeposit: settings.minDeposit || "3500",
-        withdrawalFees: settings.withdrawalFees || "15",
+        supportLink:         settings.supportLink         || "https://t.me/Jinkosolarr",
+        support2Link:        settings.support2Link        || "https://t.me/Jinkosolarr",
+        channelLink:         settings.channelLink         || "https://t.me/Jinkosolarr",
+        groupLink:           settings.groupLink           || "https://t.me/Jinkosolarr",
+        congoPaymentLink:    settings.congoPaymentLink    || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
+        minDeposit:          settings.minDeposit          || "3000",
+        withdrawalFees:      settings.withdrawalFees      || "17",
         withdrawalStartHour: settings.withdrawalStartHour || "8",
-        withdrawalEndHour: settings.withdrawalEndHour || "17",
-        level1Commission: settings.level1Commission || "27",
-        level2Commission: settings.level2Commission || "2",
-        level3Commission: settings.level3Commission || "1",
-        soleaspayEnabled: settings.soleaspayEnabled || "false",
-        soleaspayApiKey: settings.soleaspayApiKey || "",
-        soleaspayCountries: settings.soleaspayCountries || "",
-        soleaspayChannelName: settings.soleaspayChannelName || "Westpay",
-        ashtechpayEnabled: settings.ashtechpayEnabled || "false",
-        ashtechpayApiKey: settings.ashtechpayApiKey || "",
-        ashtechpayChannelName: settings.ashtechpayChannelName || "AshtechPay",
-        congoPaymentLink: settings.congoPaymentLink || "https://my.moneyfusion.net/697e3d01869cdbb310f0d3e0",
+        withdrawalEndHour:   settings.withdrawalEndHour   || "17",
+        level1Commission:    settings.level1Commission    || "27",
+        level2Commission:    settings.level2Commission    || "2",
+        level3Commission:    settings.level3Commission    || "1",
+        westpayEnabled:       settings.westpayEnabled       || "false",
+        westpaySlug:          settings.westpaySlug          || "",
+        westpayEmail:         settings.westpayEmail         || "",
+        westpayPassword:      settings.westpayPassword      || "",
+        westpayWebhookSecret: settings.westpayWebhookSecret || "",
       });
     }
   }, [settings, form]);
@@ -122,35 +106,22 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/settings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/soleaspay/services"] });
-      toast({ title: "Parametres enregistres!" });
+      toast({ title: "Paramètres enregistrés !" });
     },
     onError: (error: any) => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     },
   });
 
-  const soleaspayEnabled = form.watch("soleaspayEnabled") === "true";
-  const soleaspayCountriesValue = form.watch("soleaspayCountries") || "";
-  const selectedCountries = soleaspayCountriesValue ? soleaspayCountriesValue.split(",").filter(Boolean) : [];
+  const westpayEnabled = form.watch("westpayEnabled") === "true";
 
-  const toggleCountry = (code: string) => {
-    let updated: string[];
-    if (selectedCountries.includes(code)) {
-      updated = selectedCountries.filter(c => c !== code);
-    } else {
-      updated = [...selectedCountries, code];
-    }
-    form.setValue("soleaspayCountries", updated.join(","), { shouldDirty: true });
-  };
-
-  if (isLoading) {
-    return <Skeleton className="h-96" />;
-  }
+  if (isLoading) return <Skeleton className="h-96" />;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit((data) => updateMutation.mutate(data))} className="space-y-4">
+
+        {/* Liens sociaux */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
@@ -159,74 +130,23 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="supportLink"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Service client 1</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="https://t.me/..." />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="support2Link"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Service client 2</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="https://t.me/..." />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="channelLink"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Chaine officielle</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="https://t.me/..." />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="groupLink"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Groupe de discussion</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="https://t.me/..." />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="congoPaymentLink"
+            {(["supportLink", "support2Link", "channelLink", "groupLink"] as const).map((name, i) => (
+              <FormField key={name} control={form.control} name={name}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{["Service client 1", "Service client 2", "Chaîne officielle", "Groupe de discussion"][i]}</FormLabel>
+                    <FormControl><Input {...field} placeholder="https://t.me/..." /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+            <FormField control={form.control} name="congoPaymentLink"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Lien MoneyFusion</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="https://my.moneyfusion.net/..." />
-                  </FormControl>
-                  <FormDescription>
-                    Lien MoneyFusion pour Congo Brazzaville et Burkina Faso
-                  </FormDescription>
+                  <FormControl><Input {...field} placeholder="https://my.moneyfusion.net/..." /></FormControl>
+                  <FormDescription>Lien pour Congo Brazzaville et Burkina Faso</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -234,67 +154,49 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
           </CardContent>
         </Card>
 
+        {/* Retraits */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Clock className="w-5 h-5 text-primary" />
-              Retraits
+              Dépôts & Retraits
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="minDeposit"
+            <FormField control={form.control} name="minDeposit"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Dépôt minimum (FCFA)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" min="0" />
-                  </FormControl>
-                  <FormDescription>Montant minimum qu'un utilisateur peut déposer.</FormDescription>
+                  <FormControl><Input {...field} type="number" min="0" /></FormControl>
+                  <FormDescription>Montant minimum de dépôt</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="withdrawalFees"
+            <FormField control={form.control} name="withdrawalFees"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Frais de retrait (%)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" />
-                  </FormControl>
+                  <FormControl><Input {...field} type="number" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="withdrawalStartHour"
+              <FormField control={form.control} name="withdrawalStartHour"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Heure debut</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" min="0" max="23" />
-                    </FormControl>
+                    <FormLabel>Heure début</FormLabel>
+                    <FormControl><Input {...field} type="number" min="0" max="23" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="withdrawalEndHour"
+              <FormField control={form.control} name="withdrawalEndHour"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Heure fin</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" min="0" max="23" />
-                    </FormControl>
+                    <FormControl><Input {...field} type="number" min="0" max="23" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -303,153 +205,96 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
           </CardContent>
         </Card>
 
+        {/* WestPay */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-primary" />
-              Paiement automatique (Soleaspay)
+              WestPay (RobotPay) — Paiement automatique
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="soleaspayEnabled"
+            <FormField control={form.control} name="westpayEnabled"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Activer Soleaspay</FormLabel>
+                    <FormLabel className="text-base">Activer WestPay</FormLabel>
                     <FormDescription>
-                      Permet le paiement automatique via mobile money
+                      Page de paiement hébergée RobotPay (Mobile Money multi-pays)
                     </FormDescription>
                   </div>
                   <FormControl>
                     <Switch
                       checked={field.value === "true"}
                       onCheckedChange={(checked) => field.onChange(checked ? "true" : "false")}
-                      data-testid="switch-soleaspay"
+                      data-testid="switch-westpay"
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="soleaspayApiKey"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Clé API Soleaspay</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="password" placeholder="Clé API fournie par Soleaspay" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="soleaspayChannelName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nom du canal (affiché aux utilisateurs)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Ex: Westpay" />
-                  </FormControl>
-                  <FormDescription>Ce nom apparaît comme option de recharge sur la page dépôt.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {soleaspayEnabled && (
-              <div className="rounded-lg border p-4 space-y-3">
-                <p className="text-sm font-medium text-foreground">
-                  Pays actives pour Soleaspay
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Les utilisateurs de ces pays utiliseront le paiement automatique. Les autres verront les canaux de recharge manuels.
-                </p>
-                <div className="space-y-2">
-                  {SOLEASPAY_COUNTRIES.map((country) => (
-                    <label
-                      key={country.code}
-                      className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover-elevate"
-                      data-testid={`checkbox-soleaspay-${country.code}`}
-                    >
-                      <Checkbox
-                        checked={selectedCountries.includes(country.code)}
-                        onCheckedChange={() => toggleCountry(country.code)}
-                      />
-                      <span className="text-sm">{country.name} ({country.code})</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+            {westpayEnabled && (
+              <>
+                <FormField control={form.control} name="westpaySlug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slug marchand WestPay</FormLabel>
+                      <FormControl><Input {...field} placeholder="ex: ecomat" /></FormControl>
+                      <FormDescription>
+                        Visible dans votre dashboard WestPay. Utilisé dans l'URL de paiement.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField control={form.control} name="westpayEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email marchand WestPay</FormLabel>
+                      <FormControl><Input {...field} type="email" placeholder="contact@votreentreprise.com" /></FormControl>
+                      <FormDescription>Email de connexion à votre compte WestPay (pour les transferts automatiques)</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField control={form.control} name="westpayPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mot de passe WestPay</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input {...field} type={showPassword ? "text" : "password"} placeholder="••••••••" />
+                          <button type="button" onClick={() => setShowPassword(v => !v)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                            {showPassword ? "Cacher" : "Voir"}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormDescription>Mot de passe de votre compte WestPay (chiffré, jamais exposé)</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField control={form.control} name="westpayWebhookSecret"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Secret Webhook (optionnel)</FormLabel>
+                      <FormControl><Input {...field} type="password" placeholder="Secret HMAC-SHA256" /></FormControl>
+                      <FormDescription>
+                        URL webhook à configurer dans WestPay :{" "}
+                        <strong>{typeof window !== "undefined" ? window.location.origin : ""}/api/webhooks/westpay</strong>
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
             )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Zap className="w-5 h-5 text-green-600" />
-              Paiement automatique (AshtechPay)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="ashtechpayEnabled"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Activer AshtechPay</FormLabel>
-                    <FormDescription>Permet les dépôts automatiques via AshtechPay (MTN, Moov, Orange, Wave)</FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value === "true"}
-                      onCheckedChange={(checked) => field.onChange(checked ? "true" : "false")}
-                      data-testid="switch-ashtechpay"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="ashtechpayChannelName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nom du canal (affiché aux utilisateurs)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Ex: Mobile Money" />
-                  </FormControl>
-                  <FormDescription>Ce nom apparaît comme option de recharge sur la page dépôt.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="ashtechpayApiKey"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Clé API AshtechPay</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="password" placeholder="Bearer token fourni par AshtechPay" />
-                  </FormControl>
-                  <FormDescription>
-                    URL webhook à configurer : <strong>{typeof window !== "undefined" ? window.location.origin : ""}/api/webhooks/ashtechpay</strong>
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
+        {/* Commissions */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
@@ -457,62 +302,25 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               Commissions de parrainage
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="level1Commission"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Niveau 1 (%)</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="level2Commission"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Niveau 2 (%)</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="level3Commission"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Niveau 3 (%)</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {(["level1Commission", "level2Commission", "level3Commission"] as const).map((name, i) => (
+                <FormField key={name} control={form.control} name={name}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Niveau {i + 1} (%)</FormLabel>
+                      <FormControl><Input {...field} type="number" /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
             </div>
           </CardContent>
         </Card>
 
         <Button type="submit" className="w-full" disabled={updateMutation.isPending}>
-          {updateMutation.isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <>
-              <Save className="w-4 h-4 mr-2" />
-              Enregistrer
-            </>
-          )}
+          {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-2" />Enregistrer</>}
         </Button>
       </form>
     </Form>

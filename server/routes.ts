@@ -6,14 +6,7 @@ import bcrypt from "bcrypt";
 import { registerSchema, loginSchema } from "@shared/schema";
 import { z } from "zod";
 import ConnectPgSimple from "connect-pg-simple";
-import { 
-  initiatePayment, 
-  verifyPayment, 
-  isSoleaspaySupported, 
-  mapSoleaspayStatus,
-  SOLEASPAY_SERVICE_MAP 
-} from "./soleaspay";
-import * as ashtech from "./ashtechpay";
+import * as westpay from "./westpay";
 
 declare module "express-session" {
   interface SessionData {
@@ -401,7 +394,9 @@ export async function registerRoutes(
     }
   });
 
-  // Payment Channels
+  // ─── WestPay (RobotPay) ──────────────────────────────────────────
+
+  // Payment Channels — manual channels + WestPay virtual channel
   app.get("/api/payment-channels", requireAuth, async (req, res) => {
     try {
       const [channels, settings] = await Promise.all([
@@ -409,232 +404,158 @@ export async function registerRoutes(
         storage.getSettings(),
       ]);
 
-      const soleaspayEnabled = settings.soleaspayEnabled === "true";
-      const soleaspayChannelName = settings.soleaspayChannelName || "Westpay";
-      const ashtechpayEnabled = settings.ashtechpayEnabled === "true";
-      const ashtechpayChannelName = settings.ashtechpayChannelName || "AshtechPay";
-
-      // Build virtual gateway channels when enabled in settings
+      const westpayEnabled = settings.westpayEnabled === "true";
       const virtualChannels: any[] = [];
-      if (soleaspayEnabled) {
+
+      if (westpayEnabled) {
         virtualChannels.push({
-          id: -1,
-          name: soleaspayChannelName,
+          id: -10,
+          name: "WestPay (RobotPay)",
           redirectUrl: "",
           isApi: true,
           isActive: true,
-          gateway: "soleaspay",
-        });
-      }
-      if (ashtechpayEnabled) {
-        virtualChannels.push({
-          id: -3,
-          name: ashtechpayChannelName,
-          redirectUrl: "",
-          isApi: true,
-          isActive: true,
-          gateway: "ashtechpay",
+          gateway: "westpay",
         });
       }
 
-      // Manual channels created by admin (no gateway auto-processing)
       const manualChannels = channels.map((ch) => ({ ...ch, gateway: null }));
-
       res.json([...virtualChannels, ...manualChannels]);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  // Get Soleaspay supported services
-  app.get("/api/soleaspay/services", requireAuth, async (req, res) => {
+  // Initiate WestPay deposit — create record + return hosted payment URL
+  app.post("/api/deposits/westpay-init", requireAuth, async (req, res) => {
     try {
+      const { amount, country } = req.body;
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(401).json({ message: "Non authentifié" });
+
       const settings = await storage.getSettings();
-      const soleaspayEnabled = settings.soleaspayEnabled === "true";
-      const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
-      res.json({ 
-        enabled: soleaspayEnabled,
-        services: SOLEASPAY_SERVICE_MAP,
-        enabledCountries: soleaspayCountries,
+      const minDeposit = parseInt(settings.minDeposit || "3000");
+
+      if (!amount || isNaN(amount) || amount < minDeposit) {
+        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
+      }
+
+      const westpaySlug = settings.westpaySlug || process.env.WESTPAY_SLUG || "";
+      if (!westpaySlug) {
+        return res.status(400).json({ message: "WestPay non configuré (slug manquant)" });
+      }
+
+      const userCountry = country || user.country || "BJ";
+
+      // Create a pending deposit record
+      const deposit = await storage.createDeposit({
+        userId: user.id,
+        amount: Math.round(amount),
+        accountName: user.fullName,
+        accountNumber: user.phone,
+        country: userCountry,
+        paymentMethod: "Mobile Money",
+        status: "pending",
       });
+
+      // Build the WestPay hosted payment URL
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+        : (process.env.APP_URL || "https://stategrid.replit.app");
+
+      const redirectUrl = `${baseUrl}/deposit-callback?depositId=${deposit.id}`;
+      const westpayUrl = westpay.buildPaymentUrl(westpaySlug, amount, userCountry, redirectUrl);
+
+      console.log("[westpay] deposit created:", deposit.id, "url:", westpayUrl);
+      res.json({ depositId: deposit.id, westpayUrl });
     } catch (error: any) {
+      console.error("[westpay] init error:", error);
       res.status(500).json({ message: error.message });
     }
   });
 
-  // Deposits
-  app.post("/api/deposits", requireAuth, async (req, res) => {
-    try {
-      const { amount, accountName, accountNumber, paymentMethod, country, paymentChannelId, useSoleaspay, otpCode } = req.body;
-      const user = await storage.getUser(req.session.userId!);
-      
-      if (!user) {
-        return res.status(401).json({ message: "Non authentifie" });
-      }
-
-      const settings = await storage.getSettings();
-      const minDeposit = parseInt(settings.minDeposit || "3500");
-      if (amount < minDeposit) {
-        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
-      }
-
-      if (!accountName || !accountNumber || !paymentMethod || !country) {
-        return res.status(400).json({ message: "Tous les champs sont requis" });
-      }
-
-      const soleaspayEnabled = settings.soleaspayEnabled === "true";
-      const soleaspayCountries = settings.soleaspayCountries ? settings.soleaspayCountries.split(",").filter(Boolean) : [];
-
-      const orderId = `WENDYS-${Date.now()}-${user.id}`;
-      
-      // Only use Soleaspay when user explicitly chose the Soleaspay channel (Westpay)
-      if (useSoleaspay && soleaspayEnabled) {
-        if (!isSoleaspaySupported(country, paymentMethod)) {
-          return res.status(400).json({
-            message: `L'opérateur "${paymentMethod}" n'est pas supporté par ce canal pour le pays "${country}". Veuillez choisir un autre canal.`,
-            soleaspay: true,
-          });
-        }
-        try {
-          const soleaspayApiKey = settings.soleaspayApiKey || process.env.SOLEASPAY_API_KEY || "";
-          const paymentResult = await initiatePayment(
-            soleaspayApiKey,
-            accountNumber,
-            amount,
-            country,
-            paymentMethod,
-            orderId,
-            accountName,
-            `user${user.id}@stategrid.com`
-          );
-
-          if (paymentResult.success && paymentResult.data) {
-            const deposit = await storage.createDeposit({
-              userId: req.session.userId!,
-              amount,
-              accountName,
-              accountNumber,
-              country,
-              paymentMethod,
-              paymentChannelId: paymentChannelId > 0 ? paymentChannelId : null,
-              status: "processing",
-              soleaspayReference: paymentResult.data.reference,
-              soleaspayOrderId: orderId,
-            });
-
-            return res.json({ 
-              deposit,
-              soleaspay: true,
-              reference: paymentResult.data.reference,
-              status: paymentResult.status,
-              message: paymentResult.message
-            });
-          } else {
-            return res.status(400).json({ 
-              message: paymentResult.message || "Erreur Soleaspay",
-              soleaspay: true
-            });
-          }
-        } catch (soleaspayError: any) {
-          console.error("[soleaspay] Payment error:", soleaspayError);
-          return res.status(400).json({ 
-            message: soleaspayError.message || "Erreur de paiement Soleaspay",
-            soleaspay: true
-          });
-        }
-      }
-
-      const deposit = await storage.createDeposit({
-        userId: req.session.userId!,
-        amount,
-        accountName,
-        accountNumber,
-        country,
-        paymentMethod,
-        paymentChannelId: paymentChannelId > 0 ? paymentChannelId : null,
-        status: "pending",
-      });
-
-      res.json({ deposit, soleaspay: false });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  // Verify payment status (Soleaspay)
+  // Verify deposit status (polling from deposit-callback page)
   app.get("/api/deposits/:id/verify", requireAuth, async (req, res) => {
     try {
       const depositId = parseInt(req.params.id);
       const deposit = await storage.getDeposit(depositId);
-      
-      if (!deposit) {
-        return res.status(404).json({ message: "Depot non trouve" });
-      }
 
-      if (deposit.userId !== req.session.userId) {
-        return res.status(403).json({ message: "Acces refuse" });
-      }
+      if (!deposit) return res.status(404).json({ message: "Dépôt introuvable" });
+      if (deposit.userId !== req.session.userId) return res.status(403).json({ message: "Accès refusé" });
 
-      if (deposit.status === "approved" || deposit.status === "rejected") {
-        return res.json({ status: deposit.status });
-      }
-
-      if (deposit.soleaspayReference && deposit.soleaspayOrderId) {
-        try {
-          const settingsForVerify = await storage.getSettings();
-          const soleaspayApiKey = settingsForVerify.soleaspayApiKey || process.env.SOLEASPAY_API_KEY || "";
-          const verifyResult = await verifyPayment(soleaspayApiKey, deposit.soleaspayOrderId, deposit.soleaspayReference);
-          const newStatus = mapSoleaspayStatus(verifyResult.status);
-
-          if (newStatus !== "pending" && newStatus !== deposit.status) {
-            await storage.updateDeposit(depositId, { 
-              status: newStatus,
-              processedAt: new Date()
-            });
-
-            if (newStatus === "approved") {
-              const user = await storage.getUser(deposit.userId);
-              if (user) {
-                const newBalance = parseFloat(user.balance) + deposit.amount;
-                await storage.updateUser(deposit.userId, {
-                  balance: newBalance.toFixed(2),
-                  hasDeposited: true,
-                });
-
-                await storage.createTransaction({
-                  userId: deposit.userId,
-                  type: "deposit",
-                  amount: deposit.amount.toString(),
-                  description: `Depot Soleaspay #${deposit.id}`,
-                });
-
-                await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
-              }
-            }
-          }
-
-          return res.json({ 
-            status: newStatus,
-            soleaspay: true,
-            soleaspayStatus: verifyResult.status,
-            message: verifyResult.message
-          });
-        } catch (verifyError: any) {
-          console.error("[soleaspay] Verify error:", verifyError);
-          return res.json({ 
-            status: deposit.status,
-            soleaspay: true,
-            error: "Erreur de verification"
-          });
-        }
-      }
-
-      return res.json({ status: deposit.status });
+      res.json({ status: deposit.status });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
+  // WestPay webhook — called by WestPay on payment confirmation
+  app.post("/api/webhooks/westpay", async (req, res) => {
+    res.status(200).json({ received: true });
+    try {
+      const signature = req.headers["x-robotpay-signature"] as string || "";
+      const settings = await storage.getSettings();
+      const webhookSecret = settings.westpayWebhookSecret || process.env.WESTPAY_WEBHOOK_SECRET || "";
+
+      // Verify signature if secret configured
+      if (webhookSecret && signature) {
+        const rawBody = JSON.stringify(req.body);
+        const valid = westpay.verifyWebhookSignature(rawBody, signature, webhookSecret);
+        if (!valid) {
+          console.warn("[westpay] webhook signature invalid");
+          return;
+        }
+      }
+
+      const { event, txId, amount, payer } = req.body;
+      console.log("[westpay] webhook received:", { event, txId, amount, payer });
+
+      if (event !== "payment.confirmed") return;
+
+      // Match deposit: find pending deposit by payer phone + amount
+      const allDeposits = await storage.getDeposits();
+      const payerClean = (payer || "").replace(/\D/g, "");
+
+      const deposit = allDeposits.find((d: any) => {
+        if (d.status === "approved" || d.status === "rejected") return false;
+        if (Math.round(d.amount) !== Math.round(amount)) return false;
+        const depPhone = (d.accountNumber || "").replace(/\D/g, "");
+        return payerClean.endsWith(depPhone) || depPhone.endsWith(payerClean);
+      });
+
+      if (!deposit) {
+        console.warn("[westpay] webhook: no matching deposit for payer:", payer, "amount:", amount);
+        return;
+      }
+
+      // Approve deposit
+      await storage.updateDeposit(deposit.id, {
+        status: "approved",
+        soleaspayReference: txId || "",
+        processedAt: new Date(),
+      });
+
+      const user = await storage.getUser(deposit.userId);
+      if (user) {
+        const newBalance = parseFloat(user.balance) + deposit.amount;
+        await storage.updateUser(user.id, {
+          balance: newBalance.toFixed(2),
+          hasDeposited: true,
+        });
+        await storage.createTransaction({
+          userId: user.id,
+          type: "deposit",
+          amount: deposit.amount.toString(),
+          description: `Dépôt WestPay #${txId || deposit.id}`,
+        });
+        await storage.processDepositReferralCommissions(user.id, deposit.amount);
+        console.log("[westpay] deposit approved:", deposit.id, "user:", user.id, "amount:", deposit.amount);
+      }
+    } catch (e: any) {
+      console.error("[westpay] webhook error:", e);
+    }
+  });
+
+  // Deposits history
   app.get("/api/deposits/history", requireAuth, async (req, res) => {
     try {
       const deposits = await storage.getUserDeposits(req.session.userId!);
@@ -644,173 +565,7 @@ export async function registerRoutes(
     }
   });
 
-  // ─── AshtechPay ───────────────────────────────────────────────────
-
-  // Get operators for a country
-  app.get("/api/ashtechpay/operators", requireAuth, async (req, res) => {
-    try {
-      const { country } = req.query;
-      const operators = ashtech.ASHTECH_OPERATORS[country as string] || [];
-      const currency = ashtech.ASHTECH_CURRENCIES[country as string] || "XOF";
-      res.json({ operators, currency });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
-    }
-  });
-
-  // Initiate AshtechPay payment (called from /pay page)
-  app.post("/api/ashtechpay/initiate", requireAuth, async (req, res) => {
-    try {
-      const settings = await storage.getSettings();
-      const apiKey = settings.ashtechpayApiKey || "";
-      const enabled = settings.ashtechpayEnabled === "true";
-      if (!enabled || !apiKey) return res.status(400).json({ message: "AshtechPay non configuré" });
-
-      const { amount, phone, operator, country_code, otp } = req.body;
-      if (!amount || !phone || !operator || !country_code) {
-        return res.status(400).json({ message: "Champs requis: amount, phone, operator, country_code" });
-      }
-
-      const user = await storage.getUser(req.session.userId!);
-      if (!user) return res.status(401).json({ message: "Non authentifié" });
-
-      const minDeposit = parseInt(settings.minDeposit || "3500");
-      if (amount < minDeposit) return res.status(400).json({ message: `Montant minimum: ${minDeposit} FCFA` });
-
-      const currency = ashtech.ASHTECH_CURRENCIES[country_code] || "XOF";
-      const reference = `JINKO-${user.id}-${Date.now()}`;
-      const webhookUrl = `${req.protocol}://${req.get("host")}/api/webhooks/ashtechpay`;
-
-      // Ensure phone has country code prefix
-      const DIAL_CODES: Record<string, string> = { BJ: "229", CI: "225", CM: "237", BF: "226", TG: "228", SN: "221" };
-      const dialCode = DIAL_CODES[country_code] || "";
-      let formattedPhone = phone.replace(/\D/g, "");
-      if (dialCode && !formattedPhone.startsWith(dialCode)) {
-        formattedPhone = dialCode + formattedPhone;
-      }
-
-      // Create a pending deposit record
-      const deposit = await storage.createDeposit({
-        userId: user.id,
-        amount,
-        accountName: user.fullName,
-        accountNumber: formattedPhone,
-        country: country_code,
-        paymentMethod: operator,
-        status: "processing",
-        ashtechpayReference: reference,
-      });
-
-      const requestPayload = { amount, currency, phone: formattedPhone, operator, country_code, reference, otp: otp || undefined, notify_url: webhookUrl };
-      console.log("[ashtechpay] initiate request:", JSON.stringify(requestPayload));
-
-      const { httpStatus, data } = await ashtech.initiatePayment(apiKey, requestPayload);
-
-      console.log("[ashtechpay] initiate response httpStatus:", httpStatus, "data:", JSON.stringify(data));
-
-      const flow = ashtech.detectFlow(httpStatus, data);
-
-      if (!flow) {
-        await storage.updateDeposit(deposit.id, { status: "rejected" });
-        const errMsg = data.message || data.error || data.detail || "Paiement refusé par l'opérateur";
-        console.error("[ashtechpay] no flow detected, raw response:", JSON.stringify(data));
-        return res.status(400).json({ message: errMsg });
-      }
-
-      // Save transaction id if available
-      const txId = data.transaction_id || data.transactionId || data.id || null;
-      if (txId) {
-        await storage.updateDeposit(deposit.id, { ashtechpayTransactionId: String(txId) });
-      }
-
-      return res.json({
-        depositId: deposit.id,
-        flow,
-        waveUrl: data.wave_url || data.waveUrl || null,
-        ussdCode: data.ussd_code || data.ussdCode || null,
-        transactionId: txId,
-        otpRequired: flow === "otp_sms" || flow === "otp_ussd",
-      });
-    } catch (e: any) {
-      console.error("[ashtechpay] initiate error:", e);
-      res.status(500).json({ message: e.message });
-    }
-  });
-
-  // Check deposit status (polling)
-  app.get("/api/ashtechpay/deposit/:id/status", requireAuth, async (req, res) => {
-    try {
-      const deposit = await storage.getDeposit(parseInt(req.params.id));
-      if (!deposit || deposit.userId !== req.session.userId) {
-        return res.status(404).json({ message: "Dépôt introuvable" });
-      }
-
-      if (deposit.status === "approved") return res.json({ status: "approved" });
-      if (deposit.status === "rejected") return res.json({ status: "rejected" });
-
-      if (deposit.ashtechpayTransactionId) {
-        const settings = await storage.getSettings();
-        const apiKey = settings.ashtechpayApiKey || "";
-        const txStatus = await ashtech.getTransactionStatus(apiKey, deposit.ashtechpayTransactionId);
-
-        console.log("[ashtechpay] poll txStatus:", JSON.stringify(txStatus));
-        const successStatuses = ["success", "completed", "paid", "confirmed"];
-        const failedStatuses  = ["failed", "rejected", "cancelled", "expired", "error"];
-        const txSt = (txStatus.status || "").toLowerCase();
-        if (successStatuses.includes(txSt)) {
-          await storage.updateDeposit(deposit.id, { status: "approved", processedAt: new Date() });
-          const user = await storage.getUser(deposit.userId);
-          if (user) {
-            const newBalance = parseFloat(user.balance) + deposit.amount;
-            await storage.updateUser(user.id, { balance: newBalance.toFixed(2), hasDeposited: true });
-            await storage.processDepositReferralCommissions(user.id, deposit.amount);
-          }
-          return res.json({ status: "approved" });
-        } else if (failedStatuses.includes(txSt)) {
-          await storage.updateDeposit(deposit.id, { status: "rejected", processedAt: new Date() });
-          return res.json({ status: "rejected" });
-        }
-      }
-
-      res.json({ status: "processing" });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
-    }
-  });
-
-  // AshtechPay webhook
-  app.post("/api/webhooks/ashtechpay", async (req, res) => {
-    res.status(200).json({ received: true });
-    try {
-      const { event, transaction_id, reference, status } = req.body;
-      if (!reference) return;
-
-      const deposits = await storage.getDeposits();
-      const deposit = deposits.find((d: any) => d.ashtechpayReference === reference);
-      if (!deposit) return;
-      if (deposit.status === "approved" || deposit.status === "rejected") return;
-
-      if (event === "payment.completed" || status === "completed") {
-        await storage.updateDeposit(deposit.id, {
-          status: "approved",
-          ashtechpayTransactionId: transaction_id,
-          processedAt: new Date(),
-        });
-        const user = await storage.getUser(deposit.userId);
-        if (user) {
-          const newBalance = parseFloat(user.balance) + deposit.amount;
-          await storage.updateUser(user.id, { balance: newBalance.toFixed(2), hasDeposited: true });
-          await storage.processDepositReferralCommissions(user.id, deposit.amount);
-        }
-      } else if (event === "payment.failed" || status === "failed") {
-        await storage.updateDeposit(deposit.id, { status: "rejected", processedAt: new Date() });
-      }
-    } catch (e: any) {
-      console.error("[ashtechpay] webhook error:", e);
-    }
-  });
-
-  // ─── End AshtechPay ───────────────────────────────────────────────
+  // ─── End WestPay ──────────────────────────────────────────────────
 
   // Withdrawals
   app.post("/api/withdrawals", requireAuth, async (req, res) => {
@@ -1254,19 +1009,56 @@ export async function registerRoutes(
       const withdrawalId = parseInt(req.params.id);
       const existingWithdrawal = await storage.getWithdrawals();
       const withdrawalData = existingWithdrawal.find(w => w.id === withdrawalId);
-      
+
       if (!withdrawalData) {
-        return res.status(404).json({ message: "Retrait non trouve" });
+        return res.status(404).json({ message: "Retrait non trouvé" });
+      }
+
+      const settings = await storage.getSettings();
+      const westpayEnabled  = settings.westpayEnabled  === "true";
+      const westpayEmail    = settings.westpayEmail    || process.env.WESTPAY_EMAIL    || "";
+      const westpayPassword = settings.westpayPassword || process.env.WESTPAY_PASSWORD || "";
+
+      let westpayRef: string | null = null;
+
+      if (westpayEnabled && westpayEmail && westpayPassword) {
+        try {
+          // Split fullName into first/last
+          const nameParts = (withdrawalData.accountName || "Client").trim().split(" ");
+          const firstName = nameParts[0] || "Client";
+          const lastName  = nameParts.slice(1).join(" ") || "X";
+
+          const result = await westpay.initiateTransfer(
+            westpayEmail,
+            westpayPassword,
+            withdrawalData.country || "BJ",
+            withdrawalData.accountNumber,
+            Math.round(withdrawalData.netAmount),
+            firstName,
+            lastName
+          );
+          westpayRef = result.reference;
+          console.log("[westpay] transfer OK:", result);
+        } catch (transferErr: any) {
+          console.error("[westpay] transfer FAILED:", transferErr.message);
+          // Don't block approval if WestPay transfer fails — admin can retry manually
+        }
       }
 
       const withdrawal = await storage.updateWithdrawal(withdrawalId, {
         status: "approved",
         processedAt: new Date(),
         processedBy: req.session.userId,
+        ...(westpayRef ? { notes: `WestPay: ${westpayRef}` } : {}),
       });
 
-      await storage.logAdminAction(req.session.userId!, "approve_withdrawal", withdrawalData.userId, `Retrait ${withdrawal.id} approuvé: ${withdrawalData.netAmount}F`);
-      res.json(withdrawal);
+      await storage.logAdminAction(
+        req.session.userId!,
+        "approve_withdrawal",
+        withdrawalData.userId,
+        `Retrait ${withdrawal.id} approuvé: ${withdrawalData.netAmount}F${westpayRef ? ` (WestPay: ${westpayRef})` : ""}`
+      );
+      res.json({ ...withdrawal, westpayRef });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
