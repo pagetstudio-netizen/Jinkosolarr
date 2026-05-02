@@ -86,7 +86,7 @@ export default function AccountPage() {
       {/* ── HEADER ──────────────────────────────────────────── */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "48px 16px 14px", backgroundColor: "#f2f2f7",
+        padding: "12px 16px 14px", backgroundColor: "#f2f2f7",
       }}>
         <button onClick={() => navigate("/")} data-testid="button-back"
           style={{ background: "transparent", border: "none", cursor: "pointer", padding: 4 }}>
