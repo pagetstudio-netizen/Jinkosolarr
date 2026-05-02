@@ -128,19 +128,8 @@ export default function HomePage() {
       <div style={{ background: `linear-gradient(160deg, ${GREEN} 0%, ${GREEN_DARK} 100%)`, paddingBottom: 20 }}>
 
         {/* ── Logo row ──────────────────────────────────── */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src={logoImg} alt="State Grid" style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover" }} />
-            <div>
-              <p style={{ color: "white", fontWeight: 800, fontSize: 16, margin: 0, lineHeight: 1.2 }}>State Grid</p>
-              <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: 0 }}>Investir · Gagner</p>
-            </div>
-          </div>
-          <button onClick={() => setShowContactSheet(true)}
-            style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-            data-testid="button-service">
-            <BellRing style={{ width: 18, height: 18, color: "white" }} />
-          </button>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "14px 16px 10px" }}>
+          <p style={{ color: "white", fontWeight: 800, fontSize: 20, margin: 0, letterSpacing: 0.5 }}>State Grid</p>
         </div>
 
         {/* ── Banner image ──────────────────────────────── */}
