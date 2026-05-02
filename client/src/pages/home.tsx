@@ -3,9 +3,9 @@ import { useLocation } from "wouter";
 import ContactSheet from "@/components/contact-sheet";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getCountryByCode } from "@/lib/countries";
-import { Loader2, X, BellRing, Gift, Headphones, CreditCard, ArrowDownCircle } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { getCountryByCode, formatCurrency } from "@/lib/countries";
+import { Loader2, X, BellRing, Gift, Headphones, CreditCard, ArrowDownCircle, AlertTriangle } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
 
@@ -51,6 +51,26 @@ export default function HomePage() {
   const [showContactSheet, setShowContactSheet] = useState(false);
   const [giftCode,         setGiftCode]         = useState("");
   const [activeTab,        setActiveTab]        = useState<"plans" | "tasks">("plans");
+  const [confirmProduct,   setConfirmProduct]   = useState<ProductWithOwnership | null>(null);
+
+  const purchaseMutation = useMutation({
+    mutationFn: async (productId: number) => {
+      const res = await apiRequest("POST", `/api/products/${productId}/purchase`, {});
+      if (!res.ok) { const d = await res.json(); throw new Error(d.message || "Erreur"); }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
+      refreshUser();
+      setConfirmProduct(null);
+      toast({ title: "Produit acheté !", description: "Vous commencerez à recevoir des gains demain." });
+    },
+    onError: (err: any) => {
+      setConfirmProduct(null);
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+    },
+  });
 
   const claimMutation = useMutation({
     mutationFn: async (code: string) => {
@@ -253,7 +273,7 @@ export default function HomePage() {
                 {/* Acheter button */}
                 <div style={{ padding: "12px 12px 12px" }}>
                   <button
-                    onClick={() => navigate(`/product/${product.id}`)}
+                    onClick={() => setConfirmProduct(product)}
                     data-testid={`button-acheter-${product.id}`}
                     style={{
                       width: "100%", height: 44, borderRadius: 999,
@@ -271,6 +291,53 @@ export default function HomePage() {
           })
         )}
       </div>
+
+      {/* ── CONFIRM PURCHASE MODAL ───────────────────────── */}
+      {confirmProduct && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.55)" }}
+          onClick={() => setConfirmProduct(null)}>
+          <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl"
+            onClick={e => e.stopPropagation()}>
+
+            <div className="pt-6 pb-4 px-6 text-center">
+              <p className="text-base font-semibold text-gray-800">
+                Êtes-vous sûr de vouloir acheter ce produit ?
+              </p>
+              <p className="text-sm text-gray-500 mt-1 font-medium">{confirmProduct.name}</p>
+            </div>
+
+            {balance < confirmProduct.price && (
+              <div className="flex items-center gap-2 mx-6 mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <p className="text-xs text-red-500">
+                  Solde insuffisant. Il vous manque {formatCurrency(confirmProduct.price - balance, user.country)}.
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-3 px-6 pb-6">
+              <button
+                onClick={() => setConfirmProduct(null)}
+                className="flex-1 py-3 rounded-full font-semibold text-sm text-gray-600"
+                style={{ background: "#f3f4f6" }}
+                data-testid="button-cancel-purchase">
+                Annuler
+              </button>
+              <button
+                onClick={() => purchaseMutation.mutate(confirmProduct.id)}
+                disabled={purchaseMutation.isPending || balance < confirmProduct.price}
+                className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1 disabled:opacity-50"
+                style={{ background: `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})` }}
+                data-testid="button-confirm-purchase">
+                {purchaseMutation.isPending
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : "Confirmer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── GIFT CODE MODAL ──────────────────────────────── */}
       {showGiftModal && (
