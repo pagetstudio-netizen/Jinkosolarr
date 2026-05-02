@@ -1,11 +1,11 @@
 {
-  "name": "Jinko Solar",
-  "short_name": "Jinko Solar",
-  "description": "Leader mondial du panneau solaire. Investissez et générez des revenus quotidiens.",
+  "name": "State Grid",
+  "short_name": "State Grid",
+  "description": "Invest in solar energy products and earn daily returns. West Africa's leading solar investment platform.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3db51d",
+  "theme_color": "#007054",
   "orientation": "portrait",
   "icons": [
     {
