@@ -18,9 +18,7 @@ import bannerImg    from "@assets/172052459377789_1777682768403.jpg";
 import slide2       from "@assets/G500-2022-03-State-Grid-GettyImages-1390460539_1777761316644.jpg";
 import slide3       from "@assets/1745844530190_1777761331035.jpeg";
 import slide4       from "@assets/images_(27)_1777761331088.jpeg";
-import popupCharacters  from "@assets/20260411_151613_1775920729926.png";
-import popupTelegramBtn from "@assets/20260411_144546_1775920729992.png";
-import popupCloseBtn    from "@assets/20260411_144711_1775920729969.png";
+import bellIcon     from "@assets/l_1777761584328.png";
 
 import fallbackImg from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 
@@ -156,18 +154,62 @@ export default function HomePage() {
 
       {/* ── POPUP ─────────────────────────────────────────── */}
       {showPopup && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80"
-          onClick={() => setShowPopup(false)}>
-          <div style={{ width: "92vw", maxWidth: 420, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}
-            onClick={e => e.stopPropagation()}>
-            <img src={popupCharacters} alt="Bienvenue" style={{ width: "100%", borderRadius: 20 }} data-testid="img-popup" />
-            <a href={TELEGRAM_LINK} target="_blank" rel="noopener noreferrer" style={{ width: "90%", display: "block" }} data-testid="button-popup-telegram">
-              <img src={popupTelegramBtn} alt="Télégram" style={{ width: "100%", borderRadius: 50 }} />
-            </a>
-            <button onClick={() => setShowPopup(false)} data-testid="button-popup-close"
-              style={{ background: "transparent", border: "none", cursor: "pointer", padding: 0, width: 64, height: 64 }}>
-              <img src={popupCloseBtn} alt="Fermer" style={{ width: "100%", height: "100%" }} />
-            </button>
+        <div
+          style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.82)" }}
+          onClick={() => setShowPopup(false)}
+        >
+          <div
+            style={{ width: "88vw", maxWidth: 400, display: "flex", flexDirection: "column", alignItems: "center" }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Cloche */}
+            <img src={bellIcon} alt="Notification" style={{ width: 110, height: 110, marginBottom: -30, position: "relative", zIndex: 1 }} data-testid="img-popup" />
+
+            {/* Carte sombre */}
+            <div style={{ width: "100%", background: "#1a1a2e", borderRadius: 20, padding: "40px 22px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <h2 style={{ color: "white", fontWeight: 900, fontSize: 22, textAlign: "center", margin: 0, letterSpacing: 1 }}>
+                NOTIFICATION
+              </h2>
+
+              {/* Liste */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {[
+                  "Prime d'inscription : 200 FCFA.",
+                  "Récompense de connexion quotidienne : 50 FCFA.",
+                  "Invitez vos filleuls à investir et recevez une commission de 27 % sur leur investissement.",
+                  "Aucune limite de retrait. Vous pouvez retirer à tout moment entre 8h et 17h.",
+                  "State Grid attache une grande importance à la satisfaction de ses membres.",
+                ].map((item, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <span style={{ color: "#a78bfa", fontWeight: 700, fontSize: 13, flexShrink: 0, minWidth: 16 }}>{i + 1}.</span>
+                    <p style={{ color: "#e2e8f0", fontSize: 13, margin: 0, lineHeight: 1.5 }}>{item}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Boutons */}
+              <button
+                onClick={() => setShowPopup(false)}
+                data-testid="button-popup-close"
+                style={{ width: "100%", padding: "13px", borderRadius: 999, background: "white", color: "#1a1a2e", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer", marginTop: 4, touchAction: "manipulation" }}
+              >
+                OK
+              </button>
+
+              <a
+                href="https://t.me/stategrad10"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="button-popup-telegram"
+                style={{ textDecoration: "none" }}
+              >
+                <button
+                  style={{ width: "100%", padding: "13px", borderRadius: 999, background: "linear-gradient(135deg, #7c3aed, #4f46e5)", color: "white", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer", touchAction: "manipulation" }}
+                >
+                  Aller sur Telegram &gt;
+                </button>
+              </a>
+            </div>
           </div>
         </div>
       )}
