@@ -84,8 +84,8 @@ Preferred communication style: Simple, everyday language.
 - **TypeScript**: Type checking across full stack
 
 ### Environment Variables Required
-- `DATABASE_URL`: PostgreSQL connection string
-- `SESSION_SECRET`: Secret for session encryption (optional, has fallback)
+- `DATABASE_URL`: PostgreSQL connection string (provided by Replit's built-in database)
+- `SESSION_SECRET`: Secret for session encryption (set as a Replit secret)
 
 ## Recent Changes (February 2026)
 - Deposit system now uses dual approach: Soleaspay (automatic) per-country OR manual recharge channels
