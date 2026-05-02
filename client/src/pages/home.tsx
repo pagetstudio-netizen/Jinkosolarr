@@ -4,7 +4,11 @@ import ContactSheet from "@/components/contact-sheet";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode, formatCurrency } from "@/lib/countries";
-import { Loader2, X, BellRing, Gift, Headphones, CreditCard, ArrowDownCircle, AlertTriangle } from "lucide-react";
+import { Loader2, X, BellRing, AlertTriangle } from "lucide-react";
+import iconDeposit  from "@assets/atm_1777742458259.png";
+import iconRetrait  from "@assets/app_1777742458291.png";
+import iconCadeau   from "@assets/tarBar6_1777742458355.png";
+import iconService  from "@assets/customer-service_1777742458188.png";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
@@ -140,16 +144,14 @@ export default function HomePage() {
         {/* ── 4 Quick Actions ───────────────────────────── */}
         <div style={{ display: "flex", justifyContent: "space-around", padding: "0 8px" }}>
           {[
-            { icon: <CreditCard style={{ width: 22, height: 22, color: GREEN }} />,       label: "Recharger", bg: "#e8f5e9", action: () => navigate("/deposit") },
-            { icon: <ArrowDownCircle style={{ width: 22, height: 22, color: "#e91e63" }} />, label: "Retrait",    bg: "#fce4ec", action: () => navigate("/withdrawal") },
-            { icon: <Gift style={{ width: 22, height: 22, color: "#ff9800" }} />,           label: "Cadeau",     bg: "#fff3e0", action: () => { setGiftCode(""); setShowGiftModal(true); } },
-            { icon: <Headphones style={{ width: 22, height: 22, color: "#2196f3" }} />,     label: "Service",    bg: "#e3f2fd", action: () => setShowContactSheet(true) },
+            { img: iconDeposit,  label: "Recharger", action: () => navigate("/deposit") },
+            { img: iconRetrait,  label: "Retrait",   action: () => navigate("/withdrawal") },
+            { img: iconCadeau,   label: "Cadeau",    action: () => { setGiftCode(""); setShowGiftModal(true); } },
+            { img: iconService,  label: "Service",   action: () => setShowContactSheet(true) },
           ].map((item, i) => (
             <button key={i} onClick={item.action} data-testid={`button-quick-${i}`}
               style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "transparent", border: "none", cursor: "pointer" }}>
-              <div style={{ width: 52, height: 52, borderRadius: "50%", background: item.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {item.icon}
-              </div>
+              <img src={item.img} alt={item.label} style={{ width: 52, height: 52, objectFit: "contain" }} />
               <span style={{ color: "white", fontSize: 11, fontWeight: 600 }}>{item.label}</span>
             </button>
           ))}
