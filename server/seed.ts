@@ -198,7 +198,7 @@ export async function seed() {
     { key: "support2Link", value: "https://t.me/Jinkosolarr" },
     { key: "channelLink", value: "https://t.me/Jinkosolarr" },
     { key: "groupLink", value: "https://t.me/Jinkosolarr" },
-    { key: "minDeposit", value: "3500" },
+    { key: "minDeposit", value: "3000" },
     { key: "withdrawalFees", value: "17" },
     { key: "withdrawalStartHour", value: "8" },
     { key: "withdrawalEndHour", value: "17" },

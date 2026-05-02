@@ -7,7 +7,7 @@ import { getCountryByCode } from "@/lib/countries";
 
 const GREEN      = "#007054";
 const GREEN_DARK = "#005040";
-const PRESET_AMOUNTS = [500, 1000, 2000, 5000];
+const PRESET_AMOUNTS = [3000, 5000, 10000, 20000];
 
 export default function DepositPage() {
   const { user } = useAuth();
@@ -22,7 +22,7 @@ export default function DepositPage() {
   const { data: platformSettings } = useQuery<Record<string, string>>({
     queryKey: ["/api/settings"],
   });
-  const MIN_DEPOSIT = parseInt(platformSettings?.minDeposit || "500");
+  const MIN_DEPOSIT = parseInt(platformSettings?.minDeposit || "3000");
   const MAX_DEPOSIT = 2000000;
 
   const handleRecharge = () => {
