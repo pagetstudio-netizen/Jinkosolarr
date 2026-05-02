@@ -9,7 +9,7 @@ import { useCountries } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import ContactSheet from "@/components/contact-sheet";
 import { Loader2, Eye, EyeOff, Smartphone, Lock, ChevronDown } from "lucide-react";
-import serviceAgent from "@assets/service_p1_1775839314312.png";
+import serviceAgent from "@assets/customer-service_1777761397993.png";
 
 const GREEN = "#007054";
 
