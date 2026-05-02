@@ -22,8 +22,8 @@ interface TeamStats {
   level3Commission: number;
 }
 
-/* teal-blue gradient used for level banners & invite card */
-const TEAL_GRAD  = "linear-gradient(90deg, #00c6d7 0%, #0077b6 100%)";
+/* State Grid brand gradient used for level banners & invite card */
+const TEAL_GRAD  = "linear-gradient(90deg, #007054 0%, #005040 100%)";
 const ORANGE     = "#f59e0b";
 
 export default function TeamPage() {
@@ -136,14 +136,14 @@ export default function TeamPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {/* Org chart icon SVG */}
               <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                <circle cx="20" cy="10" r="6" stroke="#0077b6" strokeWidth="2" fill="none"/>
-                <circle cx="8"  cy="32" r="5" stroke="#0077b6" strokeWidth="2" fill="none"/>
-                <circle cx="20" cy="32" r="5" stroke="#0077b6" strokeWidth="2" fill="none"/>
-                <circle cx="32" cy="32" r="5" stroke="#0077b6" strokeWidth="2" fill="none"/>
-                <line x1="20" y1="16" x2="20" y2="22" stroke="#0077b6" strokeWidth="1.5"/>
-                <line x1="20" y1="22" x2="8"  y2="27" stroke="#0077b6" strokeWidth="1.5"/>
-                <line x1="20" y1="22" x2="20" y2="27" stroke="#0077b6" strokeWidth="1.5"/>
-                <line x1="20" y1="22" x2="32" y2="27" stroke="#0077b6" strokeWidth="1.5"/>
+                <circle cx="20" cy="10" r="6" stroke="#007054" strokeWidth="2" fill="none"/>
+                <circle cx="8"  cy="32" r="5" stroke="#007054" strokeWidth="2" fill="none"/>
+                <circle cx="20" cy="32" r="5" stroke="#007054" strokeWidth="2" fill="none"/>
+                <circle cx="32" cy="32" r="5" stroke="#007054" strokeWidth="2" fill="none"/>
+                <line x1="20" y1="16" x2="20" y2="22" stroke="#007054" strokeWidth="1.5"/>
+                <line x1="20" y1="22" x2="8"  y2="27" stroke="#007054" strokeWidth="1.5"/>
+                <line x1="20" y1="22" x2="20" y2="27" stroke="#007054" strokeWidth="1.5"/>
+                <line x1="20" y1="22" x2="32" y2="27" stroke="#007054" strokeWidth="1.5"/>
               </svg>
               <div>
                 <p style={{ fontSize: 20, fontWeight: 800, color: ORANGE, margin: 0 }} data-testid="text-total-recharge">
@@ -163,7 +163,7 @@ export default function TeamPage() {
           </p>
           <button
             onClick={() => navigate("/team-details")}
-            style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 12, color: "#0077b6", fontWeight: 600 }}
+            style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 12, color: "#007054", fontWeight: 600 }}
             data-testid="button-team-details"
           >
             Details de l'Equipe &gt;&gt;
