@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
-import { ChevronLeft, Users } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useLocation } from "wouter";
+import { ChevronLeft, Users, TrendingUp } from "lucide-react";
+
+import level1Img from "@assets/1_1777738442044.jpeg";
+import level2Img from "@assets/1000375967_1777738442107.png";
+import level3Img from "@assets/1000375968_1777738442072.png";
+
+const GREEN      = "#007054";
+const GREEN_DARK = "#005040";
+const ORANGE     = "#f59e0b";
 
 interface TeamMember {
   id: number;
-  fullName: string;
   phone: string;
   country: string;
   createdAt: string;
@@ -24,178 +30,215 @@ interface TeamDetails {
 
 function maskPhone(phone: string): string {
   if (phone.length <= 5) return phone;
-  const first2 = phone.slice(0, 2);
-  const last3 = phone.slice(-3);
-  const masked = "*".repeat(Math.max(phone.length - 5, 3));
-  return `${first2}${masked}${last3}`;
+  return `${phone.slice(0, 2)}${"*".repeat(Math.max(phone.length - 5, 3))}${phone.slice(-3)}`;
 }
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const year = date.getFullYear();
-  const h = date.getHours();
-  const hours12 = h % 12 || 12;
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  const ampm = h >= 12 ? "PM" : "AM";
-  return `${month}/${day}/${year} ${hours12}:${minutes}:${seconds} ${ampm}`;
+  const d = new Date(dateStr);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+const LEVEL_IMGS = [level1Img, level2Img, level3Img];
 
 export default function TeamDetailsPage() {
   const [activeLevel, setActiveLevel] = useState<1 | 2 | 3>(1);
+  const [, navigate] = useLocation();
 
   const { data: team, isLoading } = useQuery<TeamDetails>({
     queryKey: ["/api/team/details"],
+    staleTime: 0,
   });
 
-  const getLevelMembers = (): TeamMember[] => {
-    if (!team) return [];
-    switch (activeLevel) {
-      case 1: return team.level1;
-      case 2: return team.level2;
-      case 3: return team.level3;
-    }
-  };
-
   const levels = [
-    { num: 1 as const, total: team?.totalLevel1Invested || 0, count: team?.level1?.length || 0, label: "Niveau 1" },
-    { num: 2 as const, total: team?.totalLevel2Invested || 0, count: team?.level2?.length || 0, label: "Niveau 2" },
-    { num: 3 as const, total: team?.totalLevel3Invested || 0, count: team?.level3?.length || 0, label: "Niveau 3" },
+    { num: 1 as const, label: "Niveau 1", img: LEVEL_IMGS[0], count: team?.level1?.length || 0, total: team?.totalLevel1Invested || 0 },
+    { num: 2 as const, label: "Niveau 2", img: LEVEL_IMGS[1], count: team?.level2?.length || 0, total: team?.totalLevel2Invested || 0 },
+    { num: 3 as const, label: "Niveau 3", img: LEVEL_IMGS[2], count: team?.level3?.length || 0, total: team?.totalLevel3Invested || 0 },
   ];
 
-  const members = getLevelMembers();
-  const totalAllMembers = (team?.level1?.length || 0) + (team?.level2?.length || 0) + (team?.level3?.length || 0);
+  const activeData = levels[activeLevel - 1];
+  const members: TeamMember[] = team
+    ? (activeLevel === 1 ? team.level1 : activeLevel === 2 ? team.level2 : team.level3)
+    : [];
+
+  const totalAll = (team?.level1?.length || 0) + (team?.level2?.length || 0) + (team?.level3?.length || 0);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div style={{ minHeight: "100vh", backgroundColor: "#f2f2f7", display: "flex", flexDirection: "column" }}>
 
-      {/* Red header */}
-      <div className="relative px-4 pt-4 pb-8" style={{ background: "linear-gradient(135deg, #007054 0%, #005040 100%)" }}>
-        <div className="flex items-center mb-4">
-          <Link href="/">
-            <button className="p-1.5 bg-white/20 rounded-full" data-testid="button-back-team">
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-          </Link>
-          <h1 className="flex-1 text-center text-base font-bold text-white pr-8" data-testid="text-page-title">
-            Mon équipe
+      {/* ── HEADER ─────────────────────────────────────── */}
+      <div style={{
+        background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_DARK} 100%)`,
+        padding: "48px 16px 56px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
+          <button onClick={() => navigate("/team")} data-testid="button-back"
+            style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <ChevronLeft style={{ width: 20, height: 20, color: "white" }} />
+          </button>
+          <h1 style={{ flex: 1, textAlign: "center", fontSize: 17, fontWeight: 700, color: "white", margin: 0 }}>
+            Mon Équipe
           </h1>
+          <div style={{ width: 32 }} />
         </div>
 
-        {/* Total members badge */}
-        <div className="flex items-center justify-center gap-2">
-          <div className="bg-white/20 rounded-full px-5 py-1.5 flex items-center gap-2">
-            <Users className="w-4 h-4 text-white" />
-            <span className="text-white text-sm font-semibold">{totalAllMembers} membre(s) au total</span>
+        {/* Total badge */}
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{
+            background: "rgba(255,255,255,0.2)", borderRadius: 999,
+            padding: "6px 20px", display: "flex", alignItems: "center", gap: 8,
+          }}>
+            <Users style={{ width: 16, height: 16, color: "white" }} />
+            <span style={{ color: "white", fontSize: 13, fontWeight: 600 }}>
+              {totalAll} membre(s) au total
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Level tabs — overlapping the red header */}
-      <div className="mx-4 -mt-5 relative z-10">
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden flex">
-          {levels.map((level) => (
+      {/* ── LEVEL TABS — overlap header ────────────────── */}
+      <div style={{ margin: "0 12px", marginTop: -36, position: "relative", zIndex: 10 }}>
+        <div style={{
+          background: "white", borderRadius: 16,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+          display: "flex", overflow: "hidden",
+        }}>
+          {levels.map((lv) => (
             <button
-              key={level.num}
-              onClick={() => setActiveLevel(level.num)}
-              className={`flex-1 py-3 text-center transition-colors relative`}
-              data-testid={`tab-level-${level.num}`}
+              key={lv.num}
+              onClick={() => setActiveLevel(lv.num)}
+              data-testid={`tab-level-${lv.num}`}
+              style={{
+                flex: 1, padding: "12px 4px 10px",
+                background: "transparent", border: "none", cursor: "pointer",
+                borderBottom: activeLevel === lv.num ? `3px solid ${GREEN}` : "3px solid transparent",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+              }}
             >
-              {activeLevel === level.num && (
-                <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full" style={{ backgroundColor: "#007054" }} />
-              )}
-              <p className={`text-sm font-bold ${activeLevel === level.num ? "text-[#007054]" : "text-gray-400"}`}>
-                {level.count}
-              </p>
-              <p className={`text-[11px] mt-0.5 ${activeLevel === level.num ? "text-[#007054]" : "text-gray-400"}`}>
-                {level.label}
-              </p>
+              <img src={lv.img} alt={lv.label} style={{ width: 36, height: 36, objectFit: "contain" }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: activeLevel === lv.num ? GREEN : "#9ca3af" }}>
+                {lv.count}
+              </span>
+              <span style={{ fontSize: 11, color: activeLevel === lv.num ? GREEN : "#9ca3af" }}>
+                {lv.label}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Investment totals for active level */}
-      <div className="mx-4 mt-3">
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-3 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-400">Total investi — Niveau {activeLevel}</p>
-            <p className="text-base font-black mt-0.5" style={{ color: "#007054" }}>
-              {levels[activeLevel - 1].total.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </p>
+      {/* ── STATS ROW ──────────────────────────────────── */}
+      <div style={{ margin: "12px 12px 0", display: "flex", gap: 10 }}>
+        {/* Membres */}
+        <div style={{
+          flex: 1, background: "white", borderRadius: 14,
+          padding: "12px 14px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+          display: "flex", alignItems: "center", gap: 10,
+        }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: "#f0faf7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Users style={{ width: 20, height: 20, color: GREEN }} />
           </div>
-          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "#fff0f2" }}>
-            <Users className="w-5 h-5" style={{ color: "#007054" }} />
+          <div>
+            <p style={{ fontSize: 18, fontWeight: 800, color: ORANGE, margin: 0 }} data-testid="text-level-count">
+              {activeData.count}
+            </p>
+            <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>Filleuls</p>
+          </div>
+        </div>
+
+        {/* Investissement */}
+        <div style={{
+          flex: 1, background: "white", borderRadius: 14,
+          padding: "12px 14px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+          display: "flex", alignItems: "center", gap: 10,
+        }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: "#f0faf7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <TrendingUp style={{ width: 20, height: 20, color: GREEN }} />
+          </div>
+          <div>
+            <p style={{ fontSize: 15, fontWeight: 800, color: ORANGE, margin: 0 }} data-testid="text-level-total">
+              {activeData.total.toLocaleString("fr-FR", { minimumFractionDigits: 0 })}
+            </p>
+            <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>Total investi</p>
           </div>
         </div>
       </div>
 
-      {/* Members list */}
-      <div className="mx-4 mt-3 mb-6 flex-1">
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      {/* ── MEMBERS LIST ───────────────────────────────── */}
+      <div style={{ margin: "12px 12px 40px" }}>
+        <div style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
+
+          {/* List header */}
+          {members.length > 0 && (
+            <div style={{
+              display: "flex", alignItems: "center",
+              padding: "10px 16px", borderBottom: "1px solid #f5f5f5",
+              background: "#fafafa",
+            }}>
+              <span style={{ flex: 1, fontSize: 12, color: "#9ca3af", fontWeight: 600 }}>Membre</span>
+              <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 600, marginRight: 8 }}>Date d'inscription</span>
+              <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 600, minWidth: 70, textAlign: "right" }}>Investi</span>
+            </div>
+          )}
+
           {isLoading ? (
-            <div className="p-4 space-y-3">
-              {Array(5).fill(0).map((_, i) => (
-                <Skeleton key={i} className="h-14 w-full rounded-xl" />
+            <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+              {[1,2,3,4,5].map(i => (
+                <div key={i} style={{ height: 56, background: "#f3f4f6", borderRadius: 10, animation: "pulse 1.5s ease-in-out infinite" }} />
               ))}
             </div>
           ) : members.length === 0 ? (
-            <div className="text-center py-14 px-6">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: "#fff0f2" }}>
-                <Users className="w-7 h-7" style={{ color: "#007054" }} />
+            <div style={{ padding: "48px 20px", textAlign: "center" }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#f0faf7", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
+                <Users style={{ width: 28, height: 28, color: GREEN }} />
               </div>
-              <p className="text-gray-500 text-sm font-medium">Aucun membre au niveau {activeLevel}</p>
-              <p className="text-gray-400 text-xs mt-1">Invitez des amis pour agrandir votre équipe</p>
+              <p style={{ fontSize: 14, color: "#6b7280", fontWeight: 600, margin: "0 0 4px 0" }}>
+                Aucun membre au {activeData.label}
+              </p>
+              <p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>
+                Invitez des amis pour agrandir votre équipe
+              </p>
             </div>
           ) : (
-            <div>
-              {/* List header */}
-              <div className="flex items-center px-4 py-2 border-b border-gray-50">
-                <span className="text-xs text-gray-400 flex-1">Membre</span>
-                <span className="text-xs text-gray-400">Investi</span>
-              </div>
+            members.map((member, idx) => (
+              <div
+                key={member.id}
+                data-testid={`team-member-${member.id}`}
+                style={{
+                  display: "flex", alignItems: "center", padding: "12px 16px", gap: 12,
+                  borderBottom: idx < members.length - 1 ? "1px solid #f5f5f5" : "none",
+                }}
+              >
+                {/* Avatar */}
+                <div style={{
+                  width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
+                  background: `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <span style={{ color: "white", fontSize: 14, fontWeight: 700 }}>
+                    {member.phone.slice(0, 1)}
+                  </span>
+                </div>
 
-              {members.map((member, idx) => (
-                <div
-                  key={member.id}
-                  className={`flex items-center px-4 py-3 gap-3 ${idx < members.length - 1 ? "border-b border-gray-50" : ""}`}
-                  data-testid={`team-member-${member.id}`}
-                >
-                  {/* Avatar */}
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                    style={{ background: "linear-gradient(135deg, #007054, #005040)" }}
-                  >
-                    <span className="text-white text-sm font-bold">
-                      {member.phone.slice(0, 1).toUpperCase()}
-                    </span>
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-800" data-testid={`text-member-phone-${member.id}`}>
-                      {maskPhone(member.phone)}
-                    </p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">{formatDate(member.createdAt)}</p>
-                  </div>
-
-                  {/* Invested amount */}
-                  <p
-                    className="text-sm font-bold shrink-0"
-                    style={{ color: "#007054" }}
-                    data-testid={`text-member-invested-${member.id}`}
-                  >
-                    {member.totalInvested.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: "0 0 2px 0" }} data-testid={`text-member-phone-${member.id}`}>
+                    {maskPhone(member.phone)}
+                  </p>
+                  <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>
+                    {formatDate(member.createdAt)}
                   </p>
                 </div>
-              ))}
-            </div>
+
+                {/* Invested */}
+                <p style={{ fontSize: 13, fontWeight: 700, color: ORANGE, flexShrink: 0, minWidth: 70, textAlign: "right" }} data-testid={`text-member-invested-${member.id}`}>
+                  {member.totalInvested.toLocaleString("fr-FR", { minimumFractionDigits: 0 })}
+                </p>
+              </div>
+            ))
           )}
         </div>
       </div>
-
     </div>
   );
 }
