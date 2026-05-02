@@ -11,7 +11,7 @@ import wendysNight from "@assets/batu-gezer-AGGhkGuVs2w-unsplash_1773332229247.j
 export default function GiftCodePage() {
   const { refreshUser } = useAuth();
   const { toast } = useToast();
-  useEffect(() => { document.title = "Argent gratuit | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Argent gratuit | State Grid"; }, []);
   const [code, setCode] = useState("");
 
   const claimMutation = useMutation({
@@ -59,7 +59,7 @@ export default function GiftCodePage() {
       <div className="relative">
         <img
           src={wendysNight}
-          alt="Jinko Solar"
+          alt="State Grid"
           className="w-full h-52 object-cover"
           data-testid="img-gift-banner"
         />

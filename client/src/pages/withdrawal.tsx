@@ -30,7 +30,7 @@ interface UserProduct {
 export default function WithdrawalPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
-  useEffect(() => { document.title = "Retrait | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Retrait | State Grid"; }, []);
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number | "">("");
   const [selectedWallet, setSelectedWallet] = useState<WalletData | null>(null);
@@ -349,7 +349,7 @@ export default function WithdrawalPage() {
           <div className="flex gap-2 items-start">
             <span className="mt-0.5 font-bold" style={{ color: "#1565C0" }}>◆</span>
             <p>
-              Effectuez votre première recharge et activez un produit Jinko Solar pour débloquer
+              Effectuez votre première recharge et activez un produit State Grid pour débloquer
               la fonction de retrait.
             </p>
           </div>

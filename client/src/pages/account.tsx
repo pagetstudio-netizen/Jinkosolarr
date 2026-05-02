@@ -44,7 +44,7 @@ export default function AccountPage() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
-  useEffect(() => { document.title = "Compte | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Compte | State Grid"; }, []);
   const [showPinModal, setShowPinModal] = useState(false);
   const [adminPin, setAdminPin] = useState("");
   const [showContactSheet, setShowContactSheet] = useState(false);
@@ -114,7 +114,7 @@ export default function AccountPage() {
 
         {/* White header — same as home page */}
         <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
-          <img src={jinkoLogoText} alt="Jinko Solar" className="h-10 w-auto object-contain" />
+          <img src={jinkoLogoText} alt="State Grid" className="h-10 w-auto object-contain" />
           <div className="flex items-center gap-2">
             {user.isAdmin && (
               <button

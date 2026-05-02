@@ -10,7 +10,7 @@ const GREEN = "#3db51d";
 export default function ChangePasswordPage() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
-  useEffect(() => { document.title = "Sécurité | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Sécurité | State Grid"; }, []);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

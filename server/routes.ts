@@ -505,7 +505,7 @@ export async function registerRoutes(
             paymentMethod,
             orderId,
             accountName,
-            `user${user.id}@jinkosolar.com`
+            `user${user.id}@stategrid.com`
           );
 
           if (paymentResult.success && paymentResult.data) {

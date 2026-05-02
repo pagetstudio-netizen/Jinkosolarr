@@ -42,7 +42,7 @@ const pageBg: React.CSSProperties = {
 export default function TeamPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  useEffect(() => { document.title = "Équipe | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Équipe | State Grid"; }, []);
   const [, navigate] = useLocation();
 
   const { data: stats } = useQuery<TeamStats>({
@@ -63,7 +63,7 @@ export default function TeamPage() {
 
   const shareLink = () => {
     if (navigator.share) {
-      navigator.share({ title: "Rejoins Jinko Solar", url: referralLink });
+      navigator.share({ title: "Rejoins State Grid", url: referralLink });
     } else {
       navigator.clipboard.writeText(referralLink);
       toast({ title: "Lien copié !" });

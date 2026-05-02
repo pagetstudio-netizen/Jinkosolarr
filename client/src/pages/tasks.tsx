@@ -84,7 +84,7 @@ export default function TasksPage() {
       <div className="relative overflow-hidden" style={{ height: "260px" }}>
         <img
           src={wendysImg}
-          alt="Jinko Solar"
+          alt="State Grid"
           className="w-full h-full object-cover object-center"
         />
         {/* Dark gradient overlay */}
@@ -104,7 +104,7 @@ export default function TasksPage() {
             </button>
           </Link>
           <div className="flex-1 flex justify-center">
-            <img src={jinkoLogo} alt="Jinko Solar" className="h-8 object-contain" />
+            <img src={jinkoLogo} alt="State Grid" className="h-8 object-contain" />
           </div>
           <div className="w-9" />
         </div>

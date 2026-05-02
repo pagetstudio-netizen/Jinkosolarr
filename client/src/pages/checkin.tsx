@@ -18,7 +18,7 @@ interface BonusStatus {
 export default function CheckinPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  useEffect(() => { document.title = "Présence | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Présence | State Grid"; }, []);
 
   const { data: bonusStatus } = useQuery<BonusStatus>({
     queryKey: ["/api/daily-bonus-status"],

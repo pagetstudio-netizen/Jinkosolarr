@@ -13,18 +13,18 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
-              <img src={jinkoLogo} alt="Jinko Solar" className="w-full h-full object-cover" />
+              <img src={jinkoLogo} alt="State Grid" className="w-full h-full object-cover" />
             </div>
-            À propos de Jinko Solar
+            À propos de State Grid
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 text-sm text-muted-foreground">
           <p>
-            Jinko Solar est l'un des plus grands fabricants de panneaux solaires au monde, présent dans plus de 160 pays avec une capacité installée dépassant 200 GW.
+            State Grid est l'une des plus grandes entreprises d'énergie au monde, présente dans plus de 160 pays avec une capacité installée dépassant 200 GW.
           </p>
           <p>
-            Leader reconnu dans l'industrie de l'énergie solaire, Jinko Solar s'engage à fournir des solutions photovoltaïques innovantes et durables pour un avenir énergétique propre.
+            Leader reconnu dans l'industrie de l'énergie, State Grid s'engage à fournir des solutions innovantes et durables pour un avenir énergétique propre.
           </p>
           <div className="bg-secondary rounded-lg p-4 space-y-2">
             <h4 className="font-medium text-foreground">Nos avantages :</h4>

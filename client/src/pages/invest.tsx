@@ -24,7 +24,7 @@ export default function InvestPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
-  useEffect(() => { document.title = "Investir | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Investir | State Grid"; }, []);
   const [confirmProduct, setConfirmProduct] = useState<ProductWithOwnership | null>(null);
   const [showContactSheet, setShowContactSheet] = useState(false);
 
@@ -76,7 +76,7 @@ export default function InvestPage() {
     <div className="flex flex-col min-h-full bg-gray-100">
       <ContactSheet open={showContactSheet} onClose={() => setShowContactSheet(false)} />
       <div className="flex items-center justify-between px-4 py-3 shadow-sm" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
-        <img src={jinkoLogoFull} alt="Jinko Solar" className="h-9 w-auto object-contain" data-testid="img-jinko-logo" />
+        <img src={jinkoLogoFull} alt="State Grid" className="h-9 w-auto object-contain" data-testid="img-logo" />
         <button
           onClick={() => setShowContactSheet(true)}
           className="flex items-center justify-center"

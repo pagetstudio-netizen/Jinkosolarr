@@ -13,7 +13,7 @@ const PRESET_AMOUNTS = [3500, 8000, 15000];
 export default function DepositPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  useEffect(() => { document.title = "Dépôt | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Dépôt | State Grid"; }, []);
   const [amount, setAmount] = useState<number | "">("");
 
   const countryInfo = getCountryByCode(user?.country || "");

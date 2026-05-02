@@ -29,7 +29,7 @@ function formatDate(iso: string) {
 }
 
 export default function WithdrawalHistoryPage() {
-  useEffect(() => { document.title = "Historique des retraits | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Historique des retraits | State Grid"; }, []);
   const { user } = useAuth();
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";

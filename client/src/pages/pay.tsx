@@ -90,7 +90,7 @@ function StepBar({ current }: { current: Step }) {
 export default function PayPage() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
-  useEffect(() => { document.title = "Paiement | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Paiement | State Grid"; }, []);
 
   const params = new URLSearchParams(window.location.search);
   const amountParam = parseInt(params.get("amount") || "0");
@@ -262,7 +262,7 @@ export default function PayPage() {
 
       {/* ── Green header ── */}
       <div className="px-5 pt-8 pb-6">
-        <p className="text-white font-extrabold text-xl leading-tight">Jinko Solar</p>
+        <p className="text-white font-extrabold text-xl leading-tight">State Grid</p>
         <p className="text-white/80 text-sm mt-0.5">Paiement sécurisé</p>
         <p className="text-white/70 text-sm mt-4">Montant :</p>
         <p className="text-white font-extrabold text-4xl leading-tight mt-0.5">
@@ -586,7 +586,7 @@ export default function PayPage() {
                   </div>
                   <p className="font-extrabold text-xl text-gray-800">Paiement réussi !</p>
                   <p className="text-gray-500 text-sm leading-relaxed">
-                    Votre dépôt de {amountParam.toLocaleString("fr-FR")} {currency} a été crédité sur votre compte Jinko Solar.
+                    Votre dépôt de {amountParam.toLocaleString("fr-FR")} {currency} a été crédité sur votre compte State Grid.
                   </p>
                   <button
                     onClick={() => navigate("/")}
@@ -630,7 +630,7 @@ export default function PayPage() {
 
         {/* Footer */}
         <div className="text-center py-3 px-5 border-t border-gray-100">
-          <p className="text-gray-400 text-xs">Paiement sécurisé via Jinko Solar</p>
+          <p className="text-gray-400 text-xs">Paiement sécurisé via State Grid</p>
         </div>
       </div>
     </div>

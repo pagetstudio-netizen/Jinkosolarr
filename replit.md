@@ -1,8 +1,8 @@
-# Fanuc - Industrial Investment Platform
+# State Grid - Industrial Investment Platform
 
 ## Overview
 
-Fanuc is a mobile-first investment platform targeting French-speaking African countries. Users can purchase virtual industrial robot products that generate daily earnings, manage deposits/withdrawals via mobile money, build referral teams for commission income, and complete tasks for bonuses. The platform features a full admin panel for managing users, transactions, products, and platform settings.
+State Grid is a mobile-first investment platform targeting French-speaking African countries. Users can purchase virtual industrial robot products that generate daily earnings, manage deposits/withdrawals via mobile money, build referral teams for commission income, and complete tasks for bonuses. The platform features a full admin panel for managing users, transactions, products, and platform settings.
 
 ## User Preferences
 

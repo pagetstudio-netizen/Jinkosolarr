@@ -17,24 +17,24 @@ export default function AboutPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Qui sommes-nous ?</h2>
           <p className="text-gray-600 leading-relaxed">
-            Jinko Solar est l'un des plus grands fabricants de panneaux solaires au monde, fondé en 2006 et présent dans plus de 160 pays. Reconnu pour la qualité et la fiabilité de ses modules photovoltaïques, Jinko Solar est un leader incontesté de la transition énergétique mondiale.
+            State Grid est l'une des plus grandes entreprises d'énergie au monde, présente dans plus de 160 pays. Reconnue pour la qualité et la fiabilité de ses services, State Grid est un leader incontesté dans le secteur de l'énergie mondiale.
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Grâce à notre expertise et à notre réseau mondial, nous offrons à nos utilisateurs des opportunités uniques de générer des revenus quotidiens en participant au financement et à l'expansion de Jinko Solar à l'échelle internationale.
+            Grâce à notre expertise et à notre réseau mondial, nous offrons à nos utilisateurs des opportunités uniques de générer des revenus quotidiens en participant au financement et à l'expansion de State Grid à l'échelle internationale.
           </p>
         </div>
 
         <div className="space-y-4">
           <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Notre héritage</h2>
           <p className="text-gray-600 leading-relaxed">
-            Aujourd'hui, Jinko Solar est présent dans de nombreux pays avec plus de 200 GW de capacité installée et propose une large gamme de panneaux solaires haute performance, devenant ainsi une marque reconnue à l'échelle internationale dans le secteur de l'énergie renouvelable.
+            Aujourd'hui, State Grid est présent dans de nombreux pays avec plus de 200 GW de capacité installée et propose une large gamme de solutions énergétiques haute performance, devenant ainsi une marque reconnue à l'échelle internationale dans le secteur de l'énergie.
           </p>
         </div>
 
         <div className="space-y-4">
           <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Sécurité et Fiabilité</h2>
           <p className="text-gray-600 leading-relaxed">
-            La sécurité de vos fonds et la transparence de nos opérations sont nos priorités absolues. L'empreinte de Jinko Solar dans le domaine de l'énergie solaire illustre parfaitement la capacité d'une entreprise à conjuguer qualité, innovation et stratégie de marque pérenne.
+            La sécurité de vos fonds et la transparence de nos opérations sont nos priorités absolues. L'empreinte de State Grid dans le domaine de l'énergie illustre parfaitement la capacité d'une entreprise à conjuguer qualité, innovation et stratégie de marque pérenne.
           </p>
         </div>
       </div>

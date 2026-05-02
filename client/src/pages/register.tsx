@@ -26,7 +26,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const [, navigate] = useLocation();
   const searchString = useSearch();
-  useEffect(() => { document.title = "Inscription | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Inscription | State Grid"; }, []);
   const { register } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +60,7 @@ export default function RegisterPage() {
         password: data.password,
         invitationCode: data.invitationCode,
       });
-      toast({ title: "Inscription réussie !", description: "Bienvenue sur Jinko Solar !" });
+      toast({ title: "Inscription réussie !", description: "Bienvenue sur State Grid !" });
       navigate("/");
     } catch (e: any) {
       toast({ title: "Erreur d'inscription", description: e.message || "Une erreur est survenue", variant: "destructive" });
@@ -97,7 +97,7 @@ export default function RegisterPage() {
       {/* Image absolue en arrière-plan */}
       <img
         src={jinkoBanner}
-        alt="Jinko Solar"
+        alt="State Grid"
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "auto", display: "block", zIndex: 0 }}
       />
 

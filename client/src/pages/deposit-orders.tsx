@@ -29,7 +29,7 @@ function formatDate(iso: string) {
 }
 
 export default function DepositOrdersPage() {
-  useEffect(() => { document.title = "Historique des dépôts | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Historique des dépôts | State Grid"; }, []);
   const { user } = useAuth();
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";

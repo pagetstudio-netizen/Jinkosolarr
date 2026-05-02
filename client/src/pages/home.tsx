@@ -44,7 +44,7 @@ export default function HomePage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [location, navigate] = useLocation();
-  useEffect(() => { document.title = "Accueil | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Accueil | State Grid"; }, []);
   const [showPopup, setShowPopup] = useState(true);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showContactSheet, setShowContactSheet] = useState(false);
@@ -148,7 +148,7 @@ export default function HomePage() {
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
-        <img src={jinkoLogoText} alt="Jinko Solar" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
+        <img src={jinkoLogoText} alt="State Grid" className="h-10 w-auto object-contain" data-testid="text-brand-name" />
         <button onClick={() => setShowContactSheet(true)} data-testid="button-service-header" className="p-1">
           <MessageCircleMore className="w-7 h-7 text-gray-700" />
         </button>
@@ -158,7 +158,7 @@ export default function HomePage() {
       <div style={{ position: "relative", lineHeight: 0 }}>
         <img
           src={heroImg}
-          alt="Jinko Solar"
+          alt="State Grid"
           style={{ width: "100%", display: "block", height: "auto" }}
           data-testid="img-hero"
         />

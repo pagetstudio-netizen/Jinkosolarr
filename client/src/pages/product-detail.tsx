@@ -28,15 +28,15 @@ interface ProductWithOwnership extends Product {
 }
 
 const descriptions: Record<string, string> = {
-  "VIP 1": "Les produits VIP 1 de Jinko Solar sont des panneaux d'entrée de gamme idéaux pour débuter dans l'investissement solaire. Ces panneaux produisent de l'électricité propre chaque jour et génèrent des revenus passifs stables. Investissez dès maintenant pour profiter de l'énergie solaire.",
-  "VIP 2": "Le VIP 2 de Jinko Solar offre une puissance accrue et des rendements supérieurs. Idéal pour les investisseurs souhaitant optimiser leurs gains journaliers tout en contribuant à la transition énergétique.",
+  "VIP 1": "Les produits VIP 1 de State Grid sont des solutions d'entrée de gamme idéales pour débuter dans l'investissement. Ces produits génèrent de l'électricité propre chaque jour et produisent des revenus passifs stables. Investissez dès maintenant pour profiter de l'énergie.",
+  "VIP 2": "Le VIP 2 de State Grid offre une puissance accrue et des rendements supérieurs. Idéal pour les investisseurs souhaitant optimiser leurs gains journaliers tout en contribuant à la transition énergétique.",
   "VIP 3": "Le VIP 3 est un panneau haute performance qui maximise la production d'énergie solaire. Avec un excellent taux de retour sur investissement, il représente un choix stratégique pour votre portefeuille.",
-  "VIP 4": "Le VIP 4 Jinko Solar est conçu pour les investisseurs ambitieux. Sa technologie avancée garantit une production d'énergie optimale et des revenus quotidiens attractifs sur toute la durée du cycle.",
+  "VIP 4": "Le VIP 4 State Grid est conçu pour les investisseurs ambitieux. Sa technologie avancée garantit une production d'énergie optimale et des revenus quotidiens attractifs sur toute la durée du cycle.",
   "VIP 5": "Le VIP 5 allie performance et rentabilité. Avec ce produit premium, bénéficiez d'un revenu quotidien élevé et d'un retour total exceptionnel sur votre investissement solaire.",
-  "VIP 6": "Le VIP 6 est réservé aux investisseurs expérimentés cherchant des rendements maximum. La technologie Jinko Solar de pointe assure une production d'énergie constante et des gains substantiels.",
+  "VIP 6": "Le VIP 6 est réservé aux investisseurs expérimentés cherchant des rendements maximum. La technologie State Grid de pointe assure une production d'énergie constante et des gains substantiels.",
   "VIP 7": "Le VIP 7 représente l'excellence de l'investissement solaire. Profitez de revenus journaliers très élevés et d'un cycle d'investissement optimisé pour maximiser vos bénéfices.",
   "VIP 8": "Le VIP 8 est notre produit phare pour les grands investisseurs. Il combine technologie de pointe et rendements exceptionnels pour une expérience d'investissement solaire unique et très profitable.",
-  "VIP 9": "Le VIP 9 est le summum de l'investissement chez Jinko Solar. Réservé aux investisseurs premium, il offre les meilleurs rendements du marché avec une fiabilité et une performance incomparables.",
+  "VIP 9": "Le VIP 9 est le summum de l'investissement chez State Grid. Réservé aux investisseurs premium, il offre les meilleurs rendements du marché avec une fiabilité et une performance incomparables.",
 };
 
 export default function ProductDetailPage() {
@@ -84,7 +84,7 @@ export default function ProductDetailPage() {
   const dailyEarnings = Number(product.dailyEarnings);
   const tauxReponse = price > 0 ? Math.round((totalReturn / price) * 100) : 0;
   const imgSrc = productImages[product.id] || defaultImg;
-  const desc = descriptions[product.name] || `${product.name} est un produit d'investissement solaire Jinko Solar offrant des revenus quotidiens attractifs et un excellent retour sur investissement.`;
+  const desc = descriptions[product.name] || `${product.name} est un produit d'investissement State Grid offrant des revenus quotidiens attractifs et un excellent retour sur investissement.`;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#0f0f1a" }}>

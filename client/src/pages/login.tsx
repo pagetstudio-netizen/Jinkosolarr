@@ -25,14 +25,14 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [, navigate] = useLocation();
   const { login } = useAuth();
-  useEffect(() => { document.title = "Connexion | Jinko Solar"; }, []);
+  useEffect(() => { document.title = "Connexion | State Grid"; }, []);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
   const [showContact, setShowContact] = useState(false);
 
-  const saved = typeof window !== "undefined" ? localStorage.getItem("jinko_credentials") : null;
+  const saved = typeof window !== "undefined" ? localStorage.getItem("state_grid_credentials") : null;
   const parsed = saved ? JSON.parse(saved) : null;
   const [rememberMe, setRememberMe] = useState(!!parsed);
 
@@ -54,9 +54,9 @@ export default function LoginPage() {
     try {
       await login(cleanPhone, data.country, data.password.trim());
       if (rememberMe) {
-        localStorage.setItem("jinko_credentials", JSON.stringify({ phone: cleanPhone, country: data.country, password: data.password.trim() }));
+        localStorage.setItem("state_grid_credentials", JSON.stringify({ phone: cleanPhone, country: data.country, password: data.password.trim() }));
       } else {
-        localStorage.removeItem("jinko_credentials");
+        localStorage.removeItem("state_grid_credentials");
       }
       navigate("/");
     } catch (e: any) {
@@ -94,7 +94,7 @@ export default function LoginPage() {
       {/* Image absolue en arrière-plan */}
       <img
         src={jinkoBanner}
-        alt="Jinko Solar"
+        alt="State Grid"
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "auto", display: "block", zIndex: 0 }}
       />
 
