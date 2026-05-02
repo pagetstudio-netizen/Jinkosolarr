@@ -552,6 +552,28 @@ export async function registerRoutes(
     }
   });
 
+  // Save WestPay txId/ref returned by redirect callback URL
+  app.post("/api/deposits/:id/save-ref", requireAuth, async (req, res) => {
+    try {
+      const depositId = parseInt(req.params.id);
+      const { ref } = req.body;
+      if (!ref) return res.json({ ok: true });
+
+      const deposit = await storage.getDeposit(depositId);
+      if (!deposit) return res.status(404).json({ message: "Dépôt introuvable" });
+      if (deposit.userId !== req.session.userId) return res.status(403).json({ message: "Accès refusé" });
+
+      // Only save if not already set
+      if (!deposit.soleaspayReference) {
+        await storage.updateDeposit(depositId, { soleaspayReference: ref });
+        console.log("[westpay] saved ref", ref, "on deposit", depositId);
+      }
+      res.json({ ok: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // WestPay webhook — called by WestPay on payment confirmation
   app.post("/api/webhooks/westpay", async (req, res) => {
     res.status(200).json({ received: true });
@@ -560,12 +582,13 @@ export async function registerRoutes(
       const settings = await storage.getSettings();
       const webhookSecret = settings.westpayWebhookSecret || process.env.WESTPAY_WEBHOOK_SECRET || "";
 
-      // Verify signature if secret configured
+      // Verify HMAC-SHA256 signature using the raw body (as per WestPay docs)
       if (webhookSecret && signature) {
-        const rawBody = JSON.stringify(req.body);
+        const rawBodyBuf = (req as any).rawBody;
+        const rawBody = rawBodyBuf ? rawBodyBuf.toString("utf8") : JSON.stringify(req.body);
         const valid = westpay.verifyWebhookSignature(rawBody, signature, webhookSecret);
         if (!valid) {
-          console.warn("[westpay] webhook signature invalid");
+          console.warn("[westpay] webhook signature invalid — rejecting");
           return;
         }
       }
@@ -575,26 +598,32 @@ export async function registerRoutes(
 
       if (event !== "payment.confirmed") return;
 
-      // Match deposit: find pending deposit by payer phone + amount
+      // Match deposit: 1st try by txId (already saved via redirect callback), then by payer phone+amount
       const allDeposits = await storage.getDeposits();
-      const payerClean = (payer || "").replace(/\D/g, "");
 
-      const deposit = allDeposits.find((d: any) => {
-        if (d.status === "approved" || d.status === "rejected") return false;
-        if (Math.round(d.amount) !== Math.round(amount)) return false;
-        const depPhone = (d.accountNumber || "").replace(/\D/g, "");
-        return payerClean.endsWith(depPhone) || depPhone.endsWith(payerClean);
-      });
+      let deposit = txId
+        ? allDeposits.find((d: any) => d.soleaspayReference === txId && d.status === "pending")
+        : undefined;
 
       if (!deposit) {
-        console.warn("[westpay] webhook: no matching deposit for payer:", payer, "amount:", amount);
+        const payerClean = (payer || "").replace(/\D/g, "");
+        deposit = allDeposits.find((d: any) => {
+          if (d.status === "approved" || d.status === "rejected") return false;
+          if (Math.round(d.amount) !== Math.round(amount)) return false;
+          const depPhone = (d.accountNumber || "").replace(/\D/g, "");
+          return payerClean.endsWith(depPhone) || depPhone.endsWith(payerClean);
+        });
+      }
+
+      if (!deposit) {
+        console.warn("[westpay] webhook: no matching deposit for txId:", txId, "payer:", payer, "amount:", amount);
         return;
       }
 
       // Approve deposit
       await storage.updateDeposit(deposit.id, {
         status: "approved",
-        soleaspayReference: txId || "",
+        soleaspayReference: txId || deposit.soleaspayReference || "",
         processedAt: new Date(),
       });
 

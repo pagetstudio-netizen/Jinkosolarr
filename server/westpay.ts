@@ -152,7 +152,11 @@ export async function initiateCollection(
 export function verifyWebhookSignature(rawBody: string, signature: string, secret: string): boolean {
   try {
     const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-    return expected === signature;
+    // Use timing-safe comparison to prevent timing attacks (recommended by WestPay docs)
+    const sigBuf = Buffer.from(signature.length === expected.length ? signature : "", "hex");
+    const expBuf = Buffer.from(expected, "hex");
+    if (sigBuf.length !== expBuf.length || sigBuf.length === 0) return false;
+    return crypto.timingSafeEqual(sigBuf, expBuf);
   } catch {
     return false;
   }

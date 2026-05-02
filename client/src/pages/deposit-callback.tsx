@@ -20,6 +20,18 @@ export default function DepositCallbackPage() {
   const [attempts, setAttempts] = useState(0);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
+  // As soon as we land here, save the WestPay txId/ref so the webhook handler can match faster
+  useEffect(() => {
+    if (depositId && ref) {
+      fetch(`/api/deposits/${depositId}/save-ref`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ ref }),
+      }).catch(() => {});
+    }
+  }, []);
+
   useEffect(() => {
     if (!depositId) {
       setStatus("pending");
