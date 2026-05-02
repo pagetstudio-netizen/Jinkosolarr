@@ -10,31 +10,6 @@ const GREEN      = "#007054";
 const GREEN_DARK = "#005040";
 const PRESET_AMOUNTS = [3000, 5000, 10000, 20000];
 
-const WESTPAY_BASE = "https://westpay.cloud";
-
-const WESTPAY_COUNTRY_NAMES: Record<string, string> = {
-  BJ: "Bénin",
-  TG: "Togo",
-  CI: "Côte d'Ivoire",
-  BF: "Burkina Faso",
-  SN: "Sénégal",
-  ML: "Mali",
-  CM: "Cameroun",
-  CG: "Congo Brazzaville",
-  GA: "Gabon",
-};
-
-function buildWestPayUrl(slug: string, amount: number, countryCode: string, depositId: number): string {
-  const redirectUrl = `${window.location.origin}/deposit-callback?depositId=${depositId}&amount=${Math.round(amount)}`;
-  const url = new URL(`${WESTPAY_BASE}/pay`);
-  url.searchParams.set("merchant", slug);
-  url.searchParams.set("amount", String(Math.round(amount)));
-  const countryName = WESTPAY_COUNTRY_NAMES[countryCode];
-  if (countryName) url.searchParams.set("country", countryName);
-  url.searchParams.set("redirect", redirectUrl);
-  return url.toString();
-}
-
 export default function DepositPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
@@ -54,49 +29,45 @@ export default function DepositPage() {
   const MIN_DEPOSIT = parseInt(platformSettings?.minDeposit || "3000");
   const MAX_DEPOSIT = 2000000;
 
-  const handleRecharge = async () => {
+  // Read error from URL if redirected back after a server-side error
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get("err");
+    if (err) {
+      toast({ title: "Erreur de paiement", description: decodeURIComponent(err), variant: "destructive" });
+      // Clean up URL
+      window.history.replaceState({}, "", "/deposit");
+    }
+  }, []);
+
+  const handleRecharge = () => {
     const amt = typeof amount === "number" ? amount : 0;
     if (!amt || amt < MIN_DEPOSIT) {
       toast({ title: "Montant invalide", description: `Le montant minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`, variant: "destructive" });
       return;
     }
 
-    const slug = platformSettings?.westpaySlug || "stategrid";
-
     setLoading(true);
-    try {
-      // Step 1: create the pending deposit record on the server
-      const res = await fetch("/api/deposits/westpay-redirect", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ amount: amt, country: userCountry }),
-      });
 
-      let body: any = {};
-      try { body = await res.json(); } catch {}
+    // Use a hidden form submit so the browser follows the server's 302 redirect
+    // directly to WestPay — no fetch, no JSON, no window.location.href = undefined
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/api/deposits/westpay-redirect";
 
-      if (!res.ok) {
-        setLoading(false);
-        toast({ title: "Erreur de paiement", description: body.message || "Une erreur est survenue. Réessayez.", variant: "destructive" });
-        return;
-      }
+    [
+      { name: "amount",  value: String(Math.round(amt)) },
+      { name: "country", value: userCountry },
+    ].forEach(({ name, value }) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    });
 
-      const depositId: number = body.depositId;
-      if (!depositId) {
-        setLoading(false);
-        toast({ title: "Erreur", description: "Impossible de créer la demande de dépôt.", variant: "destructive" });
-        return;
-      }
-
-      // Step 2: build the WestPay URL on the frontend using window.location.origin
-      // (more reliable than server-side origin detection through Replit's proxy)
-      const payUrl = buildWestPayUrl(slug, amt, userCountry, depositId);
-      window.location.href = payUrl;
-    } catch {
-      setLoading(false);
-      toast({ title: "Erreur de connexion", description: "Vérifiez votre connexion internet et réessayez.", variant: "destructive" });
-    }
+    document.body.appendChild(form);
+    form.submit();
   };
 
   if (!user) return null;

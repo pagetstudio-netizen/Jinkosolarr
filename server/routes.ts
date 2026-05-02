@@ -425,24 +425,27 @@ export async function registerRoutes(
     }
   });
 
-  // Initiate WestPay deposit — hosted payment page redirect
+  // Initiate WestPay deposit — form POST + 302 redirect to WestPay hosted page
   app.post("/api/deposits/westpay-redirect", requireAuth, async (req, res) => {
+    const errRedirect = (msg: string) =>
+      res.redirect(302, `/deposit?err=${encodeURIComponent(msg)}`);
+
     try {
-      const { amount, country } = req.body;
+      const amount = Number(req.body.amount);
+      const country = req.body.country as string;
+
       const user = await storage.getUser(req.session.userId!);
-      if (!user) return res.status(401).json({ message: "Non authentifié" });
+      if (!user) return res.redirect(302, "/login");
 
       const settings = await storage.getSettings();
       const minDeposit = parseInt(settings.minDeposit || "3000");
 
       if (!amount || isNaN(amount) || amount < minDeposit) {
-        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
+        return errRedirect(`Montant minimum: ${minDeposit.toLocaleString()} FCFA`);
       }
 
       const slug = settings.westpaySlug || process.env.WESTPAY_SLUG || "";
-      if (!slug) {
-        return res.status(400).json({ message: "WestPay non configuré (slug manquant)" });
-      }
+      if (!slug) return errRedirect("WestPay non configuré (slug manquant)");
 
       const userCountry = country || user.country || "BJ";
 
@@ -457,17 +460,25 @@ export async function registerRoutes(
         status: "pending",
       });
 
-      // Build the redirect URL back to our callback page
-      const origin = req.headers.origin || `https://${req.headers.host}`;
-      const redirectUrl = `${origin}/deposit-callback?depositId=${deposit.id}&amount=${Math.round(amount)}`;
+      // Use REPLIT_DEV_DOMAIN env var (always correct for dev), fall back to forwarded host
+      const appOrigin =
+        process.env.REPLIT_DEV_DOMAIN
+          ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+          : req.headers.origin ||
+            (req.headers["x-forwarded-host"]
+              ? `https://${req.headers["x-forwarded-host"]}`
+              : `https://${req.headers.host}`);
 
+      const redirectUrl = `${appOrigin}/deposit-callback?depositId=${deposit.id}&amount=${Math.round(amount)}`;
       const payUrl = westpay.buildPaymentUrl(slug, Math.round(amount), userCountry, redirectUrl);
 
-      console.log("[westpay] redirect URL built:", payUrl);
-      res.json({ depositId: deposit.id, payUrl });
+      console.log("[westpay] redirecting to WestPay:", payUrl);
+
+      // 302 redirect — browser follows it directly to WestPay's payment page
+      res.redirect(302, payUrl);
     } catch (error: any) {
       console.error("[westpay] redirect error:", error);
-      res.status(500).json({ message: error.message });
+      errRedirect(error.message || "Erreur inattendue");
     }
   });
 
