@@ -174,9 +174,9 @@ export default function HomePage() {
               {/* Liste */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  "Prime d'inscription : 200 FCFA.",
-                  "Récompense de connexion quotidienne : 50 FCFA.",
-                  "Invitez vos filleuls à investir et recevez une commission de 27 % sur leur investissement.",
+                  "Investissez dans nos panneaux solaires et générez des revenus quotidiens automatiques.",
+                  "Parrainez vos proches et recevez jusqu'à 27 % de commission sur leurs investissements.",
+                  "Plus vous investissez, plus vos gains quotidiens augmentent. Jusqu'à 57 000 FCFA/jour.",
                   "Aucune limite de retrait. Vous pouvez retirer à tout moment entre 8h et 17h.",
                   "State Grid attache une grande importance à la satisfaction de ses membres.",
                 ].map((item, i) => (
