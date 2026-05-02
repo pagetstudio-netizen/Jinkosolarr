@@ -13,6 +13,18 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Save, Link, Clock, Users, CreditCard } from "lucide-react";
 
+const WESTPAY_COUNTRY_CODES = [
+  { code: "BJ", label: "Bénin",             prefix: "BNJ" },
+  { code: "TG", label: "Togo",              prefix: "TGO" },
+  { code: "CI", label: "Côte d'Ivoire",     prefix: "CIV" },
+  { code: "BF", label: "Burkina Faso",      prefix: "BFA" },
+  { code: "SN", label: "Sénégal",           prefix: "SEN" },
+  { code: "ML", label: "Mali",              prefix: "MLI" },
+  { code: "CM", label: "Cameroun",          prefix: "CMR" },
+  { code: "CG", label: "Congo Brazzaville", prefix: "COG" },
+  { code: "GA", label: "Gabon",             prefix: "GAB" },
+];
+
 const settingsSchema = z.object({
   supportLink:         z.string().min(5, "Lien requis"),
   support2Link:        z.string().min(5, "Lien requis"),
@@ -31,6 +43,15 @@ const settingsSchema = z.object({
   westpayEmail:          z.string(),
   westpayPassword:       z.string(),
   westpayWebhookSecret:  z.string(),
+  westpayApiKey_BJ: z.string(),
+  westpayApiKey_TG: z.string(),
+  westpayApiKey_CI: z.string(),
+  westpayApiKey_BF: z.string(),
+  westpayApiKey_SN: z.string(),
+  westpayApiKey_ML: z.string(),
+  westpayApiKey_CM: z.string(),
+  westpayApiKey_CG: z.string(),
+  westpayApiKey_GA: z.string(),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -67,6 +88,15 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       westpayEmail:         "",
       westpayPassword:      "",
       westpayWebhookSecret: "",
+      westpayApiKey_BJ: "",
+      westpayApiKey_TG: "",
+      westpayApiKey_CI: "",
+      westpayApiKey_BF: "",
+      westpayApiKey_SN: "",
+      westpayApiKey_ML: "",
+      westpayApiKey_CM: "",
+      westpayApiKey_CG: "",
+      westpayApiKey_GA: "",
     },
   });
 
@@ -90,6 +120,15 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         westpayEmail:         settings.westpayEmail         || "",
         westpayPassword:      settings.westpayPassword      || "",
         westpayWebhookSecret: settings.westpayWebhookSecret || "",
+        westpayApiKey_BJ: settings.westpayApiKey_BJ || "",
+        westpayApiKey_TG: settings.westpayApiKey_TG || "",
+        westpayApiKey_CI: settings.westpayApiKey_CI || "",
+        westpayApiKey_BF: settings.westpayApiKey_BF || "",
+        westpayApiKey_SN: settings.westpayApiKey_SN || "",
+        westpayApiKey_ML: settings.westpayApiKey_ML || "",
+        westpayApiKey_CM: settings.westpayApiKey_CM || "",
+        westpayApiKey_CG: settings.westpayApiKey_CG || "",
+        westpayApiKey_GA: settings.westpayApiKey_GA || "",
       });
     }
   }, [settings, form]);
@@ -236,24 +275,12 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
 
             {westpayEnabled && (
               <>
-                <FormField control={form.control} name="westpaySlug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug marchand WestPay</FormLabel>
-                      <FormControl><Input {...field} placeholder="ex: ecomat" /></FormControl>
-                      <FormDescription>
-                        Visible dans votre dashboard WestPay. Utilisé dans l'URL de paiement.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField control={form.control} name="westpayEmail"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email marchand WestPay</FormLabel>
                       <FormControl><Input {...field} type="email" placeholder="contact@votreentreprise.com" /></FormControl>
-                      <FormDescription>Email de connexion à votre compte WestPay (pour les transferts automatiques)</FormDescription>
+                      <FormDescription>Email de connexion à votre compte WestPay</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -271,7 +298,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                           </button>
                         </div>
                       </FormControl>
-                      <FormDescription>Mot de passe de votre compte WestPay (chiffré, jamais exposé)</FormDescription>
+                      <FormDescription>Mot de passe de votre compte WestPay</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -289,6 +316,30 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                     </FormItem>
                   )}
                 />
+
+                <div className="border rounded-lg p-3 space-y-3">
+                  <p className="text-sm font-semibold text-foreground">Clés API par pays</p>
+                  <p className="text-xs text-muted-foreground">
+                    Chaque pays actif a sa propre clé API dans votre dashboard WestPay (format: XXX-…).
+                    Ces clés sont utilisées pour déclencher les paiements USSD directement.
+                  </p>
+                  {WESTPAY_COUNTRY_CODES.map(({ code, label, prefix }) => (
+                    <FormField
+                      key={code}
+                      control={form.control}
+                      name={`westpayApiKey_${code}` as any}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">{label} ({code})</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder={`${prefix}-…`} className="font-mono text-xs" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
               </>
             )}
           </CardContent>

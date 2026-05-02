@@ -425,10 +425,10 @@ export async function registerRoutes(
     }
   });
 
-  // Initiate WestPay deposit — create record + return hosted payment URL
+  // Initiate WestPay deposit — direct USSD push (no redirect)
   app.post("/api/deposits/westpay-init", requireAuth, async (req, res) => {
     try {
-      const { amount, country } = req.body;
+      const { amount, phone, country } = req.body;
       const user = await storage.getUser(req.session.userId!);
       if (!user) return res.status(401).json({ message: "Non authentifié" });
 
@@ -439,34 +439,52 @@ export async function registerRoutes(
         return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
       }
 
-      const westpaySlug = settings.westpaySlug || process.env.WESTPAY_SLUG || "";
-      if (!westpaySlug) {
-        return res.status(400).json({ message: "WestPay non configuré (slug manquant)" });
+      const userCountry = country || user.country || "BJ";
+      const payerPhone = phone || user.phone;
+
+      const westpayEmail    = settings.westpayEmail    || process.env.WESTPAY_EMAIL    || "";
+      const westpayPassword = settings.westpayPassword || process.env.WESTPAY_PASSWORD || "";
+      const countryApiKey   = settings[`westpayApiKey_${userCountry}`] || "";
+
+      if (!westpayEmail || !westpayPassword) {
+        return res.status(400).json({ message: "WestPay non configuré (identifiants manquants)" });
+      }
+      if (!countryApiKey) {
+        return res.status(400).json({ message: `Clé API WestPay manquante pour ${westpay.WESTPAY_COUNTRIES[userCountry] || userCountry}` });
       }
 
-      const userCountry = country || user.country || "BJ";
-
-      // Create a pending deposit record
+      // Create a pending deposit record first
       const deposit = await storage.createDeposit({
         userId: user.id,
         amount: Math.round(amount),
         accountName: user.fullName,
-        accountNumber: user.phone,
+        accountNumber: payerPhone,
         country: userCountry,
         paymentMethod: "Mobile Money",
         status: "pending",
       });
 
-      // Build the WestPay hosted payment URL
-      const baseUrl = process.env.REPLIT_DEV_DOMAIN
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-        : (process.env.APP_URL || "https://stategrid.replit.app");
-
-      const redirectUrl = `${baseUrl}/deposit-callback?depositId=${deposit.id}`;
-      const westpayUrl = westpay.buildPaymentUrl(westpaySlug, amount, userCountry, redirectUrl);
-
-      console.log("[westpay] deposit created:", deposit.id, "url:", westpayUrl);
-      res.json({ depositId: deposit.id, westpayUrl });
+      // Call WestPay API directly — triggers USSD push on user's phone
+      try {
+        const result = await westpay.initiateCollection(
+          westpayEmail,
+          westpayPassword,
+          countryApiKey,
+          userCountry,
+          payerPhone,
+          Math.round(amount),
+        );
+        await storage.updateDeposit(deposit.id, {
+          soleaspayReference: result.reference || "",
+        });
+        console.log("[westpay] collection initiated:", deposit.id, result);
+        res.json({ depositId: deposit.id, reference: result.reference, status: result.status });
+      } catch (apiErr: any) {
+        // Roll back pending deposit on API failure
+        await storage.updateDeposit(deposit.id, { status: "rejected" });
+        console.error("[westpay] collection error:", apiErr.message);
+        res.status(502).json({ message: apiErr.message || "Erreur WestPay" });
+      }
     } catch (error: any) {
       console.error("[westpay] init error:", error);
       res.status(500).json({ message: error.message });

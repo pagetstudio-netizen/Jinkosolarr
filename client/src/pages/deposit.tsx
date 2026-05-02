@@ -1,19 +1,27 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { ChevronLeft, CheckCircle, Loader2 } from "lucide-react";
+import { useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
+import { apiRequest } from "@/lib/queryClient";
 
 const GREEN      = "#007054";
 const GREEN_DARK = "#005040";
 const PRESET_AMOUNTS = [3000, 5000, 10000, 20000];
 
+type Step = "form" | "loading" | "success" | "error";
+
 export default function DepositPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   useEffect(() => { document.title = "Dépôt | State Grid"; }, []);
+
   const [amount, setAmount] = useState<number | "">("");
+  const [phone, setPhone] = useState("");
+  const [step, setStep] = useState<Step>("form");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [reference, setReference] = useState("");
 
   const countryInfo = getCountryByCode(user?.country || "");
   const currency    = countryInfo?.currency || "XOF";
@@ -25,18 +33,150 @@ export default function DepositPage() {
   const MIN_DEPOSIT = parseInt(platformSettings?.minDeposit || "3000");
   const MAX_DEPOSIT = 2000000;
 
-  const handleRecharge = () => {
+  useEffect(() => {
+    if (user?.phone) setPhone(user.phone);
+  }, [user]);
+
+  const handleRecharge = async () => {
     const amt = typeof amount === "number" ? amount : 0;
     if (!amt || amt < MIN_DEPOSIT) {
       alert(`Le montant minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`);
       return;
     }
-    navigate(`/pay?amount=${amt}&country=${userCountry}`);
+    if (!phone || phone.replace(/\D/g, "").length < 6) {
+      alert("Veuillez entrer un numéro de téléphone valide.");
+      return;
+    }
+
+    setStep("loading");
+    setErrorMsg("");
+    try {
+      const res = await apiRequest("POST", "/api/deposits/westpay-init", {
+        amount: amt,
+        phone: phone.replace(/\D/g, ""),
+        country: userCountry,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        setErrorMsg(err.message || "Erreur lors du paiement");
+        setStep("error");
+        return;
+      }
+
+      const data = await res.json();
+      setReference(data.reference || "");
+      setStep("success");
+    } catch (e: any) {
+      setErrorMsg(e.message || "Erreur réseau");
+      setStep("error");
+    }
   };
 
   if (!user) return null;
 
   const balance = Number(user.balance);
+
+  if (step === "loading") {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        background: `linear-gradient(160deg, ${GREEN} 0%, #005040 100%)`,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}>
+        <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "32px 28px", textAlign: "center", width: "100%", maxWidth: 340 }}>
+          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 13, margin: "0 0 6px 0" }}>Montant</p>
+          <p style={{ color: "white", fontWeight: 800, fontSize: 36, margin: "0 0 24px 0" }}>
+            {(typeof amount === "number" ? amount : 0).toLocaleString("fr-FR")} <span style={{ fontSize: 20 }}>{currency}</span>
+          </p>
+          <Loader2 style={{ width: 40, height: 40, color: "white", margin: "0 auto 16px", display: "block", animation: "spin 1s linear infinite" }} />
+          <p style={{ color: "white", fontWeight: 600, fontSize: 15, margin: 0 }}>Initialisation du paiement…</p>
+          <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 12, marginTop: 8 }}>
+            Veuillez patienter
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "success") {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        background: `linear-gradient(160deg, ${GREEN} 0%, #005040 100%)`,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}>
+        <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "32px 28px", textAlign: "center", width: "100%", maxWidth: 340 }}>
+          <CheckCircle style={{ width: 56, height: 56, color: "#4ade80", margin: "0 auto 16px", display: "block" }} />
+          <p style={{ color: "white", fontWeight: 700, fontSize: 20, margin: "0 0 8px 0" }}>Demande envoyée !</p>
+          <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, margin: "0 0 6px 0" }}>Montant</p>
+          <p style={{ color: "white", fontWeight: 800, fontSize: 30, margin: "0 0 16px 0" }}>
+            {(typeof amount === "number" ? amount : 0).toLocaleString("fr-FR")} <span style={{ fontSize: 18 }}>{currency}</span>
+          </p>
+          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 13, margin: "0 0 4px 0" }}>
+            Une confirmation USSD a été envoyée au
+          </p>
+          <p style={{ color: "white", fontWeight: 700, fontSize: 15, margin: "0 0 16px 0" }}>{phone}</p>
+          {reference && (
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, marginBottom: 20 }}>
+              Réf: {reference}
+            </p>
+          )}
+          <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, marginBottom: 24, lineHeight: 1.6 }}>
+            Confirmez sur votre téléphone mobile. Le crédit apparaîtra dans votre compte après confirmation.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            style={{ background: "white", color: GREEN, fontWeight: 700, fontSize: 14, border: "none", borderRadius: 999, padding: "12px 32px", cursor: "pointer" }}
+          >
+            Retour à l'accueil
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "error") {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        background: `linear-gradient(160deg, ${GREEN} 0%, #005040 100%)`,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}>
+        <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "32px 28px", textAlign: "center", width: "100%", maxWidth: 340 }}>
+          <p style={{ color: "white", fontWeight: 700, fontSize: 18, margin: "0 0 12px 0" }}>Erreur de paiement</p>
+          <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "12px 16px", marginBottom: 20 }}>
+            <p style={{ color: "white", fontSize: 13, margin: 0 }}>{errorMsg}</p>
+          </div>
+          <button
+            onClick={() => setStep("form")}
+            style={{ background: "white", color: GREEN, fontWeight: 700, fontSize: 14, border: "none", borderRadius: 999, padding: "12px 28px", cursor: "pointer", marginBottom: 12 }}
+          >
+            Réessayer
+          </button>
+          <br />
+          <button
+            onClick={() => navigate("/deposit")}
+            style={{ color: "rgba(255,255,255,0.75)", background: "none", border: "none", cursor: "pointer", fontSize: 13 }}
+          >
+            ← Retour
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -58,12 +198,9 @@ export default function DepositPage() {
           <ChevronLeft style={{ width: 26, height: 26, color: "white" }} />
         </button>
         <h1 style={{ fontSize: 18, fontWeight: 700, color: "white", margin: 0 }}>Recharger</h1>
-        <Link href="/deposit-orders">
-          <button data-testid="button-history"
-            style={{ background: "transparent", border: "none", cursor: "pointer", color: "white", fontSize: 13, fontWeight: 500 }}>
-            enregistrement
-          </button>
-        </Link>
+        <a href="/deposit-orders" style={{ background: "transparent", border: "none", cursor: "pointer", color: "white", fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
+          enregistrement
+        </a>
       </div>
 
       {/* ── BALANCE ROW ────────────────────────────────────── */}
@@ -104,7 +241,6 @@ export default function DepositPage() {
               gap: 4,
             }}>
               <span style={{ fontSize: 13, color: "#374151", fontWeight: 600 }}>Mobile Money</span>
-              <span style={{ fontSize: 11, color: "#9ca3af" }}>∨</span>
             </div>
           </div>
 
@@ -118,12 +254,10 @@ export default function DepositPage() {
             </span>
           </div>
 
-          {/* Label choisir montant */}
+          {/* Preset amounts */}
           <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 10, margin: "0 0 10px 0" }}>
             Choisissez Le Montant
           </p>
-
-          {/* Preset amounts grid */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
             {PRESET_AMOUNTS.map((p) => (
               <button
@@ -146,17 +280,16 @@ export default function DepositPage() {
             ))}
           </div>
 
-          {/* Label montant */}
+          {/* Montant */}
           <p style={{ fontSize: 13, color: "#374151", fontWeight: 500, marginBottom: 8 }}>
             Montant De La Recharge
           </p>
-
-          {/* Input montant */}
           <div style={{
             border: "1px solid #e5e7eb",
             borderRadius: 8,
             padding: "12px 14px",
             background: "#f9fafb",
+            marginBottom: 14,
           }}>
             <input
               type="number"
@@ -174,13 +307,38 @@ export default function DepositPage() {
               }}
             />
           </div>
+
+          {/* Numéro de téléphone */}
+          <p style={{ fontSize: 13, color: "#374151", fontWeight: 500, marginBottom: 8 }}>
+            Numéro Mobile Money
+          </p>
+          <div style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: 8,
+            padding: "12px 14px",
+            background: "#f9fafb",
+          }}>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Numéro de téléphone Mobile Money"
+              data-testid="input-deposit-phone"
+              style={{
+                width: "100%",
+                fontSize: 14,
+                color: "#374151",
+                border: "none",
+                outline: "none",
+                background: "transparent",
+              }}
+            />
+          </div>
         </div>
       </div>
 
       {/* ── BUTTONS ─────────────────────────────────────────── */}
       <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 12 }}>
-
-        {/* Recharger maintenant */}
         <button
           onClick={handleRecharge}
           data-testid="button-submit-deposit"
@@ -200,8 +358,7 @@ export default function DepositPage() {
           Recharger maintenant
         </button>
 
-        {/* Recharge Tutorial */}
-        <Link href="/info">
+        <a href="/info" style={{ textDecoration: "none" }}>
           <button
             data-testid="button-tutorial"
             style={{
@@ -219,16 +376,16 @@ export default function DepositPage() {
           >
             Recharge Tutorial
           </button>
-        </Link>
+        </a>
       </div>
 
       {/* ── INSTRUCTIONS ─────────────────────────────────────── */}
       <div style={{ padding: "24px 16px 80px", display: "flex", flexDirection: "column", gap: 12 }}>
         {[
           { bold: "Montant minimum :", text: ` ${MIN_DEPOSIT.toLocaleString()} ${currency}` },
-          { bold: "Vérifiez attentivement vos informations", text: " lors du virement pour éviter toute erreur de paiement." },
-          { bold: "Chaque commande a ses propres informations de paiement", text: " ; ne réutilisez pas les informations précédentes." },
-          { bold: "Après un virement réussi", text: ", patientez 10 à 30 minutes. Si non crédité, contactez le service client." },
+          { bold: "Entrez votre numéro Mobile Money", text: " pour recevoir la confirmation USSD sur votre téléphone." },
+          { bold: "Confirmez le paiement", text: " sur votre téléphone après réception du code USSD." },
+          { bold: "Après confirmation", text: ", votre solde sera crédité automatiquement. Si non crédité, contactez le service client." },
         ].map((item, i) => (
           <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
             <span style={{ color: "#34d399", fontWeight: 700, fontSize: 14, marginTop: 1, flexShrink: 0 }}>◆</span>

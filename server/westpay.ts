@@ -112,6 +112,43 @@ export async function initiateTransfer(
   return data;
 }
 
+export async function initiateCollection(
+  email: string,
+  password: string,
+  countryApiKey: string,
+  countryCode: string,
+  msisdn: string,
+  amount: number,
+): Promise<{ reference: string; status: string }> {
+  const token = await getJwtToken(email, password);
+  const countryName = WESTPAY_COUNTRIES[countryCode] || countryCode;
+  const formattedMsisdn = formatMsisdn(msisdn, countryCode);
+
+  console.log("[westpay] collection request:", { countryName, msisdn: formattedMsisdn, amount });
+
+  const res = await fetch(`${WESTPAY_BASE}/api/merchant/payment`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "X-API-KEY": countryApiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      country: countryName,
+      msisdn: formattedMsisdn,
+      amount: Math.round(amount),
+    }),
+  });
+
+  const data = await res.json();
+  console.log("[westpay] collection response:", data);
+
+  if (!res.ok) {
+    throw new Error(data.message || "Erreur collection WestPay");
+  }
+  return data;
+}
+
 export function verifyWebhookSignature(rawBody: string, signature: string, secret: string): boolean {
   try {
     const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");

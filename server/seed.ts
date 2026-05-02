@@ -212,6 +212,15 @@ export async function seed() {
     { key: "ashtechpayEnabled", value: "false" },
     { key: "ashtechpayApiKey", value: "" },
     { key: "ashtechpayChannelName", value: "AshtechPay" },
+    { key: "westpayApiKey_BJ", value: "" },
+    { key: "westpayApiKey_TG", value: "" },
+    { key: "westpayApiKey_CI", value: "" },
+    { key: "westpayApiKey_BF", value: "" },
+    { key: "westpayApiKey_SN", value: "" },
+    { key: "westpayApiKey_ML", value: "" },
+    { key: "westpayApiKey_CM", value: "" },
+    { key: "westpayApiKey_CG", value: "" },
+    { key: "westpayApiKey_GA", value: "" },
   ];
 
   for (const settingData of requiredSettings) {
