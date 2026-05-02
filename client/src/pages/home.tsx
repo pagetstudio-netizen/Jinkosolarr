@@ -4,18 +4,16 @@ import ContactSheet from "@/components/contact-sheet";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { Loader2, X, Volume2, ChevronRight } from "lucide-react";
+import { Loader2, X, BellRing, Gift, Headphones, CreditCard, ArrowDownCircle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import type { Product } from "@shared/schema";
 
-import iconGratuit  from "@assets/20260409_174413_1775756828265.png";
-import iconTache    from "@assets/20260409_174658_1775756828223.png";
-import iconCommande from "@assets/20260409_133235_1775749369916.png";
-import iconRetrait  from "@assets/20260409_133935_1775749370458.png";
+import logoImg      from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
+import bannerImg    from "@assets/172052459377789_1777682768403.jpg";
 import popupCharacters  from "@assets/20260411_151613_1775920729926.png";
 import popupTelegramBtn from "@assets/20260411_144546_1775920729992.png";
 import popupCloseBtn    from "@assets/20260411_144711_1775920729969.png";
-import type { Product } from "@shared/schema";
 
 import p1 from "@assets/panneaux-solaires-3d-realiste_625553-173_1775768333512.jpg";
 import p2 from "@assets/images_(33)_1775768333811.jpeg";
@@ -32,8 +30,9 @@ const productImages: Record<number, string> = {
 };
 
 const TELEGRAM_LINK = "https://t.me/Jinkosolarr";
-const GREEN = "#007054";
+const GREEN      = "#007054";
 const GREEN_DARK = "#005040";
+const CARD_BG    = "#b2dfdb"; /* light teal for product cards */
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -43,15 +42,15 @@ interface ProductWithOwnership extends Product {
 
 export default function HomePage() {
   const { user, refreshUser } = useAuth();
-  const { toast } = useToast();
-  const [location, navigate] = useLocation();
+  const { toast }             = useToast();
+  const [location, navigate]  = useLocation();
   useEffect(() => { document.title = "Accueil | State Grid"; }, []);
 
-  const [showPopup,       setShowPopup]       = useState(true);
-  const [showGiftModal,   setShowGiftModal]   = useState(false);
-  const [showContactSheet,setShowContactSheet]= useState(false);
-  const [giftCode,        setGiftCode]        = useState("");
-  const [activeTab,       setActiveTab]       = useState(0);
+  const [showPopup,        setShowPopup]        = useState(true);
+  const [showGiftModal,    setShowGiftModal]    = useState(false);
+  const [showContactSheet, setShowContactSheet] = useState(false);
+  const [giftCode,         setGiftCode]         = useState("");
+  const [activeTab,        setActiveTab]        = useState<"plans" | "tasks">("plans");
 
   const claimMutation = useMutation({
     mutationFn: async (code: string) => {
@@ -60,14 +59,10 @@ export default function HomePage() {
       return res.json();
     },
     onSuccess: (data) => {
-      refreshUser();
-      setGiftCode("");
-      setShowGiftModal(false);
+      refreshUser(); setGiftCode(""); setShowGiftModal(false);
       toast({ title: "Félicitations !", description: data.message });
     },
-    onError: (err: any) => {
-      toast({ title: "Erreur", description: err.message, variant: "destructive" });
-    },
+    onError: (err: any) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
   });
 
   const { data: products, isLoading: productsLoading } = useQuery<ProductWithOwnership[]>({
@@ -77,33 +72,24 @@ export default function HomePage() {
 
   useEffect(() => { setShowPopup(true); }, [location]);
 
-  if (!user) return <div className="min-h-screen bg-gray-100" />;
+  if (!user) return <div style={{ minHeight: "100vh", background: GREEN }} />;
 
-  const country      = getCountryByCode(user.country);
-  const currency     = country?.currency || "FCFA";
+  const country   = getCountryByCode(user.country);
+  const currency  = country?.currency || "FCFA";
+  const balance   = Number(user.balance);
+
   const paidProducts = products?.filter(p => !p.isFree) || [];
-  const ownedPaid    = products?.filter(p => p.isOwned && !p.isFree) || [];
-  const totalDaily   = ownedPaid.reduce((s, p) => s + Number(p.dailyEarnings), 0);
-  const totalReturn  = ownedPaid.reduce((s, p) => s + Number(p.totalReturn),   0);
-
-  /* Super Mine = half the list (last products), Bien-être = first half */
-  const mid          = Math.ceil(paidProducts.length / 2);
-  const tabProducts  = activeTab === 0 ? paidProducts.slice(0, mid) : paidProducts.slice(mid);
 
   return (
-    <div className="flex flex-col min-h-full" style={{ backgroundColor: "#f2f2f7" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f2f2f7" }}>
       <ContactSheet open={showContactSheet} onClose={() => setShowContactSheet(false)} />
 
       {/* ── POPUP ─────────────────────────────────────────── */}
       {showPopup && (
-        <div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 animate-in fade-in duration-200"
-          onClick={() => setShowPopup(false)}
-        >
-          <div
-            style={{ width: "92vw", maxWidth: 420, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}
-            onClick={e => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80"
+          onClick={() => setShowPopup(false)}>
+          <div style={{ width: "92vw", maxWidth: 420, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}
+            onClick={e => e.stopPropagation()}>
             <img src={popupCharacters} alt="Bienvenue" style={{ width: "100%", borderRadius: 20 }} data-testid="img-popup" />
             <a href={TELEGRAM_LINK} target="_blank" rel="noopener noreferrer" style={{ width: "90%", display: "block" }} data-testid="button-popup-telegram">
               <img src={popupTelegramBtn} alt="Télégram" style={{ width: "100%", borderRadius: 50 }} />
@@ -116,217 +102,168 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ── MARQUEE BAR ───────────────────────────────────── */}
-      <div style={{ background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_DARK} 100%)` }}>
-        <div className="flex items-center px-3 py-2 gap-2 overflow-hidden">
-          <Volume2 className="w-4 h-4 text-white shrink-0" />
-          <div className="flex-1 overflow-hidden">
-            <p className="text-white text-xs font-medium animate-marquee whitespace-nowrap">
-              Bienvenue sur State Grid — Investissez et gagnez des revenus quotidiens ! Plateforme sécurisée et fiable.
+      {/* ══════════════════════════════════════════════════
+          TOP SECTION — teal gradient background
+      ══════════════════════════════════════════════════ */}
+      <div style={{ background: `linear-gradient(160deg, ${GREEN} 0%, ${GREEN_DARK} 100%)`, paddingBottom: 20 }}>
+
+        {/* ── Logo row ──────────────────────────────────── */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <img src={logoImg} alt="State Grid" style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover" }} />
+            <div>
+              <p style={{ color: "white", fontWeight: 800, fontSize: 16, margin: 0, lineHeight: 1.2 }}>State Grid</p>
+              <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: 0 }}>Investir · Gagner</p>
+            </div>
+          </div>
+          <button onClick={() => setShowContactSheet(true)}
+            style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            data-testid="button-service">
+            <BellRing style={{ width: 18, height: 18, color: "white" }} />
+          </button>
+        </div>
+
+        {/* ── Balance strip ─────────────────────────────── */}
+        <div style={{ margin: "0 16px 12px", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 11, margin: "0 0 2px 0" }}>Solde ({currency})</p>
+            <p style={{ color: "white", fontWeight: 800, fontSize: 22, margin: 0 }} data-testid="text-balance">
+              {balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* ── BALANCE CARD ──────────────────────────────────── */}
-      <div className="mx-3 mt-3">
-        <div className="bg-white rounded-2xl shadow-sm px-4 pt-4 pb-3">
-          {/* Row 1: label + retrait link */}
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <img src={iconRetrait} alt="" className="w-6 h-6 object-contain" />
-              <span className="text-gray-500 text-sm">Solde({currency})</span>
-            </div>
-            <button
-              onClick={() => navigate("/withdrawal")}
-              className="flex items-center text-gray-400 text-sm"
-              data-testid="button-go-retrait"
-            >
-              Retrait<ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Row 2: balance + dépôt button */}
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-3xl font-extrabold text-gray-900" data-testid="text-balance">
-              {Number(user.balance).toLocaleString("fr-FR")}
-            </span>
-            <button
-              onClick={() => navigate("/deposit")}
-              className="px-6 py-2.5 rounded-full text-white font-bold text-sm shadow-sm"
-              style={{ background: GREEN }}
-              data-testid="button-depot"
-            >
-              Dépôt
-            </button>
-          </div>
-
-          {/* Separator */}
-          <div className="border-t border-gray-100 mb-3" />
-
-          {/* Row 3: two stats */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <p className="text-gray-400 text-[11px] leading-tight">Revenus quotidiens ({currency})</p>
-              <p className="font-bold text-gray-800 mt-0.5" data-testid="text-daily-total">
-                {totalDaily.toLocaleString("fr-FR")}
-              </p>
-            </div>
-            <div className="flex-1">
-              <p className="text-gray-400 text-[11px] leading-tight">Revenus totaux ({currency})</p>
-              <p className="font-bold text-gray-800 mt-0.5" data-testid="text-return-total">
-                {totalReturn.toLocaleString("fr-FR")}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── QUICK ACTIONS (3 icons) ───────────────────────── */}
-      <div className="mx-3 mt-3">
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-4">
-          <div className="flex justify-around">
-            {/* Argent gratuit */}
-            <button
-              onClick={() => { setGiftCode(""); setShowGiftModal(true); }}
-              className="flex flex-col items-center gap-1.5"
-              data-testid="button-action-argent-gratuit"
-            >
-              <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center">
-                <img src={iconGratuit} alt="Argent gratuit" className="w-10 h-10 object-contain" />
-              </div>
-              <span className="text-[11px] text-gray-600 font-medium text-center">Argent gratuit</span>
-            </button>
-
-            {/* Bonus de tâche */}
-            <button
-              onClick={() => navigate("/tasks")}
-              className="flex flex-col items-center gap-1.5"
-              data-testid="button-action-bonus-tache"
-            >
-              <div className="w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center">
-                <img src={iconTache} alt="Bonus de tâche" className="w-10 h-10 object-contain" />
-              </div>
-              <span className="text-[11px] text-gray-600 font-medium text-center">Bonus de tâche</span>
-            </button>
-
-            {/* Commande */}
-            <button
-              onClick={() => navigate("/invest")}
-              className="flex flex-col items-center gap-1.5"
-              data-testid="button-action-commande"
-            >
-              <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
-                <img src={iconCommande} alt="Commande" className="w-10 h-10 object-contain" />
-              </div>
-              <span className="text-[11px] text-gray-600 font-medium text-center">Commande</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── CATEGORY TABS ────────────────────────────────── */}
-      <div className="mx-3 mt-3">
-        <div className="flex gap-1 bg-gray-200 rounded-full p-1">
-          <button
-            onClick={() => setActiveTab(0)}
-            className="flex-1 py-2 rounded-full text-sm font-bold transition-all"
-            style={activeTab === 0
-              ? { background: GREEN, color: "white" }
-              : { background: "transparent", color: "#6b7280" }}
-            data-testid="tab-bien-etre"
-          >
-            Produits de bien-être
-          </button>
-          <button
-            onClick={() => setActiveTab(1)}
-            className="flex-1 py-2 rounded-full text-sm font-bold transition-all"
-            style={activeTab === 1
-              ? { background: GREEN, color: "white" }
-              : { background: "transparent", color: "#6b7280" }}
-            data-testid="tab-super-mine"
-          >
-            💎 Super Mine
+          <button onClick={() => navigate("/deposit")}
+            style={{ padding: "8px 20px", borderRadius: 999, background: "white", color: GREEN, fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer" }}
+            data-testid="button-depot">
+            Dépôt
           </button>
         </div>
+
+        {/* ── Banner image ──────────────────────────────── */}
+        <div style={{ margin: "0 16px 16px", borderRadius: 16, overflow: "hidden" }}>
+          <img src={bannerImg} alt="State Grid" style={{ width: "100%", height: 170, objectFit: "cover", display: "block" }} />
+        </div>
+
+        {/* ── 4 Quick Actions ───────────────────────────── */}
+        <div style={{ display: "flex", justifyContent: "space-around", padding: "0 8px" }}>
+          {[
+            { icon: <CreditCard style={{ width: 22, height: 22, color: GREEN }} />,       label: "Recharger", bg: "#e8f5e9", action: () => navigate("/deposit") },
+            { icon: <ArrowDownCircle style={{ width: 22, height: 22, color: "#e91e63" }} />, label: "Retrait",    bg: "#fce4ec", action: () => navigate("/withdrawal") },
+            { icon: <Gift style={{ width: 22, height: 22, color: "#ff9800" }} />,           label: "Cadeau",     bg: "#fff3e0", action: () => { setGiftCode(""); setShowGiftModal(true); } },
+            { icon: <Headphones style={{ width: 22, height: 22, color: "#2196f3" }} />,     label: "Service",    bg: "#e3f2fd", action: () => setShowContactSheet(true) },
+          ].map((item, i) => (
+            <button key={i} onClick={item.action} data-testid={`button-quick-${i}`}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "transparent", border: "none", cursor: "pointer" }}>
+              <div style={{ width: 52, height: 52, borderRadius: "50%", background: item.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {item.icon}
+              </div>
+              <span style={{ color: "white", fontSize: 11, fontWeight: 600 }}>{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* ── PRODUCT CARDS ────────────────────────────────── */}
-      <div className="mx-3 mt-3 pb-6 space-y-3">
+      {/* ══════════════════════════════════════════════════
+          PLANS / TASKS TOGGLE
+      ══════════════════════════════════════════════════ */}
+      <div style={{ padding: "14px 16px 10px", display: "flex", gap: 10 }}>
+        <button
+          onClick={() => setActiveTab("plans")}
+          data-testid="tab-plans"
+          style={{
+            flex: 1, height: 42, borderRadius: 999,
+            background: activeTab === "plans" ? GREEN : "white",
+            color: activeTab === "plans" ? "white" : "#6b7280",
+            fontWeight: 700, fontSize: 14, border: `2px solid ${activeTab === "plans" ? GREEN : "#e5e7eb"}`,
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+          }}
+        >
+          ▶ Plan d'investissement
+        </button>
+        <button
+          onClick={() => navigate("/tasks")}
+          data-testid="tab-tasks"
+          style={{
+            flex: 1, height: 42, borderRadius: 999,
+            background: "white",
+            color: "#6b7280",
+            fontWeight: 700, fontSize: 14, border: "2px solid #e5e7eb",
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+          }}
+        >
+          🎯 Tâche
+        </button>
+      </div>
+
+      {/* ══════════════════════════════════════════════════
+          PRODUCT CARDS — new VIP style
+      ══════════════════════════════════════════════════ */}
+      <div style={{ padding: "0 16px 100px", display: "flex", flexDirection: "column", gap: 14 }}>
         {productsLoading ? (
-          <div className="flex justify-center py-10">
-            <Loader2 className="w-8 h-8 animate-spin" style={{ color: GREEN }} />
+          <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
+            <Loader2 style={{ width: 32, height: 32, color: GREEN, animation: "spin 1s linear infinite" }} />
           </div>
-        ) : tabProducts.length === 0 ? (
-          <div className="text-center py-10 text-gray-400 text-sm">Aucun produit disponible</div>
+        ) : paidProducts.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#9ca3af", fontSize: 14, padding: 40 }}>Aucun produit disponible</p>
         ) : (
-          tabProducts.map((product) => {
-            const price = Number(product.price);
-            const total = Number(product.totalReturn);
-            const daily = Number(product.dailyEarnings);
-            const profit = total - price;
+          paidProducts.map((product, idx) => {
+            const price  = Number(product.price);
+            const daily  = Number(product.dailyEarnings);
+            const days   = Number(product.cycleDays);
+            const total  = Number(product.totalReturn);
             const imgSrc = productImages[product.id] || p1;
+            const vipNum = idx + 1;
 
             return (
-              <div
-                key={product.id}
-                className="rounded-2xl overflow-hidden shadow-md"
-                style={{ background: `linear-gradient(145deg, ${GREEN} 0%, #009688 100%)` }}
-                data-testid={`card-product-${product.id}`}
-              >
-                {/* Card title */}
-                <div className="px-4 pt-4 pb-2">
-                  <p className="text-white font-bold text-base">Produits VIP {product.name}</p>
+              <div key={product.id}
+                style={{ background: CARD_BG, borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,112,84,0.15)" }}
+                data-testid={`card-product-${product.id}`}>
+
+                {/* VIP label */}
+                <div style={{ padding: "10px 14px 6px" }}>
+                  <span style={{ fontWeight: 800, fontSize: 17, color: "#003d2e" }}>VIP{vipNum}</span>
                 </div>
 
-                {/* Product image */}
-                <div className="mx-4 rounded-xl overflow-hidden">
-                  <img
-                    src={imgSrc}
-                    alt={product.name}
-                    className="w-full object-cover"
-                    style={{ height: 170 }}
-                  />
-                </div>
+                {/* Image + white info card */}
+                <div style={{ display: "flex", gap: 10, padding: "0 12px" }}>
+                  {/* Product image */}
+                  <div style={{ width: 90, height: 90, borderRadius: 12, overflow: "hidden", flexShrink: 0, background: "rgba(255,255,255,0.4)" }}>
+                    <img src={imgSrc} alt={product.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
 
-                {/* Stats */}
-                <div className="px-4 pt-3 pb-2 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/80 text-sm">Cycle(Jours)</span>
-                    <span className="text-white font-bold text-sm">{product.cycleDays}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/80 text-sm">Revenu quotidien({currency})</span>
-                    <span className="font-bold text-sm" style={{ color: "#f59e0b" }}>
-                      {daily.toLocaleString("fr-FR")}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/80 text-sm">Revenu total({currency})</span>
-                    <span className="font-bold text-sm" style={{ color: "#f59e0b" }}>
-                      {price.toLocaleString("fr-FR")}+{profit.toLocaleString("fr-FR")}
-                    </span>
+                  {/* White info card */}
+                  <div style={{ flex: 1, background: "white", borderRadius: 12, padding: "10px 12px", display: "flex", flexDirection: "column", gap: 7 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 12, color: "#6b7280" }}>Revenu Quotidien</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: GREEN }}>{daily.toLocaleString("fr-FR")}</span>
+                    </div>
+                    <div style={{ height: 1, background: "#f0f0f0" }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 12, color: "#6b7280" }}>Période de validité</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: GREEN }}>{days} journées</span>
+                    </div>
+                    <div style={{ height: 1, background: "#f0f0f0" }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 12, color: "#6b7280" }}>Prix</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: GREEN }}>{price.toLocaleString("fr-FR")}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Separator */}
-                <div className="mx-4 border-t border-white/20 my-1" />
-
-                {/* Footer: price + Investir button */}
-                <div className="px-4 py-3 flex items-center justify-between">
-                  <div>
-                    <span className="text-white text-sm">Prix({currency}) </span>
-                    <span className="text-white font-extrabold text-base" style={{ color: "#f59e0b" }}>
-                      {price.toLocaleString("fr-FR")}
-                    </span>
-                  </div>
+                {/* Acheter button */}
+                <div style={{ padding: "12px 12px 12px" }}>
                   <button
                     onClick={() => navigate(`/product/${product.id}`)}
-                    className="px-6 py-2 bg-white rounded-full font-bold text-sm shadow-sm"
-                    style={{ color: GREEN }}
-                    data-testid={`button-investir-${product.id}`}
+                    data-testid={`button-acheter-${product.id}`}
+                    style={{
+                      width: "100%", height: 44, borderRadius: 999,
+                      background: `linear-gradient(90deg, ${GREEN} 0%, #009688 100%)`,
+                      color: "white", fontWeight: 700, fontSize: 15,
+                      border: "none", cursor: "pointer",
+                      boxShadow: "0 3px 10px rgba(0,112,84,0.3)",
+                    }}
                   >
-                    Investir
+                    Acheter
                   </button>
                 </div>
               </div>
@@ -335,47 +272,11 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* ── PROJET PRINCIPAL ─────────────────────────────── */}
-      {!productsLoading && paidProducts.length > 0 && (
-        <div className="pb-24">
-          <div className="px-3 mb-2">
-            <h2 className="text-gray-800 font-bold text-base">Projet principal</h2>
-          </div>
-          <div className="flex gap-3 px-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
-            {paidProducts.map((product) => {
-              const price = Number(product.price);
-              const imgSrc = productImages[product.id] || p1;
-              return (
-                <button
-                  key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
-                  className="flex-shrink-0 bg-white rounded-xl overflow-hidden shadow-sm flex items-center gap-3 px-3 py-2"
-                  style={{ minWidth: 210 }}
-                  data-testid={`card-main-${product.id}`}
-                >
-                  <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0">
-                    <img src={imgSrc} alt={product.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-gray-800 font-semibold text-xs leading-tight line-clamp-2">{product.name}</p>
-                    <p className="font-bold text-sm mt-1" style={{ color: GREEN }}>
-                      {price.toLocaleString("fr-FR")}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* ── GIFT CODE MODAL ──────────────────────────────── */}
       {showGiftModal && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center p-5"
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-5"
           style={{ background: "rgba(0,0,0,0.55)" }}
-          onClick={e => { if (e.target === e.currentTarget) setShowGiftModal(false); }}
-        >
+          onClick={e => { if (e.target === e.currentTarget) setShowGiftModal(false); }}>
           <div className="w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl" style={{ background: GREEN }}>
             <div className="flex justify-end px-4 pt-4">
               <button onClick={() => setShowGiftModal(false)}
@@ -413,8 +314,7 @@ export default function HomePage() {
                 disabled={claimMutation.isPending}
                 className="w-full py-4 rounded-xl font-extrabold text-sm tracking-widest flex items-center justify-center gap-2"
                 style={{ background: "#111827", color: "#f59e0b" }}
-                data-testid="button-confirm-gift"
-              >
+                data-testid="button-confirm-gift">
                 {claimMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin text-yellow-400" /> : "CONFIRMER"}
               </button>
             </div>
@@ -429,7 +329,7 @@ export default function HomePage() {
               <div className="flex items-start gap-2">
                 <span className="text-base mt-0.5">💡</span>
                 <p className="text-white text-xs leading-relaxed">
-                  Les codes bonus seront publiés sur la chaîne officielle Telegram tous les jours à 11h30 et 18h00. Suivez notre chaîne pour ne rien manquer!
+                  Les codes bonus seront publiés sur la chaîne officielle Telegram tous les jours à 11h30 et 18h00.
                 </p>
               </div>
             </div>
