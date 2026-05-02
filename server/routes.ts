@@ -425,31 +425,33 @@ export async function registerRoutes(
     }
   });
 
-  // Initiate WestPay deposit — form POST + 302 redirect to WestPay hosted page
+  // Initiate WestPay deposit — returns JSON { depositId, payUrl } for client-side navigation
   app.post("/api/deposits/westpay-redirect", requireAuth, async (req, res) => {
-    const errRedirect = (msg: string) =>
-      res.redirect(302, `/deposit?err=${encodeURIComponent(msg)}`);
-
     try {
       const amount = Number(req.body.amount);
-      const country = req.body.country as string;
+      const country = String(req.body.country || "");
+
+      console.log("[westpay] step1: body =", { amount, country });
 
       const user = await storage.getUser(req.session.userId!);
-      if (!user) return res.redirect(302, "/login");
+      if (!user) return res.status(401).json({ message: "Non authentifié" });
+
+      console.log("[westpay] step2: user =", user.id);
 
       const settings = await storage.getSettings();
       const minDeposit = parseInt(settings.minDeposit || "3000");
 
       if (!amount || isNaN(amount) || amount < minDeposit) {
-        return errRedirect(`Montant minimum: ${minDeposit.toLocaleString()} FCFA`);
+        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
       }
 
       const slug = settings.westpaySlug || process.env.WESTPAY_SLUG || "";
-      if (!slug) return errRedirect("WestPay non configuré (slug manquant)");
+      if (!slug) return res.status(400).json({ message: "WestPay non configuré (slug manquant)" });
+
+      console.log("[westpay] step3: slug =", slug);
 
       const userCountry = country || user.country || "BJ";
 
-      // Create pending deposit record
       const deposit = await storage.createDeposit({
         userId: user.id,
         amount: Math.round(amount),
@@ -460,7 +462,9 @@ export async function registerRoutes(
         status: "pending",
       });
 
-      // Use REPLIT_DEV_DOMAIN env var (always correct for dev), fall back to forwarded host
+      console.log("[westpay] step4: deposit id =", deposit?.id);
+
+      // Build callback URL using REPLIT_DEV_DOMAIN (always set in dev), or forwarded host
       const appOrigin =
         process.env.REPLIT_DEV_DOMAIN
           ? `https://${process.env.REPLIT_DEV_DOMAIN}`
@@ -472,13 +476,13 @@ export async function registerRoutes(
       const redirectUrl = `${appOrigin}/deposit-callback?depositId=${deposit.id}&amount=${Math.round(amount)}`;
       const payUrl = westpay.buildPaymentUrl(slug, Math.round(amount), userCountry, redirectUrl);
 
-      console.log("[westpay] redirecting to WestPay:", payUrl);
+      console.log("[westpay] step5: payUrl =", payUrl);
 
-      // 302 redirect — browser follows it directly to WestPay's payment page
-      res.redirect(302, payUrl);
+      // Return JSON — the client opens this URL in a new tab to avoid iframe restrictions
+      return res.json({ depositId: deposit.id, payUrl });
     } catch (error: any) {
-      console.error("[westpay] redirect error:", error);
-      errRedirect(error.message || "Erreur inattendue");
+      console.error("[westpay] error:", error);
+      return res.status(500).json({ message: error.message || "Erreur inattendue" });
     }
   });
 

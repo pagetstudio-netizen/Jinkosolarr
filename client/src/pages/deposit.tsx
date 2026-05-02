@@ -29,45 +29,48 @@ export default function DepositPage() {
   const MIN_DEPOSIT = parseInt(platformSettings?.minDeposit || "3000");
   const MAX_DEPOSIT = 2000000;
 
-  // Read error from URL if redirected back after a server-side error
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const err = params.get("err");
-    if (err) {
-      toast({ title: "Erreur de paiement", description: decodeURIComponent(err), variant: "destructive" });
-      // Clean up URL
-      window.history.replaceState({}, "", "/deposit");
-    }
-  }, []);
-
-  const handleRecharge = () => {
+  const handleRecharge = async () => {
     const amt = typeof amount === "number" ? amount : 0;
     if (!amt || amt < MIN_DEPOSIT) {
       toast({ title: "Montant invalide", description: `Le montant minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`, variant: "destructive" });
       return;
     }
 
+    // Open a blank tab NOW (synchronous, inside click handler) so popup blockers allow it.
+    // We'll navigate it to WestPay once we have the URL from the server.
+    const payWindow = window.open("about:blank", "_blank");
+
     setLoading(true);
+    try {
+      const res = await fetch("/api/deposits/westpay-redirect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ amount: amt, country: userCountry }),
+      });
 
-    // Use a hidden form submit so the browser follows the server's 302 redirect
-    // directly to WestPay — no fetch, no JSON, no window.location.href = undefined
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = "/api/deposits/westpay-redirect";
+      const body = await res.json().catch(() => ({})) as any;
 
-    [
-      { name: "amount",  value: String(Math.round(amt)) },
-      { name: "country", value: userCountry },
-    ].forEach(({ name, value }) => {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    });
+      if (!res.ok || !body.payUrl) {
+        payWindow?.close();
+        setLoading(false);
+        toast({ title: "Erreur de paiement", description: body.message || "Impossible de créer la demande.", variant: "destructive" });
+        return;
+      }
 
-    document.body.appendChild(form);
-    form.submit();
+      // Navigate the pre-opened tab to the WestPay hosted payment page.
+      // Opening in a new tab bypasses Replit's iframe restriction on external redirects.
+      if (payWindow) {
+        payWindow.location.href = body.payUrl;
+      } else {
+        // Fallback: same-tab navigation if popup was blocked
+        window.location.href = body.payUrl;
+      }
+    } catch {
+      payWindow?.close();
+      setLoading(false);
+      toast({ title: "Erreur de connexion", description: "Vérifiez votre connexion internet et réessayez.", variant: "destructive" });
+    }
   };
 
   if (!user) return null;
