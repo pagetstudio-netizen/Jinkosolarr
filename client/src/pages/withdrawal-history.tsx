@@ -16,7 +16,7 @@ interface Withdrawal {
   createdAt: string;
 }
 
-const RED = "#c0392b";
+const GREEN = "#007054";
 
 function maskAccount(account: string) {
   if (!account) return "—";
@@ -32,9 +32,9 @@ function formatDate(iso: string) {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  approved: { label: "succès",     color: "#16a34a" },
+  approved: { label: "succès",     color: GREEN },
   pending:  { label: "en attente", color: "#f97316" },
-  rejected: { label: "rejeté",     color: RED },
+  rejected: { label: "rejeté",     color: "#ef4444" },
 };
 
 function Row({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
@@ -59,10 +59,10 @@ export default function WithdrawalHistoryPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6" }}>
 
-      {/* ── Header rouge ── */}
+      {/* ── Header vert ── */}
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "48px 16px 14px", background: RED, position: "relative",
+        padding: "48px 16px 14px", background: GREEN, position: "relative",
       }}>
         <Link href="/account">
           <button
@@ -95,15 +95,15 @@ export default function WithdrawalHistoryPage() {
                 {/* Titre + montant brut */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 7, borderBottom: "1px solid #f3f4f6" }}>
                   <span style={{ fontWeight: 700, fontSize: 15, color: "#111827" }}>Retrait</span>
-                  <span style={{ fontWeight: 700, fontSize: 15, color: RED }}>{currency} {gross}</span>
+                  <span style={{ fontWeight: 700, fontSize: 15, color: GREEN }}>{currency} {gross}</span>
                 </div>
 
-                <Row label="Montant reçu" value={`${currency} ${net}`}     valueColor={RED} />
+                <Row label="Montant reçu" value={`${currency} ${net}`}     valueColor={GREEN} />
                 <Row label="Compte"       value={maskAccount(w.accountNumber)} />
                 <Row label="Un résultat"  value={cfg.label}                 valueColor={cfg.color} />
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 7 }}>
                   <span style={{ fontSize: 13, color: "#9ca3af" }}>Temps</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: RED }}>{formatDate(w.createdAt)}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: GREEN }}>{formatDate(w.createdAt)}</span>
                 </div>
               </div>
             );
