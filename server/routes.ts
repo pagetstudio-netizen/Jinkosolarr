@@ -425,6 +425,52 @@ export async function registerRoutes(
     }
   });
 
+  // Initiate WestPay deposit — hosted payment page redirect
+  app.post("/api/deposits/westpay-redirect", requireAuth, async (req, res) => {
+    try {
+      const { amount, country } = req.body;
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(401).json({ message: "Non authentifié" });
+
+      const settings = await storage.getSettings();
+      const minDeposit = parseInt(settings.minDeposit || "3000");
+
+      if (!amount || isNaN(amount) || amount < minDeposit) {
+        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
+      }
+
+      const slug = settings.westpaySlug || process.env.WESTPAY_SLUG || "";
+      if (!slug) {
+        return res.status(400).json({ message: "WestPay non configuré (slug manquant)" });
+      }
+
+      const userCountry = country || user.country || "BJ";
+
+      // Create pending deposit record
+      const deposit = await storage.createDeposit({
+        userId: user.id,
+        amount: Math.round(amount),
+        accountName: user.fullName,
+        accountNumber: user.phone,
+        country: userCountry,
+        paymentMethod: "Mobile Money",
+        status: "pending",
+      });
+
+      // Build the redirect URL back to our callback page
+      const origin = req.headers.origin || `https://${req.headers.host}`;
+      const redirectUrl = `${origin}/deposit-callback?depositId=${deposit.id}&amount=${Math.round(amount)}`;
+
+      const payUrl = westpay.buildPaymentUrl(slug, Math.round(amount), userCountry, redirectUrl);
+
+      console.log("[westpay] redirect URL built:", payUrl);
+      res.json({ depositId: deposit.id, payUrl });
+    } catch (error: any) {
+      console.error("[westpay] redirect error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Initiate WestPay deposit — direct USSD push (no redirect)
   app.post("/api/deposits/westpay-init", requireAuth, async (req, res) => {
     try {
