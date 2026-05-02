@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
+import { useCountries } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import ContactSheet from "@/components/contact-sheet";
 import { Loader2, Eye, EyeOff, ChevronDown, Sun, Zap, ShieldCheck, Gift } from "lucide-react";
@@ -48,8 +48,9 @@ export default function RegisterPage() {
     },
   });
 
+  const { data: countries = [] } = useCountries();
   const selectedCountry = form.watch("country");
-  const countryData = ELIGIBLE_COUNTRIES.find(c => c.code === selectedCountry);
+  const countryData = countries.find(c => c.code === selectedCountry);
 
   async function onSubmit(data: RegisterForm) {
     setIsLoading(true);

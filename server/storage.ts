@@ -1,10 +1,10 @@
 import { 
   users, products, userProducts, deposits, withdrawals, withdrawalWallets,
   paymentChannels, referralCommissions, tasks, userTasks, transactions, platformSettings, adminAuditLog,
-  giftCodes, giftCodeClaims,
+  giftCodes, giftCodeClaims, platformCountries,
   type User, type Product, type UserProduct, type Deposit, type Withdrawal, type WithdrawalWallet,
   type PaymentChannel, type ReferralCommission, type Task, type UserTask, type Transaction, type PlatformSetting,
-  type GiftCode, type GiftCodeClaim
+  type GiftCode, type GiftCodeClaim, type PlatformCountry
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, gte, lte, or } from "drizzle-orm";
@@ -96,6 +96,14 @@ export interface IStorage {
   deleteGiftCode(id: number): Promise<void>;
   hasUserClaimedGiftCode(userId: number, giftCodeId: number): Promise<boolean>;
   claimGiftCode(userId: number, giftCodeId: number, amount: number): Promise<void>;
+
+  // Platform Countries
+  getPlatformCountries(): Promise<PlatformCountry[]>;
+  getActivePlatformCountries(): Promise<PlatformCountry[]>;
+  getPlatformCountry(id: number): Promise<PlatformCountry | undefined>;
+  createPlatformCountry(data: Partial<PlatformCountry>): Promise<PlatformCountry>;
+  updatePlatformCountry(id: number, data: Partial<PlatformCountry>): Promise<PlatformCountry>;
+  deletePlatformCountry(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1132,6 +1140,41 @@ export class DatabaseStorage implements IStorage {
   async deleteInfoArticle(id: number) {
     const { infoArticles } = await import("@shared/schema");
     await db.delete(infoArticles).where(eq(infoArticles.id, id));
+  }
+
+  // Platform Countries
+  async getPlatformCountries(): Promise<PlatformCountry[]> {
+    return db.select().from(platformCountries).orderBy(platformCountries.name);
+  }
+
+  async getActivePlatformCountries(): Promise<PlatformCountry[]> {
+    return db.select().from(platformCountries).where(eq(platformCountries.isActive, true)).orderBy(platformCountries.name);
+  }
+
+  async getPlatformCountry(id: number): Promise<PlatformCountry | undefined> {
+    const [c] = await db.select().from(platformCountries).where(eq(platformCountries.id, id));
+    return c || undefined;
+  }
+
+  async createPlatformCountry(data: Partial<PlatformCountry>): Promise<PlatformCountry> {
+    const [c] = await db.insert(platformCountries).values({
+      code: data.code!,
+      name: data.name!,
+      currency: data.currency!,
+      phonePrefix: data.phonePrefix!,
+      operators: data.operators || [],
+      isActive: data.isActive ?? true,
+    }).returning();
+    return c;
+  }
+
+  async updatePlatformCountry(id: number, data: Partial<PlatformCountry>): Promise<PlatformCountry> {
+    const [c] = await db.update(platformCountries).set(data).where(eq(platformCountries.id, id)).returning();
+    return c;
+  }
+
+  async deletePlatformCountry(id: number): Promise<void> {
+    await db.delete(platformCountries).where(eq(platformCountries.id, id));
   }
 }
 

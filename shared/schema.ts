@@ -256,6 +256,22 @@ export const referralCommissionsRelations = relations(referralCommissions, ({ on
   product: one(products, { fields: [referralCommissions.productId], references: [products.id] }),
 }));
 
+// Platform Countries table (managed by admin)
+export const platformCountries = pgTable("platform_countries", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  currency: text("currency").notNull(),
+  phonePrefix: text("phone_prefix").notNull(),
+  operators: text("operators").array().default(sql`'{}'::text[]`),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertPlatformCountrySchema = createInsertSchema(platformCountries).omit({ id: true, createdAt: true });
+export type PlatformCountry = typeof platformCountries.$inferSelect;
+export type InsertPlatformCountry = z.infer<typeof insertPlatformCountrySchema>;
+
 // Info Articles table
 export const infoArticles = pgTable("info_articles", {
   id: serial("id").primaryKey(),

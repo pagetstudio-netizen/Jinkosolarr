@@ -13,6 +13,7 @@ import AdminChannels from "@/components/admin/channels";
 import AdminSettings from "@/components/admin/settings";
 import AdminGiftCodes from "@/components/admin/gift-codes";
 import AdminInfoArticles from "@/components/admin/info-articles";
+import AdminCountries from "@/components/admin/countries";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -42,6 +43,7 @@ export default function AdminPage() {
               <TabsTrigger value="channels" data-testid="tab-channels">Canaux</TabsTrigger>
               <TabsTrigger value="giftcodes" data-testid="tab-giftcodes">Codes Cadeaux</TabsTrigger>
               <TabsTrigger value="settings" data-testid="tab-settings">Parametres</TabsTrigger>
+              <TabsTrigger value="countries" data-testid="tab-countries">Pays</TabsTrigger>
               <TabsTrigger value="informations" data-testid="tab-informations">Informations</TabsTrigger>
             </TabsList>
           </div>
@@ -76,6 +78,10 @@ export default function AdminPage() {
 
           <TabsContent value="settings" className="mt-4">
             <AdminSettings isSuperAdmin={user.isSuperAdmin} />
+          </TabsContent>
+
+          <TabsContent value="countries" className="mt-4">
+            <AdminCountries />
           </TabsContent>
 
           <TabsContent value="informations" className="mt-4">

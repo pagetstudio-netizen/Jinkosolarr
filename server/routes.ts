@@ -1441,6 +1441,62 @@ export async function registerRoutes(
     }
   });
 
+  // ── Platform Countries (public) ────────────────────────
+  app.get("/api/countries", async (req, res) => {
+    try {
+      const countries = await storage.getActivePlatformCountries();
+      res.json(countries);
+    } catch (e: any) { res.status(500).json({ message: e.message }); }
+  });
+
+  // ── Platform Countries (admin) ─────────────────────────
+  app.get("/api/admin/countries", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const countries = await storage.getPlatformCountries();
+      res.json(countries);
+    } catch (e: any) { res.status(500).json({ message: e.message }); }
+  });
+
+  app.post("/api/admin/countries", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { code, name, currency, phonePrefix, operators, isActive } = req.body;
+      if (!code || !name || !currency || !phonePrefix) {
+        return res.status(400).json({ message: "Code, nom, devise et préfixe requis" });
+      }
+      const country = await storage.createPlatformCountry({
+        code: code.toUpperCase(),
+        name,
+        currency,
+        phonePrefix,
+        operators: operators || [],
+        isActive: isActive ?? true,
+      });
+      res.json(country);
+    } catch (e: any) { res.status(400).json({ message: e.message }); }
+  });
+
+  app.put("/api/admin/countries/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { code, name, currency, phonePrefix, operators, isActive } = req.body;
+      const country = await storage.updatePlatformCountry(Number(req.params.id), {
+        code: code?.toUpperCase(),
+        name,
+        currency,
+        phonePrefix,
+        operators,
+        isActive,
+      });
+      res.json(country);
+    } catch (e: any) { res.status(400).json({ message: e.message }); }
+  });
+
+  app.delete("/api/admin/countries/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await storage.deletePlatformCountry(Number(req.params.id));
+      res.json({ success: true });
+    } catch (e: any) { res.status(400).json({ message: e.message }); }
+  });
+
   // ── Info Articles ──────────────────────────────────────
   app.get("/api/info-articles", requireAuth, async (req, res) => {
     const articles = await storage.getInfoArticles();

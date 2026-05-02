@@ -1,28 +1,35 @@
-export const COUNTRIES = [
-  { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", paymentMethods: ["Moov Money", "MTN"] },
-  { code: "CM", name: "Cameroun", flag: "CM", currency: "XAF", paymentMethods: ["Orange Money", "MTN"] },
-  { code: "BF", name: "Burkina Faso", flag: "BF", currency: "XOF", paymentMethods: ["Orange Money", "Moov Money"] },
-  { code: "CI", name: "Cote d'Ivoire", flag: "CI", currency: "XOF", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
-];
+import { useQuery } from "@tanstack/react-query";
+import type { PlatformCountry } from "@shared/schema";
 
-export const ELIGIBLE_COUNTRIES = [
-  { code: "BJ", name: "Benin", flag: "BJ", currency: "XOF", phonePrefix: "229", paymentMethods: ["Moov Money", "MTN"] },
-  { code: "CM", name: "Cameroun", flag: "CM", currency: "XAF", phonePrefix: "237", paymentMethods: ["Orange Money", "MTN"] },
-  { code: "BF", name: "Burkina Faso", flag: "BF", currency: "XOF", phonePrefix: "226", paymentMethods: ["Orange Money", "Moov Money"] },
-  { code: "CI", name: "Cote d'Ivoire", flag: "CI", currency: "XOF", phonePrefix: "225", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
-] as const;
-
-export function getCountryByCode(code: string) {
-  return ELIGIBLE_COUNTRIES.find(c => c.code === code);
+export function useCountries() {
+  return useQuery<PlatformCountry[]>({
+    queryKey: ["/api/countries"],
+    staleTime: 5 * 60 * 1000,
+  });
 }
 
-export function getPaymentMethodsForCountry(code: string): string[] {
-  const country = getCountryByCode(code);
-  return country ? [...country.paymentMethods] : [];
-}
-
-export function formatCurrency(amount: number, countryCode: string): string {
-  const country = getCountryByCode(countryCode);
+export function formatCurrency(amount: number, countryCode: string, countries?: PlatformCountry[]): string {
+  const country = countries?.find(c => c.code === countryCode);
   const currency = country?.currency || "FCFA";
   return `${amount.toLocaleString()} ${currency}`;
 }
+
+export function getCountryByCode(code: string, countries?: PlatformCountry[]) {
+  return countries?.find(c => c.code === code);
+}
+
+export function getPaymentMethodsForCountry(code: string, countries?: PlatformCountry[]): string[] {
+  const country = countries?.find(c => c.code === code);
+  return country?.operators || [];
+}
+
+// Legacy static fallback used only as defaults before API loads
+export const ELIGIBLE_COUNTRIES = [
+  { code: "BJ", name: "Bénin",             currency: "XOF", phonePrefix: "229", paymentMethods: ["Moov Money", "MTN"] },
+  { code: "CM", name: "Cameroun",           currency: "XAF", phonePrefix: "237", paymentMethods: ["Orange Money", "MTN"] },
+  { code: "BF", name: "Burkina Faso",       currency: "XOF", phonePrefix: "226", paymentMethods: ["Orange Money", "Moov Money"] },
+  { code: "CI", name: "Côte d'Ivoire",      currency: "XOF", phonePrefix: "225", paymentMethods: ["Wave", "MTN", "Orange Money", "Moov Money"] },
+  { code: "TG", name: "Togo",               currency: "XOF", phonePrefix: "228", paymentMethods: ["Moov Money", "Mixx by Yas"] },
+  { code: "CG", name: "Congo Brazzaville",  currency: "XAF", phonePrefix: "242", paymentMethods: ["MTN"] },
+  { code: "CD", name: "RDC",                currency: "CDF", phonePrefix: "243", paymentMethods: ["Airtel Money"] },
+] as const;

@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { getPaymentMethodsForCountry, formatCurrency } from "@/lib/countries";
+import { useCountries, formatCurrency } from "@/lib/countries";
 import { Loader2 } from "lucide-react";
 import type { PaymentChannel } from "@shared/schema";
 
@@ -105,9 +105,12 @@ export default function DepositModal({ open, onClose }: DepositModalProps) {
     }
   };
 
+  const { data: countries = [] } = useCountries();
+
   if (!user) return null;
 
-  const paymentMethods = getPaymentMethodsForCountry(user.country);
+  const countryData = countries.find(c => c.code === user.country);
+  const paymentMethods = countryData?.operators || [];
   const activeChannels = channels?.filter(c => c.isActive) || [];
   const presetAmounts = [3000, 5000, 10000, 20000, 50000, 100000];
 
