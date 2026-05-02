@@ -51,25 +51,31 @@ export default function DepositPage() {
 
     setStep("loading");
     try {
-      const res = await apiRequest("POST", "/api/deposits/westpay-init", {
-        amount: amt,
-        phone: phone.replace(/\D/g, ""),
-        country: userCountry,
+      const res = await fetch("/api/deposits/westpay-init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          amount: amt,
+          phone: phone.replace(/\D/g, ""),
+          country: userCountry,
+        }),
       });
 
+      let body: any = {};
+      try { body = await res.json(); } catch {}
+
       if (!res.ok) {
-        const err = await res.json();
         setStep("form");
-        toast({ title: "Erreur de paiement", description: err.message || "Erreur lors du paiement", variant: "destructive" });
+        toast({ title: "Erreur de paiement", description: body.message || "Une erreur est survenue. Réessayez.", variant: "destructive" });
         return;
       }
 
-      const data = await res.json();
-      setReference(data.reference || "");
+      setReference(body.reference || "");
       setStep("success");
     } catch (e: any) {
       setStep("form");
-      toast({ title: "Erreur réseau", description: e.message || "Vérifiez votre connexion et réessayez.", variant: "destructive" });
+      toast({ title: "Erreur de connexion", description: "Vérifiez votre connexion internet et réessayez.", variant: "destructive" });
     }
   };
 
