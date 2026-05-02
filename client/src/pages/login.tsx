@@ -198,6 +198,7 @@ export default function LoginPage() {
               cursor: isLoading ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               boxShadow: isLoading ? "none" : "0 4px 20px rgba(0,112,84,0.35)",
+              touchAction: "manipulation",
             }}
           >
             {isLoading ? <><Loader2 size={20} className="animate-spin" /> Connexion...</> : "Se connecter"}
