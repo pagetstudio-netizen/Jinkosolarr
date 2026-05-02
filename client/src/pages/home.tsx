@@ -143,21 +143,6 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* ── Balance strip ─────────────────────────────── */}
-        <div style={{ margin: "0 16px 12px", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 11, margin: "0 0 2px 0" }}>Solde ({currency})</p>
-            <p style={{ color: "white", fontWeight: 800, fontSize: 22, margin: 0 }} data-testid="text-balance">
-              {balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
-            </p>
-          </div>
-          <button onClick={() => navigate("/deposit")}
-            style={{ padding: "8px 20px", borderRadius: 999, background: "white", color: GREEN, fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer" }}
-            data-testid="button-depot">
-            Dépôt
-          </button>
-        </div>
-
         {/* ── Banner image ──────────────────────────────── */}
         <div style={{ margin: "0 16px 16px", borderRadius: 16, overflow: "hidden" }}>
           <img src={bannerImg} alt="State Grid" style={{ width: "100%", height: 170, objectFit: "cover", display: "block" }} />
@@ -180,38 +165,6 @@ export default function HomePage() {
             </button>
           ))}
         </div>
-      </div>
-
-      {/* ══════════════════════════════════════════════════
-          PLANS / TASKS TOGGLE
-      ══════════════════════════════════════════════════ */}
-      <div style={{ padding: "14px 16px 10px", display: "flex", gap: 10 }}>
-        <button
-          onClick={() => setActiveTab("plans")}
-          data-testid="tab-plans"
-          style={{
-            flex: 1, height: 42, borderRadius: 999,
-            background: activeTab === "plans" ? GREEN : "white",
-            color: activeTab === "plans" ? "white" : "#6b7280",
-            fontWeight: 700, fontSize: 14, border: `2px solid ${activeTab === "plans" ? GREEN : "#e5e7eb"}`,
-            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          }}
-        >
-          ▶ Plan d'investissement
-        </button>
-        <button
-          onClick={() => navigate("/tasks")}
-          data-testid="tab-tasks"
-          style={{
-            flex: 1, height: 42, borderRadius: 999,
-            background: "white",
-            color: "#6b7280",
-            fontWeight: 700, fontSize: 14, border: "2px solid #e5e7eb",
-            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          }}
-        >
-          🎯 Tâche
-        </button>
       </div>
 
       {/* ══════════════════════════════════════════════════
