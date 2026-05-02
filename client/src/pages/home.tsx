@@ -161,7 +161,7 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════════════
           PRODUCT CARDS — new VIP style
       ══════════════════════════════════════════════════ */}
-      <div style={{ padding: "0 16px 100px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ padding: "16px 16px 100px", display: "flex", flexDirection: "column", gap: 14 }}>
         {productsLoading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
             <Loader2 style={{ width: 32, height: 32, color: GREEN, animation: "spin 1s linear infinite" }} />
