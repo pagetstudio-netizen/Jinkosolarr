@@ -47,7 +47,7 @@ export default function MyProductsPage() {
 
       {/* ── Header dégradé bleu → vert ── */}
       <div style={{
-        background: "linear-gradient(135deg, #1d4ed8 0%, #007054 100%)",
+        background: "linear-gradient(135deg, #009e76 0%, #007054 100%)",
         padding: "52px 16px 20px",
       }}>
         <div style={{ display: "flex", gap: 12 }}>
@@ -130,7 +130,7 @@ export default function MyProductsPage() {
                 {/* Pill Terme */}
                 <div style={{ padding: "12px 16px 4px", display: "flex", justifyContent: "center" }}>
                   <div style={{
-                    background: "linear-gradient(90deg, #1d4ed8 0%, #007054 100%)",
+                    background: "linear-gradient(90deg, #009e76 0%, #007054 100%)",
                     borderRadius: 999, padding: "7px 28px",
                     color: "white", fontWeight: 700, fontSize: 13,
                   }}>
