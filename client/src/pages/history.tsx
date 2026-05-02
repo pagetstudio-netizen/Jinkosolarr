@@ -130,7 +130,7 @@ export default function HistoryPage() {
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
         <Link href="/account">
           <button className="p-2" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-[#3db51d]" />
+            <ArrowLeft className="w-5 h-5 text-[#007054]" />
           </button>
         </Link>
         <h1 className="text-lg font-semibold text-gray-800">Historique</h1>
@@ -142,7 +142,7 @@ export default function HistoryPage() {
           onClick={() => setActiveTab("deposits")}
           className={`flex-1 py-2.5 text-center font-medium text-sm rounded-full transition-colors ${
             activeTab === "deposits"
-              ? "bg-[#3db51d] text-white"
+              ? "bg-[#007054] text-white"
               : "text-gray-500"
           }`}
           data-testid="tab-deposits"
@@ -156,7 +156,7 @@ export default function HistoryPage() {
           onClick={() => setActiveTab("withdrawals")}
           className={`flex-1 py-2.5 text-center font-medium text-sm rounded-full transition-colors ${
             activeTab === "withdrawals"
-              ? "bg-[#3db51d] text-white"
+              ? "bg-[#007054] text-white"
               : "text-gray-500"
           }`}
           data-testid="tab-withdrawals"

@@ -12,16 +12,16 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
-import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
+import jinkoLogo from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
+import jinkoLogoText from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 import iconDeposit from "@assets/20260410_193219_1775849744533.png";
 import iconWithdraw from "@assets/20260410_192847_1775849812824.png";
 import iconLogout from "@assets/20260410_193432_1775849812759.png";
 import iconWallet from "@assets/20260410_193054_1775849844493.png";
 import iconSecurite from "@assets/20260410_192649_1775849844694.png";
 
-const GREEN = "#3db51d";
-const GREEN_DARK = "#2a8d13";
+const GREEN = "#007054";
+const GREEN_DARK = "#005040";
 
 const carbonCard: React.CSSProperties = {
   backgroundColor: "#161616",

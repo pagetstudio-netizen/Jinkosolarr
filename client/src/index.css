@@ -12,28 +12,28 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 110 20% 96%;
+  --background: 165 20% 96%;
   --foreground: 0 0% 10%;
-  --border: 110 15% 85%;
+  --border: 165 15% 85%;
 
   --card: 0 0% 100%;
   --card-foreground: 0 0% 10%;
   --card-border: 0 0% 90%;
 
-  --sidebar: 108 73% 40%;
+  --sidebar: 165 100% 22%;
   --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 108 65% 32%;
+  --sidebar-border: 165 100% 14%;
   --sidebar-primary: 0 0% 100%;
-  --sidebar-primary-foreground: 108 73% 40%;
-  --sidebar-accent: 108 68% 48%;
+  --sidebar-primary-foreground: 165 100% 22%;
+  --sidebar-accent: 165 65% 30%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 108 73% 40%;
+  --sidebar-ring: 165 100% 22%;
 
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 10%;
   --popover-border: 0 0% 90%;
 
-  --primary: 108 73% 40%;
+  --primary: 165 100% 22%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 0 0% 96%;
@@ -42,15 +42,15 @@
   --muted: 0 0% 94%;
   --muted-foreground: 0 0% 45%;
 
-  --accent: 108 55% 90%;
-  --accent-foreground: 108 73% 25%;
+  --accent: 165 50% 90%;
+  --accent-foreground: 165 100% 15%;
 
   --destructive: 0 75% 55%;
   --destructive-foreground: 0 0% 100%;
 
   --input: 0 0% 85%;
-  --ring: 108 73% 40%;
-  --chart-1: 108 73% 40%;
+  --ring: 165 100% 22%;
+  --chart-1: 165 100% 22%;
   --chart-2: 46 65% 50%;
   --chart-3: 200 70% 50%;
   --chart-4: 280 65% 55%;
@@ -113,17 +113,17 @@
   --sidebar: 0 0% 5%;
   --sidebar-foreground: 0 0% 95%;
   --sidebar-border: 0 0% 15%;
-  --sidebar-primary: 108 73% 50%;
+  --sidebar-primary: 165 100% 32%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 0 0% 15%;
   --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-ring: 108 73% 50%;
+  --sidebar-ring: 165 100% 32%;
 
   --popover: 0 0% 10%;
   --popover-foreground: 0 0% 95%;
   --popover-border: 0 0% 18%;
 
-  --primary: 108 73% 50%;
+  --primary: 165 100% 32%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 0 0% 18%;
@@ -139,8 +139,8 @@
   --destructive-foreground: 0 0% 100%;
 
   --input: 0 0% 22%;
-  --ring: 108 73% 50%;
-  --chart-1: 108 73% 50%;
+  --ring: 165 100% 32%;
+  --chart-1: 165 100% 32%;
   --chart-2: 160 65% 45%;
   --chart-3: 200 70% 50%;
   --chart-4: 280 65% 55%;

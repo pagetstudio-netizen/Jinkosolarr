@@ -16,7 +16,7 @@ import p5 from "@assets/images_(30)_1775768333959.jpeg";
 import p6 from "@assets/images_(29)_1775768333985.jpeg";
 import p7 from "@assets/images_(28)_1775768334009.jpeg";
 import p8 from "@assets/images_(26)_1775768334029.jpeg";
-import p9 from "@assets/Jinko-solar-panel-535-555W-p-type-1_1775768334052.jpg";
+import p9 from "@assets/1745844530190_1777682768364.jpeg";
 
 const productImages: Record<number, string> = { 2: p1, 3: p2, 4: p3, 5: p4, 6: p5, 7: p6, 8: p7, 9: p8, 10: p9 };
 const defaultImg = p1;
@@ -129,7 +129,7 @@ export default function ProductDetailPage() {
         <div className="flex items-center justify-between py-3 mb-5 rounded-xl" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex-1 text-center">
             <p className="text-gray-500 text-[11px] mb-1">Taux de réponse</p>
-            <p className="font-bold text-sm" style={{ color: "#3db51d" }}>{tauxReponse}%</p>
+            <p className="font-bold text-sm" style={{ color: "#007054" }}>{tauxReponse}%</p>
           </div>
           <div className="w-px h-8" style={{ background: "rgba(255,255,255,0.1)" }} />
           <div className="flex-1 text-center">

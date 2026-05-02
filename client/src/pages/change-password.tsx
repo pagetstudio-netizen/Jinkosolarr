@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
-const GREEN = "#3db51d";
+const GREEN = "#007054";
 
 export default function ChangePasswordPage() {
   const { toast } = useToast();

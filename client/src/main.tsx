@@ -21,7 +21,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
             <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "20px" }}>Veuillez rafraîchir la page.</p>
             <button
               onClick={() => window.location.reload()}
-              style={{ background: "#3db51d", color: "white", border: "none", borderRadius: "999px", padding: "12px 32px", fontWeight: "bold", cursor: "pointer", width: "100%" }}
+              style={{ background: "#007054", color: "white", border: "none", borderRadius: "999px", padding: "12px 32px", fontWeight: "bold", cursor: "pointer", width: "100%" }}
             >
               Rafraîchir
             </button>

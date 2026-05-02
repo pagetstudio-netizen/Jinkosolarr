@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Share2, Users, Coins } from "lucide-react";
-import jinkoBg from "@assets/Jinko-Solars-Brand-Introduction_1775754852895.jpg";
+import jinkoBg from "@assets/172052459377789_1777682768403.jpg";
 import { useLocation } from "wouter";
 
 interface TeamStats {
@@ -16,8 +16,8 @@ interface TeamStats {
   level3Commission: number;
 }
 
-const GREEN = "#3db51d";
-const GREEN_DARK = "#2a8d13";
+const GREEN = "#007054";
+const GREEN_DARK = "#005040";
 
 const pageBg: React.CSSProperties = {
   backgroundColor: "#111111",

@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import jinkoLogo from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
+import jinkoLogo from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 
 interface AboutModalProps {
   open: boolean;

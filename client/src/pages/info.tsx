@@ -15,7 +15,7 @@ export default function InfoPage() {
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-4 sticky top-0 z-10"
-        style={{ background: "linear-gradient(90deg, #3db51d 0%, #2a8d13 100%)" }}
+        style={{ background: "linear-gradient(90deg, #007054 0%, #005040 100%)" }}
       >
         <button
           onClick={() => navigate("/")}

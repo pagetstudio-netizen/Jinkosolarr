@@ -5,7 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, CheckCircle2, XCircle, Phone } from "lucide-react";
 
-const GREEN = "#3db51d";
+const GREEN = "#007054";
 
 const COUNTRIES = [
   { code: "BJ", name: "Bénin",         dialCode: "+229", currency: "XOF" },

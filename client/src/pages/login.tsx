@@ -9,10 +9,10 @@ import { ELIGIBLE_COUNTRIES } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import ContactSheet from "@/components/contact-sheet";
 import { Loader2, Eye, EyeOff, Phone, Lock, ChevronDown } from "lucide-react";
-import jinkoBanner from "@assets/20260408_191813_1775839627189.jpg";
+import jinkoBanner from "@assets/1748317705470043077_1777682767300.png";
 import serviceAgent from "@assets/service_p1_1775839314312.png";
 
-const GREEN = "#3db51d";
+const GREEN = "#007054";
 
 const loginSchema = z.object({
   phone: z.string().min(8, "Numéro invalide"),

@@ -17,7 +17,7 @@ interface Withdrawal {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  approved: { label: "Succès",     color: "#3db51d" },
+  approved: { label: "Succès",     color: "#007054" },
   pending:  { label: "En attente", color: "#f97316" },
   rejected: { label: "Rejeté",     color: "#ef4444" },
 };
@@ -45,7 +45,7 @@ export default function WithdrawalHistoryPage() {
       <header style={{ display: "flex", alignItems: "center", padding: "12px 16px", background: "white", borderBottom: "1px solid #e5e7eb" }}>
         <Link href="/account">
           <button style={{ padding: 4, marginRight: 8, background: "transparent", border: "none", cursor: "pointer" }} data-testid="button-back">
-            <ChevronLeft size={22} color="#3db51d" />
+            <ChevronLeft size={22} color="#007054" />
           </button>
         </Link>
         <h1 style={{ flex: 1, textAlign: "center", fontSize: 16, fontWeight: 700, color: "#111827", paddingRight: 30 }}>

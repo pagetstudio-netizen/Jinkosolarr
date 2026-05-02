@@ -26,10 +26,10 @@ import p5 from "@assets/images_(30)_1775768333959.jpeg";
 import p6 from "@assets/images_(29)_1775768333985.jpeg";
 import p7 from "@assets/images_(28)_1775768334009.jpeg";
 import p8 from "@assets/images_(26)_1775768334029.jpeg";
-import p9 from "@assets/Jinko-solar-panel-535-555W-p-type-1_1775768334052.jpg";
-import jinkoLogoText from "@assets/JinkoSolarLOGO_1775671142017.png";
-import jinkoLogoSquare from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
-import heroImg from "@assets/20260408_191813_1775675938233.jpg";
+import p9 from "@assets/1745844530190_1777682768364.jpeg";
+import jinkoLogoText from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
+import jinkoLogoSquare from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
+import heroImg from "@assets/172052459377789_1777682768403.jpg";
 
 const productImages: Record<number, string> = { 2: p1, 3: p2, 4: p3, 5: p4, 6: p5, 7: p6, 8: p7, 9: p8, 10: p9 };
 const TELEGRAM_LINK = "https://t.me/Jinkosolarr";
@@ -186,7 +186,7 @@ export default function HomePage() {
               paddingTop: 6,
               paddingBottom: 6,
               borderRadius: 999,
-              background: "#e53935",
+              background: "#007054",
               border: "2px solid rgba(255,255,255,0.45)",
               color: "white",
               fontWeight: 700,
@@ -213,7 +213,7 @@ export default function HomePage() {
               borderRadius: 999,
               background: "rgba(255,255,255,0.92)",
               border: "2px solid rgba(255,255,255,0.7)",
-              color: "#3db51d",
+              color: "#007054",
               fontWeight: 700,
               fontSize: 12,
               boxShadow: "0 3px 8px rgba(0,0,0,0.25)",
@@ -223,7 +223,7 @@ export default function HomePage() {
           >
             <span style={{
               width: 22, height: 22, borderRadius: "50%",
-              background: "#2a8d13",
+              background: "#005040",
               display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
               <img src={iconRetrait} alt="" style={{ width: 14, height: 14, objectFit: "contain" }} />
@@ -237,7 +237,7 @@ export default function HomePage() {
       <div className="px-3 pt-3">
         <div
           className="rounded-2xl px-2 py-4 shadow-sm"
-          style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}
+          style={{ background: "linear-gradient(135deg, #007054 0%, #005040 100%)" }}
         >
           <div className="flex justify-around items-start">
             {quickActions.map((action) => (
@@ -270,7 +270,7 @@ export default function HomePage() {
       <div className="px-3 mt-4 pb-24 space-y-3">
         {productsLoading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#007054" }} />
           </div>
         ) : (
           paidProducts.map((product) => {
@@ -323,7 +323,7 @@ export default function HomePage() {
                   <div className="w-px h-7" style={{ background: "rgba(255,255,255,0.1)" }} />
                   <div className="flex-1 text-right">
                     <p className="text-gray-500 text-[10px] mb-0.5">Taux de réponse</p>
-                    <p className="font-bold text-sm" style={{ color: "#3db51d" }}>{taux}%</p>
+                    <p className="font-bold text-sm" style={{ color: "#007054" }}>{taux}%</p>
                   </div>
                 </div>
               </button>
@@ -336,7 +336,7 @@ export default function HomePage() {
       {showGiftModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-5" style={{ background: "rgba(0,0,0,0.55)" }}
           onClick={(e) => { if (e.target === e.currentTarget) setShowGiftModal(false); }}>
-          <div className="w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl" style={{ background: "#3db51d" }}>
+          <div className="w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl" style={{ background: "#007054" }}>
             {/* Close button */}
             <div className="flex justify-end px-4 pt-4">
               <button onClick={() => setShowGiftModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full" style={{ background: "rgba(0,0,0,0.15)" }} data-testid="button-close-gift">

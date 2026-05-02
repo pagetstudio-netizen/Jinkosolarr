@@ -10,9 +10,9 @@ import { Loader2, AlertTriangle, Settings } from "lucide-react";
 import { useLocation } from "wouter";
 import type { Product } from "@shared/schema";
 
-import jinkoLogoFull from "@assets/20260311_220915_1773268242686.png";
+import jinkoLogoFull from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 import serviceIcon from "@assets/20260311_214852_1773265973964.png";
-import productHeroImg from "@assets/jinko-solar-logo-png_seeklogo-265492_1775671142176.png";
+import productHeroImg from "@assets/1748317705470043077_1777682767300.png";
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -75,7 +75,7 @@ export default function InvestPage() {
   return (
     <div className="flex flex-col min-h-full bg-gray-100">
       <ContactSheet open={showContactSheet} onClose={() => setShowContactSheet(false)} />
-      <div className="flex items-center justify-between px-4 py-3 shadow-sm" style={{ background: "linear-gradient(135deg, #3db51d 0%, #2a8d13 100%)" }}>
+      <div className="flex items-center justify-between px-4 py-3 shadow-sm" style={{ background: "linear-gradient(135deg, #007054 0%, #005040 100%)" }}>
         <img src={jinkoLogoFull} alt="State Grid" className="h-9 w-auto object-contain" data-testid="img-logo" />
         <button
           onClick={() => setShowContactSheet(true)}
@@ -145,7 +145,7 @@ export default function InvestPage() {
                   <button
                     onClick={() => handleBuyClick(product)}
                     className="px-7 py-2.5 rounded-full text-sm font-bold text-white shadow-md"
-                    style={{ background: "#3db51d" }}
+                    style={{ background: "#007054" }}
                     data-testid={`button-purchase-${product.id}`}
                   >
                     Investir
@@ -190,15 +190,15 @@ export default function InvestPage() {
             <div className="px-6 pb-2 space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-gray-700 text-sm">Prix :</span>
-                <span className="text-[#3db51d] font-bold text-sm">{currency} {confirmProduct.price.toLocaleString()}</span>
+                <span className="text-[#007054] font-bold text-sm">{currency} {confirmProduct.price.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-700 text-sm">Revenu quotidien :</span>
-                <span className="text-[#3db51d] font-bold text-sm">{currency} {confirmProduct.dailyEarnings.toLocaleString()}</span>
+                <span className="text-[#007054] font-bold text-sm">{currency} {confirmProduct.dailyEarnings.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-700 text-sm">Revenu total :</span>
-                <span className="text-[#3db51d] font-bold text-sm">{currency} {confirmProduct.totalReturn.toLocaleString()}</span>
+                <span className="text-[#007054] font-bold text-sm">{currency} {confirmProduct.totalReturn.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-700 text-sm">Période de validité :</span>
@@ -228,7 +228,7 @@ export default function InvestPage() {
                 onClick={confirmPurchase}
                 disabled={purchaseMutation.isPending || balance < confirmProduct.price}
                 className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1 disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}
+                style={{ background: "linear-gradient(135deg, #007054, #005040)" }}
                 data-testid="button-confirm-purchase"
               >
                 {purchaseMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}

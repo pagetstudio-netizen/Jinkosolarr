@@ -6,11 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import historyIcon from "@assets/5708960_1774829436660-C3SIos42_1775833646464.png";
 import walletIcon from "@assets/20260410_193054_1775850084890.png";
-import jinkoBg from "@assets/15502488526db98c02ac135d0ac0e262d31dee111d_1775833317804.jpg";
+import jinkoBg from "@assets/202209221156042_1777682768383.png";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 
-const GREEN = "#3db51d";
+const GREEN = "#007054";
 
 interface WalletData {
   id: number;

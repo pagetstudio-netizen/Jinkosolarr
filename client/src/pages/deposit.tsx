@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
-import jinkoBg from "@assets/15502488526db98c02ac135d0ac0e262d31dee111d_1775833317804.jpg";
+import jinkoBg from "@assets/202209221156042_1777682768383.png";
 import historyIcon from "@assets/5708960_1774829436660-C3SIos42_1775833646464.png";
 
-const GREEN = "#3db51d";
+const GREEN = "#007054";
 const PRESET_AMOUNTS = [3500, 8000, 15000];
 
 export default function DepositPage() {

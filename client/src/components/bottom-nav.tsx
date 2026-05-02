@@ -42,7 +42,7 @@ export default function BottomNav() {
               />
               <span
                 className="text-[10px] font-semibold"
-                style={{ color: isActive ? "#3db51d" : "rgba(255,255,255,0.55)" }}
+                style={{ color: isActive ? "#007054" : "rgba(255,255,255,0.55)" }}
               >
                 {item.label}
               </span>

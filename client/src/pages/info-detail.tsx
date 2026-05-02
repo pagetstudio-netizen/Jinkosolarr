@@ -39,7 +39,7 @@ export default function InfoDetailPage() {
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-4 sticky top-0 z-10"
-        style={{ background: "linear-gradient(90deg, #3db51d 0%, #2a8d13 100%)" }}
+        style={{ background: "linear-gradient(90deg, #007054 0%, #005040 100%)" }}
       >
         <button
           onClick={() => navigate("/info")}
@@ -56,7 +56,7 @@ export default function InfoDetailPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#3db51d" }} />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#007054" }} />
         </div>
       ) : !article ? (
         <div className="flex justify-center py-20">

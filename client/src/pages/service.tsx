@@ -20,7 +20,7 @@ export default function ServicePage() {
     <div className="flex flex-col min-h-full bg-gray-100">
 
       {/* Red header */}
-      <div style={{ background: "linear-gradient(135deg, #3db51d, #2a8d13)" }}>
+      <div style={{ background: "linear-gradient(135deg, #007054, #005040)" }}>
         <div className="flex items-center px-4 py-4">
           <Link href="/account">
             <button className="w-9 h-9 flex items-center justify-center rounded-full bg-white/20" data-testid="button-back">
@@ -46,7 +46,7 @@ export default function ServicePage() {
           className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
           data-testid="button-support-link"
         >
-          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 border-[#3db51d]/20">
+          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 border-[#007054]/20">
             <img src={serviceAgent1} alt="Service client 1" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1 text-left">
@@ -64,7 +64,7 @@ export default function ServicePage() {
           className="w-full bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-gray-100"
           data-testid="button-support2-link"
         >
-          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 border-[#3db51d]/20">
+          <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 border-[#007054]/20">
             <img src={serviceAgent2} alt="Service client 2" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1 text-left">
@@ -113,8 +113,8 @@ export default function ServicePage() {
         </button>
 
         {/* Instructions */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 border-l-4 border-l-[#3db51d]">
-          <p className="text-[#3db51d] font-bold text-sm mb-3">Instructions</p>
+        <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 border-l-4 border-l-[#007054]">
+          <p className="text-[#007054] font-bold text-sm mb-3">Instructions</p>
           <div className="space-y-2.5 text-xs text-gray-500 leading-relaxed">
             <p>1. Si vous ne parvenez pas à ouvrir l'application Telegram officielle, veuillez utiliser un autre navigateur.</p>
             <p>2. Pour toute question, contactez notre service client en ligne. Ils répondront à toutes vos questions.</p>
