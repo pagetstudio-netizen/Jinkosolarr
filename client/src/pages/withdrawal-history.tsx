@@ -4,32 +4,50 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
-import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import historyIcon from "@assets/20260409_133235_1775847886254.png";
 
 interface Withdrawal {
   id: number;
   amount: string;
-  netAmount?: string;
+  netAmount: string;
   status: string;
+  accountName: string;
+  accountNumber: string;
   createdAt: string;
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  approved: { label: "Succès",     color: "#007054" },
-  pending:  { label: "En attente", color: "#f97316" },
-  rejected: { label: "Rejeté",     color: "#ef4444" },
-};
+const RED = "#c0392b";
+
+function maskAccount(account: string) {
+  if (!account) return "—";
+  const clean = account.replace(/\D/g, "");
+  if (clean.length <= 6) return account;
+  return clean.slice(0, 2) + "****" + clean.slice(-4);
+}
 
 function formatDate(iso: string) {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  approved: { label: "succès",     color: "#16a34a" },
+  pending:  { label: "en attente", color: "#f97316" },
+  rejected: { label: "rejeté",     color: RED },
+};
+
+function Row({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: "1px solid #f3f4f6" }}>
+      <span style={{ fontSize: 13, color: "#9ca3af" }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: valueColor || "#111827" }}>{value}</span>
+    </div>
+  );
 }
 
 export default function WithdrawalHistoryPage() {
-  useEffect(() => { document.title = "Historique des retraits | State Grid"; }, []);
+  useEffect(() => { document.title = "Dossiers de retrait | State Grid"; }, []);
   const { user } = useAuth();
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = countryInfo?.currency || "FCFA";
@@ -41,63 +59,62 @@ export default function WithdrawalHistoryPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6" }}>
 
-      {/* Header */}
-      <header style={{ display: "flex", alignItems: "center", padding: "12px 16px", background: "white", borderBottom: "1px solid #e5e7eb" }}>
+      {/* ── Header rouge ── */}
+      <header style={{
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "48px 16px 14px", background: RED, position: "relative",
+      }}>
         <Link href="/account">
-          <button style={{ padding: 4, marginRight: 8, background: "transparent", border: "none", cursor: "pointer" }} data-testid="button-back">
-            <ChevronLeft size={22} color="#007054" />
+          <button
+            data-testid="button-back"
+            style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
+            <ChevronLeft size={24} color="white" />
           </button>
         </Link>
-        <h1 style={{ flex: 1, textAlign: "center", fontSize: 16, fontWeight: 700, color: "#111827", paddingRight: 30 }}>
-          Historique des retraits
-        </h1>
+        <h1 style={{ fontSize: 17, fontWeight: 700, color: "white", margin: 0 }}>Dossiers de retrait</h1>
       </header>
 
-      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* ── Liste ── */}
+      <div style={{ padding: "16px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
         {isLoading ? (
-          Array(4).fill(0).map((_, i) => (
-            <Skeleton key={i} className="h-20 w-full rounded-2xl" />
-          ))
+          Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-36 w-full rounded-2xl" />)
         ) : withdrawals.length === 0 ? (
-          <EmptyState message="Aucun retrait pour le moment" />
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#9ca3af", fontSize: 14 }}>Aucun dossier de retrait</div>
         ) : (
           withdrawals.map((w) => {
             const cfg = STATUS_CONFIG[w.status] || { label: w.status, color: "#6b7280" };
-            const displayAmount = w.netAmount
-              ? parseFloat(w.netAmount).toLocaleString()
-              : parseFloat(w.amount).toLocaleString();
+            const gross = parseFloat(w.amount).toLocaleString("fr-FR");
+            const net   = parseFloat(w.netAmount || w.amount).toLocaleString("fr-FR");
 
             return (
               <div
                 key={w.id}
-                style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 6px rgba(0,0,0,0.07)", border: "1px solid #f0f0f0", display: "flex", alignItems: "stretch" }}
                 data-testid={`card-withdrawal-${w.id}`}
+                style={{ background: "white", borderRadius: 10, padding: "12px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
               >
-                {/* Logo à gauche */}
-                <div style={{ width: 76, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: 10, background: "#f9fafb" }}>
-                  <img
-                    src={historyIcon}
-                    alt="Retrait"
-                    style={{ width: 56, height: 56, objectFit: "contain", borderRadius: 12 }}
-                  />
+                {/* Titre + montant brut */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 7, borderBottom: "1px solid #f3f4f6" }}>
+                  <span style={{ fontWeight: 700, fontSize: 15, color: "#111827" }}>Retrait</span>
+                  <span style={{ fontWeight: 700, fontSize: 15, color: RED }}>{currency} {gross}</span>
                 </div>
 
-                {/* Contenu à droite */}
-                <div style={{ flex: 1, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <span style={{ fontWeight: 700, fontSize: 14, color: "#111827" }}>Retrait</span>
-                    <span style={{ fontWeight: 800, fontSize: 15, color: "#111827" }}>
-                      {displayAmount} <span style={{ fontSize: 12, fontWeight: 600 }}>{currency}</span>
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "#9ca3af" }}>{formatDate(w.createdAt)}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: cfg.color }}>{cfg.label}</span>
-                  </div>
+                <Row label="Montant reçu" value={`${currency} ${net}`}     valueColor={RED} />
+                <Row label="Compte"       value={maskAccount(w.accountNumber)} />
+                <Row label="Un résultat"  value={cfg.label}                 valueColor={cfg.color} />
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 7 }}>
+                  <span style={{ fontSize: 13, color: "#9ca3af" }}>Temps</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: RED }}>{formatDate(w.createdAt)}</span>
                 </div>
               </div>
             );
           })
+        )}
+
+        {/* Pagination footer */}
+        {!isLoading && withdrawals.length > 0 && (
+          <div style={{ textAlign: "center", padding: "12px 0 40px", color: "#9ca3af", fontSize: 13 }}>
+            Plus de données
+          </div>
         )}
       </div>
     </div>
