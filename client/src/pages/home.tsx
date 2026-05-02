@@ -3,8 +3,8 @@ import { useLocation } from "wouter";
 import ContactSheet from "@/components/contact-sheet";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getCountryByCode, formatCurrency } from "@/lib/countries";
-import { Loader2, X, BellRing, AlertTriangle } from "lucide-react";
+import { getCountryByCode } from "@/lib/countries";
+import { Loader2, X } from "lucide-react";
 import iconDeposit  from "@assets/atm_1777742458259.png";
 import iconRetrait  from "@assets/app_1777742458291.png";
 import iconCadeau   from "@assets/tarBar6_1777742458355.png";
@@ -238,15 +238,6 @@ export default function HomePage() {
               </p>
               <p className="text-sm text-gray-500 mt-1 font-medium">{confirmProduct.name}</p>
             </div>
-
-            {balance < confirmProduct.price && (
-              <div className="flex items-center gap-2 mx-6 mb-3 p-3 bg-red-50 border border-red-200 rounded-xl">
-                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                <p className="text-xs text-red-500 font-semibold">
-                  Solde insuffisant. Il vous manque {formatCurrency(confirmProduct.price - balance, user.country)}.
-                </p>
-              </div>
-            )}
 
             <div className="flex gap-3 px-6 pb-6">
               <button

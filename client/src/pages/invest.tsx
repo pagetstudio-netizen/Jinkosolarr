@@ -5,8 +5,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { formatCurrency, getCountryByCode } from "@/lib/countries";
-import { Loader2, AlertTriangle, Settings } from "lucide-react";
+import { getCountryByCode } from "@/lib/countries";
+import { Loader2, Settings } from "lucide-react";
 import { useLocation } from "wouter";
 import type { Product } from "@shared/schema";
 
@@ -207,14 +207,6 @@ export default function InvestPage() {
                 <span className="text-gray-900 font-bold text-sm">{confirmProduct.cycleDays} jour</span>
               </div>
 
-              {balance < confirmProduct.price && (
-                <div className="flex items-center gap-2 p-2.5 rounded-xl mt-1" style={{ background: "#fef2f2", border: "1px solid #fca5a5" }}>
-                  <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: "#ef4444" }} />
-                  <p className="text-xs font-semibold" style={{ color: "#ef4444" }}>
-                    Solde insuffisant. Il vous manque {formatCurrency(confirmProduct.price - balance, user.country)}.
-                  </p>
-                </div>
-              )}
             </div>
 
             {/* Buttons */}
