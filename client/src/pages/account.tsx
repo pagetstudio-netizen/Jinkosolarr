@@ -1,89 +1,49 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation, Link } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
-import { Loader2, Shield, ChevronRight, Copy, Settings, MessageCircleMore } from "lucide-react";
-import { useState } from "react";
+import {
+  Loader2, ChevronLeft, Copy, Shield,
+  User, Users, UserPlus, Bell,
+  Info, CheckSquare, Lock, LogOut,
+  Wallet, History, ClipboardList,
+} from "lucide-react";
 import ContactSheet from "@/components/contact-sheet";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-
 import jinkoLogo from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
-import jinkoLogoText from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
-import iconDeposit from "@assets/20260410_193219_1775849744533.png";
-import iconWithdraw from "@assets/20260410_192847_1775849812824.png";
-import iconLogout from "@assets/20260410_193432_1775849812759.png";
-import iconWallet from "@assets/20260410_193054_1775849844493.png";
-import iconSecurite from "@assets/20260410_192649_1775849844694.png";
 
-const GREEN = "#007054";
+const GREEN      = "#007054";
 const GREEN_DARK = "#005040";
-
-const carbonCard: React.CSSProperties = {
-  backgroundColor: "#161616",
-  backgroundImage: `
-    repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
-      transparent 1px, transparent 8px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
-      transparent 1px, transparent 8px
-    )
-  `,
-  borderRadius: 20,
-};
+const BLUE_LIGHT = "#e8f4fd";
+const BLUE_BTN   = "#1565C0";
 
 export default function AccountPage() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   useEffect(() => { document.title = "Compte | State Grid"; }, []);
-  const [showPinModal, setShowPinModal] = useState(false);
-  const [adminPin, setAdminPin] = useState("");
-  const [showContactSheet, setShowContactSheet] = useState(false);
+  const [showPinModal,      setShowPinModal]      = useState(false);
+  const [adminPin,          setAdminPin]          = useState("");
+  const [showContactSheet,  setShowContactSheet]  = useState(false);
 
-  const { data: products } = useQuery<any[]>({
-    queryKey: ["/api/user-products"],
-  });
+  const { data: userProducts } = useQuery<any[]>({ queryKey: ["/api/user/products"] });
 
   const verifyPinMutation = useMutation({
     mutationFn: async (pin: string) => {
       const res = await apiRequest("POST", "/api/admin/verify-pin", { pin });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Code PIN incorrect");
-      }
+      if (!res.ok) { const d = await res.json(); throw new Error(d.message || "Code PIN incorrect"); }
       return res.json();
     },
-    onSuccess: () => {
-      setShowPinModal(false);
-      setAdminPin("");
-      navigate("/admin");
-    },
-    onError: (error: Error) => {
-      toast({ title: error.message, variant: "destructive" });
-    },
+    onSuccess: () => { setShowPinModal(false); setAdminPin(""); navigate("/admin"); },
+    onError:   (e: Error) => toast({ title: e.message, variant: "destructive" }),
   });
 
-  const handleAdminClick = () => {
-    if (user?.isAdminPasswordRequired === false) {
-      navigate("/admin");
-      return;
-    }
-    setShowPinModal(true);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
+  const handleLogout = async () => { await logout(); navigate("/login"); };
 
   const copyCode = () => {
     if (user?.referralCode) {
@@ -92,183 +52,251 @@ export default function AccountPage() {
     }
   };
 
+  const copyLink = () => {
+    if (user?.referralCode) {
+      navigator.clipboard.writeText(`https://stategrid.app/register?ref=${user.referralCode}`);
+      toast({ title: "Lien copié !" });
+    }
+  };
+
   if (!user) return null;
 
-  const balance = parseFloat(user.balance || "0");
-  const todayEarnings = products?.reduce((sum: number, p: any) => sum + parseFloat(p.dailyIncome || "0"), 0) || 0;
-  const country = getCountryByCode(user.country);
-  const currency = country?.currency || "FCFA";
-  const phonePrefix = country?.phonePrefix || "";
+  const balance      = parseFloat(user.balance || "0");
+  const totalEarned  = userProducts?.reduce((s: number, p: any) => s + parseFloat(p.totalEarned || "0"), 0) || 0;
+  const country      = getCountryByCode(user.country);
+  const currency     = country?.currency || "FCFA";
+  const displayName  = user.phone;
 
-  const menuItems = [
-    { icon: iconWallet, label: "Mon portefeuille", href: "/wallet" },
-    { icon: iconDeposit, label: "Historique des dépôts", href: "/deposit-orders" },
-    { icon: iconWithdraw, label: "Historique des retraits", href: "/withdrawal-history" },
-    { icon: iconSecurite, label: "La clé du compte", href: "/change-password" },
+  /* Centre de services items */
+  const services = [
+    { icon: <User      className="w-6 h-6" style={{ color: GREEN }} />, label: "Personnel",        action: () => navigate("/change-password") },
+    { icon: <Users     className="w-6 h-6" style={{ color: GREEN }} />, label: "Rapport d'équipe", action: () => navigate("/team") },
+    { icon: <UserPlus  className="w-6 h-6" style={{ color: GREEN }} />, label: "Inviter un ami",   action: () => navigate("/team") },
+    { icon: <Bell      className="w-6 h-6" style={{ color: GREEN }} />, label: "Un message",       action: () => setShowContactSheet(true) },
+    { icon: <Info      className="w-6 h-6" style={{ color: GREEN }} />, label: "À propos de",      action: () => navigate("/about") },
+    { icon: <CheckSquare className="w-6 h-6" style={{ color: GREEN }} />, label: "Tâches",         action: () => navigate("/tasks") },
+    { icon: <Lock      className="w-6 h-6" style={{ color: GREEN }} />, label: "Sécurité",         action: () => navigate("/change-password") },
+    { icon: <LogOut    className="w-6 h-6" style={{ color: "#ef4444" }} />, label: "Déconnexion",  action: handleLogout },
   ];
 
   return (
-    <div className="flex flex-col min-h-full bg-gray-100">
+    <div style={{ minHeight: "100vh", backgroundColor: "#f2f2f7", display: "flex", flexDirection: "column" }}>
       <ContactSheet open={showContactSheet} onClose={() => setShowContactSheet(false)} />
-      <div className="flex-1 overflow-y-auto pb-24">
 
-        {/* White header — same as home page */}
-        <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
-          <img src={jinkoLogoText} alt="State Grid" className="h-10 w-auto object-contain" />
-          <div className="flex items-center gap-2">
-            {user.isAdmin && (
-              <button
-                onClick={handleAdminClick}
-                className="p-1"
-                data-testid="button-admin"
-              >
-                <Shield className="w-6 h-6 text-gray-700" />
-              </button>
-            )}
-            <button onClick={() => setShowContactSheet(true)} className="p-1" data-testid="button-service-account">
-              <MessageCircleMore className="w-7 h-7 text-gray-700" />
+      {/* ── HEADER ──────────────────────────────────────────── */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "48px 16px 14px", backgroundColor: "#f2f2f7",
+      }}>
+        <button onClick={() => navigate("/")} data-testid="button-back"
+          style={{ background: "transparent", border: "none", cursor: "pointer", padding: 4 }}>
+          <ChevronLeft style={{ width: 24, height: 24, color: "#374151" }} />
+        </button>
+        <h1 style={{ fontSize: 17, fontWeight: 700, color: "#111827", margin: 0 }}>Détails du compte</h1>
+        <div style={{ width: 32, display: "flex", justifyContent: "flex-end" }}>
+          {user.isAdmin && (
+            <button onClick={() => setShowPinModal(true)} data-testid="button-admin"
+              style={{ background: "transparent", border: "none", cursor: "pointer", padding: 4 }}>
+              <Shield style={{ width: 22, height: 22, color: GREEN }} />
             </button>
-          </div>
+          )}
         </div>
+      </div>
 
-        {/* Green header — dégradé vert → blanc en bas */}
-        <div
-          className="px-4 pt-5 pb-10"
-          style={{ background: `linear-gradient(to bottom, ${GREEN} 0%, ${GREEN} 55%, #f2f2f2 100%)` }}
-        >
-          {/* User info row */}
-          <div className="flex items-center gap-3">
-            <div
-              className="w-14 h-14 rounded-full flex items-center justify-center shrink-0"
-              style={{ background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.4)" }}
-            >
-              <img src={jinkoLogo} alt="" className="w-10 h-10 object-contain rounded-full" />
-            </div>
-            <div>
-              <p className="text-white font-extrabold text-xl leading-tight" data-testid="text-phone">
-                {phonePrefix}{user.phone}
-              </p>
-              <button
-                onClick={copyCode}
-                className="flex items-center gap-1.5 mt-0.5"
-                data-testid="button-copy-code"
-              >
-                <span className="text-white/70 text-xs">
-                  Code d'invitation: <span className="text-white font-semibold">{user.referralCode}</span>
-                </span>
-                <Copy size={12} color="rgba(255,255,255,0.7)" />
-              </button>
-            </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 100px", display: "flex", flexDirection: "column", gap: 12 }}>
+
+        {/* ── PROFILE CARD ─────────────────────────────────── */}
+        <div style={{ background: "white", borderRadius: 16, padding: "16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 1px 6px rgba(0,0,0,0.07)" }}>
+          {/* Avatar */}
+          <div style={{
+            width: 60, height: 60, borderRadius: "50%", overflow: "hidden",
+            border: `2px solid ${GREEN}`, flexShrink: 0,
+            background: "#f0faf7", display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <img src={jinkoLogo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
-        </div>
 
-        {/* Balance card (carbon fiber) */}
-        <div className="mx-3 mt-3">
-          <div style={carbonCard} className="p-4 shadow-xl">
-            {/* Solde + buttons */}
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm font-semibold">Solde</span>
-              <div className="flex gap-2">
-                <Link href="/deposit">
-                  <button
-                    className="px-5 py-1.5 rounded-full text-white text-xs font-bold"
-                    style={{ background: GREEN, boxShadow: `0 2px 8px rgba(61,181,29,0.4)` }}
-                    data-testid="button-recharger"
-                  >
-                    Recharger
-                  </button>
-                </Link>
-                <Link href="/withdrawal">
-                  <button
-                    className="px-5 py-1.5 rounded-full text-xs font-bold"
-                    style={{ background: "transparent", color: "white", border: "1.5px solid rgba(255,255,255,0.5)" }}
-                    data-testid="button-retrait"
-                  >
-                    Retrait
-                  </button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Big balance */}
-            <p
-              className="text-3xl font-extrabold mb-4"
-              style={{ color: GREEN }}
-              data-testid="text-balance"
-            >
-              {balance.toFixed(0)}
+          {/* Name + code */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontWeight: 700, fontSize: 17, color: GREEN, margin: "0 0 2px 0" }} data-testid="text-phone">
+              {displayName}
             </p>
-
-            {/* Stats row */}
-            <div className="flex justify-between pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-              <div>
-                <p className="text-gray-500 text-[10px] leading-tight mb-1">Gains<br />d'aujourd'hui</p>
-                <p className="text-white font-bold text-sm" data-testid="text-today-earnings">
-                  {todayEarnings.toFixed(0)}
-                </p>
-              </div>
-              <div className="w-px" style={{ background: "rgba(255,255,255,0.08)" }} />
-              <div className="text-center">
-                <p className="text-gray-500 text-[10px] leading-tight mb-1">Gains<br />d'hier</p>
-                <p className="text-white font-bold text-sm">0</p>
-              </div>
-              <div className="w-px" style={{ background: "rgba(255,255,255,0.08)" }} />
-              <div className="text-right">
-                <p className="text-gray-500 text-[10px] leading-tight mb-1">Revenu<br />cumulé</p>
-                <p className="text-white font-bold text-sm" data-testid="text-cumulative">
-                  {balance.toFixed(0)}
-                </p>
-              </div>
-            </div>
+            <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>
+              Code d'invitation : <span style={{ fontWeight: 700, color: "#374151" }}>{user.referralCode}</span>
+            </p>
           </div>
-        </div>
 
-        {/* Menu items — white card */}
-        <div className="mx-3 mt-4 bg-white rounded-2xl shadow-sm overflow-hidden">
-          {menuItems.map((item, idx) => {
-            const inner = (
-              <button
-                className="w-full flex items-center px-4 py-3.5 text-left"
-                style={{ borderBottom: idx < menuItems.length - 1 ? "1px solid #f0f0f0" : "none" }}
-                data-testid={`button-menu-${idx}`}
-                onClick={item.href === "" ? () => setShowContactSheet(true) : undefined}
-              >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center mr-3 shrink-0"
-                  style={{ background: "#f5f5f5" }}>
-                  <img src={item.icon} alt="" className="w-5 h-5 object-contain" />
-                </div>
-                <span className="flex-1 text-gray-800 font-medium text-sm">{item.label}</span>
-                <ChevronRight className="w-4 h-4 text-gray-300" />
-              </button>
-            );
-            return item.href ? (
-              <Link href={item.href} key={item.label}>{inner}</Link>
-            ) : (
-              <div key={item.label}>{inner}</div>
-            );
-          })}
-        </div>
-
-        {/* Logout — separate card */}
-        <div className="mx-3 mt-3 bg-white rounded-2xl shadow-sm overflow-hidden">
+          {/* Copier le lien */}
           <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-4 py-3.5"
-            data-testid="button-logout"
+            onClick={copyLink}
+            data-testid="button-copy-link"
+            style={{
+              flexShrink: 0, padding: "6px 12px", borderRadius: 20,
+              border: `1.5px solid ${GREEN}`, background: "transparent",
+              color: GREEN, fontSize: 12, fontWeight: 600, cursor: "pointer",
+              lineHeight: 1.3, textAlign: "center",
+            }}
           >
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center mr-3 shrink-0"
-              style={{ background: "#f5f5f5" }}>
-              <img src={iconLogout} alt="" className="w-5 h-5 object-contain" />
-            </div>
-            <span className="flex-1 text-gray-800 font-medium text-sm">Déconnexion</span>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
+            Copier le<br />lien
           </button>
         </div>
 
-        <div className="h-4" />
+        {/* ── BALANCE CARD ─────────────────────────────────── */}
+        <div style={{
+          background: "white", borderRadius: 16, padding: "18px 18px 14px",
+          boxShadow: "0 1px 6px rgba(0,0,0,0.07)", overflow: "hidden", position: "relative",
+        }}>
+          {/* Decorative circle */}
+          <div style={{
+            position: "absolute", right: -30, top: -30,
+            width: 130, height: 130, borderRadius: "50%",
+            background: "rgba(0,112,84,0.08)",
+          }} />
+          <div style={{
+            position: "absolute", right: 10, top: 10,
+            width: 80, height: 80, borderRadius: "50%",
+            background: "rgba(0,112,84,0.06)",
+          }} />
+
+          <p style={{ fontSize: 13, color: "#9ca3af", margin: "0 0 4px 0" }}>Équilibre</p>
+          <p style={{ fontSize: 28, fontWeight: 800, color: "#111827", margin: "0 0 16px 0" }} data-testid="text-balance">
+            {currency}{balance.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+
+          {/* Buttons */}
+          <div style={{ display: "flex", gap: 10 }}>
+            <Link href="/withdrawal" style={{ flex: 1 }}>
+              <button
+                data-testid="button-retrait"
+                style={{
+                  width: "100%", height: 40, borderRadius: 999,
+                  border: `1.5px solid ${GREEN}`, background: "transparent",
+                  color: GREEN, fontWeight: 700, fontSize: 14, cursor: "pointer",
+                }}
+              >
+                Retrait
+              </button>
+            </Link>
+            <Link href="/deposit" style={{ flex: 1 }}>
+              <button
+                data-testid="button-recharger"
+                style={{
+                  width: "100%", height: 40, borderRadius: 999,
+                  border: "none", background: GREEN,
+                  color: "white", fontWeight: 700, fontSize: 14, cursor: "pointer",
+                  boxShadow: "0 3px 10px rgba(0,112,84,0.35)",
+                }}
+              >
+                Recharger
+              </button>
+            </Link>
+          </div>
+        </div>
+
+        {/* ── STATS ROW ────────────────────────────────────── */}
+        <div style={{
+          background: "white", borderRadius: 16, padding: "16px",
+          boxShadow: "0 1px 6px rgba(0,0,0,0.07)",
+          display: "grid", gridTemplateColumns: "1fr 1fr 1fr", textAlign: "center", gap: 0,
+        }}>
+          {/* Le total */}
+          <div style={{ borderRight: "1px solid #f0f0f0" }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
+              <Wallet style={{ width: 26, height: 26, color: GREEN }} />
+            </div>
+            <p style={{ fontSize: 11, color: "#9ca3af", margin: "0 0 4px 0" }}>Le total</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: 0 }} data-testid="text-total">
+              {totalEarned.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          </div>
+
+          {/* Des détails */}
+          <div style={{ borderRight: "1px solid #f0f0f0" }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
+              <ClipboardList style={{ width: 26, height: 26, color: GREEN }} />
+            </div>
+            <p style={{ fontSize: 11, color: "#9ca3af", margin: "0 0 4px 0" }}>Des détails</p>
+            <Link href="/deposit-orders">
+              <p style={{ fontSize: 14, fontWeight: 700, color: GREEN, margin: 0, cursor: "pointer" }}>
+                — —
+              </p>
+            </Link>
+          </div>
+
+          {/* Geler */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
+              <Lock style={{ width: 26, height: 26, color: GREEN }} />
+            </div>
+            <p style={{ fontSize: 11, color: "#9ca3af", margin: "0 0 4px 0" }}>Geler</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: 0 }}>0.00</p>
+          </div>
+        </div>
+
+        {/* ── CENTRE DE SERVICES ───────────────────────────── */}
+        <div style={{
+          background: "white", borderRadius: 16, padding: "16px",
+          boxShadow: "0 1px 6px rgba(0,0,0,0.07)",
+        }}>
+          <p style={{ fontWeight: 700, fontSize: 15, color: "#111827", margin: "0 0 16px 0" }}>
+            Centre de services
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+            {services.map((svc, idx) => (
+              <button
+                key={idx}
+                onClick={svc.action}
+                data-testid={`button-service-${idx}`}
+                style={{
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                  background: "transparent", border: "none", cursor: "pointer", padding: "4px 0",
+                }}
+              >
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14,
+                  background: "#f0faf7",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  {svc.icon}
+                </div>
+                <span style={{ fontSize: 10, color: "#6b7280", textAlign: "center", lineHeight: 1.3 }}>
+                  {svc.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── QUICK LINKS ──────────────────────────────────── */}
+        <div style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 6px rgba(0,0,0,0.07)" }}>
+          {[
+            { icon: <History className="w-5 h-5" style={{ color: GREEN }} />,   label: "Historique des dépôts",   href: "/deposit-orders" },
+            { icon: <History className="w-5 h-5" style={{ color: GREEN }} />,   label: "Historique des retraits", href: "/withdrawal-history" },
+            { icon: <Wallet  className="w-5 h-5" style={{ color: GREEN }} />,   label: "Mon portefeuille",        href: "/wallet" },
+            { icon: <Lock    className="w-5 h-5" style={{ color: GREEN }} />,   label: "La clé du compte",        href: "/change-password" },
+          ].map((item, idx, arr) => (
+            <Link href={item.href} key={idx}>
+              <button
+                data-testid={`button-link-${idx}`}
+                style={{
+                  width: "100%", display: "flex", alignItems: "center", padding: "14px 16px",
+                  background: "transparent", border: "none", cursor: "pointer", textAlign: "left",
+                  borderBottom: idx < arr.length - 1 ? "1px solid #f5f5f5" : "none",
+                }}
+              >
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#f0faf7", display: "flex", alignItems: "center", justifyContent: "center", marginRight: 12, flexShrink: 0 }}>
+                  {item.icon}
+                </div>
+                <span style={{ flex: 1, fontSize: 14, color: "#374151", fontWeight: 500 }}>{item.label}</span>
+                <ChevronLeft style={{ width: 16, height: 16, color: "#d1d5db", transform: "rotate(180deg)" }} />
+              </button>
+            </Link>
+          ))}
+        </div>
+
       </div>
 
-      {/* PIN modal */}
+      {/* ── PIN MODAL ────────────────────────────────────────── */}
       <Dialog open={showPinModal} onOpenChange={setShowPinModal}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -281,7 +309,7 @@ export default function AccountPage() {
             <Input
               type="password"
               value={adminPin}
-              onChange={(e) => setAdminPin(e.target.value)}
+              onChange={e => setAdminPin(e.target.value)}
               placeholder="Code PIN"
               className="text-center text-2xl tracking-widest"
               maxLength={8}
@@ -289,10 +317,7 @@ export default function AccountPage() {
             />
             <Button
               onClick={() => {
-                if (adminPin.length < 4) {
-                  toast({ title: "Le code PIN doit contenir au moins 4 caractères", variant: "destructive" });
-                  return;
-                }
+                if (adminPin.length < 4) { toast({ title: "Code PIN trop court", variant: "destructive" }); return; }
                 verifyPinMutation.mutate(adminPin);
               }}
               disabled={verifyPinMutation.isPending || adminPin.length < 4}
