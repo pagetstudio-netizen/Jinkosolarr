@@ -6,3 +6,57 @@ id = "drpdi2R_Bx0Ygs4-AtFjJ"
 uri = "file://attached_assets/auth_bg_solar.png"
 type = "image"
 title = "generated_image"
+
+[[generated]]
+id = "7A-Q5VA1p02EFCWOEzh1z"
+uri = "file://client/public/products/prod1-bonus.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "XEiL3kxsqmZLWyOPoRyFf"
+uri = "file://client/public/products/prod2-mini-panneau.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "f6NO7Cgkwe5axQD6DIyoP"
+uri = "file://client/public/products/prod3-kit-basique.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "4t3Cwdi1Rio66welJrts4"
+uri = "file://client/public/products/prod4-panneau-100w.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "v35bs8Y8TlOChBt4Pm4id"
+uri = "file://client/public/products/prod5-panneau-200w.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "8w7EiEaAfqQH3N9-8O-Bv"
+uri = "file://client/public/products/prod6-systeme-maison.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Mt40bTztTeOzpHV0XL6O1"
+uri = "file://client/public/products/prod7-mini-centrale.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "kqzuIs5P7vFm-Gzp753q6"
+uri = "file://client/public/products/prod8-centrale-avancee.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "uxG3xVgj9XeX8WIaUBfbi"
+uri = "file://client/public/products/prod9-centrale-industrielle.png"
+type = "image"
+title = "generated_image"
