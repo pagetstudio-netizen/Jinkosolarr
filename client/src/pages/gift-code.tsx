@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useMutation } from "@tanstack/react-query";
-import { ChevronLeft, Loader2, Gift, Tag } from "lucide-react";
+import { ChevronLeft, Loader2, Gift, Tag, Send } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-import wendysNight from "@assets/batu-gezer-AGGhkGuVs2w-unsplash_1773332229247.jpg";
+import bannerImg from "@assets/172052459377789_1777682768403.jpg";
 
 export default function GiftCodePage() {
   const { refreshUser } = useAuth();
@@ -52,117 +52,108 @@ export default function GiftCodePage() {
     claimMutation.mutate(code.trim());
   };
 
-  return (
-    <div className="flex flex-col min-h-full bg-gray-100">
+  const GREEN = "#007054";
+  const GREEN_DARK = "#005040";
 
-      {/* Hero image with red overlay + header */}
-      <div className="relative">
+  return (
+    <div style={{ minHeight: "100vh", background: "#f2f2f7", display: "flex", flexDirection: "column" }}>
+
+      {/* ── Banner image + header ── */}
+      <div style={{ position: "relative" }}>
         <img
-          src={wendysNight}
+          src={bannerImg}
           alt="State Grid"
-          className="w-full h-52 object-cover"
+          style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
           data-testid="img-gift-banner"
         />
-        {/* Red gradient overlay */}
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(to bottom, rgba(200,16,46,0.65) 0%, rgba(160,13,37,0.85) 100%)" }}
-        />
+        {/* Green overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,112,84,0.55) 0%, rgba(0,80,64,0.80) 100%)" }} />
 
-        {/* Header over image */}
-        <div className="absolute top-0 left-0 right-0 flex items-center px-4 py-3">
-          <Link href="/account">
-            <button className="p-1.5 rounded-full bg-white/20" data-testid="button-back">
-              <ChevronLeft className="w-5 h-5 text-white" />
+        {/* Back button + title */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", alignItems: "center", padding: "14px 16px" }}>
+          <Link href="/">
+            <button style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }} data-testid="button-back">
+              <ChevronLeft style={{ width: 20, height: 20, color: "white" }} />
             </button>
           </Link>
-          <h1 className="flex-1 text-center text-base font-bold text-white pr-8">
+          <h1 style={{ flex: 1, textAlign: "center", color: "white", fontWeight: 800, fontSize: 17, margin: 0, paddingRight: 34 }}>
             Code Bonus
           </h1>
         </div>
 
-        {/* Icon badge */}
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-white"
-          style={{ background: "linear-gradient(135deg, #007054, #005040)" }}>
-          <Gift className="w-6 h-6 text-white" />
+        {/* Gift icon badge */}
+        <div style={{ position: "absolute", bottom: -22, left: "50%", transform: "translateX(-50%)", width: 44, height: 44, borderRadius: "50%", background: `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})`, border: "3px solid white", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
+          <Gift style={{ width: 22, height: 22, color: "white" }} />
         </div>
       </div>
 
-      {/* Content */}
-      <div className="px-4 pt-10 pb-24 space-y-4">
+      {/* ── Content ── */}
+      <div style={{ padding: "36px 16px 100px", display: "flex", flexDirection: "column", gap: 14 }}>
 
-        {/* Info card */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 text-center">
-          <p className="text-gray-700 text-sm font-medium">
-            Entrez votre code bonus pour recevoir votre récompense instantanément
+        {/* Info texte */}
+        <div style={{ background: "white", borderRadius: 16, padding: "16px", textAlign: "center", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
+          <p style={{ color: "#374151", fontSize: 14, fontWeight: 500, margin: 0 }}>
+            Vous pouvez obtenir des codes cadeaux dans le groupe
           </p>
-          <p className="text-xs text-gray-400 mt-1">
+          <p style={{ color: "#9ca3af", fontSize: 12, marginTop: 4 }}>
             Les codes sont disponibles chaque soir à 17h GMT
           </p>
         </div>
 
-        {/* Input card */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Tag className="w-4 h-4" style={{ color: "#007054" }} />
-            <span className="text-gray-800 font-semibold text-sm">Code cadeau</span>
+        {/* Bouton Groupes Telegram */}
+        <a
+          href="https://t.me/stategrad10"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "none" }}
+          data-testid="button-telegram-group"
+        >
+          <div style={{ background: "white", borderRadius: 16, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 1px 6px rgba(0,0,0,0.06)", cursor: "pointer" }}>
+            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "#0088cc", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Send style={{ width: 20, height: 20, color: "white" }} />
+            </div>
+            <span style={{ flex: 1, color: "#111827", fontWeight: 600, fontSize: 15 }}>Groupes Telegram</span>
+            <ChevronLeft style={{ width: 18, height: 18, color: "#9ca3af", transform: "rotate(180deg)" }} />
           </div>
+        </a>
 
-          <div className="relative">
-            <input
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="Saisir le code ici"
-              className="w-full px-4 py-3 rounded-xl border-2 text-center text-sm font-mono tracking-widest outline-none transition-colors"
-              style={{
-                borderColor: code ? "#007054" : "#e5e7eb",
-                color: "#1f2937",
-              }}
-              data-testid="input-gift-code"
-            />
+        {/* Saisie du code */}
+        <div style={{ background: "white", borderRadius: 16, padding: "16px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Tag style={{ width: 16, height: 16, color: GREEN }} />
+            <span style={{ color: "#1f2937", fontWeight: 600, fontSize: 14 }}>Code cadeau</span>
           </div>
-
+          <input
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            placeholder="Veuillez saisir votre code de cadeau"
+            style={{
+              width: "100%", padding: "12px 16px", borderRadius: 12, border: `2px solid ${code ? GREEN : "#e5e7eb"}`,
+              fontSize: 14, textAlign: "center", fontFamily: "monospace", letterSpacing: "0.1em",
+              outline: "none", color: "#1f2937", boxSizing: "border-box",
+            }}
+            data-testid="input-gift-code"
+          />
           <button
             onClick={handleSubmit}
             disabled={claimMutation.isPending}
-            className="w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-opacity active:opacity-80"
-            style={{ background: "linear-gradient(135deg, #007054, #005040)" }}
+            style={{
+              width: "100%", padding: "14px", borderRadius: 12, border: "none", cursor: "pointer",
+              background: `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})`,
+              color: "white", fontWeight: 700, fontSize: 15,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}
             data-testid="button-submit-code"
           >
-            {claimMutation.isPending ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <Gift className="w-4 h-4" />
-                Recevoir ma récompense
-              </>
-            )}
+            {claimMutation.isPending ? <Loader2 style={{ width: 20, height: 20, animation: "spin 1s linear infinite" }} /> : "Recevoir"}
           </button>
         </div>
 
-        {/* How to get codes */}
-        <div className="bg-white rounded-2xl shadow-sm p-4">
-          <p className="text-gray-800 font-semibold text-sm mb-2">Comment obtenir des codes ?</p>
-          <div className="space-y-2">
-            <div className="flex items-start gap-2">
-              <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-bold"
-                style={{ backgroundColor: "#007054" }}>1</div>
-              <p className="text-gray-500 text-xs">Rejoignez notre canal Telegram officiel</p>
-            </div>
-            <div className="flex items-start gap-2">
-              <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-bold"
-                style={{ backgroundColor: "#007054" }}>2</div>
-              <p className="text-gray-500 text-xs">Suivez les annonces chaque soir à 17h GMT</p>
-            </div>
-            <div className="flex items-start gap-2">
-              <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-bold"
-                style={{ backgroundColor: "#007054" }}>3</div>
-              <p className="text-gray-500 text-xs">Copiez le code et collez-le ici avant expiration</p>
-            </div>
-          </div>
-        </div>
-
+        {/* Note bas de page */}
+        <p style={{ textAlign: "center", color: "#9ca3af", fontSize: 12 }}>
+          Les codes sont disponibles chaque soir à 17h GMT
+        </p>
       </div>
     </div>
   );

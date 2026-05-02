@@ -134,7 +134,7 @@ export default function HomePage() {
           {[
             { img: iconDeposit,  label: "Recharger", action: () => navigate("/deposit") },
             { img: iconRetrait,  label: "Retrait",   action: () => navigate("/withdrawal") },
-            { img: iconCadeau,   label: "Cadeau",    action: () => { setGiftCode(""); setShowGiftModal(true); } },
+            { img: iconCadeau,   label: "Cadeau",    action: () => navigate("/gift-code") },
             { img: iconService,  label: "Service",   action: () => setShowContactSheet(true) },
           ].map((item, i) => (
             <button key={i} onClick={item.action} data-testid={`button-quick-${i}`}
