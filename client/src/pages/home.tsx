@@ -259,8 +259,13 @@ export default function HomePage() {
               <button
                 onClick={() => purchaseMutation.mutate(confirmProduct.id)}
                 disabled={purchaseMutation.isPending || balance < confirmProduct.price}
-                className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1 disabled:opacity-50"
-                style={{ background: `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})` }}
+                className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1"
+                style={{
+                  background: (balance < confirmProduct.price || purchaseMutation.isPending)
+                    ? "#9ca3af"
+                    : `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})`,
+                  cursor: balance < confirmProduct.price ? "not-allowed" : "pointer",
+                }}
                 data-testid="button-confirm-purchase">
                 {purchaseMutation.isPending
                   ? <Loader2 className="w-4 h-4 animate-spin" />
