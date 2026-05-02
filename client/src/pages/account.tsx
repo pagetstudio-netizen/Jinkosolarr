@@ -18,7 +18,7 @@ import iconEquipe       from "@assets/4-1_1777757766509.png";
 import iconInviter      from "@assets/3-1_1777757766575.png";
 import iconMessage      from "@assets/1-2_1777757766535.png";
 import iconAbout        from "@assets/images_(12)_1777757766621.png";
-import iconTaches       from "@assets/téléchargement_(20)_1777757766688.png";
+import iconServiceClient from "@assets/customer-service_1777742458188.png";
 import iconSecurite     from "@assets/1-1_1777757766561.png";
 import iconDeconnexion  from "@assets/téléchargement_(16)_1777757766643.png";
 import iconDepot        from "@assets/6_1777757766471.png";
@@ -110,7 +110,7 @@ export default function AccountPage() {
     { src: iconInviter,     alt: "Inviter un ami",    label: "Inviter un ami",   action: () => navigate("/team") },
     { src: iconMessage,     alt: "Un message",        label: "Un message",       action: () => setShowContactSheet(true) },
     { src: iconAbout,       alt: "À propos de",       label: "À propos de",      action: () => navigate("/about") },
-    { src: iconTaches,      alt: "Tâches",            label: "Tâches",           action: () => navigate("/tasks") },
+    { src: iconServiceClient, alt: "Service client",   label: "Service client",   action: () => navigate("/service") },
     { src: iconSecurite,    alt: "Sécurité",          label: "Sécurité",         action: () => navigate("/change-password") },
     { src: iconDeconnexion, alt: "Déconnexion",       label: "Déconnexion",      action: handleLogout },
   ];
