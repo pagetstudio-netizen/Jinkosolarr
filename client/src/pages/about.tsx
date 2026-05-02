@@ -17,24 +17,21 @@ export default function AboutPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Qui sommes-nous ?</h2>
           <p className="text-gray-600 leading-relaxed">
-            State Grid est l'une des plus grandes entreprises d'énergie au monde, présente dans plus de 160 pays. Reconnue pour la qualité et la fiabilité de ses services, State Grid est un leader incontesté dans le secteur de l'énergie mondiale.
-          </p>
-          <p className="text-gray-600 leading-relaxed">
-            Grâce à notre expertise et à notre réseau mondial, nous offrons à nos utilisateurs des opportunités uniques de générer des revenus quotidiens en participant au financement et à l'expansion de State Grid à l'échelle internationale.
+            State Grid est reconnu comme l'un des leaders mondiaux dans le domaine de la production, du transport et de la distribution d'électricité. Grâce à un vaste réseau d'infrastructures modernes et à l'utilisation de technologies avancées, l'entreprise assure un approvisionnement énergétique fiable et continu pour des millions de foyers, d'entreprises et d'industries.
           </p>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Notre héritage</h2>
+          <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Innovation & Durabilité</h2>
           <p className="text-gray-600 leading-relaxed">
-            Aujourd'hui, State Grid est présent dans de nombreux pays avec plus de 200 GW de capacité installée et propose une large gamme de solutions énergétiques haute performance, devenant ainsi une marque reconnue à l'échelle internationale dans le secteur de l'énergie.
+            L'entreprise se distingue également par son engagement dans le développement des énergies renouvelables, notamment le solaire et l'éolien, ainsi que par la mise en place de réseaux intelligents (smart grids) permettant une gestion plus efficace et durable de l'électricité. Ces innovations contribuent à améliorer la qualité de service tout en réduisant l'impact environnemental.
           </p>
         </div>
 
         <div className="space-y-4">
           <h2 className="text-xl font-bold" style={{ color: "#3db51d" }}>Sécurité et Fiabilité</h2>
           <p className="text-gray-600 leading-relaxed">
-            La sécurité de vos fonds et la transparence de nos opérations sont nos priorités absolues. L'empreinte de State Grid dans le domaine de l'énergie illustre parfaitement la capacité d'une entreprise à conjuguer qualité, innovation et stratégie de marque pérenne.
+            La sécurité de vos fonds et la transparence de nos opérations sont nos priorités absolues. Notre plateforme vous offre des opportunités uniques de générer des revenus quotidiens en participant au financement et à l'expansion de State Grid à l'échelle internationale.
           </p>
         </div>
       </div>

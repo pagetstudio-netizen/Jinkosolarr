@@ -21,10 +21,10 @@ export default function AboutModal({ open, onClose }: AboutModalProps) {
 
         <div className="space-y-4 text-sm text-muted-foreground">
           <p>
-            State Grid est l'une des plus grandes entreprises d'énergie au monde, présente dans plus de 160 pays avec une capacité installée dépassant 200 GW.
+            State Grid est reconnu comme l'un des leaders mondiaux dans le domaine de la production, du transport et de la distribution d'électricité. L'entreprise assure un approvisionnement énergétique fiable et continu pour des millions de foyers, d'entreprises et d'industries.
           </p>
           <p>
-            Leader reconnu dans l'industrie de l'énergie, State Grid s'engage à fournir des solutions innovantes et durables pour un avenir énergétique propre.
+            State Grid se distingue par son engagement dans le développement des énergies renouvelables et la mise en place de réseaux intelligents (smart grids) permettant une gestion plus efficace et durable de l'électricité.
           </p>
           <div className="bg-secondary rounded-lg p-4 space-y-2">
             <h4 className="font-medium text-foreground">Nos avantages :</h4>
