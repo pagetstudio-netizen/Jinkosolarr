@@ -10,6 +10,31 @@ const GREEN      = "#007054";
 const GREEN_DARK = "#005040";
 const PRESET_AMOUNTS = [3000, 5000, 10000, 20000];
 
+const WESTPAY_BASE = "https://westpay.cloud";
+
+const WESTPAY_COUNTRY_NAMES: Record<string, string> = {
+  BJ: "Bénin",
+  TG: "Togo",
+  CI: "Côte d'Ivoire",
+  BF: "Burkina Faso",
+  SN: "Sénégal",
+  ML: "Mali",
+  CM: "Cameroun",
+  CG: "Congo Brazzaville",
+  GA: "Gabon",
+};
+
+function buildWestPayUrl(slug: string, amount: number, countryCode: string, depositId: number): string {
+  const redirectUrl = `${window.location.origin}/deposit-callback?depositId=${depositId}&amount=${Math.round(amount)}`;
+  const url = new URL(`${WESTPAY_BASE}/pay`);
+  url.searchParams.set("merchant", slug);
+  url.searchParams.set("amount", String(Math.round(amount)));
+  const countryName = WESTPAY_COUNTRY_NAMES[countryCode];
+  if (countryName) url.searchParams.set("country", countryName);
+  url.searchParams.set("redirect", redirectUrl);
+  return url.toString();
+}
+
 export default function DepositPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
@@ -36,8 +61,11 @@ export default function DepositPage() {
       return;
     }
 
+    const slug = platformSettings?.westpaySlug || "stategrid";
+
     setLoading(true);
     try {
+      // Step 1: create the pending deposit record on the server
       const res = await fetch("/api/deposits/westpay-redirect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,8 +82,17 @@ export default function DepositPage() {
         return;
       }
 
-      // Redirect to WestPay hosted payment page
-      window.location.href = body.payUrl;
+      const depositId: number = body.depositId;
+      if (!depositId) {
+        setLoading(false);
+        toast({ title: "Erreur", description: "Impossible de créer la demande de dépôt.", variant: "destructive" });
+        return;
+      }
+
+      // Step 2: build the WestPay URL on the frontend using window.location.origin
+      // (more reliable than server-side origin detection through Replit's proxy)
+      const payUrl = buildWestPayUrl(slug, amt, userCountry, depositId);
+      window.location.href = payUrl;
     } catch {
       setLoading(false);
       toast({ title: "Erreur de connexion", description: "Vérifiez votre connexion internet et réessayez.", variant: "destructive" });
