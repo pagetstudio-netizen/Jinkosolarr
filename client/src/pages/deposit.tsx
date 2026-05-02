@@ -358,7 +358,7 @@ export default function DepositPage() {
           Recharger maintenant
         </button>
 
-        <a href="/info" style={{ textDecoration: "none" }}>
+        <a href="/deposit-tutorial" style={{ textDecoration: "none" }}>
           <button
             data-testid="button-tutorial"
             style={{

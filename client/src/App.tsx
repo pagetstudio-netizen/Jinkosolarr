@@ -35,6 +35,7 @@ import DepositOrdersPage from "@/pages/deposit-orders";
 import ProductDetailPage from "@/pages/product-detail";
 import InfoPage from "@/pages/info";
 import InfoDetailPage from "@/pages/info-detail";
+import DepositTutorialPage from "@/pages/deposit-tutorial";
 import PayPage from "@/pages/pay";
 import DepositCallbackPage from "@/pages/deposit-callback";
 import NotFound from "@/pages/not-found";
@@ -294,6 +295,11 @@ function Router() {
       <Route path="/info/:id">
         <ProtectedRoute>
           <InfoDetailPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/deposit-tutorial">
+        <ProtectedRoute>
+          <DepositTutorialPage />
         </ProtectedRoute>
       </Route>
       <Route path="/deposit-callback">
