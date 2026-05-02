@@ -19,19 +19,7 @@ import popupCharacters  from "@assets/20260411_151613_1775920729926.png";
 import popupTelegramBtn from "@assets/20260411_144546_1775920729992.png";
 import popupCloseBtn    from "@assets/20260411_144711_1775920729969.png";
 
-import p1 from "@assets/panneaux-solaires-3d-realiste_625553-173_1775768333512.jpg";
-import p2 from "@assets/images_(33)_1775768333811.jpeg";
-import p3 from "@assets/panneau-solaire-detoure-min_1775768333844.png";
-import p4 from "@assets/panneau-solaire-hybride_1775768333929.jpg";
-import p5 from "@assets/images_(30)_1775768333959.jpeg";
-import p6 from "@assets/images_(29)_1775768333985.jpeg";
-import p7 from "@assets/images_(28)_1775768334009.jpeg";
-import p8 from "@assets/images_(26)_1775768334029.jpeg";
-import p9 from "@assets/1745844530190_1777682768364.jpeg";
-
-const productImages: Record<number, string> = {
-  2: p1, 3: p2, 4: p3, 5: p4, 6: p5, 7: p6, 8: p7, 9: p8, 10: p9,
-};
+import fallbackImg from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 
 const TELEGRAM_LINK = "https://t.me/Jinkosolarr";
 const GREEN      = "#007054";
@@ -174,7 +162,7 @@ export default function HomePage() {
             const daily  = Number(product.dailyEarnings);
             const days   = Number(product.cycleDays);
             const total  = Number(product.totalReturn);
-            const imgSrc = productImages[product.id] || p1;
+            const imgSrc = product.imageUrl || fallbackImg;
             const vipNum = idx + 1;
 
             return (

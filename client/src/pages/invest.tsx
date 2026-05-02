@@ -208,9 +208,9 @@ export default function InvestPage() {
               </div>
 
               {balance < confirmProduct.price && (
-                <div className="flex items-center gap-2 p-2.5 bg-green-50 border border-red-200 rounded-xl mt-1">
-                  <AlertTriangle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <p className="text-xs text-green-500">
+                <div className="flex items-center gap-2 p-2.5 rounded-xl mt-1" style={{ background: "#fef2f2", border: "1px solid #fca5a5" }}>
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: "#ef4444" }} />
+                  <p className="text-xs font-semibold" style={{ color: "#ef4444" }}>
                     Solde insuffisant. Il vous manque {formatCurrency(confirmProduct.price - balance, user.country)}.
                   </p>
                 </div>
