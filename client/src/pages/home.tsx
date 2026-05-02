@@ -1,7 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import ContactSheet from "@/components/contact-sheet";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { Loader2, X } from "lucide-react";
@@ -15,11 +15,69 @@ import type { Product } from "@shared/schema";
 
 import logoImg      from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 import bannerImg    from "@assets/172052459377789_1777682768403.jpg";
+import slide2       from "@assets/G500-2022-03-State-Grid-GettyImages-1390460539_1777761316644.jpg";
+import slide3       from "@assets/1745844530190_1777761331035.jpeg";
+import slide4       from "@assets/images_(27)_1777761331088.jpeg";
 import popupCharacters  from "@assets/20260411_151613_1775920729926.png";
 import popupTelegramBtn from "@assets/20260411_144546_1775920729992.png";
 import popupCloseBtn    from "@assets/20260411_144711_1775920729969.png";
 
 import fallbackImg from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
+
+const SLIDES = [bannerImg, slide2, slide3, slide4];
+
+function BannerCarousel() {
+  const [current, setCurrent] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startTimer = () => {
+    timerRef.current = setInterval(() => {
+      setCurrent(prev => (prev + 1) % SLIDES.length);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    startTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const goTo = (idx: number) => {
+    setCurrent(idx);
+    if (timerRef.current) clearInterval(timerRef.current);
+    startTimer();
+  };
+
+  return (
+    <div style={{ margin: "0 16px 16px", borderRadius: 16, overflow: "hidden", position: "relative" }}>
+      {/* Slides */}
+      <div style={{ display: "flex", transition: "transform 0.45s ease", transform: `translateX(-${current * 100}%)`, willChange: "transform" }}>
+        {SLIDES.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            alt={`Slide ${i + 1}`}
+            style={{ width: "100%", height: 170, objectFit: "cover", display: "block", flexShrink: 0 }}
+          />
+        ))}
+      </div>
+      {/* Dots */}
+      <div style={{ position: "absolute", bottom: 8, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 6 }}>
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            style={{
+              width: i === current ? 18 : 6, height: 6, borderRadius: 3,
+              background: i === current ? "white" : "rgba(255,255,255,0.5)",
+              border: "none", padding: 0, cursor: "pointer",
+              transition: "width 0.3s, background 0.3s",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const TELEGRAM_LINK = "https://t.me/Jinkosolarr";
 const GREEN      = "#007054";
@@ -124,10 +182,8 @@ export default function HomePage() {
           <p style={{ color: "white", fontWeight: 800, fontSize: 20, margin: 0, letterSpacing: 0.5 }}>State Grid</p>
         </div>
 
-        {/* ── Banner image ──────────────────────────────── */}
-        <div style={{ margin: "0 16px 16px", borderRadius: 16, overflow: "hidden" }}>
-          <img src={bannerImg} alt="State Grid" style={{ width: "100%", height: 170, objectFit: "cover", display: "block" }} />
-        </div>
+        {/* ── Banner carousel ───────────────────────────── */}
+        <BannerCarousel />
 
         {/* ── 4 Quick Actions ───────────────────────────── */}
         <div style={{ display: "flex", justifyContent: "space-around", padding: "0 8px" }}>
