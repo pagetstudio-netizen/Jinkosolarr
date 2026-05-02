@@ -31,7 +31,7 @@ export default function AccountPage() {
   const [adminPin,          setAdminPin]          = useState("");
   const [showContactSheet,  setShowContactSheet]  = useState(false);
 
-  const { data: userProducts } = useQuery<any[]>({ queryKey: ["/api/user/products"] });
+  const { data: userProducts } = useQuery<any[]>({ queryKey: ["/api/user/products"], staleTime: 0 });
 
   const verifyPinMutation = useMutation({
     mutationFn: async (pin: string) => {
@@ -61,9 +61,10 @@ export default function AccountPage() {
 
   if (!user) return null;
 
-  const balance      = parseFloat(user.balance || "0");
-  const totalEarned  = userProducts?.reduce((s: number, p: any) => s + parseFloat(p.totalEarned || "0"), 0) || 0;
-  const country      = getCountryByCode(user.country);
+  const balance     = parseFloat(user.balance || "0");
+  const totalEarned = (userProducts ?? []).reduce((s: number, p: any) => s + parseFloat(p.totalEarned || "0"), 0);
+  const frozen      = (userProducts ?? []).filter((p: any) => p.status === "active").reduce((s: number, p: any) => s + parseFloat(p.product?.price || "0"), 0);
+  const country     = getCountryByCode(user.country);
   const currency     = country?.currency || "FCFA";
   const displayName  = user.phone;
 
@@ -200,36 +201,38 @@ export default function AccountPage() {
           display: "grid", gridTemplateColumns: "1fr 1fr 1fr", textAlign: "center", gap: 0,
         }}>
           {/* Le total */}
-          <div style={{ borderRight: "1px solid #f0f0f0" }}>
+          <div style={{ borderRight: "1px solid #f0f0f0", padding: "0 4px" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
               <Wallet style={{ width: 26, height: 26, color: GREEN }} />
             </div>
             <p style={{ fontSize: 11, color: "#9ca3af", margin: "0 0 4px 0" }}>Le total</p>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: 0 }} data-testid="text-total">
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0 }} data-testid="text-total">
               {totalEarned.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
 
           {/* Des détails */}
-          <div style={{ borderRight: "1px solid #f0f0f0" }}>
+          <div style={{ borderRight: "1px solid #f0f0f0", padding: "0 4px" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
               <ClipboardList style={{ width: 26, height: 26, color: GREEN }} />
             </div>
             <p style={{ fontSize: 11, color: "#9ca3af", margin: "0 0 4px 0" }}>Des détails</p>
             <Link href="/deposit-orders">
-              <p style={{ fontSize: 14, fontWeight: 700, color: GREEN, margin: 0, cursor: "pointer" }}>
-                — —
+              <p style={{ fontSize: 13, fontWeight: 700, color: GREEN, margin: 0, cursor: "pointer" }}>
+                {balance.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </Link>
           </div>
 
           {/* Geler */}
-          <div>
+          <div style={{ padding: "0 4px" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
               <Lock style={{ width: 26, height: 26, color: GREEN }} />
             </div>
             <p style={{ fontSize: 11, color: "#9ca3af", margin: "0 0 4px 0" }}>Geler</p>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: 0 }}>0.00</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0 }}>
+              {frozen.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
           </div>
         </div>
 
