@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useParams } from "wouter";
 import { CheckCircle2, XCircle, Loader2, Clock } from "lucide-react";
 
 const GREEN = "#007054";
@@ -8,19 +8,22 @@ export default function DepositCallbackPage() {
   const [, navigate] = useLocation();
   useEffect(() => { document.title = "Résultat du paiement | State Grid"; }, []);
 
+  // depositId comes from the URL path /deposit-callback/:id
+  const { id: depositId } = useParams<{ id: string }>();
+
+  // WestPay appends ?status=success&amount=5000&ref=OP-abc123 to the redirect URL
   const params = new URLSearchParams(window.location.search);
-  const depositId = params.get("depositId") || "";
   const statusParam = params.get("status") || "";
-  const ref = params.get("ref") || "";
-  const amount = parseInt(params.get("amount") || "0");
+  const ref        = params.get("ref")    || "";
+  const amount     = parseInt(params.get("amount") || "0");
 
   const [status, setStatus] = useState<"loading" | "approved" | "rejected" | "pending">(
-    statusParam === "success" ? "loading" : statusParam === "failed" ? "rejected" : "loading"
+    statusParam === "failed" ? "rejected" : "loading"
   );
   const [attempts, setAttempts] = useState(0);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  // As soon as we land here, save the WestPay txId/ref so the webhook handler can match faster
+  // Save the WestPay ref so the webhook handler can match faster
   useEffect(() => {
     if (depositId && ref) {
       fetch(`/api/deposits/${depositId}/save-ref`, {
@@ -43,7 +46,7 @@ export default function DepositCallbackPage() {
       return;
     }
 
-    // Poll for deposit approval (webhook may have been faster)
+    // Poll for deposit approval every 5 s (webhook may have already confirmed it)
     pollingRef.current = setInterval(async () => {
       try {
         const res = await fetch(`/api/deposits/${depositId}/verify`, { credentials: "include" });
@@ -58,7 +61,6 @@ export default function DepositCallbackPage() {
           clearInterval(pollingRef.current!);
           setStatus("rejected");
         } else if (attempts >= 20) {
-          // After 20 attempts (~100s), show "en attente"
           clearInterval(pollingRef.current!);
           setStatus("pending");
         }

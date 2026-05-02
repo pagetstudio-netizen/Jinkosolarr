@@ -302,7 +302,7 @@ function Router() {
           <DepositTutorialPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/deposit-callback">
+      <Route path="/deposit-callback/:id">
         <ProtectedRoute>
           <DepositCallbackPage />
         </ProtectedRoute>

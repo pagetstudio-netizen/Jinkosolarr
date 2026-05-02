@@ -473,7 +473,8 @@ export async function registerRoutes(
               ? `https://${req.headers["x-forwarded-host"]}`
               : `https://${req.headers.host}`);
 
-      const redirectUrl = `${appOrigin}/deposit-callback?depositId=${deposit.id}&amount=${Math.round(amount)}`;
+      // depositId in the path so WestPay can append ?status=success&amount=X&ref=OP-abc cleanly
+      const redirectUrl = `${appOrigin}/deposit-callback/${deposit.id}`;
       const payUrl = westpay.buildPaymentUrl(slug, Math.round(amount), userCountry, redirectUrl);
 
       console.log("[westpay] step5: payUrl =", payUrl);
