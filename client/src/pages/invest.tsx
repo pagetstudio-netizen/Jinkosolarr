@@ -12,7 +12,7 @@ import type { Product } from "@shared/schema";
 
 import jinkoLogoFull from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 import serviceIcon from "@assets/20260311_214852_1773265973964.png";
-import productHeroImg from "@assets/1748317705470043077_1777682767300.png";
+import fallbackImg from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -113,9 +113,10 @@ export default function InvestPage() {
                     style={{ top: "-14px", height: "132px", left: "8px", right: "8px" }}
                   >
                     <img
-                      src={productHeroImg}
+                      src={product.imageUrl || fallbackImg}
                       alt={product.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
                     />
                   </div>
 
@@ -175,9 +176,10 @@ export default function InvestPage() {
             {/* Product image */}
             <div className="flex justify-center px-6 py-3">
               <img
-                src={productHeroImg}
+                src={confirmProduct.imageUrl || fallbackImg}
                 alt={confirmProduct.name}
                 className="w-36 h-28 object-cover rounded-2xl"
+                onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
               />
             </div>
 

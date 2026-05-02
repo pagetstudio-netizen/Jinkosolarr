@@ -8,18 +8,7 @@ import { ChevronLeft, X, Loader2 } from "lucide-react";
 import { useState } from "react";
 import type { Product } from "@shared/schema";
 
-import p1 from "@assets/panneaux-solaires-3d-realiste_625553-173_1775768333512.jpg";
-import p2 from "@assets/images_(33)_1775768333811.jpeg";
-import p3 from "@assets/panneau-solaire-detoure-min_1775768333844.png";
-import p4 from "@assets/panneau-solaire-hybride_1775768333929.jpg";
-import p5 from "@assets/images_(30)_1775768333959.jpeg";
-import p6 from "@assets/images_(29)_1775768333985.jpeg";
-import p7 from "@assets/images_(28)_1775768334009.jpeg";
-import p8 from "@assets/images_(26)_1775768334029.jpeg";
-import p9 from "@assets/1745844530190_1777682768364.jpeg";
-
-const productImages: Record<number, string> = { 2: p1, 3: p2, 4: p3, 5: p4, 6: p5, 7: p6, 8: p7, 9: p8, 10: p9 };
-const defaultImg = p1;
+import fallbackImg from "@assets/EdwUP_fe_400x400_1777682768333.jpg";
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -83,7 +72,7 @@ export default function ProductDetailPage() {
   const totalReturn = Number(product.totalReturn);
   const dailyEarnings = Number(product.dailyEarnings);
   const tauxReponse = price > 0 ? Math.round((totalReturn / price) * 100) : 0;
-  const imgSrc = productImages[product.id] || defaultImg;
+  const imgSrc = product.imageUrl || fallbackImg;
   const desc = descriptions[product.name] || `${product.name} est un produit d'investissement State Grid offrant des revenus quotidiens attractifs et un excellent retour sur investissement.`;
 
   return (
