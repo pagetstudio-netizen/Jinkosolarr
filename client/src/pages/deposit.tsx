@@ -5,22 +5,23 @@ import { ChevronLeft, CheckCircle, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 const GREEN      = "#007054";
 const GREEN_DARK = "#005040";
 const PRESET_AMOUNTS = [3000, 5000, 10000, 20000];
 
-type Step = "form" | "loading" | "success" | "error";
+type Step = "form" | "loading" | "success";
 
 export default function DepositPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const { toast } = useToast();
   useEffect(() => { document.title = "Dépôt | State Grid"; }, []);
 
   const [amount, setAmount] = useState<number | "">("");
   const [phone, setPhone] = useState("");
   const [step, setStep] = useState<Step>("form");
-  const [errorMsg, setErrorMsg] = useState("");
   const [reference, setReference] = useState("");
 
   const countryInfo = getCountryByCode(user?.country || "");
@@ -40,16 +41,15 @@ export default function DepositPage() {
   const handleRecharge = async () => {
     const amt = typeof amount === "number" ? amount : 0;
     if (!amt || amt < MIN_DEPOSIT) {
-      alert(`Le montant minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`);
+      toast({ title: "Montant invalide", description: `Le montant minimum est de ${MIN_DEPOSIT.toLocaleString()} ${currency}`, variant: "destructive" });
       return;
     }
     if (!phone || phone.replace(/\D/g, "").length < 6) {
-      alert("Veuillez entrer un numéro de téléphone valide.");
+      toast({ title: "Numéro invalide", description: "Veuillez entrer un numéro de téléphone valide.", variant: "destructive" });
       return;
     }
 
     setStep("loading");
-    setErrorMsg("");
     try {
       const res = await apiRequest("POST", "/api/deposits/westpay-init", {
         amount: amt,
@@ -59,8 +59,8 @@ export default function DepositPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        setErrorMsg(err.message || "Erreur lors du paiement");
-        setStep("error");
+        setStep("form");
+        toast({ title: "Erreur de paiement", description: err.message || "Erreur lors du paiement", variant: "destructive" });
         return;
       }
 
@@ -68,8 +68,8 @@ export default function DepositPage() {
       setReference(data.reference || "");
       setStep("success");
     } catch (e: any) {
-      setErrorMsg(e.message || "Erreur réseau");
-      setStep("error");
+      setStep("form");
+      toast({ title: "Erreur réseau", description: e.message || "Vérifiez votre connexion et réessayez.", variant: "destructive" });
     }
   };
 
@@ -144,39 +144,6 @@ export default function DepositPage() {
     );
   }
 
-  if (step === "error") {
-    return (
-      <div style={{
-        minHeight: "100vh",
-        background: `linear-gradient(160deg, ${GREEN} 0%, #005040 100%)`,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 24,
-      }}>
-        <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "32px 28px", textAlign: "center", width: "100%", maxWidth: 340 }}>
-          <p style={{ color: "white", fontWeight: 700, fontSize: 18, margin: "0 0 12px 0" }}>Erreur de paiement</p>
-          <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "12px 16px", marginBottom: 20 }}>
-            <p style={{ color: "white", fontSize: 13, margin: 0 }}>{errorMsg}</p>
-          </div>
-          <button
-            onClick={() => setStep("form")}
-            style={{ background: "white", color: GREEN, fontWeight: 700, fontSize: 14, border: "none", borderRadius: 999, padding: "12px 28px", cursor: "pointer", marginBottom: 12 }}
-          >
-            Réessayer
-          </button>
-          <br />
-          <button
-            onClick={() => navigate("/deposit")}
-            style={{ color: "rgba(255,255,255,0.75)", background: "none", border: "none", cursor: "pointer", fontSize: 13 }}
-          >
-            ← Retour
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{
