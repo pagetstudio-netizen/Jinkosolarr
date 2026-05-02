@@ -240,9 +240,9 @@ export default function HomePage() {
             </div>
 
             {balance < confirmProduct.price && (
-              <div className="flex items-center gap-2 mx-6 mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+              <div className="flex items-center gap-2 mx-6 mb-3 p-3 bg-red-50 border border-red-200 rounded-xl">
                 <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                <p className="text-xs text-red-500">
+                <p className="text-xs text-red-500 font-semibold">
                   Solde insuffisant. Il vous manque {formatCurrency(confirmProduct.price - balance, user.country)}.
                 </p>
               </div>
@@ -256,21 +256,24 @@ export default function HomePage() {
                 data-testid="button-cancel-purchase">
                 Annuler
               </button>
-              <button
-                onClick={() => purchaseMutation.mutate(confirmProduct.id)}
-                disabled={purchaseMutation.isPending || balance < confirmProduct.price}
-                className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1"
-                style={{
-                  background: (balance < confirmProduct.price || purchaseMutation.isPending)
-                    ? "#9ca3af"
-                    : `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})`,
-                  cursor: balance < confirmProduct.price ? "not-allowed" : "pointer",
-                }}
-                data-testid="button-confirm-purchase">
-                {purchaseMutation.isPending
-                  ? <Loader2 className="w-4 h-4 animate-spin" />
-                  : "Confirmer"}
-              </button>
+              {balance < confirmProduct.price ? (
+                <button
+                  onClick={() => { setConfirmProduct(null); navigate("/deposit"); }}
+                  className="flex-1 py-3 rounded-full text-white font-semibold text-sm"
+                  style={{ background: `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})` }}
+                  data-testid="button-recharger-purchase">
+                  Recharger
+                </button>
+              ) : (
+                <button
+                  onClick={() => purchaseMutation.mutate(confirmProduct.id)}
+                  disabled={purchaseMutation.isPending}
+                  className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1"
+                  style={{ background: `linear-gradient(135deg, ${GREEN}, ${GREEN_DARK})` }}
+                  data-testid="button-confirm-purchase">
+                  {purchaseMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirmer"}
+                </button>
+              )}
             </div>
           </div>
         </div>

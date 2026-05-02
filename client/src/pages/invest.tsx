@@ -226,21 +226,27 @@ export default function InvestPage() {
               >
                 Annuler
               </button>
-              <button
-                onClick={confirmPurchase}
-                disabled={purchaseMutation.isPending || balance < confirmProduct.price}
-                className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1"
-                style={{
-                  background: (balance < confirmProduct.price || purchaseMutation.isPending)
-                    ? "#9ca3af"
-                    : "linear-gradient(135deg, #007054, #005040)",
-                  cursor: balance < confirmProduct.price ? "not-allowed" : "pointer",
-                }}
-                data-testid="button-confirm-purchase"
-              >
-                {purchaseMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                Confirmer
-              </button>
+              {balance < confirmProduct.price ? (
+                <button
+                  onClick={() => { setConfirmProduct(null); navigate("/deposit"); }}
+                  className="flex-1 py-3 rounded-full text-white font-semibold text-sm"
+                  style={{ background: "linear-gradient(135deg, #007054, #005040)" }}
+                  data-testid="button-recharger-purchase"
+                >
+                  Recharger
+                </button>
+              ) : (
+                <button
+                  onClick={confirmPurchase}
+                  disabled={purchaseMutation.isPending}
+                  className="flex-1 py-3 rounded-full text-white font-semibold text-sm flex items-center justify-center gap-1"
+                  style={{ background: "linear-gradient(135deg, #007054, #005040)" }}
+                  data-testid="button-confirm-purchase"
+                >
+                  {purchaseMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Confirmer
+                </button>
+              )}
             </div>
           </div>
         </div>
