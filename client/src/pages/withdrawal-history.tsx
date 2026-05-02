@@ -62,7 +62,7 @@ export default function WithdrawalHistoryPage() {
       {/* ── Header vert ── */}
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "48px 16px 14px", background: GREEN, position: "relative",
+        padding: "14px 16px", background: GREEN, position: "relative",
       }}>
         <Link href="/account">
           <button
